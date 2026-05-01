@@ -1,0 +1,107 @@
+<h2>Where should manual save live?</h2>
+<p class="subtitle">For a CV editor with live preview but no autosave</p>
+
+<div class="cards">
+  <div class="card" data-choice="global-save" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="mockup">
+        <div class="mockup-header">A. Draft-level save</div>
+        <div class="mockup-body" style="padding: 16px;">
+          <div style="display:flex; gap:16px; min-height:260px;">
+            <div style="flex:1; border:1px solid #d4d4d8; border-radius:12px; padding:12px;">
+              <div style="font-weight:600; margin-bottom:10px;">Editor</div>
+              <div style="height:34px; border:1px solid #e4e4e7; border-radius:8px; margin-bottom:10px;"></div>
+              <div style="height:74px; border:1px solid #e4e4e7; border-radius:8px; margin-bottom:10px;"></div>
+              <div style="height:34px; border:1px solid #e4e4e7; border-radius:8px;"></div>
+            </div>
+            <div style="width:170px; border:1px solid #d4d4d8; border-radius:12px; padding:12px;">
+              <div style="font-weight:600; margin-bottom:10px;">Sections</div>
+              <div style="height:30px; background:#f4f4f5; border-radius:8px; margin-bottom:8px;"></div>
+              <div style="height:30px; background:#f4f4f5; border-radius:8px; margin-bottom:8px;"></div>
+              <div style="height:30px; background:#f4f4f5; border-radius:8px;"></div>
+            </div>
+          </div>
+          <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:14px;">
+            <div style="padding:8px 12px; border:1px solid #d4d4d8; border-radius:999px;">Discard</div>
+            <div style="padding:8px 14px; background:#111827; color:white; border-radius:999px;">Save Draft</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>Draft-level save</h3>
+      <p>One save button for the whole resume. Cleanest model, but user can lose unsaved edits from multiple sections at once.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="section-save" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="mockup">
+        <div class="mockup-header">B. Section-level save</div>
+        <div class="mockup-body" style="padding: 16px;">
+          <div style="border:1px solid #d4d4d8; border-radius:12px; padding:12px; margin-bottom:12px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+              <div style="font-weight:600;">Work Experience</div>
+              <div style="display:flex; gap:8px;">
+                <div style="padding:6px 10px; border:1px solid #d4d4d8; border-radius:999px;">Cancel</div>
+                <div style="padding:6px 12px; background:#111827; color:white; border-radius:999px;">Save Section</div>
+              </div>
+            </div>
+            <div style="height:34px; border:1px solid #e4e4e7; border-radius:8px; margin-bottom:10px;"></div>
+            <div style="height:72px; border:1px solid #e4e4e7; border-radius:8px;"></div>
+          </div>
+          <div style="border:1px solid #e4e4e7; border-radius:12px; padding:12px; opacity:.55;">
+            <div style="font-weight:600; margin-bottom:10px;">Projects</div>
+            <div style="height:34px; border:1px solid #e4e4e7; border-radius:8px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>Section-level save</h3>
+      <p>Each section becomes a small editing workspace. Good balance between safety and simplicity, especially for repeatable blocks like experience and projects.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="item-save" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="mockup">
+        <div class="mockup-header">C. Item-level save</div>
+        <div class="mockup-body" style="padding: 16px;">
+          <div style="border:1px solid #d4d4d8; border-radius:12px; padding:12px;">
+            <div style="font-weight:600; margin-bottom:10px;">Tokopedia - Frontend Developer</div>
+            <div style="height:34px; border:1px solid #e4e4e7; border-radius:8px; margin-bottom:10px;"></div>
+            <div style="height:72px; border:1px solid #e4e4e7; border-radius:8px; margin-bottom:12px;"></div>
+            <div style="display:flex; justify-content:flex-end; gap:8px;">
+              <div style="padding:6px 10px; border:1px solid #d4d4d8; border-radius:999px;">Cancel</div>
+              <div style="padding:6px 12px; background:#111827; color:white; border-radius:999px;">Save Item</div>
+            </div>
+          </div>
+          <div style="margin-top:10px; font-size:14px; color:#52525b;">Every company, project, certification, or award saves independently.</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>Item-level save</h3>
+      <p>Most granular and safest per record, but the editor starts to feel form-heavy and repetitive very quickly.</p>
+    </div>
+  </div>
+</div>
+
+<div class="pros-cons" style="margin-top: 24px;">
+  <div class="pros">
+    <h4>Recommendation</h4>
+    <ul>
+      <li>Pick <strong>section-level save</strong> as the default interaction.</li>
+      <li>It avoids constant rerender pressure without turning every item into its own mini-form flow.</li>
+      <li>It also matches your intuition that “kalau standard semua di section”.</li>
+    </ul>
+  </div>
+  <div class="cons">
+    <h4>Main risk</h4>
+    <ul>
+      <li>If a section contains many items, saving the whole section may still feel broad.</li>
+      <li>That can be solved later with per-item edit dialogs inside a section, without changing the persistence model.</li>
+    </ul>
+  </div>
+</div>

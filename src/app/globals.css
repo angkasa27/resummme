@@ -131,3 +131,35 @@
     @apply font-sans;
   }
 }
+
+.ProseMirror {
+  min-height: inherit;
+}
+
+.ProseMirror:focus {
+  outline: none;
+}
+
+.resume-document a {
+  color: inherit;
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 0;
+  }
+
+  html,
+  body {
+    background: white;
+  }
+
+  body {
+    min-height: auto;
+  }
+
+  .resume-document {
+    padding: 12mm 12mm 12mm 12mm;
+  }
+}
