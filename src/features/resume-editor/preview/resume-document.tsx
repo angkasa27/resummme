@@ -4,6 +4,7 @@ import {
   AvatarImage,
 } from "@/components/ui/avatar";
 import {
+  isCollectionSectionKey,
   getOrderedVisibleSectionKeys,
   sectionLabels,
 } from "@/features/resume-editor/config/section-metadata";
@@ -57,16 +58,27 @@ export function ResumeDocument({ draft, className }: ResumeDocumentProps) {
         ) : null}
       </header>
 
-      {draft.sections.summary.visible ? (
-        <section className="flex flex-col gap-2">
-          <h2 className="font-heading text-sm font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-            Summary
-          </h2>
-          <div dangerouslySetInnerHTML={renderHtml(draft.sections.summary.content)} />
-        </section>
-      ) : null}
-
       {orderedSectionKeys.map((sectionKey) => {
+        if (sectionKey === "summary") {
+          return (
+            <section key={sectionKey} className="flex flex-col gap-2">
+              <h2
+                className="font-heading text-sm font-semibold uppercase tracking-[0.2em] text-muted-foreground"
+                data-testid="resume-preview-section-heading"
+              >
+                Summary
+              </h2>
+              <div
+                dangerouslySetInnerHTML={renderHtml(draft.sections.summary.content)}
+              />
+            </section>
+          );
+        }
+
+        if (!isCollectionSectionKey(sectionKey)) {
+          return null;
+        }
+
         const section = draft.sections[sectionKey];
 
         if (section.items.length === 0) {
@@ -75,7 +87,10 @@ export function ResumeDocument({ draft, className }: ResumeDocumentProps) {
 
         return (
           <section key={sectionKey} className="flex flex-col gap-3">
-            <h2 className="font-heading text-sm font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+            <h2
+              className="font-heading text-sm font-semibold uppercase tracking-[0.2em] text-muted-foreground"
+              data-testid="resume-preview-section-heading"
+            >
               {sectionLabels[sectionKey]}
             </h2>
             <div className="flex flex-col gap-4">

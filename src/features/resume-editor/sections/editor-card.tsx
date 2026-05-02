@@ -1,75 +1,64 @@
 import type { ReactNode } from "react";
+import { ArrowLeftIcon, SaveIcon, SquareXIcon } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 type EditorCardProps = {
-  icon: ReactNode;
   title: string;
-  description: string;
-  isActive: boolean;
   isDirty: boolean;
-  onRequestOpen: () => void;
-  footerActions: ReactNode;
+  onBack: () => void;
+  onCancel: () => void;
+  onSave: () => void;
+  meta?: ReactNode;
+  headerActions?: ReactNode;
   children: ReactNode;
 };
 
 export function EditorCard({
-  icon,
   title,
-  description,
-  isActive,
   isDirty,
-  onRequestOpen,
-  footerActions,
+  onBack,
+  onCancel,
+  onSave,
+  meta,
+  headerActions,
   children,
 }: EditorCardProps) {
   return (
-    <Collapsible open={isActive}>
-      <Card className={cn(isActive ? "ring-primary/25" : undefined)}>
-        <CardHeader>
-          <div className="flex items-start gap-3">
-            <div className="rounded-lg bg-muted p-2 text-muted-foreground">{icon}</div>
-            <div className="flex-1">
-              <div className="flex flex-wrap items-center gap-2">
-                <CardTitle>{title}</CardTitle>
-                {isDirty ? <Badge>Unsaved</Badge> : null}
-              </div>
-              <CardDescription>{description}</CardDescription>
-            </div>
-          </div>
-          <CardAction>
-            <CollapsibleTrigger
-              className="inline-flex rounded-lg border border-input px-3 py-2 text-sm font-medium"
-              onClick={onRequestOpen}
-            >
-              {isActive ? "Editing" : "Open"}
-            </CollapsibleTrigger>
-          </CardAction>
-        </CardHeader>
+    <div className="flex h-full min-h-0 flex-col">
+      <div className="flex flex-wrap items-center gap-3 border-b px-4 py-3 sm:px-5">
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          aria-label="Back to section list"
+          title="Back to section list"
+          onClick={onBack}
+        >
+          <ArrowLeftIcon />
+        </Button>
 
-        {isActive ? (
-          <CollapsibleContent>
-            <CardContent className="flex flex-col gap-5">{children}</CardContent>
-            <div className="flex flex-wrap items-center justify-end gap-2 border-t bg-muted/30 px-4 py-3">
-              {footerActions}
-            </div>
-          </CollapsibleContent>
-        ) : null}
-      </Card>
-    </Collapsible>
+        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
+          <h2 className="min-w-0 truncate text-base font-semibold">{title}</h2>
+          {meta}
+          {isDirty ? <Badge>Unsaved</Badge> : null}
+        </div>
+
+        <div className="flex w-full flex-wrap items-center justify-end gap-2 sm:ml-auto sm:w-auto">
+          {headerActions}
+          <Button type="button" variant="outline" size="sm" onClick={onCancel}>
+            <SquareXIcon data-icon="inline-start" />
+            Cancel
+          </Button>
+          <Button type="button" size="sm" onClick={onSave}>
+            <SaveIcon data-icon="inline-start" />
+            Save Section
+          </Button>
+        </div>
+      </div>
+
+      <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4 sm:px-5">{children}</div>
+    </div>
   );
 }

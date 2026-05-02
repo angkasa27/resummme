@@ -20,6 +20,7 @@ import {
 import {
   createResumeEditorStore,
   type ResumeEditorPanelKey,
+  type ResumeEditorViewMode,
   type ResumeSectionKey,
 } from "@/features/resume-editor/store/editor-store";
 
@@ -31,14 +32,19 @@ export type ResumeEditorController = {
   fileInputRef: RefObject<HTMLInputElement | null>;
   draft: ResumeDraft;
   activeSection: ResumeEditorPanelKey;
+  editorViewMode: ResumeEditorViewMode;
   dirtySections: ResumeEditorPanelKey[];
   pendingSection: ResumeEditorPanelKey | null;
+  pendingViewMode: ResumeEditorViewMode | null;
   warningOpen: boolean;
   openImportPicker: () => void;
   handleImport: (event: ChangeEvent<HTMLInputElement>) => Promise<void>;
   handleExport: () => void;
   handlePrint: () => void;
   requestSectionChange: (sectionKey: ResumeEditorPanelKey) => void;
+  returnToSectionList: () => void;
+  moveSection: (sectionKey: ResumeSectionKey, direction: -1 | 1) => void;
+  setSectionVisibility: (sectionKey: ResumeSectionKey, visible: boolean) => void;
   setSectionDirty: (
     sectionKey: ResumeEditorPanelKey,
     isDirty: boolean
@@ -55,18 +61,16 @@ export type ResumeEditorController = {
 export function useResumeEditorController({
   initialDraft,
 }: UseResumeEditorControllerOptions = {}): ResumeEditorController {
-  const [store] = useState(() => {
-    const nextStore = createResumeEditorStore(
-      initialDraft ?? createDefaultResumeDraft()
-    );
-    nextStore.setState({ activeSection: "profile" });
-    return nextStore;
-  });
+  const [store] = useState(() =>
+    createResumeEditorStore(initialDraft ?? createDefaultResumeDraft())
+  );
   const fileInputRef = useRef<HTMLInputElement>(null);
   const draft = useStore(store, (state) => state.draft);
   const activeSection = useStore(store, (state) => state.activeSection);
+  const editorViewMode = useStore(store, (state) => state.editorViewMode);
   const dirtySections = useStore(store, (state) => state.dirtySections);
   const pendingSection = useStore(store, (state) => state.pendingSection);
+  const pendingViewMode = useStore(store, (state) => state.pendingViewMode);
   const warningOpen = useStore(store, (state) => state.warningOpen);
 
   useEffect(() => {
@@ -76,19 +80,9 @@ export function useResumeEditorController({
 
     const storedDraft = loadResumeDraft();
 
-    store.setState((state) => {
-      if (exportResumeDraft(state.draft) === exportResumeDraft(storedDraft)) {
-        return state;
-      }
-
-      return {
-        ...state,
-        draft: storedDraft,
-        dirtySections: [],
-        pendingSection: null,
-        warningOpen: false,
-      };
-    });
+    if (exportResumeDraft(store.getState().draft) !== exportResumeDraft(storedDraft)) {
+      store.getState().replaceDraft(storedDraft);
+    }
   }, [initialDraft, store]);
 
   useEffect(() => {
@@ -169,8 +163,10 @@ export function useResumeEditorController({
     fileInputRef,
     draft,
     activeSection,
+    editorViewMode,
     dirtySections,
     pendingSection,
+    pendingViewMode,
     warningOpen,
     openImportPicker,
     handleImport,
@@ -178,6 +174,11 @@ export function useResumeEditorController({
     handlePrint,
     requestSectionChange: (sectionKey) =>
       store.getState().requestSectionChange(sectionKey),
+    returnToSectionList: () => store.getState().returnToSectionList(),
+    moveSection: (sectionKey, direction) =>
+      store.getState().moveSection(sectionKey, direction),
+    setSectionVisibility: (sectionKey, visible) =>
+      store.getState().setSectionVisibility(sectionKey, visible),
     setSectionDirty: (sectionKey, isDirty) =>
       store.getState().setSectionDirty(sectionKey, isDirty),
     discardPendingSectionChanges: () =>

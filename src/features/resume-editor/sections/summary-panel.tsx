@@ -2,14 +2,12 @@
 
 import { useMemo } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { SaveIcon, SquareXIcon } from "lucide-react";
 import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Field,
   FieldContent,
-  FieldDescription,
   FieldError,
   FieldGroup,
   FieldLabel,
@@ -20,7 +18,6 @@ import { summaryFormSchema } from "@/features/resume-editor/lib/section-schemas"
 import { RichTextEditor } from "@/features/resume-editor/rich-text/rich-text-editor";
 import { EditorCard } from "@/features/resume-editor/sections/editor-card";
 import { FieldLabelText } from "@/features/resume-editor/sections/field-label-text";
-import { renderSectionIcon } from "@/features/resume-editor/sections/section-icons";
 import type { ResumeDraft } from "@/lib/resume/schema";
 
 type SummaryFormValues = {
@@ -30,6 +27,7 @@ type SummaryFormValues = {
 type SummaryPanelProps = {
   draft: ResumeDraft;
   isDirty: boolean;
+  onBack: () => void;
   onDirtyChange: (isDirty: boolean) => void;
   onSave: (summary: ResumeDraft["sections"]["summary"]) => void;
 };
@@ -37,6 +35,7 @@ type SummaryPanelProps = {
 export function SummaryPanel({
   draft,
   isDirty,
+  onBack,
   onDirtyChange,
   onSave,
 }: SummaryPanelProps) {
@@ -64,38 +63,21 @@ export function SummaryPanel({
 
   return (
     <EditorCard
+      onBack={onBack}
       isDirty={isDirty}
-      icon={renderSectionIcon("summary")}
       title="Summary"
-      description="Write the short recruiter-first introduction shown near the top of the CV."
-      footerActions={
-        <>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => reset(formValues)}
-          >
-            <SquareXIcon data-icon="inline-start" />
-            Cancel
-          </Button>
-          <Button
-            type="button"
-            onClick={handleSubmit((values) => {
-              const nextSectionValue = {
-                ...sectionValue,
-                content: values.content,
-              };
+      meta={<Badge variant="secondary">Intro</Badge>}
+      onCancel={() => reset(formValues)}
+      onSave={handleSubmit((values) => {
+        const nextSectionValue = {
+          ...sectionValue,
+          content: values.content,
+        };
 
-              onSave(nextSectionValue);
-              reset(values);
-              toast.success("Summary saved.");
-            })}
-          >
-            <SaveIcon data-icon="inline-start" />
-            Save Section
-          </Button>
-        </>
-      }
+        onSave(nextSectionValue);
+        reset(values);
+        toast.success("Summary saved.");
+      })}
     >
       <FieldGroup>
         <Field data-invalid={getFieldState("content", formState).invalid || undefined}>
@@ -119,9 +101,6 @@ export function SummaryPanel({
                 />
               )}
             />
-            <FieldDescription>
-              Focus on experience level, specialization, and the kind of impact you bring.
-            </FieldDescription>
             <FieldError errors={[getFieldState("content", formState).error]} />
           </FieldContent>
         </Field>

@@ -1,117 +1,159 @@
 import { z } from "zod";
 
+const monthYearPattern = /^[A-Za-z]{3,9}\s+\d{4}$/;
 const currentValueSchema = z.literal("current");
-const monthYearSchema = z.string().trim().regex(/^[A-Za-z]{3,9}\s+\d{4}$/);
-const monthYearOrCurrentSchema = z.union([monthYearSchema, currentValueSchema]);
-const richTextSchema = z.string().trim();
-const urlSchema = z.url();
+
+function requiredText(label: string) {
+  return z.string().trim().min(1, `${label} is required.`);
+}
+
+function optionalText() {
+  return z.string().trim().optional().or(z.literal(""));
+}
+
+function requiredUrl(label: string) {
+  return z.string().trim().url(`${label} must be a valid URL.`);
+}
+
+function optionalUrl(label: string) {
+  return z.literal("").or(requiredUrl(label));
+}
+
+function requiredEmail(label: string) {
+  return z
+    .string()
+    .trim()
+    .min(1, `${label} is required.`)
+    .email(`${label} must be a valid email address.`);
+}
+
+function richTextTextContent(value: string) {
+  return value
+    .replace(/<[^>]*>/g, " ")
+    .replace(/&nbsp;/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function requiredRichText(label: string) {
+  return z.string().trim().refine((value) => richTextTextContent(value).length > 0, {
+    message: `${label} is required.`,
+  });
+}
+
+function requiredMonthYear(label: string) {
+  return z
+    .string()
+    .trim()
+    .regex(monthYearPattern, `${label} must use the format MMM YYYY.`);
+}
 
 export const summarySectionSchema = z.object({
   visible: z.boolean(),
   order: z.number().int().nonnegative(),
-  content: richTextSchema,
+  content: requiredRichText("Summary content"),
 });
 
 export const extraLinkSchema = z.object({
-  id: z.string().min(1),
-  label: z.string().min(1),
-  url: urlSchema,
+  id: requiredText("Link ID"),
+  label: requiredText("Link label"),
+  url: requiredUrl("Link URL"),
 });
 
 export const profileSchema = z.object({
-  fullName: z.string().min(1),
-  location: z.string().min(1),
-  phone: z.string().min(1),
-  email: z.email(),
-  summary: richTextSchema,
-  photo: urlSchema.optional().or(z.literal("")),
+  fullName: requiredText("Full name"),
+  location: requiredText("Location"),
+  phone: requiredText("Phone number"),
+  email: requiredEmail("Email address"),
+  summary: requiredRichText("Short description"),
+  photo: optionalUrl("Photo URL"),
   extraLinks: z.array(extraLinkSchema),
 });
 
 const datedRangeSchema = z.object({
-  startDate: monthYearSchema,
-  endDate: monthYearOrCurrentSchema,
+  startDate: requiredMonthYear("Start date"),
+  endDate: z.union([requiredMonthYear("End date"), currentValueSchema]),
 });
 
 export const workExperienceItemSchema = z.object({
-  id: z.string().min(1),
-  companyName: z.string().min(1),
-  position: z.string().min(1),
-  location: z.string().min(1),
+  id: requiredText("Work experience ID"),
+  companyName: requiredText("Company name"),
+  position: requiredText("Position"),
+  location: requiredText("Location"),
   ...datedRangeSchema.shape,
-  description: richTextSchema,
+  description: requiredRichText("Description"),
 });
 
 export const skillCategoryItemSchema = z.object({
-  id: z.string().min(1),
-  categoryName: z.string().min(1),
-  skills: z.array(z.string().min(1)).min(1),
+  id: requiredText("Skill category ID"),
+  categoryName: requiredText("Category name"),
+  skills: z.array(requiredText("Skill")).min(1, "Add at least one skill."),
 });
 
 export const projectItemSchema = z.object({
-  id: z.string().min(1),
-  projectName: z.string().min(1),
-  projectLink: urlSchema.or(z.literal("")),
+  id: requiredText("Project ID"),
+  projectName: requiredText("Project name"),
+  projectLink: optionalUrl("Project link"),
   ...datedRangeSchema.shape,
-  description: richTextSchema,
+  description: requiredRichText("Description"),
 });
 
 export const educationItemSchema = z.object({
-  id: z.string().min(1),
-  name: z.string().min(1),
-  location: z.string().min(1),
+  id: requiredText("Education ID"),
+  name: requiredText("Institution name"),
+  location: requiredText("Location"),
   ...datedRangeSchema.shape,
-  degree: z.string().min(1),
-  gpa: z.string().optional().or(z.literal("")),
-  description: richTextSchema,
+  degree: requiredText("Degree or major"),
+  gpa: optionalText(),
+  description: requiredRichText("Description"),
 });
 
 export const publicationItemSchema = z.object({
-  id: z.string().min(1),
-  title: z.string().min(1),
-  publisher: z.string().min(1),
-  publicationUrl: urlSchema.or(z.literal("")),
-  publicationDate: monthYearSchema,
-  description: richTextSchema,
+  id: requiredText("Publication ID"),
+  title: requiredText("Title"),
+  publisher: requiredText("Publisher"),
+  publicationUrl: optionalUrl("Publication URL"),
+  publicationDate: requiredMonthYear("Publication date"),
+  description: requiredRichText("Description"),
 });
 
 export const certificationItemSchema = z.object({
-  id: z.string().min(1),
-  certificationName: z.string().min(1),
-  issuingOrganization: z.string().min(1),
-  issuedDate: monthYearSchema,
-  certificationLink: urlSchema.or(z.literal("")),
-  credentialId: z.string().optional().or(z.literal("")),
+  id: requiredText("Certification ID"),
+  certificationName: requiredText("Certification name"),
+  issuingOrganization: requiredText("Issuing organization"),
+  issuedDate: requiredMonthYear("Issued date"),
+  certificationLink: optionalUrl("Certification link"),
+  credentialId: optionalText(),
 });
 
 export const awardItemSchema = z.object({
-  id: z.string().min(1),
-  title: z.string().min(1),
-  issuer: z.string().min(1),
-  issuedDate: monthYearSchema,
-  description: richTextSchema,
+  id: requiredText("Award ID"),
+  title: requiredText("Title"),
+  issuer: requiredText("Issuer"),
+  issuedDate: requiredMonthYear("Issued date"),
+  description: requiredRichText("Description"),
 });
 
 export const languageItemSchema = z.object({
-  id: z.string().min(1),
-  language: z.string().min(1),
-  proficiency: z.string().min(1),
+  id: requiredText("Language ID"),
+  language: requiredText("Language"),
+  proficiency: requiredText("Proficiency"),
 });
 
 export const referenceItemSchema = z.object({
-  id: z.string().min(1),
-  name: z.string().min(1),
-  background: z.string().min(1),
-  contactDetails: z.string().min(1),
+  id: requiredText("Reference ID"),
+  name: requiredText("Name"),
+  background: requiredText("Background"),
+  contactDetails: requiredText("Contact details"),
 });
 
 export const organizationItemSchema = z.object({
-  id: z.string().min(1),
-  organizationName: z.string().min(1),
-  position: z.string().min(1),
-  location: z.string().min(1),
+  id: requiredText("Organization ID"),
+  organizationName: requiredText("Organization name"),
+  position: requiredText("Position"),
+  location: requiredText("Location"),
   ...datedRangeSchema.shape,
-  description: richTextSchema,
+  description: requiredRichText("Description"),
 });
 
 function createCollectionSectionSchema<T extends z.ZodType>(itemSchema: T) {
@@ -128,9 +170,7 @@ export const workExperienceSectionSchema = createCollectionSectionSchema(
 export const skillsSectionSchema = createCollectionSectionSchema(
   skillCategoryItemSchema
 );
-export const projectsSectionSchema = createCollectionSectionSchema(
-  projectItemSchema
-);
+export const projectsSectionSchema = createCollectionSectionSchema(projectItemSchema);
 export const educationSectionSchema = createCollectionSectionSchema(
   educationItemSchema
 );

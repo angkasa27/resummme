@@ -2,8 +2,6 @@
 
 import { useEffect } from "react";
 import { EditorContent, useEditor } from "@tiptap/react";
-import Link from "@tiptap/extension-link";
-import Underline from "@tiptap/extension-underline";
 import StarterKit from "@tiptap/starter-kit";
 
 import { Button } from "@/components/ui/button";
@@ -16,6 +14,7 @@ type RichTextEditorProps = {
   onChange: (value: string) => void;
   className?: string;
   minHeightClassName?: string;
+  invalid?: boolean;
 };
 
 export function RichTextEditor({
@@ -23,6 +22,7 @@ export function RichTextEditor({
   onChange,
   className,
   minHeightClassName = "min-h-32",
+  invalid = false,
 }: RichTextEditorProps) {
   const editor = useEditor({
     immediatelyRender: false,
@@ -32,11 +32,11 @@ export function RichTextEditor({
         codeBlock: false,
         blockquote: false,
         horizontalRule: false,
-      }),
-      Underline,
-      Link.configure({
-        openOnClick: false,
-        autolink: true,
+        link: {
+          openOnClick: false,
+          autolink: true,
+        },
+        underline: {},
       }),
     ],
     content: value || "<p></p>",
@@ -88,7 +88,13 @@ export function RichTextEditor({
   }
 
   return (
-    <div className={cn("overflow-hidden rounded-lg border border-input", className)}>
+    <div
+      className={cn(
+        "overflow-hidden rounded-lg border border-input",
+        invalid && "border-destructive ring-3 ring-destructive/20",
+        className
+      )}
+    >
       <div className="flex flex-wrap items-center gap-2 border-b bg-muted/40 px-3 py-2">
         <ToggleGroup
           multiple

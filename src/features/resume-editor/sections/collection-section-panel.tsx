@@ -1,46 +1,35 @@
 "use client";
 
-import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form";
-import { PlusIcon, SaveIcon, SquareXIcon, Trash2Icon } from "lucide-react";
+import { useMemo } from "react";
+import { useFieldArray, useForm, useWatch } from "react-hook-form";
+import {
+  ArrowDownIcon,
+  ArrowUpIcon,
+  PlusIcon,
+  Trash2Icon,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Empty,
-  EmptyContent,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from "@/components/ui/empty";
-import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
-import { Separator } from "@/components/ui/separator";
-import { Switch } from "@/components/ui/switch";
 import { collectionSectionConfigs } from "@/features/resume-editor/config/collection-section-config";
 import type { CollectionSectionKey } from "@/features/resume-editor/config/section-metadata";
 import { useSectionFormState } from "@/features/resume-editor/hooks/use-section-form-state";
-import { nextOrderValue } from "@/features/resume-editor/lib/draft-utils";
 import { createSchemaResolver } from "@/features/resume-editor/lib/form-resolver";
-import { collectionSectionSchemaMap } from "@/features/resume-editor/lib/section-schemas";
+import { collectionSectionFormSchemaMap } from "@/features/resume-editor/lib/section-schemas";
 import { CollectionItemFields } from "@/features/resume-editor/sections/collection-item-fields";
 import { EditorCard } from "@/features/resume-editor/sections/editor-card";
-import { renderSectionIcon } from "@/features/resume-editor/sections/section-icons";
 import type { ResumeDraft } from "@/lib/resume/schema";
+
+type CollectionSectionFormValues = {
+  items: ResumeDraft["sections"][CollectionSectionKey]["items"];
+};
 
 type CollectionSectionPanelProps = {
   draft: ResumeDraft;
   sectionKey: CollectionSectionKey;
-  isActive: boolean;
   isDirty: boolean;
-  onRequestOpen: () => void;
+  onBack: () => void;
   onDirtyChange: (isDirty: boolean) => void;
   onSave: (sectionValue: ResumeDraft["sections"][CollectionSectionKey]) => void;
 };
@@ -48,25 +37,28 @@ type CollectionSectionPanelProps = {
 export function CollectionSectionPanel({
   draft,
   sectionKey,
-  isActive,
   isDirty,
-  onRequestOpen,
+  onBack,
   onDirtyChange,
   onSave,
 }: CollectionSectionPanelProps) {
   const config = collectionSectionConfigs[sectionKey];
   const sectionValue = draft.sections[sectionKey];
-  const form = useForm<ResumeDraft["sections"][CollectionSectionKey]>({
-    resolver: createSchemaResolver<ResumeDraft["sections"][CollectionSectionKey]>(
-      collectionSectionSchemaMap[sectionKey]
+  const formValues = useMemo(
+    () => ({
+      items: sectionValue.items,
+    }),
+    [sectionValue.items]
+  );
+  const form = useForm<CollectionSectionFormValues>({
+    resolver: createSchemaResolver<CollectionSectionFormValues>(
+      collectionSectionFormSchemaMap[sectionKey]
     ),
-    defaultValues: sectionValue,
+    defaultValues: formValues,
+    mode: "onSubmit",
+    reValidateMode: "onChange",
   });
-  const { control, handleSubmit, register, reset, formState, watch, setValue } = form;
-  const currentOrder = useWatch({
-    control,
-    name: "order",
-  });
+  const { control, handleSubmit, reset, formState } = form;
   const currentItems = useWatch({
     control,
     name: "items",
@@ -75,180 +67,119 @@ export function CollectionSectionPanel({
     control,
     name: "items",
   });
-  const maxOrder = Object.keys(draft.sections).length - 1;
 
   useSectionFormState({
-    isActive,
     formIsDirty: formState.isDirty,
     onDirtyChange,
     reset,
-    values: sectionValue,
+    values: formValues,
   });
 
   return (
     <EditorCard
-      isActive={isActive}
-      isDirty={isDirty}
-      icon={renderSectionIcon(sectionKey)}
       title={config.title}
-      description={config.description}
-      onRequestOpen={onRequestOpen}
-      footerActions={
-        <>
-          <Button type="button" variant="outline" onClick={() => reset(sectionValue)}>
-            <SquareXIcon data-icon="inline-start" />
-            Cancel
-          </Button>
-          <Button
-            type="button"
-            onClick={handleSubmit((values) => {
-              onSave(values);
-              reset(values);
-              toast.success(`${config.title} saved.`);
-            })}
-          >
-            <SaveIcon data-icon="inline-start" />
-            Save Section
-          </Button>
-        </>
+      isDirty={isDirty}
+      onBack={onBack}
+      meta={
+        <Badge variant="secondary">
+          {currentItems?.length ?? 0} item
+          {(currentItems?.length ?? 0) === 1 ? "" : "s"}
+        </Badge>
+      }
+      onCancel={() => reset(formValues)}
+      onSave={handleSubmit((values) => {
+        const nextSectionValue = {
+          ...sectionValue,
+          items: values.items,
+        };
+
+        onSave(nextSectionValue as ResumeDraft["sections"][CollectionSectionKey]);
+        reset(values);
+        toast.success(`${config.title} saved.`);
+      })}
+      headerActions={
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => items.append(config.createItem() as never)}
+        >
+          <PlusIcon data-icon="inline-start" />
+          {config.addLabel}
+        </Button>
       }
     >
-      <FieldGroup>
-        <Field orientation="horizontal">
-          <FieldLabel htmlFor={`${sectionKey}-visible`}>Show section</FieldLabel>
-          <Controller
-            control={control}
-            name="visible"
-            render={({ field }) => (
-              <Switch
-                id={`${sectionKey}-visible`}
-                checked={field.value}
-                onCheckedChange={field.onChange}
-              />
-            )}
-          />
-        </Field>
-        <Field>
-          <FieldLabel>Section order</FieldLabel>
-          <div className="flex items-center gap-2">
+      {items.fields.length === 0 ? (
+        <div className="rounded-2xl border border-dashed px-4 py-6">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="text-sm text-muted-foreground">No items added.</p>
             <Button
               type="button"
               variant="outline"
               size="sm"
-              onClick={() =>
-                setValue("order", nextOrderValue(currentOrder ?? 0, -1, maxOrder), {
-                  shouldDirty: true,
-                })
-              }
+              onClick={() => items.append(config.createItem() as never)}
             >
-              Move up
+              <PlusIcon data-icon="inline-start" />
+              {config.addLabel}
             </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() =>
-                setValue("order", nextOrderValue(currentOrder ?? 0, 1, maxOrder), {
-                  shouldDirty: true,
-                })
-              }
-            >
-              Move down
-            </Button>
-            <Badge variant="secondary">Order {(currentOrder ?? 0) + 1}</Badge>
           </div>
-        </Field>
-      </FieldGroup>
-
-      <Separator />
-
-      <div className="flex flex-col gap-4">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="text-sm text-muted-foreground">
-            {(currentItems?.length ?? 0)} item{(currentItems?.length ?? 0) === 1 ? "" : "s"}
-          </div>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => items.append(config.createItem() as never)}
-          >
-            <PlusIcon data-icon="inline-start" />
-            {config.addLabel}
-          </Button>
         </div>
-
-        {items.fields.length === 0 ? (
-          <Empty className="border">
-            <EmptyHeader>
-              <EmptyMedia variant="icon">{renderSectionIcon(sectionKey)}</EmptyMedia>
-              <EmptyTitle>{config.emptyTitle}</EmptyTitle>
-              <EmptyDescription>{config.emptyDescription}</EmptyDescription>
-            </EmptyHeader>
-            <EmptyContent>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => items.append(config.createItem() as never)}
-              >
-                <PlusIcon data-icon="inline-start" />
-                {config.addLabel}
-              </Button>
-            </EmptyContent>
-          </Empty>
-        ) : (
-          <div className="flex flex-col gap-4">
-            {items.fields.map((field, index) => (
-              <Card key={field.id} size="sm">
-                <CardHeader>
-                  <CardTitle>
+      ) : (
+        <div className="flex flex-col divide-y">
+          {items.fields.map((field, index) => (
+            <section
+              key={field.id}
+              className="flex flex-col gap-4 py-5 first:pt-0 last:pb-0"
+            >
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium">
                     {config.itemTitle} {index + 1}
-                  </CardTitle>
-                  <CardAction className="flex gap-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => index > 0 && items.move(index, index - 1)}
-                    >
-                      Move up
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() =>
-                        index < items.fields.length - 1 && items.move(index, index + 1)
-                      }
-                    >
-                      Move down
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => items.remove(index)}
-                    >
-                      <Trash2Icon data-icon="inline-start" />
-                      Remove
-                    </Button>
-                  </CardAction>
-                </CardHeader>
-                <CardContent className="flex flex-col gap-4">
-                  <CollectionItemFields
-                    config={config}
-                    control={control}
-                    register={register}
-                    watch={watch}
-                    setValue={setValue}
-                    index={index}
-                  />
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
-      </div>
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon-sm"
+                    disabled={index === 0}
+                    aria-label={`Move ${config.itemTitle.toLowerCase()} ${index + 1} up`}
+                    title={`Move ${config.itemTitle.toLowerCase()} ${index + 1} up`}
+                    onClick={() => index > 0 && items.move(index, index - 1)}
+                  >
+                    <ArrowUpIcon />
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon-sm"
+                    disabled={index === items.fields.length - 1}
+                    aria-label={`Move ${config.itemTitle.toLowerCase()} ${index + 1} down`}
+                    title={`Move ${config.itemTitle.toLowerCase()} ${index + 1} down`}
+                    onClick={() =>
+                      index < items.fields.length - 1 && items.move(index, index + 1)
+                    }
+                  >
+                    <ArrowDownIcon />
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="icon-sm"
+                    aria-label={`Remove ${config.itemTitle.toLowerCase()} ${index + 1}`}
+                    title={`Remove ${config.itemTitle.toLowerCase()} ${index + 1}`}
+                    onClick={() => items.remove(index)}
+                  >
+                    <Trash2Icon />
+                  </Button>
+                </div>
+              </div>
+
+              <CollectionItemFields config={config} form={form} index={index} />
+            </section>
+          ))}
+        </div>
+      )}
     </EditorCard>
   );
 }

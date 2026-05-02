@@ -16,6 +16,10 @@ export const editablePanelKeys = [
 ] as const;
 
 export type EditorPanelKey = (typeof editablePanelKeys)[number];
+export const resumeSectionKeys = editablePanelKeys.filter(
+  (panelKey) => panelKey !== "profile"
+) as Exclude<EditorPanelKey, "profile">[];
+export type ResumeSectionPanelKey = (typeof resumeSectionKeys)[number];
 
 export const collectionSectionKeys = [
   "workExperience",
@@ -54,8 +58,17 @@ export const languageProficiencyOptions = [
   "Native or bilingual proficiency",
 ];
 
-export function getOrderedVisibleSectionKeys(sections: ResumeDraft["sections"]) {
-  return collectionSectionKeys
-    .filter((sectionKey) => sections[sectionKey].visible)
+export function isCollectionSectionKey(
+  sectionKey: ResumeSectionPanelKey
+): sectionKey is CollectionSectionKey {
+  return collectionSectionKeys.includes(sectionKey as CollectionSectionKey);
+}
+
+export function getOrderedSectionKeys(sections: ResumeDraft["sections"]) {
+  return resumeSectionKeys
     .sort((left, right) => sections[left].order - sections[right].order);
+}
+
+export function getOrderedVisibleSectionKeys(sections: ResumeDraft["sections"]) {
+  return getOrderedSectionKeys(sections).filter((sectionKey) => sections[sectionKey].visible);
 }

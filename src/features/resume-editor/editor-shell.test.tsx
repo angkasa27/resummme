@@ -3,22 +3,68 @@ import { hydrateRoot } from "react-dom/client";
 import { renderToString } from "react-dom/server";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import { createDefaultResumeDraft } from "@/lib/resume/default-draft";
 import { ResumeEditorShell } from "@/features/resume-editor/editor-shell";
 import { exportResumeDraft, RESUME_STORAGE_KEY } from "@/lib/resume/storage";
 
+const originalMatchMedia = window.matchMedia;
+
+function mockDesktopViewport(matches: boolean) {
+  Object.defineProperty(window, "matchMedia", {
+    writable: true,
+    value: (query: string) => ({
+      matches,
+      media: query,
+      onchange: null,
+      addEventListener: () => undefined,
+      removeEventListener: () => undefined,
+      addListener: () => undefined,
+      removeListener: () => undefined,
+      dispatchEvent: () => true,
+    }),
+  });
+}
+
+beforeEach(() => {
+  mockDesktopViewport(false);
+});
+
 afterEach(() => {
   window.localStorage.clear();
+  Object.defineProperty(window, "matchMedia", {
+    writable: true,
+    value: originalMatchMedia,
+  });
 });
 
 describe("resume editor shell", () => {
-  it("updates the preview only after the section save action", async () => {
+  it("uses Editor and Preview tabs on mobile", async () => {
     const user = userEvent.setup();
     const draft = createDefaultResumeDraft();
 
     render(<ResumeEditorShell initialDraft={draft} />);
+
+    expect(screen.getByRole("tab", { name: "Editor" })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "Preview" })).toBeInTheDocument();
+    expect(screen.queryByRole("tab", { name: "Sections" })).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: /edit profile/i }));
+
+    expect(
+      screen.getByRole("button", { name: /back to section list/i })
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText(/full name/i)).toBeInTheDocument();
+  });
+
+  it("updates the preview only after the section save action", async () => {
+    const user = userEvent.setup();
+    const draft = createDefaultResumeDraft();
+
+    mockDesktopViewport(true);
+    render(<ResumeEditorShell initialDraft={draft} />);
+    await user.click(screen.getByRole("button", { name: /edit profile/i }));
 
     const fullNameInput = screen.getByLabelText(/full name/i);
     await user.clear(fullNameInput);
@@ -30,7 +76,7 @@ describe("resume editor shell", () => {
         expect(previewHeading).toHaveTextContent("Dimas Angkasa Nurindra")
       );
 
-    await user.click(screen.getAllByRole("button", { name: /save section/i })[0]);
+    await user.click(screen.getByRole("button", { name: /save section/i }));
 
     screen
       .getAllByTestId("resume-preview-full-name")
@@ -45,21 +91,23 @@ describe("resume editor shell", () => {
 
     render(<ResumeEditorShell initialDraft={draft} />);
 
+    await user.click(screen.getByRole("button", { name: /edit profile/i }));
+
     const fullNameInput = screen.getByLabelText(/full name/i);
     await user.clear(fullNameInput);
     await user.type(fullNameInput, "Edited Profile Name");
 
     await user.click(screen.getByRole("tab", { name: "Preview" }));
-    await user.click(screen.getByRole("tab", { name: "Edit" }));
+    await user.click(screen.getByRole("tab", { name: "Editor" }));
 
     expect(screen.getByLabelText(/full name/i)).toHaveValue("Edited Profile Name");
 
-    await user.click(screen.getAllByRole("button", { name: "Open" })[0]);
+    await user.click(screen.getByRole("button", { name: /back to section list/i }));
 
     expect(screen.getAllByText(/unsaved changes/i).length).toBeGreaterThan(0);
     expect(
       screen.getAllByText(
-        /save or discard the current panel before moving to summary/i
+        /save or discard the current section before leaving the editor/i
       ).length
     ).toBeGreaterThan(0);
   });
@@ -112,5 +160,83 @@ describe("resume editor shell", () => {
 
     root?.unmount();
     container.remove();
+  });
+
+  it("reorders sections immediately from the navigator and updates the preview order", async () => {
+    const user = userEvent.setup();
+    const draft = createDefaultResumeDraft();
+    draft.sections.projects.items = [
+      {
+        id: "project-1",
+        projectName: "Project Atlas",
+        projectLink: "https://example.com/project-atlas",
+        startDate: "Feb 2024",
+        endDate: "current",
+        description: "<p>Project description</p>",
+      },
+    ];
+    draft.sections.skills.items = [
+      {
+        id: "skill-1",
+        categoryName: "Frontend",
+        skills: ["React", "TypeScript"],
+      },
+    ];
+
+    mockDesktopViewport(true);
+    render(<ResumeEditorShell initialDraft={draft} />);
+
+    await user.click(screen.getByRole("button", { name: /move projects up/i }));
+
+    const headings = screen
+      .getAllByTestId("resume-preview-section-heading")
+      .map((element) => element.textContent);
+
+    expect(headings).toEqual(["Summary", "Projects", "Skills"]);
+  });
+
+  it("shows inline validation state after a failed save", async () => {
+    const user = userEvent.setup();
+    const draft = createDefaultResumeDraft();
+    draft.sections.projects.items = [
+      {
+        id: "project-1",
+        projectName: "Project Atlas",
+        projectLink: "https://example.com/project-atlas",
+        startDate: "Feb 2024",
+        endDate: "current",
+        description: "<p>Project description</p>",
+      },
+    ];
+
+    mockDesktopViewport(true);
+    render(<ResumeEditorShell initialDraft={draft} />);
+
+    await user.click(screen.getByRole("button", { name: /edit projects/i }));
+
+    const projectNameInput = screen.getByLabelText(/project name/i);
+    await user.clear(projectNameInput);
+    await user.click(screen.getByRole("button", { name: /save section/i }));
+
+    expect(screen.getByText(/project name is required/i)).toBeInTheDocument();
+    expect(projectNameInput).toHaveAttribute("aria-invalid", "true");
+  });
+
+  it("returns to the compact section list after backing out of a clean form", async () => {
+    const user = userEvent.setup();
+    const draft = createDefaultResumeDraft();
+
+    mockDesktopViewport(true);
+    render(<ResumeEditorShell initialDraft={draft} />);
+
+    await user.click(screen.getByRole("button", { name: /edit projects/i }));
+    expect(screen.queryByRole("button", { name: /edit projects/i })).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: /back to section list/i }));
+
+    expect(screen.getByRole("button", { name: /edit projects/i })).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /back to section list/i })
+    ).not.toBeInTheDocument();
   });
 });

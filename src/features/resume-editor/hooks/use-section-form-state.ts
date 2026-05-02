@@ -2,7 +2,6 @@ import { useEffect, useRef } from "react";
 import type { FieldValues, UseFormReset } from "react-hook-form";
 
 type UseSectionFormStateOptions<TFieldValues extends FieldValues> = {
-  isActive: boolean;
   formIsDirty: boolean;
   onDirtyChange: (isDirty: boolean) => void;
   reset: UseFormReset<TFieldValues>;
@@ -10,7 +9,6 @@ type UseSectionFormStateOptions<TFieldValues extends FieldValues> = {
 };
 
 export function useSectionFormState<TFieldValues extends FieldValues>({
-  isActive,
   formIsDirty,
   onDirtyChange,
   reset,
@@ -24,15 +22,11 @@ export function useSectionFormState<TFieldValues extends FieldValues>({
   }, [reset, values]);
 
   useEffect(() => {
-    if (!isActive) {
-      return;
-    }
-
     if (lastDirtyRef.current === formIsDirty) {
       return;
     }
 
     lastDirtyRef.current = formIsDirty;
     onDirtyChange(formIsDirty);
-  }, [formIsDirty, isActive, onDirtyChange]);
+  }, [formIsDirty, onDirtyChange]);
 }
