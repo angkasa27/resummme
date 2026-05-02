@@ -1,5 +1,6 @@
 import { createStore } from "zustand/vanilla";
 
+import { reorderSections } from "@/features/resume-editor/lib/draft-utils";
 import { createDefaultResumeDraft } from "@/lib/resume/default-draft";
 import type { Profile, ResumeDraft } from "@/lib/resume/schema";
 import { saveResumeDraft } from "@/lib/resume/storage";
@@ -79,10 +80,7 @@ export function createResumeEditorStore(initialDraft = createDefaultResumeDraft(
     },
     saveSection: (sectionKey, sectionValue) => {
       const nextDraft = createNextDraft(get().draft, {
-        sections: {
-          ...get().draft.sections,
-          [sectionKey]: sectionValue,
-        },
+        sections: reorderSections(get().draft.sections, sectionKey, sectionValue),
       });
 
       saveResumeDraft(nextDraft);
