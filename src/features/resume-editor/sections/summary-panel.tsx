@@ -1,76 +1,92 @@
 "use client";
 
-import { Controller, useForm, useWatch } from "react-hook-form";
+import { useMemo } from "react";
+import { Controller, useForm } from "react-hook-form";
 import { SaveIcon, SquareXIcon } from "lucide-react";
 import { toast } from "sonner";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
-import { Switch } from "@/components/ui/switch";
+import {
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@/components/ui/field";
 import { useSectionFormState } from "@/features/resume-editor/hooks/use-section-form-state";
-import { nextOrderValue } from "@/features/resume-editor/lib/draft-utils";
 import { createSchemaResolver } from "@/features/resume-editor/lib/form-resolver";
+import { summaryFormSchema } from "@/features/resume-editor/lib/section-schemas";
 import { RichTextEditor } from "@/features/resume-editor/rich-text/rich-text-editor";
 import { EditorCard } from "@/features/resume-editor/sections/editor-card";
+import { FieldLabelText } from "@/features/resume-editor/sections/field-label-text";
 import { renderSectionIcon } from "@/features/resume-editor/sections/section-icons";
-import { summarySectionSchema } from "@/lib/resume/schema";
-import type { ResumeDraft, SummarySection } from "@/lib/resume/schema";
+import type { ResumeDraft } from "@/lib/resume/schema";
+
+type SummaryFormValues = {
+  content: ResumeDraft["sections"]["summary"]["content"];
+};
 
 type SummaryPanelProps = {
   draft: ResumeDraft;
-  isActive: boolean;
   isDirty: boolean;
-  onRequestOpen: () => void;
   onDirtyChange: (isDirty: boolean) => void;
-  onSave: (summary: SummarySection) => void;
+  onSave: (summary: ResumeDraft["sections"]["summary"]) => void;
 };
 
 export function SummaryPanel({
   draft,
-  isActive,
   isDirty,
-  onRequestOpen,
   onDirtyChange,
   onSave,
 }: SummaryPanelProps) {
-  const summaryForm = useForm<SummarySection>({
-    resolver: createSchemaResolver<SummarySection>(summarySectionSchema),
-    defaultValues: draft.sections.summary,
+  const sectionValue = draft.sections.summary;
+  const formValues = useMemo(
+    () => ({
+      content: sectionValue.content,
+    }),
+    [sectionValue.content]
+  );
+  const summaryForm = useForm<SummaryFormValues>({
+    resolver: createSchemaResolver<SummaryFormValues>(summaryFormSchema),
+    defaultValues: formValues,
+    mode: "onSubmit",
+    reValidateMode: "onChange",
   });
-  const { control, handleSubmit, reset, formState, setValue } = summaryForm;
-  const currentOrder = useWatch({
-    control,
-    name: "order",
-  });
-  const maxOrder = Object.keys(draft.sections).length - 1;
+  const { control, handleSubmit, reset, formState, getFieldState } = summaryForm;
 
   useSectionFormState({
-    isActive,
     formIsDirty: formState.isDirty,
     onDirtyChange,
     reset,
-    values: draft.sections.summary,
+    values: formValues,
   });
 
   return (
     <EditorCard
-      isActive={isActive}
       isDirty={isDirty}
       icon={renderSectionIcon("summary")}
       title="Summary"
-      description="A concise, recruiter-first introduction below the header."
-      onRequestOpen={onRequestOpen}
+      description="Write the short recruiter-first introduction shown near the top of the CV."
       footerActions={
         <>
-          <Button type="button" variant="outline" onClick={() => reset(draft.sections.summary)}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => reset(formValues)}
+          >
             <SquareXIcon data-icon="inline-start" />
             Cancel
           </Button>
           <Button
             type="button"
             onClick={handleSubmit((values) => {
-              onSave(values);
+              const nextSectionValue = {
+                ...sectionValue,
+                content: values.content,
+              };
+
+              onSave(nextSectionValue);
               reset(values);
               toast.success("Summary saved.");
             })}
@@ -82,59 +98,32 @@ export function SummaryPanel({
       }
     >
       <FieldGroup>
-        <Field orientation="horizontal">
-          <FieldLabel htmlFor="summary-visible">Show summary</FieldLabel>
-          <Controller
-            control={control}
-            name="visible"
-            render={({ field }) => (
-              <Switch
-                id="summary-visible"
-                checked={field.value}
-                onCheckedChange={field.onChange}
-              />
-            )}
-          />
-        </Field>
-        <Field>
-          <FieldLabel>Section order</FieldLabel>
-          <div className="flex items-center gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() =>
-                setValue("order", nextOrderValue(currentOrder ?? 0, -1, maxOrder), {
-                  shouldDirty: true,
-                })
-              }
-            >
-              Move up
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() =>
-                setValue("order", nextOrderValue(currentOrder ?? 0, 1, maxOrder), {
-                  shouldDirty: true,
-                })
-              }
-            >
-              Move down
-            </Button>
-            <Badge variant="secondary">Order {(currentOrder ?? 0) + 1}</Badge>
-          </div>
-        </Field>
-        <Field>
-          <FieldLabel>Summary content</FieldLabel>
-          <Controller
-            control={control}
-            name="content"
-            render={({ field }) => (
-              <RichTextEditor value={field.value} onChange={field.onChange} />
-            )}
-          />
+        <Field data-invalid={getFieldState("content", formState).invalid || undefined}>
+          <FieldLabel>
+            <FieldLabelText label="Summary content" />
+          </FieldLabel>
+          <FieldContent>
+            <Controller
+              control={control}
+              name="content"
+              render={({ field }) => (
+                <RichTextEditor
+                  value={field.value}
+                  onChange={(value) =>
+                    summaryForm.setValue("content", value, {
+                      shouldDirty: true,
+                      shouldValidate: formState.isSubmitted,
+                    })
+                  }
+                  invalid={getFieldState("content", formState).invalid}
+                />
+              )}
+            />
+            <FieldDescription>
+              Focus on experience level, specialization, and the kind of impact you bring.
+            </FieldDescription>
+            <FieldError errors={[getFieldState("content", formState).error]} />
+          </FieldContent>
         </Field>
       </FieldGroup>
     </EditorCard>
