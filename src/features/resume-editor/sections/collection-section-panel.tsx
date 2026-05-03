@@ -73,8 +73,21 @@ export function CollectionSectionPanel({
   const formValuesWatched = useWatch({ control });
 
   useEffect(() => {
-    form.reset(formValues);
-  }, [form, formValues]);
+    const currentValues = form.getValues();
+    const isDifferent =
+      JSON.stringify(currentValues) !== JSON.stringify(formValues);
+
+    if (!isDifferent) {
+      if (formState.isDirty) {
+        form.reset(formValues, { keepValues: true });
+      }
+      return;
+    }
+
+    if (!formState.isDirty) {
+      form.reset(formValues);
+    }
+  }, [form, formValues, formState.isDirty]);
 
   useEffect(() => {
     if (!formState.isDirty) return;

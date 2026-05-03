@@ -47,13 +47,26 @@ export function SummaryPanel({
     mode: "onBlur",
     reValidateMode: "onChange",
   });
-  const { control, formState, getFieldState, reset } = summaryForm;
+  const { control, formState, getFieldState } = summaryForm;
 
   const formValuesWatched = useWatch({ control });
 
   useEffect(() => {
-    reset(formValues);
-  }, [formValues, reset]);
+    const currentValues = summaryForm.getValues();
+    const isDifferent =
+      JSON.stringify(currentValues) !== JSON.stringify(formValues);
+
+    if (!isDifferent) {
+      if (formState.isDirty) {
+        summaryForm.reset(formValues, { keepValues: true });
+      }
+      return;
+    }
+
+    if (!formState.isDirty) {
+      summaryForm.reset(formValues);
+    }
+  }, [formValues, summaryForm, formState.isDirty]);
 
   useEffect(() => {
     if (!formState.isDirty) return;

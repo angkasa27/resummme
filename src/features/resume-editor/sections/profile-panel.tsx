@@ -47,8 +47,21 @@ export function ProfilePanel({ draft, onBack, onSave }: ProfilePanelProps) {
   const formValues = useWatch({ control });
 
   useEffect(() => {
-    profileForm.reset(draft.profile);
-  }, [draft.profile, profileForm]);
+    const currentValues = profileForm.getValues();
+    const isDifferent =
+      JSON.stringify(currentValues) !== JSON.stringify(draft.profile);
+
+    if (!isDifferent) {
+      if (formState.isDirty) {
+        profileForm.reset(draft.profile, { keepValues: true });
+      }
+      return;
+    }
+
+    if (!formState.isDirty) {
+      profileForm.reset(draft.profile);
+    }
+  }, [draft.profile, profileForm, formState.isDirty]);
 
   useEffect(() => {
     if (!formState.isDirty) return;
