@@ -1,8 +1,8 @@
 "use client";
 
-import { Controller, useFieldArray, useForm } from "react-hook-form";
+import { useEffect } from "react";
+import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form";
 import { PlusIcon, Trash2Icon } from "lucide-react";
-import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/field";
 import { InputGroup, InputGroupInput } from "@/components/ui/input-group";
 import { Input } from "@/components/ui/input";
-import { useSectionFormState } from "@/features/resume-editor/hooks/use-section-form-state";
+
 import { createLocalId } from "@/features/resume-editor/lib/create-local-id";
 import { createSchemaResolver } from "@/features/resume-editor/lib/form-resolver";
 import { RichTextEditor } from "@/features/resume-editor/rich-text/rich-text-editor";
@@ -27,23 +27,21 @@ import type { Profile, ResumeDraft } from "@/lib/resume/schema";
 type ProfilePanelProps = {
   draft: ResumeDraft;
   onBack: () => void;
-  onDirtyChange: (isDirty: boolean) => void;
   onSave: (profile: Profile) => void;
 };
 
 export function ProfilePanel({
   draft,
   onBack,
-  onDirtyChange,
   onSave,
 }: ProfilePanelProps) {
   const profileForm = useForm<Profile>({
     resolver: createSchemaResolver<Profile>(profileSchema),
     defaultValues: draft.profile,
-    mode: "onSubmit",
+    mode: "onBlur",
     reValidateMode: "onChange",
   });
-  const { control, handleSubmit, register, reset, formState, getFieldState } =
+  const { control, register, formState, getFieldState } =
     profileForm;
   const extraLinks = useFieldArray({
     control,
@@ -51,23 +49,22 @@ export function ProfilePanel({
     keyName: "fieldKey",
   });
 
-  useSectionFormState({
-    formIsDirty: formState.isDirty,
-    onDirtyChange,
-    reset,
-    values: draft.profile,
-  });
+  const formValues = useWatch({ control });
+
+  useEffect(() => {
+    if (!formState.isDirty) return;
+
+    const timeoutId = setTimeout(() => {
+      onSave(profileForm.getValues());
+    }, 500);
+    return () => clearTimeout(timeoutId);
+  }, [formValues, formState.isDirty, profileForm, onSave]);
 
   return (
     <EditorCard
       onBack={onBack}
       title="Profile"
       meta={<Badge variant="secondary">Header</Badge>}
-      onSave={handleSubmit((values) => {
-        onSave(values);
-        reset(values);
-        toast.success("Profile saved.");
-      })}
     >
       <FieldGroup className="grid gap-3 md:grid-cols-2">
         <Field

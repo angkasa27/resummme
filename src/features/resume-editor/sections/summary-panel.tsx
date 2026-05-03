@@ -1,8 +1,7 @@
 "use client";
 
-import { useMemo } from "react";
-import { Controller, useForm } from "react-hook-form";
-import { toast } from "sonner";
+import { useEffect, useMemo } from "react";
+import { Controller, useForm, useWatch } from "react-hook-form";
 
 import { Badge } from "@/components/ui/badge";
 import {
@@ -12,7 +11,7 @@ import {
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
-import { useSectionFormState } from "@/features/resume-editor/hooks/use-section-form-state";
+
 import { createSchemaResolver } from "@/features/resume-editor/lib/form-resolver";
 import { summaryFormSchema } from "@/features/resume-editor/lib/section-schemas";
 import { RichTextEditor } from "@/features/resume-editor/rich-text/rich-text-editor";
@@ -27,14 +26,12 @@ type SummaryFormValues = {
 type SummaryPanelProps = {
   draft: ResumeDraft;
   onBack: () => void;
-  onDirtyChange: (isDirty: boolean) => void;
   onSave: (summary: ResumeDraft["sections"]["summary"]) => void;
 };
 
 export function SummaryPanel({
   draft,
   onBack,
-  onDirtyChange,
   onSave,
 }: SummaryPanelProps) {
   const sectionValue = draft.sections.summary;
@@ -47,33 +44,32 @@ export function SummaryPanel({
   const summaryForm = useForm<SummaryFormValues>({
     resolver: createSchemaResolver<SummaryFormValues>(summaryFormSchema),
     defaultValues: formValues,
-    mode: "onSubmit",
+    mode: "onBlur",
     reValidateMode: "onChange",
   });
-  const { control, handleSubmit, reset, formState, getFieldState } = summaryForm;
+  const { control, formState, getFieldState } = summaryForm;
 
-  useSectionFormState({
-    formIsDirty: formState.isDirty,
-    onDirtyChange,
-    reset,
-    values: formValues,
-  });
+  const formValuesWatched = useWatch({ control });
+
+  useEffect(() => {
+    if (!formState.isDirty) return;
+
+    const timeoutId = setTimeout(() => {
+      const values = summaryForm.getValues();
+      const nextSectionValue = {
+        ...sectionValue,
+        content: values.content,
+      };
+      onSave(nextSectionValue);
+    }, 500);
+    return () => clearTimeout(timeoutId);
+  }, [formValuesWatched, formState.isDirty, summaryForm, onSave, sectionValue]);
 
   return (
     <EditorCard
       onBack={onBack}
       title="Summary"
       meta={<Badge variant="secondary">Intro</Badge>}
-      onSave={handleSubmit((values) => {
-        const nextSectionValue = {
-          ...sectionValue,
-          content: values.content,
-        };
-
-        onSave(nextSectionValue);
-        reset(values);
-        toast.success("Summary saved.");
-      })}
     >
       <FieldGroup>
         <Field data-invalid={getFieldState("content", formState).invalid || undefined}>

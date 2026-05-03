@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { createDefaultResumeDraft } from "@/lib/resume/default-draft";
-import { parseResumeDraft } from "@/lib/resume/schema";
+import { parseResumeDraft, profileSchema } from "@/lib/resume/schema";
 
 describe("resume schema", () => {
   it("parses the default resume draft", () => {
@@ -29,17 +29,14 @@ describe("resume schema", () => {
     const draft = createDefaultResumeDraft();
 
     expect(() =>
-      parseResumeDraft({
-        ...draft,
-        profile: {
-          ...draft.profile,
-          extraLinks: [
-            {
-              id: "link-1",
-              url: "not-a-url",
-            },
-          ],
-        },
+      profileSchema.parse({
+        ...draft.profile,
+        extraLinks: [
+          {
+            id: "link-1",
+            url: "not-a-url",
+          },
+        ],
       })
     ).toThrow(/url/i);
   });

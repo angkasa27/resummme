@@ -1,9 +1,8 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { ArrowDownIcon, ArrowUpIcon, PlusIcon, Trash2Icon } from "lucide-react";
-import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -11,7 +10,6 @@ import { ButtonGroup } from "@/components/ui/button-group";
 import { collectionSectionConfigs } from "@/features/resume-editor/config/collection-section-config";
 import type { ItemFieldConfig } from "@/features/resume-editor/config/collection-section-config";
 import type { CollectionSectionKey } from "@/features/resume-editor/config/section-metadata";
-import { useSectionFormState } from "@/features/resume-editor/hooks/use-section-form-state";
 import { createSchemaResolver } from "@/features/resume-editor/lib/form-resolver";
 import { collectionSectionFormSchemaMap } from "@/features/resume-editor/lib/section-schemas";
 import { CollectionItemFields } from "@/features/resume-editor/sections/collection-item-fields";
@@ -26,7 +24,6 @@ type CollectionSectionPanelProps = {
   draft: ResumeDraft;
   sectionKey: CollectionSectionKey;
   onBack: () => void;
-  onDirtyChange: (isDirty: boolean) => void;
   onSave: (sectionValue: ResumeDraft["sections"][CollectionSectionKey]) => void;
 };
 
@@ -34,28 +31,29 @@ export function CollectionSectionPanel({
   draft,
   sectionKey,
   onBack,
-  onDirtyChange,
   onSave,
 }: CollectionSectionPanelProps) {
   const config = collectionSectionConfigs[sectionKey];
   const sectionValue = draft.sections[sectionKey];
   const formValues = useMemo<CollectionSectionFormValues>(
     () => ({
-      items: sectionValue.items.map((item) =>
-        normalizeCollectionItem(item, config.fields),
-      ) as CollectionSectionFormValues["items"],
+      items: sectionValue.items.length > 0
+        ? (sectionValue.items.map((item) =>
+            normalizeCollectionItem(item, config.fields),
+          ) as unknown as CollectionSectionFormValues["items"])
+        : ([config.createItem()] as unknown as CollectionSectionFormValues["items"]),
     }),
-    [config.fields, sectionValue.items],
+    [config, sectionValue.items],
   );
   const form = useForm<CollectionSectionFormValues>({
     resolver: createSchemaResolver<CollectionSectionFormValues>(
       collectionSectionFormSchemaMap[sectionKey],
     ),
     defaultValues: formValues,
-    mode: "onSubmit",
+    mode: "onBlur",
     reValidateMode: "onChange",
   });
-  const { control, handleSubmit, reset, formState } = form;
+  const { control, formState } = form;
   const currentItems = useWatch({
     control,
     name: "items",
@@ -65,12 +63,21 @@ export function CollectionSectionPanel({
     name: "items",
   });
 
-  useSectionFormState({
-    formIsDirty: formState.isDirty,
-    onDirtyChange,
-    reset,
-    values: formValues,
-  });
+  const formValuesWatched = useWatch({ control });
+
+  useEffect(() => {
+    if (!formState.isDirty) return;
+
+    const timeoutId = setTimeout(() => {
+      const values = form.getValues();
+      const nextSectionValue = {
+        ...sectionValue,
+        items: values.items,
+      };
+      onSave(nextSectionValue as ResumeDraft["sections"][CollectionSectionKey]);
+    }, 500);
+    return () => clearTimeout(timeoutId);
+  }, [formValuesWatched, formState.isDirty, form, onSave, sectionValue]);
 
   return (
     <EditorCard
@@ -82,18 +89,6 @@ export function CollectionSectionPanel({
           {(currentItems?.length ?? 0) === 1 ? "" : "s"}
         </Badge>
       }
-      onSave={handleSubmit((values) => {
-        const nextSectionValue = {
-          ...sectionValue,
-          items: values.items,
-        };
-
-        onSave(
-          nextSectionValue as ResumeDraft["sections"][CollectionSectionKey],
-        );
-        reset(values);
-        toast.success(`${config.title} saved.`);
-      })}
     >
       {items.fields.length === 0 ? (
         <div className="rounded-md border border-dashed px-4 py-6 text-center text-sm text-muted-foreground">

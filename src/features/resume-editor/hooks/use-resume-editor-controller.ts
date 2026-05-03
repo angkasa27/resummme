@@ -19,7 +19,6 @@ import {
 } from "@/lib/resume/storage";
 import {
   createResumeEditorStore,
-  type ResumeEditorPendingIntent,
   type ResumeEditorPanelKey,
   type ResumeEditorViewMode,
   type ResumeSectionKey,
@@ -34,9 +33,6 @@ export type ResumeEditorController = {
   draft: ResumeDraft;
   activeSection: ResumeEditorPanelKey;
   editorViewMode: ResumeEditorViewMode;
-  dirtySections: ResumeEditorPanelKey[];
-  pendingIntent: ResumeEditorPendingIntent | null;
-  confirmExitOpen: boolean;
   openImportPicker: () => void;
   handleImport: (event: ChangeEvent<HTMLInputElement>) => Promise<void>;
   handleExport: () => void;
@@ -46,9 +42,6 @@ export type ResumeEditorController = {
   moveSection: (sectionKey: ResumeSectionKey, direction: -1 | 1) => void;
   reorderSection: (sectionKey: ResumeSectionKey, targetIndex: number) => void;
   setSectionVisibility: (sectionKey: ResumeSectionKey, visible: boolean) => void;
-  setSectionDirty: (sectionKey: ResumeEditorPanelKey, isDirty: boolean) => void;
-  discardPendingChanges: () => void;
-  cancelPendingIntent: () => void;
   saveProfile: (profile: Profile) => void;
   saveSection: <K extends ResumeSectionKey>(
     sectionKey: K,
@@ -66,9 +59,6 @@ export function useResumeEditorController({
   const draft = useStore(store, (state) => state.draft);
   const activeSection = useStore(store, (state) => state.activeSection);
   const editorViewMode = useStore(store, (state) => state.editorViewMode);
-  const dirtySections = useStore(store, (state) => state.dirtySections);
-  const pendingIntent = useStore(store, (state) => state.pendingIntent);
-  const confirmExitOpen = useStore(store, (state) => state.confirmExitOpen);
 
   useEffect(() => {
     if (initialDraft) {
@@ -81,22 +71,6 @@ export function useResumeEditorController({
       store.getState().replaceDraft(storedDraft);
     }
   }, [initialDraft, store]);
-
-  useEffect(() => {
-    function handleBeforeUnload(event: BeforeUnloadEvent) {
-      if (store.getState().dirtySections.length === 0) {
-        return;
-      }
-
-      event.preventDefault();
-      event.returnValue = "";
-    }
-
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-    };
-  }, [store]);
 
   function openImportPicker() {
     fileInputRef.current?.click();
@@ -112,14 +86,9 @@ export function useResumeEditorController({
     try {
       const fileContents = await selectedFile.text();
       const importedDraft = importResumeDraft(fileContents);
-      const shouldOpenConfirm = dirtySections.length > 0;
-
-      if (shouldOpenConfirm) {
-        store.getState().requestImportDraft(importedDraft);
-      } else {
-        store.getState().replaceDraft(importedDraft);
-        toast.success("Draft imported.");
-      }
+      
+      store.getState().replaceDraft(importedDraft);
+      toast.success("Draft imported.");
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Unable to import that draft."
@@ -152,9 +121,6 @@ export function useResumeEditorController({
     draft,
     activeSection,
     editorViewMode,
-    dirtySections,
-    pendingIntent,
-    confirmExitOpen,
     openImportPicker,
     handleImport,
     handleExport,
@@ -168,10 +134,6 @@ export function useResumeEditorController({
       store.getState().reorderSection(sectionKey, targetIndex),
     setSectionVisibility: (sectionKey, visible) =>
       store.getState().setSectionVisibility(sectionKey, visible),
-    setSectionDirty: (sectionKey, isDirty) =>
-      store.getState().setSectionDirty(sectionKey, isDirty),
-    discardPendingChanges: () => store.getState().discardPendingChanges(),
-    cancelPendingIntent: () => store.getState().cancelPendingIntent(),
     saveProfile: (profile) => store.getState().saveProfile(profile),
     saveSection: (sectionKey, sectionValue) =>
       store.getState().saveSection(sectionKey, sectionValue),

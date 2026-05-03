@@ -1,12 +1,11 @@
 import type { ReactNode } from "react";
-import { ArrowLeftIcon, SaveIcon } from "lucide-react";
+import { ArrowLeftIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
 type EditorCardProps = {
   title: string;
   onBack: () => void;
-  onSave: () => void;
   meta?: ReactNode;
   children: ReactNode;
 };
@@ -14,7 +13,6 @@ type EditorCardProps = {
 export function EditorCard({
   title,
   onBack,
-  onSave,
   meta,
   children,
 }: EditorCardProps) {
@@ -37,17 +35,6 @@ export function EditorCard({
             {title}
           </h2>
           {meta}
-        </div>
-
-        <div className="ml-auto flex items-center gap-2">
-          <Button
-            type="button"
-            size="sm"
-            onClick={onSave}
-          >
-            <SaveIcon data-icon="inline-start" />
-            Save section
-          </Button>
         </div>
       </div>
 

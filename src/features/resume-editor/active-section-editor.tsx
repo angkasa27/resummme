@@ -12,7 +12,6 @@ type ActiveSectionEditorProps = {
   draft: ResumeDraft;
   activeSection: ResumeEditorPanelKey;
   onBack: () => void;
-  onSetSectionDirty: (sectionKey: ResumeEditorPanelKey, isDirty: boolean) => void;
   onSaveProfile: (profile: ResumeDraft["profile"]) => void;
   onSaveSection: <K extends ResumeSectionKey>(
     sectionKey: K,
@@ -24,7 +23,6 @@ export function ActiveSectionEditor({
   draft,
   activeSection,
   onBack,
-  onSetSectionDirty,
   onSaveProfile,
   onSaveSection,
 }: ActiveSectionEditorProps) {
@@ -33,7 +31,6 @@ export function ActiveSectionEditor({
       <ProfilePanel
         draft={draft}
         onBack={onBack}
-        onDirtyChange={(nextDirty) => onSetSectionDirty("profile", nextDirty)}
         onSave={onSaveProfile}
       />
     );
@@ -44,7 +41,6 @@ export function ActiveSectionEditor({
       <SummaryPanel
         draft={draft}
         onBack={onBack}
-        onDirtyChange={(nextDirty) => onSetSectionDirty("summary", nextDirty)}
         onSave={(sectionValue) => onSaveSection("summary", sectionValue)}
       />
     );
@@ -56,7 +52,6 @@ export function ActiveSectionEditor({
         draft={draft}
         sectionKey={activeSection}
         onBack={onBack}
-        onDirtyChange={(nextDirty) => onSetSectionDirty(activeSection, nextDirty)}
         onSave={(sectionValue) => onSaveSection(activeSection, sectionValue)}
       />
     );

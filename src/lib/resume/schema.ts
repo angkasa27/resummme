@@ -64,6 +64,10 @@ function draftCurrentOrMonthYear() {
   return z.union([z.literal(""), z.string().trim().regex(monthYearPattern), currentValueSchema]);
 }
 
+function draftUrl() {
+  return z.string().trim();
+}
+
 export const summarySectionSchema = z.object({
   visible: z.boolean(),
   order: z.number().int().nonnegative(),
@@ -83,6 +87,21 @@ export const profileSchema = z.object({
   summary: requiredRichText("Short description"),
   photo: optionalUrl("Photo URL"),
   extraLinks: z.array(extraLinkSchema),
+});
+
+const extraLinkDraftSchema = z.object({
+  id: requiredText("Link ID"),
+  url: draftUrl(),
+}).strict();
+
+const profileDraftSchema = z.object({
+  fullName: draftText(),
+  location: draftText(),
+  phone: draftText(),
+  email: draftText(),
+  summary: draftRichText(),
+  photo: draftUrl(),
+  extraLinks: z.array(extraLinkDraftSchema),
 });
 
 const datedRangeSchema = z.object({
@@ -132,7 +151,7 @@ export const projectItemSchema = z.object({
 const projectDraftItemSchema = z.object({
   id: requiredText("Project ID"),
   projectName: draftText(),
-  projectLink: optionalUrl("Project link"),
+  projectLink: draftUrl(),
   startDate: draftMonthYear(),
   endDate: draftCurrentOrMonthYear(),
   description: draftRichText(),
@@ -172,7 +191,7 @@ const publicationDraftItemSchema = z.object({
   id: requiredText("Publication ID"),
   title: draftText(),
   publisher: draftText(),
-  publicationUrl: optionalUrl("Publication URL"),
+  publicationUrl: draftUrl(),
   publicationDate: draftMonthYear(),
   description: draftRichText(),
 });
@@ -191,7 +210,7 @@ const certificationDraftItemSchema = z.object({
   certificationName: draftText(),
   issuingOrganization: draftText(),
   issuedDate: draftMonthYear(),
-  certificationLink: optionalUrl("Certification link"),
+  certificationLink: draftUrl(),
   credentialId: optionalText(),
 });
 
@@ -309,7 +328,7 @@ export const resumeDraftSchema = z.object({
   schemaVersion: z.literal(2),
   templateId: z.literal("recruiter-first-clean"),
   updatedAt: z.string().min(1),
-  profile: profileSchema,
+  profile: profileDraftSchema,
   sections: sectionsSchema,
 });
 
