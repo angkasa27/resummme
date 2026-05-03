@@ -246,7 +246,7 @@ export function ProfilePanel({ draft, onBack, onSave }: ProfilePanelProps) {
               const inputId = `profile-link-url-${field.id}`;
 
               return (
-                <div key={field.fieldKey} className="flex items-start gap-2">
+                <div key={field.fieldKey} className="flex items-center gap-2">
                   <Field
                     className="flex-1"
                     data-invalid={
@@ -262,25 +262,23 @@ export function ProfilePanel({ draft, onBack, onSave }: ProfilePanelProps) {
                         control={control}
                         name={urlFieldName}
                         render={({ field: nextField }) => (
-                          <InputGroup className="rounded-md">
-                            <InputGroupInput
-                              id={inputId}
-                              name={nextField.name}
-                              type="url"
-                              autoComplete="url"
-                              inputMode="url"
-                              spellCheck={false}
-                              autoCapitalize="none"
-                              autoCorrect="off"
-                              value={nextField.value}
-                              placeholder="https://www.linkedin.com/in/your-handle"
-                              aria-invalid={
-                                getFieldState(urlFieldName, formState)
-                                  .invalid || undefined
-                              }
-                              onChange={nextField.onChange}
-                            />
-                          </InputGroup>
+                          <Input
+                            id={inputId}
+                            name={nextField.name}
+                            type="url"
+                            autoComplete="url"
+                            inputMode="url"
+                            spellCheck={false}
+                            autoCapitalize="none"
+                            autoCorrect="off"
+                            value={nextField.value}
+                            placeholder="https://www.linkedin.com/in/your-handle"
+                            aria-invalid={
+                              getFieldState(urlFieldName, formState).invalid ||
+                              undefined
+                            }
+                            onChange={nextField.onChange}
+                          />
                         )}
                       />
                       <FieldError
@@ -288,12 +286,11 @@ export function ProfilePanel({ draft, onBack, onSave }: ProfilePanelProps) {
                       />
                     </FieldContent>
                   </Field>
-                  <div className="pt-0.5">
+                  <div>
                     <Button
                       type="button"
                       variant="destructive"
-                      size="icon-sm"
-                      className="mt-px"
+                      size="icon"
                       aria-label={`Remove link ${index + 1}`}
                       title={`Remove link ${index + 1}`}
                       onClick={() => extraLinks.remove(index)}
