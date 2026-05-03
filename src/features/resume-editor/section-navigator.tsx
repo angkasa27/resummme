@@ -20,10 +20,13 @@ import { CSS } from "@dnd-kit/utilities";
 import {
   // ArrowDownIcon,
   // ArrowUpIcon,
-  EyeIcon,
+  // EyeIcon,
   EyeOffIcon,
   GripVerticalIcon,
   PencilIcon,
+  PinIcon,
+  PlusIcon,
+  Trash2Icon,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -118,7 +121,9 @@ export function SectionNavigator({
                 active={activeSection === "profile"}
                 sectionRowKey="profile"
               >
-                <StaticControlSlot>Fixed</StaticControlSlot>
+                <StaticControlSlot>
+                  <PinIcon className="size-4" />
+                </StaticControlSlot>
                 <SectionRowText label="Profile" meta="Name, contact, links" />
                 <Button
                   type="button"
@@ -245,7 +250,7 @@ function SectionRowShell({
 
 function StaticControlSlot({ children }: { children: ReactNode }) {
   return (
-    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border bg-muted text-[0.65rem] font-medium uppercase text-muted-foreground">
+    <span className="flex size-7 shrink-0 items-center justify-center rounded-md border bg-muted text-muted-foreground">
       {children}
     </span>
   );
@@ -377,13 +382,13 @@ function SortableSectionRow({
           </Button> */}
           <Button
             type="button"
-            variant="outline"
+            variant="destructive"
             size="icon-sm"
             aria-label={`Hide ${label}`}
             title={`Hide ${label}`}
             onClick={() => onSetSectionVisibility(sectionKey, false)}
           >
-            <EyeOffIcon />
+            <Trash2Icon />
           </Button>
         </ButtonGroup>
       </SectionRowShell>
@@ -411,7 +416,9 @@ function AvailableSectionRow({
         sectionRowKey={sectionKey}
         className="border-dashed bg-muted/25 text-muted-foreground"
       >
-        <StaticControlSlot>Off</StaticControlSlot>
+        <StaticControlSlot>
+          <EyeOffIcon className="size-4" />
+        </StaticControlSlot>
         <SectionRowText
           label={label}
           meta={getSectionMeta(draft, sectionKey)}
@@ -420,11 +427,11 @@ function AvailableSectionRow({
           type="button"
           variant="outline"
           size="sm"
-          aria-label={`Show ${label}`}
+          aria-label={`Add ${label}`}
           onClick={() => onSetSectionVisibility(sectionKey, true)}
         >
-          <EyeIcon data-icon="inline-start" />
-          Show
+          <PlusIcon data-icon="inline-start" />
+          Add
         </Button>
       </SectionRowShell>
     </li>
