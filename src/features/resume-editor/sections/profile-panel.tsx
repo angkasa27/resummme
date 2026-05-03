@@ -1,7 +1,7 @@
 "use client";
 
 import { Controller, useFieldArray, useForm } from "react-hook-form";
-import { LinkIcon, PlusIcon, Trash2Icon } from "lucide-react";
+import { PlusIcon, Trash2Icon } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -13,13 +13,8 @@ import {
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from "@/components/ui/input-group";
+import { InputGroup, InputGroupInput } from "@/components/ui/input-group";
 import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { useSectionFormState } from "@/features/resume-editor/hooks/use-section-form-state";
 import { createLocalId } from "@/features/resume-editor/lib/create-local-id";
@@ -31,7 +26,6 @@ import type { Profile, ResumeDraft } from "@/lib/resume/schema";
 
 type ProfilePanelProps = {
   draft: ResumeDraft;
-  isDirty: boolean;
   onBack: () => void;
   onDirtyChange: (isDirty: boolean) => void;
   onSave: (profile: Profile) => void;
@@ -39,7 +33,6 @@ type ProfilePanelProps = {
 
 export function ProfilePanel({
   draft,
-  isDirty,
   onBack,
   onDirtyChange,
   onSave,
@@ -50,7 +43,8 @@ export function ProfilePanel({
     mode: "onSubmit",
     reValidateMode: "onChange",
   });
-  const { control, handleSubmit, register, reset, formState, getFieldState } = profileForm;
+  const { control, handleSubmit, register, reset, formState, getFieldState } =
+    profileForm;
   const extraLinks = useFieldArray({
     control,
     name: "extraLinks",
@@ -66,35 +60,20 @@ export function ProfilePanel({
   return (
     <EditorCard
       onBack={onBack}
-      isDirty={isDirty}
       title="Profile"
       meta={<Badge variant="secondary">Header</Badge>}
-      onCancel={() => reset(draft.profile)}
       onSave={handleSubmit((values) => {
         onSave(values);
         reset(values);
         toast.success("Profile saved.");
       })}
-      headerActions={
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={() =>
-            extraLinks.append({
-              id: createLocalId("extra-link"),
-              label: "",
-              url: "https://",
-            })
-          }
-        >
-          <PlusIcon data-icon="inline-start" />
-          Add Link
-        </Button>
-      }
     >
       <FieldGroup>
-        <Field data-invalid={getFieldState("fullName", formState).invalid || undefined}>
+        <Field
+          data-invalid={
+            getFieldState("fullName", formState).invalid || undefined
+          }
+        >
           <FieldLabel htmlFor="profile-full-name">
             <FieldLabelText label="Full name" />
           </FieldLabel>
@@ -102,14 +81,20 @@ export function ProfilePanel({
             <Input
               id="profile-full-name"
               placeholder="Dimas Angkasa Nurindra"
-              aria-invalid={getFieldState("fullName", formState).invalid || undefined}
+              aria-invalid={
+                getFieldState("fullName", formState).invalid || undefined
+              }
               {...register("fullName")}
             />
             <FieldError errors={[getFieldState("fullName", formState).error]} />
           </FieldContent>
         </Field>
 
-        <Field data-invalid={getFieldState("location", formState).invalid || undefined}>
+        <Field
+          data-invalid={
+            getFieldState("location", formState).invalid || undefined
+          }
+        >
           <FieldLabel htmlFor="profile-location">
             <FieldLabelText label="Location" />
           </FieldLabel>
@@ -117,14 +102,18 @@ export function ProfilePanel({
             <Input
               id="profile-location"
               placeholder="Jakarta, Indonesia"
-              aria-invalid={getFieldState("location", formState).invalid || undefined}
+              aria-invalid={
+                getFieldState("location", formState).invalid || undefined
+              }
               {...register("location")}
             />
             <FieldError errors={[getFieldState("location", formState).error]} />
           </FieldContent>
         </Field>
 
-        <Field data-invalid={getFieldState("phone", formState).invalid || undefined}>
+        <Field
+          data-invalid={getFieldState("phone", formState).invalid || undefined}
+        >
           <FieldLabel htmlFor="profile-phone">
             <FieldLabelText label="Phone number" />
           </FieldLabel>
@@ -132,14 +121,18 @@ export function ProfilePanel({
             <Input
               id="profile-phone"
               placeholder="+62 822-3044-2367"
-              aria-invalid={getFieldState("phone", formState).invalid || undefined}
+              aria-invalid={
+                getFieldState("phone", formState).invalid || undefined
+              }
               {...register("phone")}
             />
             <FieldError errors={[getFieldState("phone", formState).error]} />
           </FieldContent>
         </Field>
 
-        <Field data-invalid={getFieldState("email", formState).invalid || undefined}>
+        <Field
+          data-invalid={getFieldState("email", formState).invalid || undefined}
+        >
           <FieldLabel htmlFor="profile-email">
             <FieldLabelText label="Email address" />
           </FieldLabel>
@@ -148,14 +141,18 @@ export function ProfilePanel({
               id="profile-email"
               type="email"
               placeholder="mas.angkasa27@gmail.com"
-              aria-invalid={getFieldState("email", formState).invalid || undefined}
+              aria-invalid={
+                getFieldState("email", formState).invalid || undefined
+              }
               {...register("email")}
             />
             <FieldError errors={[getFieldState("email", formState).error]} />
           </FieldContent>
         </Field>
 
-        <Field data-invalid={getFieldState("photo", formState).invalid || undefined}>
+        <Field
+          data-invalid={getFieldState("photo", formState).invalid || undefined}
+        >
           <FieldLabel htmlFor="profile-photo">
             <FieldLabelText label="Photo URL" optional />
           </FieldLabel>
@@ -164,14 +161,20 @@ export function ProfilePanel({
               id="profile-photo"
               type="url"
               placeholder="https://example.com/profile-photo.jpg"
-              aria-invalid={getFieldState("photo", formState).invalid || undefined}
+              aria-invalid={
+                getFieldState("photo", formState).invalid || undefined
+              }
               {...register("photo")}
             />
             <FieldError errors={[getFieldState("photo", formState).error]} />
           </FieldContent>
         </Field>
 
-        <Field data-invalid={getFieldState("summary", formState).invalid || undefined}>
+        <Field
+          data-invalid={
+            getFieldState("summary", formState).invalid || undefined
+          }
+        >
           <FieldLabel htmlFor="profile-summary">
             <FieldLabelText label="Short description" />
           </FieldLabel>
@@ -180,7 +183,9 @@ export function ProfilePanel({
               id="profile-summary"
               rows={3}
               placeholder="Frontend engineer building enterprise web products and internal platforms."
-              aria-invalid={getFieldState("summary", formState).invalid || undefined}
+              aria-invalid={
+                getFieldState("summary", formState).invalid || undefined
+              }
               {...register("summary")}
             />
             <FieldError errors={[getFieldState("summary", formState).error]} />
@@ -188,119 +193,95 @@ export function ProfilePanel({
         </Field>
       </FieldGroup>
 
-      <Separator />
-
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-3 mt-3">
         <div className="flex items-center gap-2">
-          <span className="text-sm font-medium">Extra links</span>
+          <span className="text-sm font-medium">Links</span>
           <Badge variant="secondary">
-            {extraLinks.fields.length} item{extraLinks.fields.length === 1 ? "" : "s"}
+            {extraLinks.fields.length} item
+            {extraLinks.fields.length === 1 ? "" : "s"}
           </Badge>
         </div>
 
         {extraLinks.fields.length === 0 ? (
-          <div className="rounded-2xl border border-dashed px-4 py-5 text-sm text-muted-foreground">
+          <div className="py-2 text-sm text-muted-foreground">
             No links added.
           </div>
         ) : (
-          <div className="flex flex-col divide-y">
+          <div className="flex flex-col gap-2.5">
             {extraLinks.fields.map((field, index) => {
-              const labelFieldName = `extraLinks.${index}.label` as const;
               const urlFieldName = `extraLinks.${index}.url` as const;
 
               return (
-                <section key={field.id} className="flex flex-col gap-4 py-4 first:pt-0 last:pb-0">
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-2">
-                      <LinkIcon className="text-muted-foreground" />
-                      <span className="text-sm font-medium">Link {index + 1}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        size="icon-sm"
-                        aria-label={`Remove link ${index + 1}`}
-                        title={`Remove link ${index + 1}`}
-                        onClick={() => extraLinks.remove(index)}
-                      >
-                        <Trash2Icon />
-                      </Button>
-                    </div>
+                <div key={field.id} className="flex items-start gap-2">
+                  <Field
+                    className="flex-1"
+                    data-invalid={
+                      getFieldState(urlFieldName, formState).invalid ||
+                      undefined
+                    }
+                  >
+                    <FieldLabel
+                      htmlFor={`profile-link-url-${field.id}`}
+                      className="sr-only"
+                    >
+                      <FieldLabelText label={`Link ${index + 1}`} />
+                    </FieldLabel>
+                    <FieldContent>
+                      <Controller
+                        control={control}
+                        name={urlFieldName}
+                        render={({ field: nextField }) => (
+                          <InputGroup className="rounded-[10px]">
+                            <InputGroupInput
+                              id={`profile-link-url-${field.id}`}
+                              value={nextField.value}
+                              placeholder="https://www.linkedin.com/in/your-handle"
+                              aria-invalid={
+                                getFieldState(urlFieldName, formState)
+                                  .invalid || undefined
+                              }
+                              onChange={nextField.onChange}
+                            />
+                          </InputGroup>
+                        )}
+                      />
+                      <FieldError
+                        errors={[getFieldState(urlFieldName, formState).error]}
+                      />
+                    </FieldContent>
+                  </Field>
+                  <div className="pt-0.5">
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon-sm"
+                      className="mt-px"
+                      aria-label={`Remove link ${index + 1}`}
+                      title={`Remove link ${index + 1}`}
+                      onClick={() => extraLinks.remove(index)}
+                    >
+                      <Trash2Icon />
+                    </Button>
                   </div>
-                  <div className="flex flex-col gap-4">
-                    <FieldGroup>
-                      <Field
-                        data-invalid={
-                          getFieldState(labelFieldName, formState).invalid || undefined
-                        }
-                      >
-                        <FieldLabel htmlFor={`profile-link-label-${field.id}`}>
-                          <FieldLabelText label="Link label" />
-                        </FieldLabel>
-                        <FieldContent>
-                          <Controller
-                            control={control}
-                            name={labelFieldName}
-                            render={({ field: nextField }) => (
-                              <Input
-                                id={`profile-link-label-${field.id}`}
-                                value={nextField.value}
-                                placeholder="LinkedIn"
-                                aria-invalid={
-                                  getFieldState(labelFieldName, formState).invalid || undefined
-                                }
-                                onChange={nextField.onChange}
-                              />
-                            )}
-                          />
-                          <FieldError
-                            errors={[getFieldState(labelFieldName, formState).error]}
-                          />
-                        </FieldContent>
-                      </Field>
-
-                      <Field
-                        data-invalid={
-                          getFieldState(urlFieldName, formState).invalid || undefined
-                        }
-                      >
-                        <FieldLabel htmlFor={`profile-link-url-${field.id}`}>
-                          <FieldLabelText label="Link URL" />
-                        </FieldLabel>
-                        <FieldContent>
-                          <Controller
-                            control={control}
-                            name={urlFieldName}
-                            render={({ field: nextField }) => (
-                              <InputGroup>
-                                <InputGroupInput
-                                  id={`profile-link-url-${field.id}`}
-                                  value={nextField.value}
-                                  placeholder="https://www.linkedin.com/in/your-handle"
-                                  aria-invalid={
-                                    getFieldState(urlFieldName, formState).invalid || undefined
-                                  }
-                                  onChange={nextField.onChange}
-                                />
-                                <InputGroupAddon align="inline-end">
-                                  <LinkIcon />
-                                </InputGroupAddon>
-                              </InputGroup>
-                            )}
-                          />
-                          <FieldError
-                            errors={[getFieldState(urlFieldName, formState).error]}
-                          />
-                        </FieldContent>
-                      </Field>
-                    </FieldGroup>
-                  </div>
-                </section>
+                </div>
               );
             })}
           </div>
         )}
+
+        <Button
+          type="button"
+          className="w-full"
+          onClick={() =>
+            extraLinks.append({
+              id: createLocalId("extra-link"),
+              url: "https://",
+            })
+          }
+        >
+          <PlusIcon data-icon="inline-start" />
+          Add Link
+        </Button>
       </div>
     </EditorCard>
   );

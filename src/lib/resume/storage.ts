@@ -1,7 +1,7 @@
 import { createDefaultResumeDraft } from "@/lib/resume/default-draft";
 import { parseResumeDraft, type ResumeDraft } from "@/lib/resume/schema";
 
-export const RESUME_STORAGE_KEY = "resume-editor:draft:v1";
+export const RESUME_STORAGE_KEY = "resume-editor:draft:v2";
 
 export function exportResumeDraft(draft: ResumeDraft): string {
   return JSON.stringify(draft, null, 2);

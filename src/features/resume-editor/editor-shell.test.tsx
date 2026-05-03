@@ -1,7 +1,7 @@
 import { act } from "react";
 import { hydrateRoot } from "react-dom/client";
 import { renderToString } from "react-dom/server";
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
@@ -104,12 +104,13 @@ describe("resume editor shell", () => {
 
     await user.click(screen.getByRole("button", { name: /back to section list/i }));
 
-    expect(screen.getAllByText(/unsaved changes/i).length).toBeGreaterThan(0);
+    expect(screen.getByRole("alertdialog")).toBeInTheDocument();
+    expect(screen.getByText(/discard unsaved changes\?/i)).toBeInTheDocument();
     expect(
-      screen.getAllByText(
-        /save or discard the current section before leaving the editor/i
-      ).length
-    ).toBeGreaterThan(0);
+      screen.getByText(/leave this section without saving your latest edits/i)
+    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /stay editing/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /discard changes/i })).toBeInTheDocument();
   });
 
   it("hydrates without recoverable errors when local storage differs from the server draft", async () => {
@@ -117,7 +118,6 @@ describe("resume editor shell", () => {
     storedDraft.profile.extraLinks = [
       {
         id: "portfolio-only",
-        label: "Portfolio",
         url: "https://asaa.dev",
       },
     ];
@@ -238,5 +238,68 @@ describe("resume editor shell", () => {
     expect(
       screen.queryByRole("button", { name: /back to section list/i })
     ).not.toBeInTheDocument();
+
+    const profileRow = document.querySelector('[data-section-row="profile"]');
+    expect(profileRow).toHaveClass("hover:bg-muted/55");
+    expect(profileRow).not.toHaveClass("bg-primary/5");
+  });
+
+  it("renders grouped section rail controls instead of loose icon buttons", async () => {
+    const draft = createDefaultResumeDraft();
+
+    mockDesktopViewport(true);
+    render(<ResumeEditorShell initialDraft={draft} />);
+
+    const summaryActions = screen.getByRole("group", { name: /summary actions/i });
+    expect(within(summaryActions).getByRole("button", { name: /edit summary/i })).toBeInTheDocument();
+    expect(
+      within(summaryActions).getByRole("button", { name: /move summary up/i })
+    ).toBeInTheDocument();
+    expect(
+      within(summaryActions).getByRole("button", { name: /move summary down/i })
+    ).toBeInTheDocument();
+    expect(
+      within(summaryActions).getByRole("button", { name: /hide summary/i })
+    ).toBeInTheDocument();
+  });
+
+  it("shows one add action in an empty collection form and does not render cancel", async () => {
+    const user = userEvent.setup();
+    const draft = createDefaultResumeDraft();
+    draft.sections.education.items = [];
+
+    mockDesktopViewport(true);
+    render(<ResumeEditorShell initialDraft={draft} />);
+
+    await user.click(screen.getByRole("button", { name: /edit education/i }));
+
+    expect(
+      screen.queryByRole("button", { name: /^cancel$/i })
+    ).not.toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: /add education/i })).toHaveLength(1);
+  });
+
+  it("disables removing the only item in a collection section", async () => {
+    const user = userEvent.setup();
+    const draft = createDefaultResumeDraft();
+    draft.sections.projects.items = [
+      {
+        id: "project-1",
+        projectName: "",
+        projectLink: "",
+        startDate: "",
+        endDate: "",
+        description: "",
+      },
+    ];
+
+    mockDesktopViewport(true);
+    render(<ResumeEditorShell initialDraft={draft} />);
+
+    await user.click(screen.getByRole("button", { name: /edit projects/i }));
+
+    expect(
+      screen.getByRole("button", { name: /remove project 1/i })
+    ).toBeDisabled();
   });
 });

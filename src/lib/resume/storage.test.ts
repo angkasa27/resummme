@@ -56,7 +56,7 @@ describe("resume storage", () => {
     expect(() =>
       importResumeDraft(
         JSON.stringify({
-          schemaVersion: 1,
+          schemaVersion: 2,
           templateId: "recruiter-first-clean",
           profile: {},
         })

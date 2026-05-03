@@ -19,6 +19,7 @@ import {
 } from "@/lib/resume/storage";
 import {
   createResumeEditorStore,
+  type ResumeEditorPendingIntent,
   type ResumeEditorPanelKey,
   type ResumeEditorViewMode,
   type ResumeSectionKey,
@@ -34,9 +35,8 @@ export type ResumeEditorController = {
   activeSection: ResumeEditorPanelKey;
   editorViewMode: ResumeEditorViewMode;
   dirtySections: ResumeEditorPanelKey[];
-  pendingSection: ResumeEditorPanelKey | null;
-  pendingViewMode: ResumeEditorViewMode | null;
-  warningOpen: boolean;
+  pendingIntent: ResumeEditorPendingIntent | null;
+  confirmExitOpen: boolean;
   openImportPicker: () => void;
   handleImport: (event: ChangeEvent<HTMLInputElement>) => Promise<void>;
   handleExport: () => void;
@@ -45,12 +45,9 @@ export type ResumeEditorController = {
   returnToSectionList: () => void;
   moveSection: (sectionKey: ResumeSectionKey, direction: -1 | 1) => void;
   setSectionVisibility: (sectionKey: ResumeSectionKey, visible: boolean) => void;
-  setSectionDirty: (
-    sectionKey: ResumeEditorPanelKey,
-    isDirty: boolean
-  ) => void;
-  discardPendingSectionChanges: () => void;
-  cancelPendingSectionChange: () => void;
+  setSectionDirty: (sectionKey: ResumeEditorPanelKey, isDirty: boolean) => void;
+  discardPendingChanges: () => void;
+  cancelPendingIntent: () => void;
   saveProfile: (profile: Profile) => void;
   saveSection: <K extends ResumeSectionKey>(
     sectionKey: K,
@@ -69,9 +66,8 @@ export function useResumeEditorController({
   const activeSection = useStore(store, (state) => state.activeSection);
   const editorViewMode = useStore(store, (state) => state.editorViewMode);
   const dirtySections = useStore(store, (state) => state.dirtySections);
-  const pendingSection = useStore(store, (state) => state.pendingSection);
-  const pendingViewMode = useStore(store, (state) => state.pendingViewMode);
-  const warningOpen = useStore(store, (state) => state.warningOpen);
+  const pendingIntent = useStore(store, (state) => state.pendingIntent);
+  const confirmExitOpen = useStore(store, (state) => state.confirmExitOpen);
 
   useEffect(() => {
     if (initialDraft) {
@@ -101,16 +97,6 @@ export function useResumeEditorController({
     };
   }, [store]);
 
-  function ensureImportAllowed() {
-    if (dirtySections.length === 0) {
-      return true;
-    }
-
-    return window.confirm(
-      "You have unsaved changes. Importing a resume will replace the current editor state."
-    );
-  }
-
   function openImportPicker() {
     fileInputRef.current?.click();
   }
@@ -122,16 +108,17 @@ export function useResumeEditorController({
       return;
     }
 
-    if (!ensureImportAllowed()) {
-      event.target.value = "";
-      return;
-    }
-
     try {
       const fileContents = await selectedFile.text();
       const importedDraft = importResumeDraft(fileContents);
-      store.getState().replaceDraft(importedDraft);
-      toast.success("Draft imported.");
+      const shouldOpenConfirm = dirtySections.length > 0;
+
+      if (shouldOpenConfirm) {
+        store.getState().requestImportDraft(importedDraft);
+      } else {
+        store.getState().replaceDraft(importedDraft);
+        toast.success("Draft imported.");
+      }
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Unable to import that draft."
@@ -165,9 +152,8 @@ export function useResumeEditorController({
     activeSection,
     editorViewMode,
     dirtySections,
-    pendingSection,
-    pendingViewMode,
-    warningOpen,
+    pendingIntent,
+    confirmExitOpen,
     openImportPicker,
     handleImport,
     handleExport,
@@ -181,9 +167,8 @@ export function useResumeEditorController({
       store.getState().setSectionVisibility(sectionKey, visible),
     setSectionDirty: (sectionKey, isDirty) =>
       store.getState().setSectionDirty(sectionKey, isDirty),
-    discardPendingSectionChanges: () =>
-      store.getState().discardPendingSectionChanges(),
-    cancelPendingSectionChange: () => store.getState().cancelPendingSectionChange(),
+    discardPendingChanges: () => store.getState().discardPendingChanges(),
+    cancelPendingIntent: () => store.getState().cancelPendingIntent(),
     saveProfile: (profile) => store.getState().saveProfile(profile),
     saveSection: (sectionKey, sectionValue) =>
       store.getState().saveSection(sectionKey, sectionValue),

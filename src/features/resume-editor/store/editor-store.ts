@@ -11,15 +11,26 @@ import { saveResumeDraft } from "@/lib/resume/storage";
 export type ResumeSectionKey = keyof ResumeDraft["sections"];
 export type ResumeEditorPanelKey = "profile" | ResumeSectionKey;
 export type ResumeEditorViewMode = "list" | "form";
+export type ResumeEditorPendingIntent =
+  | {
+      type: "section";
+      sectionKey: ResumeEditorPanelKey;
+    }
+  | {
+      type: "list";
+    }
+  | {
+      type: "import";
+      draft: ResumeDraft;
+    };
 
 export type ResumeEditorStoreState = {
   draft: ResumeDraft;
   activeSection: ResumeEditorPanelKey;
   editorViewMode: ResumeEditorViewMode;
   dirtySections: ResumeEditorPanelKey[];
-  pendingSection: ResumeEditorPanelKey | null;
-  pendingViewMode: ResumeEditorViewMode | null;
-  warningOpen: boolean;
+  pendingIntent: ResumeEditorPendingIntent | null;
+  confirmExitOpen: boolean;
   setSectionDirty: (sectionKey: ResumeEditorPanelKey, isDirty: boolean) => void;
   saveProfile: (profile: Profile) => void;
   saveSection: <K extends ResumeSectionKey>(
@@ -30,8 +41,9 @@ export type ResumeEditorStoreState = {
   setSectionVisibility: (sectionKey: ResumeSectionKey, visible: boolean) => void;
   requestSectionChange: (sectionKey: ResumeEditorPanelKey) => void;
   returnToSectionList: () => void;
-  discardPendingSectionChanges: () => void;
-  cancelPendingSectionChange: () => void;
+  requestImportDraft: (draft: ResumeDraft) => void;
+  discardPendingChanges: () => void;
+  cancelPendingIntent: () => void;
   replaceDraft: (draft: ResumeDraft) => void;
 };
 
@@ -57,15 +69,18 @@ function createNextDraft(
   };
 }
 
+function hasDirtyActiveSection(state: ResumeEditorStoreState) {
+  return state.dirtySections.includes(state.activeSection);
+}
+
 export function createResumeEditorStore(initialDraft = createDefaultResumeDraft()) {
   return createStore<ResumeEditorStoreState>()((set, get) => ({
     draft: initialDraft,
     activeSection: "profile",
     editorViewMode: "list",
     dirtySections: [],
-    pendingSection: null,
-    pendingViewMode: null,
-    warningOpen: false,
+    pendingIntent: null,
+    confirmExitOpen: false,
     setSectionDirty: (sectionKey, isDirty) => {
       const alreadyDirty = get().dirtySections.includes(sectionKey);
 
@@ -136,11 +151,13 @@ export function createResumeEditorStore(initialDraft = createDefaultResumeDraft(
         return;
       }
 
-      if (state.dirtySections.includes(state.activeSection)) {
+      if (hasDirtyActiveSection(state)) {
         set({
-          pendingSection: sectionKey,
-          pendingViewMode: "form",
-          warningOpen: true,
+          pendingIntent: {
+            type: "section",
+            sectionKey,
+          },
+          confirmExitOpen: true,
         });
         return;
       }
@@ -148,9 +165,8 @@ export function createResumeEditorStore(initialDraft = createDefaultResumeDraft(
       set({
         activeSection: sectionKey,
         editorViewMode: "form",
-        pendingSection: null,
-        pendingViewMode: null,
-        warningOpen: false,
+        pendingIntent: null,
+        confirmExitOpen: false,
       });
     },
     returnToSectionList: () => {
@@ -160,58 +176,86 @@ export function createResumeEditorStore(initialDraft = createDefaultResumeDraft(
         return;
       }
 
-      if (state.dirtySections.includes(state.activeSection)) {
+      if (hasDirtyActiveSection(state)) {
         set({
-          pendingSection: null,
-          pendingViewMode: "list",
-          warningOpen: true,
+          pendingIntent: { type: "list" },
+          confirmExitOpen: true,
         });
         return;
       }
 
       set({
         editorViewMode: "list",
-        pendingSection: null,
-        pendingViewMode: null,
-        warningOpen: false,
+        pendingIntent: null,
+        confirmExitOpen: false,
       });
     },
-    discardPendingSectionChanges: () => {
+    requestImportDraft: (draft) => {
       const state = get();
 
-      if (!state.pendingSection && !state.pendingViewMode) {
-        return;
-      }
-
-      if (state.pendingViewMode === "list") {
+      if (hasDirtyActiveSection(state)) {
         set({
-          editorViewMode: "list",
-          dirtySections: clearSectionKey(state.dirtySections, state.activeSection),
-          pendingSection: null,
-          pendingViewMode: null,
-          warningOpen: false,
+          pendingIntent: {
+            type: "import",
+            draft,
+          },
+          confirmExitOpen: true,
         });
         return;
       }
 
-      if (!state.pendingSection) {
+      saveResumeDraft(draft);
+      set({
+        draft,
+        activeSection: "profile",
+        editorViewMode: "list",
+        dirtySections: [],
+        pendingIntent: null,
+        confirmExitOpen: false,
+      });
+    },
+    discardPendingChanges: () => {
+      const state = get();
+
+      if (!state.pendingIntent) {
         return;
       }
 
+      if (state.pendingIntent.type === "list") {
+        set({
+          editorViewMode: "list",
+          dirtySections: clearSectionKey(state.dirtySections, state.activeSection),
+          pendingIntent: null,
+          confirmExitOpen: false,
+        });
+        return;
+      }
+
+      if (state.pendingIntent.type === "section") {
+        set({
+          activeSection: state.pendingIntent.sectionKey,
+          editorViewMode: "form",
+          dirtySections: clearSectionKey(state.dirtySections, state.activeSection),
+          pendingIntent: null,
+          confirmExitOpen: false,
+        });
+        return;
+      }
+
+      saveResumeDraft(state.pendingIntent.draft);
       set({
-        activeSection: state.pendingSection,
-        editorViewMode: "form",
-        dirtySections: clearSectionKey(state.dirtySections, state.activeSection),
-        pendingSection: null,
-        pendingViewMode: null,
-        warningOpen: false,
+        draft: state.pendingIntent.draft,
+        activeSection: "profile",
+        editorViewMode: "list",
+        dirtySections: [],
+        pendingIntent: null,
+        confirmExitOpen: false,
       });
     },
-    cancelPendingSectionChange: () => {
+    cancelPendingIntent: () => {
       set({
-        pendingSection: null,
-        pendingViewMode: null,
-        warningOpen: false,
+        pendingIntent: null,
+        confirmExitOpen: false,
       });
     },
     replaceDraft: (draft) => {
@@ -221,9 +265,8 @@ export function createResumeEditorStore(initialDraft = createDefaultResumeDraft(
         activeSection: "profile",
         editorViewMode: "list",
         dirtySections: [],
-        pendingSection: null,
-        pendingViewMode: null,
-        warningOpen: false,
+        pendingIntent: null,
+        confirmExitOpen: false,
       });
     },
   }));

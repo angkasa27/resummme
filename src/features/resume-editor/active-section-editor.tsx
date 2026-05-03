@@ -11,7 +11,6 @@ import type { ResumeDraft } from "@/lib/resume/schema";
 type ActiveSectionEditorProps = {
   draft: ResumeDraft;
   activeSection: ResumeEditorPanelKey;
-  dirtySections: ResumeEditorPanelKey[];
   onBack: () => void;
   onSetSectionDirty: (sectionKey: ResumeEditorPanelKey, isDirty: boolean) => void;
   onSaveProfile: (profile: ResumeDraft["profile"]) => void;
@@ -24,7 +23,6 @@ type ActiveSectionEditorProps = {
 export function ActiveSectionEditor({
   draft,
   activeSection,
-  dirtySections,
   onBack,
   onSetSectionDirty,
   onSaveProfile,
@@ -34,7 +32,6 @@ export function ActiveSectionEditor({
     return (
       <ProfilePanel
         draft={draft}
-        isDirty={dirtySections.includes("profile")}
         onBack={onBack}
         onDirtyChange={(nextDirty) => onSetSectionDirty("profile", nextDirty)}
         onSave={onSaveProfile}
@@ -46,7 +43,6 @@ export function ActiveSectionEditor({
     return (
       <SummaryPanel
         draft={draft}
-        isDirty={dirtySections.includes("summary")}
         onBack={onBack}
         onDirtyChange={(nextDirty) => onSetSectionDirty("summary", nextDirty)}
         onSave={(sectionValue) => onSaveSection("summary", sectionValue)}
@@ -59,7 +55,6 @@ export function ActiveSectionEditor({
       <CollectionSectionPanel
         draft={draft}
         sectionKey={activeSection}
-        isDirty={dirtySections.includes(activeSection)}
         onBack={onBack}
         onDirtyChange={(nextDirty) => onSetSectionDirty(activeSection, nextDirty)}
         onSave={(sectionValue) => onSaveSection(activeSection, sectionValue)}

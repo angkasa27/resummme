@@ -73,7 +73,7 @@ export function MonthYearPicker({
             disabled={disabled}
             aria-invalid={ariaInvalid}
             className={cn(
-              "h-9 w-full justify-between rounded-lg border-input px-3 font-normal",
+              "h-9 w-full justify-between rounded-[10px] border-input px-3 font-normal",
               !value && "text-muted-foreground"
             )}
           />
@@ -82,7 +82,7 @@ export function MonthYearPicker({
         <span>{value || placeholder}</span>
         <CalendarIcon className="size-4 text-muted-foreground" />
       </PopoverTrigger>
-      <PopoverContent align="start" className="w-[320px] gap-3">
+      <PopoverContent align="start" className="w-[320px] gap-3 rounded-[12px]">
         <PopoverHeader>
           <PopoverTitle>Month and year</PopoverTitle>
           <PopoverDescription>
@@ -90,7 +90,7 @@ export function MonthYearPicker({
           </PopoverDescription>
         </PopoverHeader>
 
-        <div className="rounded-lg border bg-muted/20 p-2">
+        <div className="rounded-[10px] border bg-muted/20 p-2">
           <Calendar
             mode="single"
             month={displayMonth}
@@ -109,7 +109,7 @@ export function MonthYearPicker({
           />
         </div>
 
-        <div className="flex items-center justify-between rounded-lg border bg-background px-3 py-2">
+        <div className="flex items-center justify-between rounded-[10px] border bg-background px-3 py-2">
           <Button
             type="button"
             variant="ghost"

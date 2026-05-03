@@ -8,6 +8,7 @@ import {
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ButtonGroup } from "@/components/ui/button-group";
 import {
   getOrderedSectionKeys,
   sectionLabels,
@@ -20,17 +21,16 @@ import { cn } from "@/lib/utils";
 
 type SectionNavigatorProps = {
   draft: ResumeDraft;
-  activeSection: ResumeEditorPanelKey;
-  dirtySections: ResumeEditorPanelKey[];
   onRequestSectionChange: (sectionKey: ResumeEditorPanelKey) => void;
   onMoveSection: (sectionKey: ResumeSectionPanelKey, direction: -1 | 1) => void;
-  onSetSectionVisibility: (sectionKey: ResumeSectionPanelKey, visible: boolean) => void;
+  onSetSectionVisibility: (
+    sectionKey: ResumeSectionPanelKey,
+    visible: boolean,
+  ) => void;
 };
 
 export function SectionNavigator({
   draft,
-  activeSection,
-  dirtySections,
   onRequestSectionChange,
   onMoveSection,
   onSetSectionVisibility,
@@ -39,80 +39,82 @@ export function SectionNavigator({
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <div className="border-b px-5 py-3">
+      <div className="border-b px-4 py-3">
         <h2 className="text-base font-semibold">Sections</h2>
       </div>
 
-      <nav className="min-h-0 flex-1 overflow-y-auto px-3 py-2">
+      <nav className="min-h-0 flex-1 overflow-y-auto px-3 py-3">
         <ul className="flex flex-col gap-1">
           <li>
             <div
-              className={cn(
-                "flex min-w-0 items-center gap-3 rounded-2xl border px-3 py-2",
-                activeSection === "profile" && "border-primary/30 bg-primary/5"
-              )}
+              data-section-row="profile"
+              className="flex min-w-0 items-center gap-3 rounded-[12px] border px-3 py-2.5 transition-colors hover:bg-muted/55"
             >
-              <div className="text-muted-foreground">{renderSectionIcon("profile")}</div>
+              <div className="text-muted-foreground">
+                {renderSectionIcon("profile")}
+              </div>
               <div className="flex min-w-0 flex-1 items-center gap-2">
                 <span className="truncate text-sm font-medium">Profile</span>
                 <Badge variant="secondary">Fixed</Badge>
-                {dirtySections.includes("profile") ? <Badge>Unsaved</Badge> : null}
               </div>
-              <div className="flex items-center gap-1">
-                <Button
-                  type="button"
-                  variant={activeSection === "profile" ? "default" : "ghost"}
-                  size="icon-sm"
-                  aria-label="Edit Profile"
-                  title="Edit Profile"
-                  onClick={() => onRequestSectionChange("profile")}
-                >
-                  <PencilIcon />
-                </Button>
-              </div>
+
+              <Button
+                type="button"
+                variant="outline"
+                size="icon-sm"
+                aria-label="Edit Profile"
+                title="Edit Profile"
+                onClick={() => onRequestSectionChange("profile")}
+                className="text-primary"
+              >
+                <PencilIcon />
+              </Button>
             </div>
           </li>
 
           {orderedSectionKeys.map((sectionKey, index) => {
             const section = draft.sections[sectionKey];
             const label = sectionLabels[sectionKey];
-            const isActive = activeSection === sectionKey;
-            const isDirty = dirtySections.includes(sectionKey);
             const isFirst = index === 0;
             const isLast = index === orderedSectionKeys.length - 1;
 
             return (
               <li key={sectionKey}>
                 <div
-                  className={cn(
-                    "flex min-w-0 items-center gap-3 rounded-2xl border px-3 py-2",
-                    isActive && "border-primary/30 bg-primary/5",
-                    !section.visible && "opacity-60"
-                  )}
+                  data-section-row={sectionKey}
+                  className="flex min-w-0 items-center gap-3 rounded-[12px] border px-3 py-2.5 transition-colors hover:bg-muted/55"
                 >
-                  <div className="text-muted-foreground">{renderSectionIcon(sectionKey)}</div>
+                  <div
+                    className={cn(
+                      "text-muted-foreground",
+                      !section.visible && "opacity-60",
+                    )}
+                  >
+                    {renderSectionIcon(sectionKey)}
+                  </div>
                   <div className="flex min-w-0 flex-1 items-center gap-2">
-                    <span className="truncate text-sm font-medium">{label}</span>
-                    {isDirty ? <Badge>Unsaved</Badge> : null}
-                    {!section.visible ? <Badge variant="outline">Hidden</Badge> : null}
+                    <span
+                      className={cn(
+                        "truncate text-sm font-medium",
+                        !section.visible && "opacity-60",
+                      )}
+                    >
+                      {label}
+                    </span>
+                    {!section.visible ? (
+                      <Badge variant="secondary">Hidden</Badge>
+                    ) : null}
                   </div>
 
-                  <div className="flex items-center gap-1">
+                  <ButtonGroup
+                    aria-label={`${label} actions`}
+                    className="shrink-0"
+                  >
                     <Button
                       type="button"
-                      variant={isActive ? "default" : "ghost"}
+                      variant="outline"
                       size="icon-sm"
-                      aria-label={`Edit ${label}`}
-                      title={`Edit ${label}`}
-                      onClick={() => onRequestSectionChange(sectionKey)}
-                    >
-                      <PencilIcon />
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon-sm"
-                      disabled={isFirst}
+                      disabled={isFirst || !section.visible}
                       aria-label={`Move ${label} up`}
                       title={`Move ${label} up`}
                       onClick={() => onMoveSection(sectionKey, -1)}
@@ -121,9 +123,9 @@ export function SectionNavigator({
                     </Button>
                     <Button
                       type="button"
-                      variant="ghost"
+                      variant="outline"
                       size="icon-sm"
-                      disabled={isLast}
+                      disabled={isLast || !section.visible}
                       aria-label={`Move ${label} down`}
                       title={`Move ${label} down`}
                       onClick={() => onMoveSection(sectionKey, 1)}
@@ -132,15 +134,30 @@ export function SectionNavigator({
                     </Button>
                     <Button
                       type="button"
-                      variant="ghost"
+                      variant="outline"
+                      size="icon-sm"
+                      aria-label={`Edit ${label}`}
+                      title={`Edit ${label}`}
+                      onClick={() => onRequestSectionChange(sectionKey)}
+                      disabled={!section.visible}
+                      className={cn(section.visible && "text-primary")}
+                    >
+                      <PencilIcon />
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={section.visible ? "destructive" : "default"}
                       size="icon-sm"
                       aria-label={`${section.visible ? "Hide" : "Show"} ${label}`}
                       title={`${section.visible ? "Hide" : "Show"} ${label}`}
-                      onClick={() => onSetSectionVisibility(sectionKey, !section.visible)}
+                      onClick={() =>
+                        onSetSectionVisibility(sectionKey, !section.visible)
+                      }
+                      className="border! border-l-0! border-border!"
                     >
                       {section.visible ? <EyeOffIcon /> : <EyeIcon />}
                     </Button>
-                  </div>
+                  </ButtonGroup>
                 </div>
               </li>
             );

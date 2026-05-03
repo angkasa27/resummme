@@ -28,8 +28,8 @@ export function EditorNavbar({
   onPrint,
 }: EditorNavbarProps) {
   return (
-    <header className="sticky top-0 z-30 border-b bg-background/95 backdrop-blur print:hidden">
-      <div className="mx-auto flex max-w-[1720px] items-center justify-between gap-4 px-4 py-3 lg:px-6">
+    <header className="sticky top-0 z-30 h-16 border-b bg-background/95 backdrop-blur print:hidden">
+      <div className="mx-auto flex h-full max-w-[1720px] items-center justify-between gap-4 px-4 lg:px-6">
         <div className="min-w-0">
           <h1 className="truncate text-lg font-semibold">CV Editor</h1>
         </div>

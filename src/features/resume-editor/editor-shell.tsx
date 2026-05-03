@@ -20,10 +20,8 @@ export function ResumeEditorShell({ initialDraft }: ResumeEditorShellProps) {
     draft,
     activeSection,
     editorViewMode,
-    dirtySections,
-    pendingSection,
-    pendingViewMode,
-    warningOpen,
+    pendingIntent,
+    confirmExitOpen,
     openImportPicker,
     handleImport,
     handleExport,
@@ -33,14 +31,17 @@ export function ResumeEditorShell({ initialDraft }: ResumeEditorShellProps) {
     moveSection,
     setSectionVisibility,
     setSectionDirty,
-    discardPendingSectionChanges,
-    cancelPendingSectionChange,
+    discardPendingChanges,
+    cancelPendingIntent,
     saveProfile,
     saveSection,
   } = useResumeEditorController({ initialDraft });
 
   useEffect(() => {
-    if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+    if (
+      typeof window === "undefined" ||
+      typeof window.matchMedia !== "function"
+    ) {
       return;
     }
 
@@ -59,7 +60,7 @@ export function ResumeEditorShell({ initialDraft }: ResumeEditorShellProps) {
   }, []);
 
   return (
-    <div className="min-h-screen bg-muted/20 text-foreground print:bg-background">
+    <div className="grid h-dvh grid-rows-[auto_minmax(0,1fr)] overflow-hidden bg-muted/20 text-foreground print:block print:h-auto print:overflow-visible print:bg-background">
       <input
         ref={fileInputRef}
         type="file"
@@ -75,59 +76,55 @@ export function ResumeEditorShell({ initialDraft }: ResumeEditorShellProps) {
       />
 
       {isDesktop ? (
-        <main className="mx-auto grid max-w-[1720px] grid-cols-[minmax(420px,520px)_minmax(0,1fr)] gap-6 px-4 py-6 lg:px-6 print:block print:px-0 print:py-0">
-          <div className="min-h-0 print:hidden">
+        <main className="mx-auto grid h-full min-h-0 w-full max-w-[1720px] grid-cols-[minmax(420px,520px)_minmax(0,1fr)] overflow-hidden px-4 py-5 lg:px-0 lg:py-0 print:block print:h-auto print:overflow-visible print:px-0 print:py-0">
+          <div className="h-full min-h-0 print:hidden">
             <EditorPane
               draft={draft}
               activeSection={activeSection}
               editorViewMode={editorViewMode}
-              dirtySections={dirtySections}
-              pendingSection={pendingSection}
-              pendingViewMode={pendingViewMode}
-              warningOpen={warningOpen}
+              pendingIntent={pendingIntent}
+              confirmExitOpen={confirmExitOpen}
               onRequestSectionChange={requestSectionChange}
               onReturnToSectionList={returnToSectionList}
               onMoveSection={moveSection}
               onSetSectionVisibility={setSectionVisibility}
               onSetSectionDirty={setSectionDirty}
-              onDiscardPendingSectionChanges={discardPendingSectionChanges}
-              onCancelPendingSectionChange={cancelPendingSectionChange}
+              onDiscardPendingChanges={discardPendingChanges}
+              onCancelPendingIntent={cancelPendingIntent}
               onSaveProfile={saveProfile}
               onSaveSection={saveSection}
             />
           </div>
-          <div className="min-h-0">
+          <div className="h-full min-h-0">
             <PreviewPane draft={draft} />
           </div>
         </main>
       ) : (
-        <main className="mx-auto flex max-w-[1720px] flex-col gap-4 px-4 py-4 print:px-0 print:py-0">
-          <Tabs defaultValue="editor">
+        <main className="mx-auto flex h-full min-h-0 w-full max-w-[1720px] flex-col gap-4 overflow-hidden px-4 py-4 print:h-auto print:overflow-visible print:px-0 print:py-0">
+          <Tabs defaultValue="editor" className="flex min-h-0 flex-1 flex-col">
             <TabsList className="w-full">
               <TabsTrigger value="editor">Editor</TabsTrigger>
               <TabsTrigger value="preview">Preview</TabsTrigger>
             </TabsList>
-            <TabsContent value="editor" keepMounted>
+            <TabsContent value="editor" keepMounted className="min-h-0 flex-1">
               <EditorPane
                 draft={draft}
                 activeSection={activeSection}
                 editorViewMode={editorViewMode}
-                dirtySections={dirtySections}
-                pendingSection={pendingSection}
-                pendingViewMode={pendingViewMode}
-                warningOpen={warningOpen}
+                pendingIntent={pendingIntent}
+                confirmExitOpen={confirmExitOpen}
                 onRequestSectionChange={requestSectionChange}
                 onReturnToSectionList={returnToSectionList}
                 onMoveSection={moveSection}
                 onSetSectionVisibility={setSectionVisibility}
                 onSetSectionDirty={setSectionDirty}
-                onDiscardPendingSectionChanges={discardPendingSectionChanges}
-                onCancelPendingSectionChange={cancelPendingSectionChange}
+                onDiscardPendingChanges={discardPendingChanges}
+                onCancelPendingIntent={cancelPendingIntent}
                 onSaveProfile={saveProfile}
                 onSaveSection={saveSection}
               />
             </TabsContent>
-            <TabsContent value="preview" keepMounted>
+            <TabsContent value="preview" keepMounted className="min-h-0 flex-1">
               <PreviewPane draft={draft} />
             </TabsContent>
           </Tabs>

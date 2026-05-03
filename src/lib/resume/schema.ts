@@ -48,6 +48,22 @@ function requiredMonthYear(label: string) {
     .regex(monthYearPattern, `${label} must use the format MMM YYYY.`);
 }
 
+function draftText() {
+  return z.string().trim();
+}
+
+function draftRichText() {
+  return z.string().trim();
+}
+
+function draftMonthYear() {
+  return z.literal("").or(z.string().trim().regex(monthYearPattern));
+}
+
+function draftCurrentOrMonthYear() {
+  return z.union([z.literal(""), z.string().trim().regex(monthYearPattern), currentValueSchema]);
+}
+
 export const summarySectionSchema = z.object({
   visible: z.boolean(),
   order: z.number().int().nonnegative(),
@@ -56,9 +72,8 @@ export const summarySectionSchema = z.object({
 
 export const extraLinkSchema = z.object({
   id: requiredText("Link ID"),
-  label: requiredText("Link label"),
   url: requiredUrl("Link URL"),
-});
+}).strict();
 
 export const profileSchema = z.object({
   fullName: requiredText("Full name"),
@@ -84,10 +99,26 @@ export const workExperienceItemSchema = z.object({
   description: requiredRichText("Description"),
 });
 
+const workExperienceDraftItemSchema = z.object({
+  id: requiredText("Work experience ID"),
+  companyName: draftText(),
+  position: draftText(),
+  location: draftText(),
+  startDate: draftMonthYear(),
+  endDate: draftCurrentOrMonthYear(),
+  description: draftRichText(),
+});
+
 export const skillCategoryItemSchema = z.object({
   id: requiredText("Skill category ID"),
   categoryName: requiredText("Category name"),
   skills: z.array(requiredText("Skill")).min(1, "Add at least one skill."),
+});
+
+const skillCategoryDraftItemSchema = z.object({
+  id: requiredText("Skill category ID"),
+  categoryName: draftText(),
+  skills: z.array(draftText()),
 });
 
 export const projectItemSchema = z.object({
@@ -96,6 +127,15 @@ export const projectItemSchema = z.object({
   projectLink: optionalUrl("Project link"),
   ...datedRangeSchema.shape,
   description: requiredRichText("Description"),
+});
+
+const projectDraftItemSchema = z.object({
+  id: requiredText("Project ID"),
+  projectName: draftText(),
+  projectLink: optionalUrl("Project link"),
+  startDate: draftMonthYear(),
+  endDate: draftCurrentOrMonthYear(),
+  description: draftRichText(),
 });
 
 export const educationItemSchema = z.object({
@@ -108,6 +148,17 @@ export const educationItemSchema = z.object({
   description: requiredRichText("Description"),
 });
 
+const educationDraftItemSchema = z.object({
+  id: requiredText("Education ID"),
+  name: draftText(),
+  location: draftText(),
+  startDate: draftMonthYear(),
+  endDate: draftCurrentOrMonthYear(),
+  degree: draftText(),
+  gpa: optionalText(),
+  description: draftRichText(),
+});
+
 export const publicationItemSchema = z.object({
   id: requiredText("Publication ID"),
   title: requiredText("Title"),
@@ -117,11 +168,29 @@ export const publicationItemSchema = z.object({
   description: requiredRichText("Description"),
 });
 
+const publicationDraftItemSchema = z.object({
+  id: requiredText("Publication ID"),
+  title: draftText(),
+  publisher: draftText(),
+  publicationUrl: optionalUrl("Publication URL"),
+  publicationDate: draftMonthYear(),
+  description: draftRichText(),
+});
+
 export const certificationItemSchema = z.object({
   id: requiredText("Certification ID"),
   certificationName: requiredText("Certification name"),
   issuingOrganization: requiredText("Issuing organization"),
   issuedDate: requiredMonthYear("Issued date"),
+  certificationLink: optionalUrl("Certification link"),
+  credentialId: optionalText(),
+});
+
+const certificationDraftItemSchema = z.object({
+  id: requiredText("Certification ID"),
+  certificationName: draftText(),
+  issuingOrganization: draftText(),
+  issuedDate: draftMonthYear(),
   certificationLink: optionalUrl("Certification link"),
   credentialId: optionalText(),
 });
@@ -134,10 +203,24 @@ export const awardItemSchema = z.object({
   description: requiredRichText("Description"),
 });
 
+const awardDraftItemSchema = z.object({
+  id: requiredText("Award ID"),
+  title: draftText(),
+  issuer: draftText(),
+  issuedDate: draftMonthYear(),
+  description: draftRichText(),
+});
+
 export const languageItemSchema = z.object({
   id: requiredText("Language ID"),
   language: requiredText("Language"),
   proficiency: requiredText("Proficiency"),
+});
+
+const languageDraftItemSchema = z.object({
+  id: requiredText("Language ID"),
+  language: draftText(),
+  proficiency: draftText(),
 });
 
 export const referenceItemSchema = z.object({
@@ -145,6 +228,13 @@ export const referenceItemSchema = z.object({
   name: requiredText("Name"),
   background: requiredText("Background"),
   contactDetails: requiredText("Contact details"),
+});
+
+const referenceDraftItemSchema = z.object({
+  id: requiredText("Reference ID"),
+  name: draftText(),
+  background: draftText(),
+  contactDetails: draftText(),
 });
 
 export const organizationItemSchema = z.object({
@@ -156,39 +246,49 @@ export const organizationItemSchema = z.object({
   description: requiredRichText("Description"),
 });
 
+const organizationDraftItemSchema = z.object({
+  id: requiredText("Organization ID"),
+  organizationName: draftText(),
+  position: draftText(),
+  location: draftText(),
+  startDate: draftMonthYear(),
+  endDate: draftCurrentOrMonthYear(),
+  description: draftRichText(),
+});
+
 function createCollectionSectionSchema<T extends z.ZodType>(itemSchema: T) {
   return z.object({
     visible: z.boolean(),
     order: z.number().int().nonnegative(),
-    items: z.array(itemSchema),
+    items: z.array(itemSchema).min(1, "At least one item is required."),
   });
 }
 
 export const workExperienceSectionSchema = createCollectionSectionSchema(
-  workExperienceItemSchema
+  workExperienceDraftItemSchema
 );
 export const skillsSectionSchema = createCollectionSectionSchema(
-  skillCategoryItemSchema
+  skillCategoryDraftItemSchema
 );
-export const projectsSectionSchema = createCollectionSectionSchema(projectItemSchema);
+export const projectsSectionSchema = createCollectionSectionSchema(projectDraftItemSchema);
 export const educationSectionSchema = createCollectionSectionSchema(
-  educationItemSchema
+  educationDraftItemSchema
 );
 export const publicationsSectionSchema = createCollectionSectionSchema(
-  publicationItemSchema
+  publicationDraftItemSchema
 );
 export const certificationsSectionSchema = createCollectionSectionSchema(
-  certificationItemSchema
+  certificationDraftItemSchema
 );
-export const awardsSectionSchema = createCollectionSectionSchema(awardItemSchema);
+export const awardsSectionSchema = createCollectionSectionSchema(awardDraftItemSchema);
 export const languagesSectionSchema = createCollectionSectionSchema(
-  languageItemSchema
+  languageDraftItemSchema
 );
 export const referencesSectionSchema = createCollectionSectionSchema(
-  referenceItemSchema
+  referenceDraftItemSchema
 );
 export const organizationVolunteeringSectionSchema = createCollectionSectionSchema(
-  organizationItemSchema
+  organizationDraftItemSchema
 );
 
 export const sectionsSchema = z.object({
@@ -206,7 +306,7 @@ export const sectionsSchema = z.object({
 });
 
 export const resumeDraftSchema = z.object({
-  schemaVersion: z.literal(1),
+  schemaVersion: z.literal(2),
   templateId: z.literal("recruiter-first-clean"),
   updatedAt: z.string().min(1),
   profile: profileSchema,

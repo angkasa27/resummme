@@ -43,7 +43,7 @@ export function RichTextEditor({
     editorProps: {
       attributes: {
         class:
-          "prose prose-sm max-w-none rounded-b-lg bg-background px-3 py-3 outline-none [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5",
+          "prose prose-sm max-w-none rounded-b-[10px] bg-background px-3 py-3 outline-none [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5",
       },
     },
     onUpdate: ({ editor: nextEditor }) => {
@@ -90,7 +90,7 @@ export function RichTextEditor({
   return (
     <div
       className={cn(
-        "overflow-hidden rounded-lg border border-input",
+        "overflow-hidden rounded-[12px] border border-input",
         invalid && "border-destructive ring-3 ring-destructive/20",
         className
       )}

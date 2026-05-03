@@ -9,7 +9,7 @@ describe("resume schema", () => {
 
     const parsed = parseResumeDraft(draft);
 
-    expect(parsed.schemaVersion).toBe(1);
+    expect(parsed.schemaVersion).toBe(2);
     expect(parsed.templateId).toBe("recruiter-first-clean");
     expect(parsed.profile.fullName).toBeTruthy();
   });
@@ -36,13 +36,32 @@ describe("resume schema", () => {
           extraLinks: [
             {
               id: "link-1",
-              label: "Portfolio",
               url: "not-a-url",
             },
           ],
         },
       })
     ).toThrow(/url/i);
+  });
+
+  it("rejects legacy profile link objects that still include labels", () => {
+    const draft = createDefaultResumeDraft();
+
+    expect(() =>
+      parseResumeDraft({
+        ...draft,
+        profile: {
+          ...draft.profile,
+          extraLinks: [
+            {
+              id: "link-1",
+              label: "Portfolio",
+              url: "https://asaa.dev",
+            },
+          ],
+        },
+      })
+    ).toThrow();
   });
 
   it("keeps default visible sections focused on the core resume flow", () => {
@@ -55,5 +74,20 @@ describe("resume schema", () => {
     expect(draft.sections.education.visible).toBe(true);
     expect(draft.sections.publications.visible).toBe(false);
     expect(draft.sections.references.visible).toBe(false);
+  });
+
+  it("seeds every collection section with one empty item", () => {
+    const draft = createDefaultResumeDraft();
+
+    expect(draft.sections.workExperience.items).toHaveLength(1);
+    expect(draft.sections.skills.items).toHaveLength(1);
+    expect(draft.sections.projects.items).toHaveLength(1);
+    expect(draft.sections.education.items).toHaveLength(1);
+    expect(draft.sections.publications.items).toHaveLength(1);
+    expect(draft.sections.certifications.items).toHaveLength(1);
+    expect(draft.sections.awards.items).toHaveLength(1);
+    expect(draft.sections.languages.items).toHaveLength(1);
+    expect(draft.sections.references.items).toHaveLength(1);
+    expect(draft.sections.organizationVolunteering.items).toHaveLength(1);
   });
 });

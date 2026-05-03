@@ -2,16 +2,12 @@
 
 import { useMemo } from "react";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
-import {
-  ArrowDownIcon,
-  ArrowUpIcon,
-  PlusIcon,
-  Trash2Icon,
-} from "lucide-react";
+import { ArrowDownIcon, ArrowUpIcon, PlusIcon, Trash2Icon } from "lucide-react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ButtonGroup } from "@/components/ui/button-group";
 import { collectionSectionConfigs } from "@/features/resume-editor/config/collection-section-config";
 import type { CollectionSectionKey } from "@/features/resume-editor/config/section-metadata";
 import { useSectionFormState } from "@/features/resume-editor/hooks/use-section-form-state";
@@ -28,7 +24,6 @@ type CollectionSectionFormValues = {
 type CollectionSectionPanelProps = {
   draft: ResumeDraft;
   sectionKey: CollectionSectionKey;
-  isDirty: boolean;
   onBack: () => void;
   onDirtyChange: (isDirty: boolean) => void;
   onSave: (sectionValue: ResumeDraft["sections"][CollectionSectionKey]) => void;
@@ -37,7 +32,6 @@ type CollectionSectionPanelProps = {
 export function CollectionSectionPanel({
   draft,
   sectionKey,
-  isDirty,
   onBack,
   onDirtyChange,
   onSave,
@@ -48,11 +42,11 @@ export function CollectionSectionPanel({
     () => ({
       items: sectionValue.items,
     }),
-    [sectionValue.items]
+    [sectionValue.items],
   );
   const form = useForm<CollectionSectionFormValues>({
     resolver: createSchemaResolver<CollectionSectionFormValues>(
-      collectionSectionFormSchemaMap[sectionKey]
+      collectionSectionFormSchemaMap[sectionKey],
     ),
     defaultValues: formValues,
     mode: "onSubmit",
@@ -78,7 +72,6 @@ export function CollectionSectionPanel({
   return (
     <EditorCard
       title={config.title}
-      isDirty={isDirty}
       onBack={onBack}
       meta={
         <Badge variant="secondary">
@@ -86,43 +79,22 @@ export function CollectionSectionPanel({
           {(currentItems?.length ?? 0) === 1 ? "" : "s"}
         </Badge>
       }
-      onCancel={() => reset(formValues)}
       onSave={handleSubmit((values) => {
         const nextSectionValue = {
           ...sectionValue,
           items: values.items,
         };
 
-        onSave(nextSectionValue as ResumeDraft["sections"][CollectionSectionKey]);
+        onSave(
+          nextSectionValue as ResumeDraft["sections"][CollectionSectionKey],
+        );
         reset(values);
         toast.success(`${config.title} saved.`);
       })}
-      headerActions={
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={() => items.append(config.createItem() as never)}
-        >
-          <PlusIcon data-icon="inline-start" />
-          {config.addLabel}
-        </Button>
-      }
     >
       {items.fields.length === 0 ? (
-        <div className="rounded-2xl border border-dashed px-4 py-6">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="text-sm text-muted-foreground">No items added.</p>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => items.append(config.createItem() as never)}
-            >
-              <PlusIcon data-icon="inline-start" />
-              {config.addLabel}
-            </Button>
-          </div>
+        <div className="py-6 text-sm text-muted-foreground">
+          No items added.
         </div>
       ) : (
         <div className="flex flex-col divide-y">
@@ -137,7 +109,9 @@ export function CollectionSectionPanel({
                     {config.itemTitle} {index + 1}
                   </span>
                 </div>
-                <div className="flex items-center gap-2">
+                <ButtonGroup
+                  aria-label={`${config.itemTitle} ${index + 1} actions`}
+                >
                   <Button
                     type="button"
                     variant="outline"
@@ -157,7 +131,8 @@ export function CollectionSectionPanel({
                     aria-label={`Move ${config.itemTitle.toLowerCase()} ${index + 1} down`}
                     title={`Move ${config.itemTitle.toLowerCase()} ${index + 1} down`}
                     onClick={() =>
-                      index < items.fields.length - 1 && items.move(index, index + 1)
+                      index < items.fields.length - 1 &&
+                      items.move(index, index + 1)
                     }
                   >
                     <ArrowDownIcon />
@@ -166,13 +141,14 @@ export function CollectionSectionPanel({
                     type="button"
                     variant="destructive"
                     size="icon-sm"
+                    disabled={items.fields.length === 1}
                     aria-label={`Remove ${config.itemTitle.toLowerCase()} ${index + 1}`}
                     title={`Remove ${config.itemTitle.toLowerCase()} ${index + 1}`}
-                    onClick={() => items.remove(index)}
+                    onClick={() => items.fields.length > 1 && items.remove(index)}
                   >
                     <Trash2Icon />
                   </Button>
-                </div>
+                </ButtonGroup>
               </div>
 
               <CollectionItemFields config={config} form={form} index={index} />
@@ -180,6 +156,15 @@ export function CollectionSectionPanel({
           ))}
         </div>
       )}
+
+      <Button
+        type="button"
+        className="mt-4 w-full"
+        onClick={() => items.append(config.createItem() as never)}
+      >
+        <PlusIcon data-icon="inline-start" />
+        {config.addLabel}
+      </Button>
     </EditorCard>
   );
 }

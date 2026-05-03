@@ -26,7 +26,6 @@ type SummaryFormValues = {
 
 type SummaryPanelProps = {
   draft: ResumeDraft;
-  isDirty: boolean;
   onBack: () => void;
   onDirtyChange: (isDirty: boolean) => void;
   onSave: (summary: ResumeDraft["sections"]["summary"]) => void;
@@ -34,7 +33,6 @@ type SummaryPanelProps = {
 
 export function SummaryPanel({
   draft,
-  isDirty,
   onBack,
   onDirtyChange,
   onSave,
@@ -64,10 +62,8 @@ export function SummaryPanel({
   return (
     <EditorCard
       onBack={onBack}
-      isDirty={isDirty}
       title="Summary"
       meta={<Badge variant="secondary">Intro</Badge>}
-      onCancel={() => reset(formValues)}
       onSave={handleSubmit((values) => {
         const nextSectionValue = {
           ...sectionValue,

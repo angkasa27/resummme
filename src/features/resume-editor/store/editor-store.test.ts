@@ -44,7 +44,7 @@ describe("resume editor store", () => {
 
     expect(store.getState().activeSection).toBe("projects");
     expect(store.getState().editorViewMode).toBe("form");
-    expect(store.getState().pendingSection).toBeNull();
+    expect(store.getState().pendingIntent).toBeNull();
   });
 
   it("holds section navigation when the current section is dirty", () => {
@@ -55,9 +55,11 @@ describe("resume editor store", () => {
     store.getState().requestSectionChange("projects");
 
     expect(store.getState().activeSection).toBe("summary");
-    expect(store.getState().pendingSection).toBe("projects");
-    expect(store.getState().pendingViewMode).toBe("form");
-    expect(store.getState().warningOpen).toBe(true);
+    expect(store.getState().pendingIntent).toEqual({
+      type: "section",
+      sectionKey: "projects",
+    });
+    expect(store.getState().confirmExitOpen).toBe(true);
   });
 
   it("can discard dirty changes and continue to the requested section", () => {
@@ -66,12 +68,12 @@ describe("resume editor store", () => {
     store.getState().requestSectionChange("summary");
     store.getState().setSectionDirty("summary", true);
     store.getState().requestSectionChange("projects");
-    store.getState().discardPendingSectionChanges();
+    store.getState().discardPendingChanges();
 
     expect(store.getState().activeSection).toBe("projects");
     expect(store.getState().editorViewMode).toBe("form");
     expect(store.getState().dirtySections).not.toContain("summary");
-    expect(store.getState().warningOpen).toBe(false);
+    expect(store.getState().confirmExitOpen).toBe(false);
   });
 
   it("returns to the section list immediately when the form is clean", () => {
@@ -81,7 +83,7 @@ describe("resume editor store", () => {
     store.getState().returnToSectionList();
 
     expect(store.getState().editorViewMode).toBe("list");
-    expect(store.getState().warningOpen).toBe(false);
+    expect(store.getState().confirmExitOpen).toBe(false);
   });
 
   it("holds return to the section list when the current form is dirty", () => {
@@ -92,9 +94,8 @@ describe("resume editor store", () => {
     store.getState().returnToSectionList();
 
     expect(store.getState().editorViewMode).toBe("form");
-    expect(store.getState().pendingSection).toBeNull();
-    expect(store.getState().pendingViewMode).toBe("list");
-    expect(store.getState().warningOpen).toBe(true);
+    expect(store.getState().pendingIntent).toEqual({ type: "list" });
+    expect(store.getState().confirmExitOpen).toBe(true);
   });
 
   it("can discard dirty changes and return to the section list", () => {
@@ -103,14 +104,14 @@ describe("resume editor store", () => {
     store.getState().requestSectionChange("projects");
     store.getState().setSectionDirty("projects", true);
     store.getState().returnToSectionList();
-    store.getState().discardPendingSectionChanges();
+    store.getState().discardPendingChanges();
 
     expect(store.getState().editorViewMode).toBe("list");
     expect(store.getState().dirtySections).not.toContain("projects");
-    expect(store.getState().warningOpen).toBe(false);
+    expect(store.getState().confirmExitOpen).toBe(false);
   });
 
-  it("replaces the draft and resets editor warning state", () => {
+  it("replaces the draft and resets editor confirmation state", () => {
     const store = createResumeEditorStore(createDefaultResumeDraft());
     const nextDraft = createDefaultResumeDraft();
     nextDraft.profile.fullName = "Another Name";
@@ -124,9 +125,8 @@ describe("resume editor store", () => {
     expect(store.getState().activeSection).toBe("profile");
     expect(store.getState().editorViewMode).toBe("list");
     expect(store.getState().dirtySections).toEqual([]);
-    expect(store.getState().pendingSection).toBeNull();
-    expect(store.getState().pendingViewMode).toBeNull();
-    expect(store.getState().warningOpen).toBe(false);
+    expect(store.getState().pendingIntent).toBeNull();
+    expect(store.getState().confirmExitOpen).toBe(false);
   });
 
   it("saves profile changes through the same dirty-panel flow", () => {
@@ -159,5 +159,27 @@ describe("resume editor store", () => {
 
     expect(store.getState().draft.sections.projects.visible).toBe(false);
     expect(store.getState().dirtySections).toContain("projects");
+  });
+
+  it("holds import replacement behind the same discard dialog flow", () => {
+    const store = createResumeEditorStore(createDefaultResumeDraft());
+    const importedDraft = createDefaultResumeDraft();
+    importedDraft.profile.fullName = "Imported Name";
+
+    store.getState().requestSectionChange("projects");
+    store.getState().setSectionDirty("projects", true);
+    store.getState().requestImportDraft(importedDraft);
+
+    expect(store.getState().confirmExitOpen).toBe(true);
+    expect(store.getState().pendingIntent).toEqual({
+      type: "import",
+      draft: importedDraft,
+    });
+
+    store.getState().discardPendingChanges();
+
+    expect(store.getState().draft.profile.fullName).toBe("Imported Name");
+    expect(store.getState().editorViewMode).toBe("list");
+    expect(store.getState().dirtySections).toEqual([]);
   });
 });

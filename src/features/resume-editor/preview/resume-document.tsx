@@ -21,13 +21,124 @@ function renderHtml(content: string) {
   return { __html: content };
 }
 
+function richTextHasContent(value: string) {
+  return value
+    .replace(/<[^>]*>/g, " ")
+    .replace(/&nbsp;/g, " ")
+    .replace(/\s+/g, " ")
+    .trim().length > 0;
+}
+
+function hasRenderableItem(
+  sectionKey: keyof ResumeDraft["sections"],
+  item: unknown,
+) {
+  if (sectionKey === "workExperience") {
+    const value = item as ResumeDraft["sections"]["workExperience"]["items"][number];
+    return Boolean(
+      value.companyName ||
+        value.position ||
+        value.location ||
+        value.startDate ||
+        value.endDate ||
+        richTextHasContent(value.description),
+    );
+  }
+
+  if (sectionKey === "skills") {
+    const value = item as ResumeDraft["sections"]["skills"]["items"][number];
+    return Boolean(value.categoryName || value.skills.some(Boolean));
+  }
+
+  if (sectionKey === "projects") {
+    const value = item as ResumeDraft["sections"]["projects"]["items"][number];
+    return Boolean(
+      value.projectName ||
+        value.projectLink ||
+        value.startDate ||
+        value.endDate ||
+        richTextHasContent(value.description),
+    );
+  }
+
+  if (sectionKey === "education") {
+    const value = item as ResumeDraft["sections"]["education"]["items"][number];
+    return Boolean(
+      value.name ||
+        value.location ||
+        value.startDate ||
+        value.endDate ||
+        value.degree ||
+        value.gpa ||
+        richTextHasContent(value.description),
+    );
+  }
+
+  if (sectionKey === "publications") {
+    const value = item as ResumeDraft["sections"]["publications"]["items"][number];
+    return Boolean(
+      value.title ||
+        value.publisher ||
+        value.publicationUrl ||
+        value.publicationDate ||
+        richTextHasContent(value.description),
+    );
+  }
+
+  if (sectionKey === "certifications") {
+    const value = item as ResumeDraft["sections"]["certifications"]["items"][number];
+    return Boolean(
+      value.certificationName ||
+        value.issuingOrganization ||
+        value.issuedDate ||
+        value.certificationLink ||
+        value.credentialId,
+    );
+  }
+
+  if (sectionKey === "awards") {
+    const value = item as ResumeDraft["sections"]["awards"]["items"][number];
+    return Boolean(
+      value.title ||
+        value.issuer ||
+        value.issuedDate ||
+        richTextHasContent(value.description),
+    );
+  }
+
+  if (sectionKey === "languages") {
+    const value = item as ResumeDraft["sections"]["languages"]["items"][number];
+    return Boolean(value.language || value.proficiency);
+  }
+
+  if (sectionKey === "references") {
+    const value = item as ResumeDraft["sections"]["references"]["items"][number];
+    return Boolean(value.name || value.background || value.contactDetails);
+  }
+
+  if (sectionKey === "organizationVolunteering") {
+    const value =
+      item as ResumeDraft["sections"]["organizationVolunteering"]["items"][number];
+    return Boolean(
+      value.organizationName ||
+        value.position ||
+        value.location ||
+        value.startDate ||
+        value.endDate ||
+        richTextHasContent(value.description),
+    );
+  }
+
+  return false;
+}
+
 export function ResumeDocument({ draft, className }: ResumeDocumentProps) {
   const orderedSectionKeys = getOrderedVisibleSectionKeys(draft.sections);
   const contactItems = [
     draft.profile.location,
     draft.profile.phone,
     draft.profile.email,
-    ...draft.profile.extraLinks.map((link) => link.label),
+    ...draft.profile.extraLinks.map((link) => link.url),
   ].filter(Boolean);
 
   return (
@@ -42,7 +153,9 @@ export function ResumeDocument({ draft, className }: ResumeDocumentProps) {
           <h1 className="font-heading text-3xl font-semibold tracking-tight" data-testid="resume-preview-full-name">
             {draft.profile.fullName}
           </h1>
-          <p className="mt-2 text-sm text-muted-foreground">{contactItems.join(" • ")}</p>
+          <p className="mt-2 break-words text-sm text-muted-foreground">
+            {contactItems.join(" • ")}
+          </p>
         </div>
         {draft.profile.photo ? (
           <Avatar size="lg" className="size-16">
@@ -80,8 +193,11 @@ export function ResumeDocument({ draft, className }: ResumeDocumentProps) {
         }
 
         const section = draft.sections[sectionKey];
+        const renderableItems = section.items.filter((item) =>
+          hasRenderableItem(sectionKey, item),
+        );
 
-        if (section.items.length === 0) {
+        if (renderableItems.length === 0) {
           return null;
         }
 
@@ -94,7 +210,7 @@ export function ResumeDocument({ draft, className }: ResumeDocumentProps) {
               {sectionLabels[sectionKey]}
             </h2>
             <div className="flex flex-col gap-4">
-              {section.items.map((item) => renderSectionItem(sectionKey, item))}
+              {renderableItems.map((item) => renderSectionItem(sectionKey, item))}
             </div>
           </section>
         );
