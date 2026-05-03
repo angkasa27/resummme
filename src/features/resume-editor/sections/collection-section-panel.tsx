@@ -16,7 +16,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { collectionSectionConfigs } from "@/features/resume-editor/config/collection-section-config";
-import type { ItemFieldConfig } from "@/features/resume-editor/config/collection-section-config";
 import type { CollectionSectionKey } from "@/features/resume-editor/config/section-metadata";
 import { createSchemaResolver } from "@/features/resume-editor/lib/form-resolver";
 import { collectionSectionFormSchemaMap } from "@/features/resume-editor/lib/section-schemas";
@@ -49,7 +48,7 @@ export function CollectionSectionPanel({
       items:
         sectionValue.items.length > 0
           ? (sectionValue.items.map((item) =>
-              normalizeCollectionItem(item, config.fields),
+              normalizeCollectionItem(item, config.createItem()),
             ) as unknown as CollectionSectionFormValues["items"])
           : ([
               config.createItem(),
@@ -76,7 +75,7 @@ export function CollectionSectionPanel({
   });
 
   const [shrunkIds, setShrunkIds] = useState<Set<string>>(
-    () => new Set(items.fields[0] ? [items.fields[0].id] : []),
+    () => new Set(items.fields.slice(1).map((f) => f.id)),
   );
 
   function toggleShrunk(id: string) {
@@ -291,47 +290,25 @@ export function CollectionSectionPanel({
   );
 }
 
-function normalizeCollectionItem(
-  item: CollectionSectionFormValues["items"][number],
-  fields: ItemFieldConfig[],
-) {
-  const nextItem = { ...item } as Record<string, unknown>;
+function normalizeCollectionItem<T extends Record<string, unknown>>(
+  item: T,
+  template: T,
+): T {
+  const nextItem = { ...template, ...item } as Record<string, unknown>;
 
-  fields.forEach((field) => {
-    if (
-      field.kind === "text" ||
-      field.kind === "email" ||
-      field.kind === "url" ||
-      field.kind === "textarea" ||
-      field.kind === "richText" ||
-      field.kind === "monthYear" ||
-      field.kind === "proficiency"
-    ) {
-      if (typeof nextItem[field.name] !== "string") {
-        nextItem[field.name] = "";
-      }
+  // Ensure all string fields are strings (not null/undefined)
+  Object.keys(nextItem).forEach((key) => {
+    const templateValue = template[key];
+    const currentValue = nextItem[key];
 
-      return;
+    if (typeof templateValue === "string" && typeof currentValue !== "string") {
+      nextItem[key] = "";
     }
 
-    if (field.kind === "stringArray") {
-      if (!Array.isArray(nextItem[field.name])) {
-        nextItem[field.name] = [];
-      }
-
-      return;
-    }
-
-    if (field.kind === "dateRange") {
-      if (typeof nextItem[field.startName] !== "string") {
-        nextItem[field.startName] = "";
-      }
-
-      if (typeof nextItem[field.endName] !== "string") {
-        nextItem[field.endName] = "";
-      }
+    if (Array.isArray(templateValue) && !Array.isArray(currentValue)) {
+      nextItem[key] = [];
     }
   });
 
-  return nextItem as CollectionSectionFormValues["items"][number];
+  return nextItem as T;
 }
