@@ -45,7 +45,7 @@ export function RichTextEditor({
   value,
   onChange,
   className,
-  heightClassName = "h-72",
+  heightClassName = "h-48",
   invalid = false,
   ariaLabel,
 }: RichTextEditorProps) {
