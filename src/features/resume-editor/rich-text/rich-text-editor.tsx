@@ -191,7 +191,7 @@ export function RichTextEditor({
         className,
       )}
     >
-      <div className="flex flex-wrap items-center gap-2 border-b bg-muted/50 px-2 py-2">
+      <div className="flex flex-wrap items-center gap-2 border-b px-2 py-2">
         <ToggleGroup
           multiple
           variant="outline"

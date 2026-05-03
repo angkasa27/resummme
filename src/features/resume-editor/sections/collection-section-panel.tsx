@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import {
   ArrowDownIcon,
   ArrowUpIcon,
+  ChevronDownIcon,
+  ChevronRightIcon,
   HistoryIcon,
   PlusIcon,
   Trash2Icon,
@@ -44,11 +46,14 @@ export function CollectionSectionPanel({
   const sectionValue = draft.sections[sectionKey];
   const formValues = useMemo<CollectionSectionFormValues>(
     () => ({
-      items: sectionValue.items.length > 0
-        ? (sectionValue.items.map((item) =>
-            normalizeCollectionItem(item, config.fields),
-          ) as unknown as CollectionSectionFormValues["items"])
-        : ([config.createItem()] as unknown as CollectionSectionFormValues["items"]),
+      items:
+        sectionValue.items.length > 0
+          ? (sectionValue.items.map((item) =>
+              normalizeCollectionItem(item, config.fields),
+            ) as unknown as CollectionSectionFormValues["items"])
+          : ([
+              config.createItem(),
+            ] as unknown as CollectionSectionFormValues["items"]),
     }),
     [config, sectionValue.items],
   );
@@ -69,6 +74,22 @@ export function CollectionSectionPanel({
     control,
     name: "items",
   });
+
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(
+    () => new Set(items.fields[0] ? [items.fields[0].id] : []),
+  );
+
+  function toggleExpand(id: string) {
+    setExpandedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  }
 
   const formValuesWatched = useWatch({ control });
 
@@ -158,11 +179,27 @@ export function CollectionSectionPanel({
             <section
               key={field.id}
               data-testid="collection-item-card"
-              className="flex flex-col gap-3 rounded-lg border border-border shadow-[inset_0_1px_0_rgba(255,255,255,0.75)] overflow-hidden"
+              className="flex flex-col rounded-lg border border-border shadow-[inset_0_1px_0_rgba(255,255,255,0.75)] overflow-hidden"
             >
-              <div className="flex items-center justify-between gap-3 border-b bg-background px-3 py-2">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-semibold truncate max-w-[240px]">
+              <div className="flex items-center justify-between gap-3 bg-background px-3 py-2">
+                <div className="flex items-center gap-1 min-w-0">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon-sm"
+                    className="shrink-0"
+                    onClick={() => toggleExpand(field.id)}
+                  >
+                    {expandedIds.has(field.id) ? (
+                      <ChevronDownIcon className="size-4" />
+                    ) : (
+                      <ChevronRightIcon className="size-4" />
+                    )}
+                  </Button>
+                  <span
+                    className="cursor-pointer select-none truncate text-sm font-semibold"
+                    onClick={() => toggleExpand(field.id)}
+                  >
                     {(() => {
                       const item = currentItems?.[index] as Record<
                         string,
@@ -178,7 +215,8 @@ export function CollectionSectionPanel({
                         item?.organizationName) as string | undefined;
 
                       return (
-                        representativeValue || `${config.itemTitle} ${index + 1}`
+                        representativeValue ||
+                        `${config.itemTitle} ${index + 1}`
                       );
                     })()}
                   </span>
@@ -226,13 +264,15 @@ export function CollectionSectionPanel({
                   </Button>
                 </ButtonGroup>
               </div>
-              <div className="p-3">
-                <CollectionItemFields
-                  config={config}
-                  form={form}
-                  index={index}
-                />
-              </div>{" "}
+              {expandedIds.has(field.id) && (
+                <div className="p-3 border-t bg-muted/50">
+                  <CollectionItemFields
+                    config={config}
+                    form={form}
+                    index={index}
+                  />
+                </div>
+              )}{" "}
             </section>
           ))}
         </div>
