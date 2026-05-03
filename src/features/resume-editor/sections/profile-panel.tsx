@@ -173,7 +173,7 @@ export function ProfilePanel({ draft, onBack, onSave }: ProfilePanelProps) {
           data-invalid={getFieldState("photo", formState).invalid || undefined}
         >
           <FieldLabel htmlFor="profile-photo">
-            <FieldLabelText label="Photo URL" optional />
+            <FieldLabelText label="Photo URL" />
           </FieldLabel>
           <FieldContent>
             <Input

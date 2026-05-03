@@ -29,6 +29,7 @@ import {
 import { RichTextEditor } from "@/features/resume-editor/rich-text/rich-text-editor";
 import { FieldLabelText } from "@/features/resume-editor/sections/field-label-text";
 import { MonthYearPicker } from "@/features/resume-editor/sections/month-year-picker";
+import { parseMonthYear } from "@/features/resume-editor/lib/month-year";
 import type { ResumeDraft } from "@/lib/resume/schema";
 
 type CollectionSectionFormValues = {
@@ -70,10 +71,7 @@ export function CollectionItemFields({
               data-invalid={fieldState.invalid || undefined}
             >
               <FieldLabel htmlFor={fieldName}>
-                <FieldLabelText
-                  label={fieldConfig.label}
-                  optional={fieldConfig.optional}
-                />
+                <FieldLabelText label={fieldConfig.label} />
               </FieldLabel>
               <FieldContent>
                 <Input
@@ -125,10 +123,7 @@ export function CollectionItemFields({
               data-invalid={fieldState.invalid || undefined}
             >
               <FieldLabel htmlFor={fieldName}>
-                <FieldLabelText
-                  label={fieldConfig.label}
-                  optional={fieldConfig.optional}
-                />
+                <FieldLabelText label={fieldConfig.label} />
               </FieldLabel>
               <FieldContent>
                 <Controller
@@ -166,10 +161,7 @@ export function CollectionItemFields({
               data-invalid={fieldState.invalid || undefined}
             >
               <FieldLabel htmlFor={fieldName}>
-                <FieldLabelText
-                  label={fieldConfig.label}
-                  optional={fieldConfig.optional}
-                />
+                <FieldLabelText label={fieldConfig.label} />
               </FieldLabel>
               <FieldContent>
                 <Textarea
@@ -236,10 +228,7 @@ export function CollectionItemFields({
               data-invalid={fieldState.invalid || undefined}
             >
               <FieldLabel htmlFor={fieldName}>
-                <FieldLabelText
-                  label={fieldConfig.label}
-                  optional={fieldConfig.optional}
-                />
+                <FieldLabelText label={fieldConfig.label} />
               </FieldLabel>
               <FieldContent>
                 <Controller
@@ -281,6 +270,7 @@ export function CollectionItemFields({
         if (fieldConfig.kind === "dateRange") {
           const startName = `items.${index}.${fieldConfig.startName}` as const;
           const endName = `items.${index}.${fieldConfig.endName}` as const;
+          const startValue = watch(startName as never) as unknown as string;
           const endValue = watch(endName as never) as unknown as string;
           const startFieldState = getDynamicFieldState(startName);
           const endFieldState = getDynamicFieldState(endName);
@@ -302,12 +292,27 @@ export function CollectionItemFields({
                         value={field.value}
                         placeholder={fieldConfig.startPlaceholder ?? "Jan 2024"}
                         ariaInvalid={startFieldState.invalid}
-                        onChange={(value) =>
+                        onChange={(value) => {
+                          const nextStartDate = parseMonthYear(value);
+                          const currentEndDate = parseMonthYear(endValue);
+
                           setValue(startName as never, value as never, {
                             shouldDirty: true,
                             shouldValidate: formState.isSubmitted,
-                          })
-                        }
+                          });
+
+                          if (
+                            endValue !== "current" &&
+                            nextStartDate &&
+                            currentEndDate &&
+                            currentEndDate.getTime() <= nextStartDate.getTime()
+                          ) {
+                            setValue(endName as never, "" as never, {
+                              shouldDirty: true,
+                              shouldValidate: formState.isSubmitted,
+                            });
+                          }
+                        }}
                       />
                     )}
                   />
@@ -330,6 +335,7 @@ export function CollectionItemFields({
                         placeholder={fieldConfig.endPlaceholder ?? "Current or Dec 2024"}
                         disabled={isCurrent}
                         ariaInvalid={endFieldState.invalid}
+                        minValueExclusive={startValue}
                         onChange={(value) =>
                           setValue(endName as never, value as never, {
                             shouldDirty: true,

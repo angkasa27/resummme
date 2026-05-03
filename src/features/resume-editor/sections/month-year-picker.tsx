@@ -1,7 +1,14 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { addYears, format, getYear, setMonth, startOfMonth, startOfYear } from "date-fns";
+import {
+  addYears,
+  format,
+  getYear,
+  setMonth,
+  startOfMonth,
+  startOfYear,
+} from "date-fns";
 import { CalendarIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -27,9 +34,23 @@ type MonthYearPickerProps = {
   placeholder?: string;
   disabled?: boolean;
   ariaInvalid?: boolean;
+  minValueExclusive?: string;
 };
 
-const monthLabels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const monthLabels = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
 
 export function MonthYearPicker({
   id,
@@ -38,16 +59,29 @@ export function MonthYearPicker({
   placeholder = "Select month and year",
   disabled = false,
   ariaInvalid = false,
+  minValueExclusive,
 }: MonthYearPickerProps) {
   const selectedDate = useMemo(() => parseMonthYear(value), [value]);
+  const minExclusiveDate = useMemo(
+    () => parseMonthYear(minValueExclusive),
+    [minValueExclusive],
+  );
   const [open, setOpen] = useState(false);
   const [displayMonth, setDisplayMonth] = useState<Date>(
-    selectedDate ?? startOfMonth(new Date())
+    selectedDate ?? startOfMonth(new Date()),
   );
   const displayYearStart = startOfYear(displayMonth);
+  const previousYear = getYear(displayMonth) - 1;
+  const isPreviousYearDisabled =
+    !!minExclusiveDate && previousYear < getYear(minExclusiveDate);
 
   function handleSelectMonth(monthIndex: number) {
     const nextDate = setMonth(displayYearStart, monthIndex);
+
+    if (minExclusiveDate && nextDate.getTime() <= minExclusiveDate.getTime()) {
+      return;
+    }
+
     onChange(formatMonthYear(nextDate));
     setDisplayMonth(nextDate);
     setOpen(false);
@@ -74,7 +108,7 @@ export function MonthYearPicker({
             aria-invalid={ariaInvalid}
             className={cn(
               "h-9 w-full justify-between rounded-[10px] border-input px-3 font-normal",
-              !value && "text-muted-foreground"
+              !value && "text-muted-foreground",
             )}
           />
         }
@@ -83,19 +117,22 @@ export function MonthYearPicker({
         <CalendarIcon className="size-4 text-muted-foreground" />
       </PopoverTrigger>
       <PopoverContent align="start" className="w-[320px] gap-3 rounded-[12px]">
-        <PopoverHeader>
+        {/* <PopoverHeader>
           <PopoverTitle>Month and year</PopoverTitle>
           <PopoverDescription>
             Pick the month that should be saved to this CV field.
           </PopoverDescription>
-        </PopoverHeader>
+        </PopoverHeader> */}
 
         <div className="flex items-center justify-between rounded-[10px] border bg-background px-3 py-2">
           <Button
             type="button"
             variant="ghost"
             size="icon"
-            onClick={() => setDisplayMonth((currentMonth) => addYears(currentMonth, -1))}
+            disabled={isPreviousYearDisabled}
+            onClick={() =>
+              setDisplayMonth((currentMonth) => addYears(currentMonth, -1))
+            }
             aria-label={`Show ${getYear(displayMonth) - 1}`}
           >
             <ChevronLeftIcon />
@@ -105,7 +142,9 @@ export function MonthYearPicker({
             type="button"
             variant="ghost"
             size="icon"
-            onClick={() => setDisplayMonth((currentMonth) => addYears(currentMonth, 1))}
+            onClick={() =>
+              setDisplayMonth((currentMonth) => addYears(currentMonth, 1))
+            }
             aria-label={`Show ${getYear(displayMonth) + 1}`}
           >
             <ChevronRightIcon />
@@ -119,6 +158,9 @@ export function MonthYearPicker({
               selectedDate &&
               selectedDate.getFullYear() === monthDate.getFullYear() &&
               selectedDate.getMonth() === monthDate.getMonth();
+            const isDisabled =
+              minExclusiveDate &&
+              monthDate.getTime() <= minExclusiveDate.getTime();
 
             return (
               <Button
@@ -126,6 +168,7 @@ export function MonthYearPicker({
                 type="button"
                 variant={isSelected ? "default" : "outline"}
                 className="justify-center"
+                disabled={Boolean(isDisabled)}
                 onClick={() => handleSelectMonth(monthIndex)}
               >
                 {format(monthDate, "MMM")}

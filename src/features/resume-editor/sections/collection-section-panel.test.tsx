@@ -125,4 +125,35 @@ describe("collection section panel", () => {
 
     expect(screen.getByText(/project link must be a valid url/i)).toBeInTheDocument();
   });
+
+  it("clears the end date when the start date moves to the same month or later", async () => {
+    const user = userEvent.setup();
+    const draft = createDefaultResumeDraft();
+    draft.sections.projects.items = [
+      {
+        id: "project-1",
+        projectName: "Project Alpha",
+        projectLink: "",
+        startDate: "Jan 2024",
+        endDate: "Feb 2024",
+        description: "<p></p>",
+      },
+    ];
+
+    render(
+      <CollectionSectionPanel
+        draft={draft}
+        sectionKey="projects"
+        onBack={vi.fn()}
+        onSave={vi.fn()}
+      />
+    );
+
+    await user.click(screen.getByLabelText(/start date/i));
+    await user.click(screen.getByRole("button", { name: "Mar" }));
+
+    expect(screen.getByLabelText(/end date/i)).toHaveTextContent(
+      /current or oct 2024/i
+    );
+  });
 });
