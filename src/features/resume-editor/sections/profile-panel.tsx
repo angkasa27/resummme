@@ -91,7 +91,7 @@ export function ProfilePanel({ draft, onBack, onSave }: ProfilePanelProps) {
             <Input
               id="profile-full-name"
               autoComplete="name"
-              placeholder="Dimas Angkasa Nurindra"
+              placeholder="Fulan bin Fulan"
               aria-invalid={
                 getFieldState("fullName", formState).invalid || undefined
               }
@@ -159,7 +159,7 @@ export function ProfilePanel({ draft, onBack, onSave }: ProfilePanelProps) {
               autoComplete="email"
               inputMode="email"
               spellCheck={false}
-              placeholder="mas.angkasa27@gmail.com"
+              placeholder="email.me@here.is"
               aria-invalid={
                 getFieldState("email", formState).invalid || undefined
               }

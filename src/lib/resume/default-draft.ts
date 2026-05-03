@@ -115,25 +115,24 @@ export function createDefaultResumeDraft(): ResumeDraft {
     templateId: "recruiter-first-clean",
     updatedAt: createTimestamp(),
     profile: {
-      fullName: "Dimas Angkasa Nurindra",
+      fullName: "Fulan bin Fulan",
       location: "Jakarta, Indonesia",
-      phone: "+6282230442367",
-      email: "mas.angkasa27@gmail.com",
-      summary:
-        "<p>Software engineer with experience building frontend-heavy web applications and internal tools for product teams.</p>",
+      phone: "+6280011112222",
+      email: "email.me@here.is",
+      summary: "Start editing your resume!",
       photo: "",
       extraLinks: [
         {
           id: "profile-link-linkedin",
-          url: "https://www.linkedin.com/in/dimasangkasa",
+          url: "https://www.linkedin.com/in/your-profile",
         },
         {
           id: "profile-link-github",
-          url: "https://github.com/angkasa27",
+          url: "https://github.com/your-username",
         },
         {
           id: "profile-link-portfolio",
-          url: "https://asaa.dev",
+          url: "https://your-domain.com",
         },
       ],
     },
@@ -141,8 +140,7 @@ export function createDefaultResumeDraft(): ResumeDraft {
       summary: {
         visible: true,
         order: 0,
-        content:
-          "<p>Software engineer with 6+ years of experience specializing in frontend development for enterprise web applications.</p>",
+        content: "Start editing your resume!",
       },
       workExperience: {
         visible: true,
