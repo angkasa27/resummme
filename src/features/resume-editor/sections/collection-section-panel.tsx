@@ -75,12 +75,12 @@ export function CollectionSectionPanel({
     name: "items",
   });
 
-  const [expandedIds, setExpandedIds] = useState<Set<string>>(
+  const [shrunkIds, setShrunkIds] = useState<Set<string>>(
     () => new Set(items.fields[0] ? [items.fields[0].id] : []),
   );
 
-  function toggleExpand(id: string) {
-    setExpandedIds((prev) => {
+  function toggleShrunk(id: string) {
+    setShrunkIds((prev) => {
       const next = new Set(prev);
       if (next.has(id)) {
         next.delete(id);
@@ -188,17 +188,17 @@ export function CollectionSectionPanel({
                     variant="ghost"
                     size="icon-sm"
                     className="shrink-0"
-                    onClick={() => toggleExpand(field.id)}
+                    onClick={() => toggleShrunk(field.id)}
                   >
-                    {expandedIds.has(field.id) ? (
-                      <ChevronDownIcon className="size-4" />
-                    ) : (
+                    {shrunkIds.has(field.id) ? (
                       <ChevronRightIcon className="size-4" />
+                    ) : (
+                      <ChevronDownIcon className="size-4" />
                     )}
                   </Button>
                   <span
                     className="cursor-pointer select-none truncate text-sm font-semibold"
-                    onClick={() => toggleExpand(field.id)}
+                    onClick={() => toggleShrunk(field.id)}
                   >
                     {(() => {
                       const item = currentItems?.[index] as Record<
@@ -264,7 +264,7 @@ export function CollectionSectionPanel({
                   </Button>
                 </ButtonGroup>
               </div>
-              {expandedIds.has(field.id) && (
+              {!shrunkIds.has(field.id) && (
                 <div className="p-3 border-t bg-muted/50">
                   <CollectionItemFields
                     config={config}
