@@ -3,6 +3,15 @@
 import { useEffect, useId, useState } from "react";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import {
+  BoldIcon,
+  ItalicIcon,
+  Link2OffIcon,
+  LinkIcon,
+  ListIcon,
+  ListOrderedIcon,
+  UnderlineIcon,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,7 +36,7 @@ type RichTextEditorProps = {
   value: string;
   onChange: (value: string) => void;
   className?: string;
-  minHeightClassName?: string;
+  heightClassName?: string;
   invalid?: boolean;
   ariaLabel?: string;
 };
@@ -36,7 +45,7 @@ export function RichTextEditor({
   value,
   onChange,
   className,
-  minHeightClassName = "min-h-32",
+  heightClassName = "h-72",
   invalid = false,
   ariaLabel,
 }: RichTextEditorProps) {
@@ -111,11 +120,11 @@ export function RichTextEditor({
       try {
         const anchor = activeEditor.view.posAtDOM(
           domSelection.anchorNode,
-          domSelection.anchorOffset
+          domSelection.anchorOffset,
         );
         const focus = activeEditor.view.posAtDOM(
           domSelection.focusNode,
-          domSelection.focusOffset
+          domSelection.focusOffset,
         );
 
         return {
@@ -179,7 +188,7 @@ export function RichTextEditor({
       className={cn(
         "overflow-hidden rounded-md border border-input bg-background",
         invalid && "border-destructive ring-2 ring-destructive/20",
-        className
+        className,
       )}
     >
       <div className="flex flex-wrap items-center gap-2 border-b bg-muted/50 px-2 py-2">
@@ -198,17 +207,29 @@ export function RichTextEditor({
             const nextSet = new Set(nextValue as string[]);
             const formatters = [
               ["bold", () => activeEditor.chain().focus().toggleBold().run()],
-              ["italic", () => activeEditor.chain().focus().toggleItalic().run()],
-              ["underline", () => activeEditor.chain().focus().toggleUnderline().run()],
-              ["bulletList", () => activeEditor.chain().focus().toggleBulletList().run()],
-              ["orderedList", () => activeEditor.chain().focus().toggleOrderedList().run()],
+              [
+                "italic",
+                () => activeEditor.chain().focus().toggleItalic().run(),
+              ],
+              [
+                "underline",
+                () => activeEditor.chain().focus().toggleUnderline().run(),
+              ],
+              [
+                "bulletList",
+                () => activeEditor.chain().focus().toggleBulletList().run(),
+              ],
+              [
+                "orderedList",
+                () => activeEditor.chain().focus().toggleOrderedList().run(),
+              ],
             ] as const;
 
             for (const [formatKey, toggle] of formatters) {
               const isActive = activeEditor.isActive(
                 formatKey === "bulletList" || formatKey === "orderedList"
                   ? formatKey
-                  : formatKey
+                  : formatKey,
               );
               const shouldBeActive = nextSet.has(formatKey);
 
@@ -218,33 +239,52 @@ export function RichTextEditor({
             }
           }}
         >
-          <ToggleGroupItem value="bold" aria-label="Bold">
-            B
+          <ToggleGroupItem value="bold" aria-label="Bold" title="Bold">
+            <BoldIcon className="size-4" />
           </ToggleGroupItem>
-          <ToggleGroupItem value="italic" aria-label="Italic">
-            I
+          <ToggleGroupItem value="italic" aria-label="Italic" title="Italic">
+            <ItalicIcon className="size-4" />
           </ToggleGroupItem>
-          <ToggleGroupItem value="underline" aria-label="Underline">
-            U
+          <ToggleGroupItem
+            value="underline"
+            aria-label="Underline"
+            title="Underline"
+          >
+            <UnderlineIcon className="size-4" />
           </ToggleGroupItem>
-          <ToggleGroupItem value="bulletList" aria-label="Bullet list">
-            UL
+          <ToggleGroupItem
+            value="bulletList"
+            aria-label="Bullet list"
+            title="Bullet list"
+          >
+            <ListIcon className="size-4" />
           </ToggleGroupItem>
-          <ToggleGroupItem value="orderedList" aria-label="Ordered list">
-            OL
+          <ToggleGroupItem
+            value="orderedList"
+            aria-label="Ordered list"
+            title="Ordered list"
+          >
+            <ListOrderedIcon className="size-4" />
           </ToggleGroupItem>
         </ToggleGroup>
         <Separator orientation="vertical" className="h-6" />
         <Popover open={isLinkEditorOpen} onOpenChange={setIsLinkEditorOpen}>
           <PopoverTrigger
-            render={<Button type="button" variant="outline" size="sm" />}
+            render={
+              <Button
+                type="button"
+                variant="outline"
+                size="icon-sm"
+                title="Edit link"
+              />
+            }
             onMouseDown={(event) => {
               event.preventDefault();
               prepareLinkEditor();
             }}
             onClick={openLinkEditor}
           >
-            Link
+            <LinkIcon />
           </PopoverTrigger>
           <PopoverContent role="dialog" aria-label="Link editor" align="start">
             <PopoverHeader>
@@ -296,14 +336,16 @@ export function RichTextEditor({
         <Button
           type="button"
           variant="outline"
-          size="sm"
+          size="icon-sm"
+          title="Remove link"
+          aria-label="Remove link"
           onClick={() => activeEditor.chain().focus().unsetLink().run()}
         >
-          Unlink
+          <Link2OffIcon />
         </Button>
       </div>
-      <div className={cn("bg-background", minHeightClassName)}>
-        <EditorContent editor={activeEditor} />
+      <div className={cn("bg-background", heightClassName)}>
+        <EditorContent editor={activeEditor} className="h-full overflow-auto" />
       </div>
     </div>
   );

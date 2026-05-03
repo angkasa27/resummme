@@ -30,19 +30,14 @@ type ProfilePanelProps = {
   onSave: (profile: Profile) => void;
 };
 
-export function ProfilePanel({
-  draft,
-  onBack,
-  onSave,
-}: ProfilePanelProps) {
+export function ProfilePanel({ draft, onBack, onSave }: ProfilePanelProps) {
   const profileForm = useForm<Profile>({
     resolver: createSchemaResolver<Profile>(profileSchema),
     defaultValues: draft.profile,
     mode: "onBlur",
     reValidateMode: "onChange",
   });
-  const { control, register, formState, getFieldState } =
-    profileForm;
+  const { control, register, formState, getFieldState } = profileForm;
   const extraLinks = useFieldArray({
     control,
     name: "extraLinks",
@@ -188,7 +183,9 @@ export function ProfilePanel({
 
         <Field
           className="md:col-span-2"
-          data-invalid={getFieldState("summary", formState).invalid || undefined}
+          data-invalid={
+            getFieldState("summary", formState).invalid || undefined
+          }
         >
           <FieldLabel>
             <FieldLabelText label="Short description" />
@@ -201,7 +198,6 @@ export function ProfilePanel({
                 <RichTextEditor
                   value={field.value}
                   ariaLabel="Short description"
-                  minHeightClassName="min-h-28"
                   invalid={getFieldState("summary", formState).invalid}
                   onChange={(value) =>
                     profileForm.setValue("summary", value, {

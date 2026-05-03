@@ -2,7 +2,13 @@
 
 import { useEffect, useMemo } from "react";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
-import { ArrowDownIcon, ArrowUpIcon, PlusIcon, Trash2Icon } from "lucide-react";
+import {
+  ArrowDownIcon,
+  ArrowUpIcon,
+  HistoryIcon,
+  PlusIcon,
+  Trash2Icon,
+} from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -14,6 +20,7 @@ import { createSchemaResolver } from "@/features/resume-editor/lib/form-resolver
 import { collectionSectionFormSchemaMap } from "@/features/resume-editor/lib/section-schemas";
 import { CollectionItemFields } from "@/features/resume-editor/sections/collection-item-fields";
 import { EditorCard } from "@/features/resume-editor/sections/editor-card";
+import { sortResumeItems } from "@/features/resume-editor/lib/sort-items";
 import type { ResumeDraft } from "@/lib/resume/schema";
 
 type CollectionSectionFormValues = {
@@ -88,10 +95,43 @@ export function CollectionSectionPanel({
       title={config.title}
       onBack={onBack}
       meta={
-        <Badge variant="secondary">
-          {currentItems?.length ?? 0} item
-          {(currentItems?.length ?? 0) === 1 ? "" : "s"}
-        </Badge>
+        <div className="flex items-center gap-2">
+          {config.fields.some((f) => f.kind === "dateRange") && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="h-6 px-2 text-[10px]"
+              onClick={() => {
+                const dateRangeField = config.fields.find(
+                  (f) => f.kind === "dateRange",
+                );
+                if (dateRangeField && dateRangeField.kind === "dateRange") {
+                  const sorted = sortResumeItems(
+                    form.getValues().items as unknown as Record<
+                      string,
+                      unknown
+                    >[],
+                    dateRangeField.startName,
+                    dateRangeField.endName,
+                  );
+                  form.setValue(
+                    "items",
+                    sorted as unknown as CollectionSectionFormValues["items"],
+                    { shouldDirty: true },
+                  );
+                }
+              }}
+            >
+              <HistoryIcon className="mr-1 size-3" />
+              Auto-sort
+            </Button>
+          )}
+          <Badge variant="secondary">
+            {currentItems?.length ?? 0} item
+            {(currentItems?.length ?? 0) === 1 ? "" : "s"}
+          </Badge>
+        </div>
       }
     >
       {items.fields.length === 0 ? (

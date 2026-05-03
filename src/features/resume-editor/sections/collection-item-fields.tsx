@@ -290,7 +290,7 @@ export function CollectionItemFields({
             <div key={`${startName}-${endName}`} className="grid gap-3 md:col-span-2 md:grid-cols-2">
               <Field data-invalid={startFieldState.invalid || undefined}>
                 <FieldLabel htmlFor={startName}>
-                  <FieldLabelText label={`${fieldConfig.label} start`} />
+                  <FieldLabelText label="Start date" />
                 </FieldLabel>
                 <FieldContent>
                   <Controller
@@ -317,7 +317,7 @@ export function CollectionItemFields({
 
               <Field data-invalid={endFieldState.invalid || undefined}>
                 <FieldLabel htmlFor={endName}>
-                  <FieldLabelText label={`${fieldConfig.label} end`} />
+                  <FieldLabelText label="End date" />
                 </FieldLabel>
                 <FieldContent>
                   <Controller

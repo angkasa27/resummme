@@ -5,7 +5,7 @@ import { addYears, format, getYear, setMonth, startOfMonth, startOfYear } from "
 import { CalendarIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
+
 import {
   Popover,
   PopoverContent,
@@ -89,25 +89,6 @@ export function MonthYearPicker({
             Pick the month that should be saved to this CV field.
           </PopoverDescription>
         </PopoverHeader>
-
-        <div className="rounded-[10px] border bg-muted/20 p-2">
-          <Calendar
-            mode="single"
-            month={displayMonth}
-            selected={selectedDate}
-            onMonthChange={(nextMonth) => setDisplayMonth(startOfMonth(nextMonth))}
-            startMonth={new Date(1970, 0, 1)}
-            endMonth={addYears(new Date(), 10)}
-            captionLayout="dropdown"
-            showOutsideDays={false}
-            classNames={{
-              month: "gap-2",
-              table: "hidden",
-              weekdays: "hidden",
-              week: "hidden",
-            }}
-          />
-        </div>
 
         <div className="flex items-center justify-between rounded-[10px] border bg-background px-3 py-2">
           <Button
