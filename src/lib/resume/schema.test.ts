@@ -61,6 +61,23 @@ describe("resume schema", () => {
     ).toThrow();
   });
 
+  it("allows blank summary content in stored drafts", () => {
+    const draft = createDefaultResumeDraft();
+
+    expect(() =>
+      parseResumeDraft({
+        ...draft,
+        sections: {
+          ...draft.sections,
+          summary: {
+            ...draft.sections.summary,
+            content: "",
+          },
+        },
+      })
+    ).not.toThrow();
+  });
+
   it("keeps default visible sections focused on the core resume flow", () => {
     const draft = createDefaultResumeDraft();
 

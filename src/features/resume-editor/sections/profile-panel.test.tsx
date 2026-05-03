@@ -82,4 +82,45 @@ describe("profile panel", () => {
       )
     ).toBeInTheDocument();
   });
+
+  it("does not show required errors for blank profile fields", async () => {
+    const user = userEvent.setup();
+    const draft = createDefaultResumeDraft();
+
+    render(
+      <ProfilePanel
+        draft={draft}
+        onBack={vi.fn()}
+        onSave={vi.fn()}
+      />
+    );
+
+    const fullNameInput = screen.getByLabelText(/full name/i);
+    await user.clear(fullNameInput);
+    await user.tab();
+
+    expect(screen.queryByText(/full name is required/i)).not.toBeInTheDocument();
+  });
+
+  it("still shows format errors for malformed email addresses", async () => {
+    const user = userEvent.setup();
+    const draft = createDefaultResumeDraft();
+
+    render(
+      <ProfilePanel
+        draft={draft}
+        onBack={vi.fn()}
+        onSave={vi.fn()}
+      />
+    );
+
+    const emailInput = screen.getByLabelText(/email address/i);
+    await user.clear(emailInput);
+    await user.type(emailInput, "not-an-email");
+    await user.tab();
+
+    expect(
+      screen.getByText(/email address must be a valid email address/i)
+    ).toBeInTheDocument();
+  });
 });

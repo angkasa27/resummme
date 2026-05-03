@@ -18,10 +18,10 @@ import { Input } from "@/components/ui/input";
 
 import { createLocalId } from "@/features/resume-editor/lib/create-local-id";
 import { createSchemaResolver } from "@/features/resume-editor/lib/form-resolver";
+import { profileFormSchema } from "@/features/resume-editor/lib/section-schemas";
 import { RichTextEditor } from "@/features/resume-editor/rich-text/rich-text-editor";
 import { EditorCard } from "@/features/resume-editor/sections/editor-card";
 import { FieldLabelText } from "@/features/resume-editor/sections/field-label-text";
-import { profileSchema } from "@/lib/resume/schema";
 import type { Profile, ResumeDraft } from "@/lib/resume/schema";
 
 type ProfilePanelProps = {
@@ -32,7 +32,7 @@ type ProfilePanelProps = {
 
 export function ProfilePanel({ draft, onBack, onSave }: ProfilePanelProps) {
   const profileForm = useForm<Profile>({
-    resolver: createSchemaResolver<Profile>(profileSchema),
+    resolver: createSchemaResolver<Profile>(profileFormSchema),
     defaultValues: draft.profile,
     mode: "onBlur",
     reValidateMode: "onChange",

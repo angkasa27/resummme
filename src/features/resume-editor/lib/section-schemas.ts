@@ -2,22 +2,21 @@ import { z } from "zod";
 
 import type { CollectionSectionKey } from "@/features/resume-editor/config/section-metadata";
 import {
-  awardItemSchema,
-  certificationItemSchema,
-  educationItemSchema,
-  languageItemSchema,
-  organizationItemSchema,
-  projectItemSchema,
-  publicationItemSchema,
-  referenceItemSchema,
-  skillCategoryItemSchema,
-  summarySectionSchema,
-  workExperienceItemSchema,
+  awardItemFormSchema,
+  certificationItemFormSchema,
+  educationItemFormSchema,
+  languageItemFormSchema,
+  organizationItemFormSchema,
+  profileFormSchema,
+  projectItemFormSchema,
+  publicationItemFormSchema,
+  referenceItemFormSchema,
+  skillCategoryItemFormSchema,
+  summaryFormSchema,
+  workExperienceItemFormSchema,
 } from "@/lib/resume/schema";
 
-export const summaryFormSchema = summarySectionSchema.pick({
-  content: true,
-});
+export { profileFormSchema, summaryFormSchema };
 
 function createCollectionSectionFormSchema<T extends z.ZodType>(itemSchema: T) {
   return z.object({
@@ -26,14 +25,14 @@ function createCollectionSectionFormSchema<T extends z.ZodType>(itemSchema: T) {
 }
 
 export const collectionSectionFormSchemaMap: Record<CollectionSectionKey, unknown> = {
-  workExperience: createCollectionSectionFormSchema(workExperienceItemSchema),
-  skills: createCollectionSectionFormSchema(skillCategoryItemSchema),
-  projects: createCollectionSectionFormSchema(projectItemSchema),
-  education: createCollectionSectionFormSchema(educationItemSchema),
-  publications: createCollectionSectionFormSchema(publicationItemSchema),
-  certifications: createCollectionSectionFormSchema(certificationItemSchema),
-  awards: createCollectionSectionFormSchema(awardItemSchema),
-  languages: createCollectionSectionFormSchema(languageItemSchema),
-  references: createCollectionSectionFormSchema(referenceItemSchema),
-  organizationVolunteering: createCollectionSectionFormSchema(organizationItemSchema),
+  workExperience: createCollectionSectionFormSchema(workExperienceItemFormSchema),
+  skills: createCollectionSectionFormSchema(skillCategoryItemFormSchema),
+  projects: createCollectionSectionFormSchema(projectItemFormSchema),
+  education: createCollectionSectionFormSchema(educationItemFormSchema),
+  publications: createCollectionSectionFormSchema(publicationItemFormSchema),
+  certifications: createCollectionSectionFormSchema(certificationItemFormSchema),
+  awards: createCollectionSectionFormSchema(awardItemFormSchema),
+  languages: createCollectionSectionFormSchema(languageItemFormSchema),
+  references: createCollectionSectionFormSchema(referenceItemFormSchema),
+  organizationVolunteering: createCollectionSectionFormSchema(organizationItemFormSchema),
 };
