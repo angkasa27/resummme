@@ -162,11 +162,25 @@ export function CollectionSectionPanel({
             >
               <div className="flex items-center justify-between gap-3 border-b bg-background px-3 py-2">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-semibold">
-                    {config.itemTitle} {index + 1}
-                  </span>
-                  <span className="text-xs text-muted-foreground">
-                    {index === 0 ? "Primary" : "Entry"}
+                  <span className="text-sm font-semibold truncate max-w-[240px]">
+                    {(() => {
+                      const item = currentItems?.[index] as Record<
+                        string,
+                        unknown
+                      >;
+                      const representativeValue = (item?.companyName ||
+                        item?.projectName ||
+                        item?.name ||
+                        item?.title ||
+                        item?.certificationName ||
+                        item?.language ||
+                        item?.categoryName ||
+                        item?.organizationName) as string | undefined;
+
+                      return (
+                        representativeValue || `${config.itemTitle} ${index + 1}`
+                      );
+                    })()}
                   </span>
                 </div>
                 <ButtonGroup
