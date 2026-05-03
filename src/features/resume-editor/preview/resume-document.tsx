@@ -1,14 +1,15 @@
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   isCollectionSectionKey,
   getOrderedVisibleSectionKeys,
   sectionLabels,
 } from "@/features/resume-editor/config/section-metadata";
 import { renderSectionItem } from "@/features/resume-editor/preview/render-section-item";
+import {
+  sanitizeRichTextHref,
+  sanitizeRichTextHtml,
+  shouldOpenHrefInNewTab,
+} from "@/lib/resume/sanitize-rich-text";
 import type { ResumeDraft } from "@/lib/resume/schema";
 import { cn } from "@/lib/utils";
 
@@ -18,15 +19,17 @@ type ResumeDocumentProps = {
 };
 
 function renderHtml(content: string) {
-  return { __html: content };
+  return { __html: sanitizeRichTextHtml(content) };
 }
 
 function richTextHasContent(value: string) {
-  return value
-    .replace(/<[^>]*>/g, " ")
-    .replace(/&nbsp;/g, " ")
-    .replace(/\s+/g, " ")
-    .trim().length > 0;
+  return (
+    value
+      .replace(/<[^>]*>/g, " ")
+      .replace(/&nbsp;/g, " ")
+      .replace(/\s+/g, " ")
+      .trim().length > 0
+  );
 }
 
 function hasRenderableItem(
@@ -34,7 +37,8 @@ function hasRenderableItem(
   item: unknown,
 ) {
   if (sectionKey === "workExperience") {
-    const value = item as ResumeDraft["sections"]["workExperience"]["items"][number];
+    const value =
+      item as ResumeDraft["sections"]["workExperience"]["items"][number];
     return Boolean(
       value.companyName ||
         value.position ||
@@ -75,7 +79,8 @@ function hasRenderableItem(
   }
 
   if (sectionKey === "publications") {
-    const value = item as ResumeDraft["sections"]["publications"]["items"][number];
+    const value =
+      item as ResumeDraft["sections"]["publications"]["items"][number];
     return Boolean(
       value.title ||
         value.publisher ||
@@ -86,7 +91,8 @@ function hasRenderableItem(
   }
 
   if (sectionKey === "certifications") {
-    const value = item as ResumeDraft["sections"]["certifications"]["items"][number];
+    const value =
+      item as ResumeDraft["sections"]["certifications"]["items"][number];
     return Boolean(
       value.certificationName ||
         value.issuingOrganization ||
@@ -112,7 +118,8 @@ function hasRenderableItem(
   }
 
   if (sectionKey === "references") {
-    const value = item as ResumeDraft["sections"]["references"]["items"][number];
+    const value =
+      item as ResumeDraft["sections"]["references"]["items"][number];
     return Boolean(value.name || value.background || value.contactDetails);
   }
 
@@ -135,17 +142,20 @@ function hasRenderableItem(
 export function ResumeDocument({ draft, className }: ResumeDocumentProps) {
   const orderedSectionKeys = getOrderedVisibleSectionKeys(draft.sections);
   const contactItems = [
-    draft.profile.location,
-    draft.profile.phone,
-    draft.profile.email,
-    ...draft.profile.extraLinks.map((link) => link.url),
-  ].filter(Boolean);
+    { kind: "text" as const, value: draft.profile.location },
+    { kind: "text" as const, value: draft.profile.phone },
+    { kind: "text" as const, value: draft.profile.email },
+    ...draft.profile.extraLinks
+      .map((link) => sanitizeRichTextHref(link.url))
+      .filter((value): value is string => Boolean(value))
+      .map((value) => ({ kind: "link" as const, value })),
+  ].filter((item) => Boolean(item.value));
 
   return (
     <article
       className={cn(
         "resume-document mx-auto flex min-h-[297mm] w-full max-w-[210mm] flex-col gap-6 bg-white px-9 py-10 text-[13px] leading-6 text-foreground ring-1 ring-border print:min-h-0 print:max-w-none print:bg-white print:ring-0",
-        className
+        className,
       )}
     >
       <header className="flex items-start justify-between gap-6 border-b pb-5">
@@ -156,13 +166,38 @@ export function ResumeDocument({ draft, className }: ResumeDocumentProps) {
           >
             {draft.profile.fullName}
           </h1>
-          <p className="mt-2 max-w-[38rem] break-words text-[12px] leading-5 text-muted-foreground">
-            {contactItems.join(" • ")}
+          <p className="mt-2 max-w-152 wrap-break-word text-[12px] leading-5 text-muted-foreground">
+            {contactItems.map((item, index) => (
+              <span key={`${item.kind}-${item.value}-${index}`}>
+                {index > 0 ? " • " : null}
+                {item.kind === "link" ? (
+                  <a
+                    href={item.value}
+                    target={
+                      shouldOpenHrefInNewTab(item.value) ? "_blank" : undefined
+                    }
+                    rel={
+                      shouldOpenHrefInNewTab(item.value)
+                        ? "noopener noreferrer"
+                        : undefined
+                    }
+                    className="underline underline-offset-4"
+                  >
+                    {item.value}
+                  </a>
+                ) : (
+                  item.value
+                )}
+              </span>
+            ))}
           </p>
         </div>
         {draft.profile.photo ? (
           <Avatar size="lg" className="size-16 border">
-            <AvatarImage src={draft.profile.photo} alt={draft.profile.fullName} />
+            <AvatarImage
+              src={draft.profile.photo}
+              alt={draft.profile.fullName}
+            />
             <AvatarFallback>
               {draft.profile.fullName
                 .split(" ")
@@ -177,7 +212,10 @@ export function ResumeDocument({ draft, className }: ResumeDocumentProps) {
       {orderedSectionKeys.map((sectionKey) => {
         if (sectionKey === "summary") {
           return (
-            <section key={sectionKey} className="grid gap-3 sm:grid-cols-[110px_1fr]">
+            <section
+              key={sectionKey}
+              className="grid gap-3 sm:grid-cols-[110px_1fr]"
+            >
               <h2
                 className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground"
                 data-testid="resume-preview-section-heading"
@@ -186,7 +224,9 @@ export function ResumeDocument({ draft, className }: ResumeDocumentProps) {
               </h2>
               <div
                 className="[&_p]:m-0"
-                dangerouslySetInnerHTML={renderHtml(draft.sections.summary.content)}
+                dangerouslySetInnerHTML={renderHtml(
+                  draft.sections.summary.content,
+                )}
               />
             </section>
           );
@@ -206,7 +246,10 @@ export function ResumeDocument({ draft, className }: ResumeDocumentProps) {
         }
 
         return (
-          <section key={sectionKey} className="grid gap-3 sm:grid-cols-[110px_1fr]">
+          <section
+            key={sectionKey}
+            className="grid gap-3 sm:grid-cols-[110px_1fr]"
+          >
             <h2
               className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground"
               data-testid="resume-preview-section-heading"
@@ -214,7 +257,9 @@ export function ResumeDocument({ draft, className }: ResumeDocumentProps) {
               {sectionLabels[sectionKey]}
             </h2>
             <div className="flex flex-col gap-5">
-              {renderableItems.map((item) => renderSectionItem(sectionKey, item))}
+              {renderableItems.map((item) =>
+                renderSectionItem(sectionKey, item),
+              )}
             </div>
           </section>
         );

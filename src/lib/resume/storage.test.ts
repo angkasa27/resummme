@@ -63,4 +63,24 @@ describe("resume storage", () => {
       )
     ).toThrow(/profile/i);
   });
+
+  it("sanitizes imported rich text content", () => {
+    const draft = createDefaultResumeDraft();
+    draft.profile.summary =
+      '<p onclick="alert(1)">Profile</p><script>alert(1)</script>';
+    draft.sections.summary.content =
+      '<p><a href="javascript:alert(1)" target="_blank">Summary</a></p>';
+    draft.sections.projects.items[0].description =
+      '<p><img src=x onerror=alert(1)>Project</p>';
+
+    const imported = importResumeDraft(JSON.stringify(draft));
+
+    expect(imported.profile.summary).toBe("<p>Profile</p>");
+    expect(imported.sections.summary.content).toBe(
+      '<p><a target="_blank" rel="noopener noreferrer">Summary</a></p>'
+    );
+    expect(imported.sections.projects.items[0].description).toBe(
+      "<p>Project</p>"
+    );
+  });
 });

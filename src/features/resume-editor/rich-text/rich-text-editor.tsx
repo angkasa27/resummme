@@ -1,12 +1,26 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useId, useState } from "react";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Popover,
+  PopoverContent,
+  PopoverDescription,
+  PopoverHeader,
+  PopoverTitle,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import {
+  sanitizeRichTextHref,
+  shouldOpenHrefInNewTab,
+} from "@/lib/resume/sanitize-rich-text";
 import { cn } from "@/lib/utils";
 
 type RichTextEditorProps = {
@@ -26,6 +40,14 @@ export function RichTextEditor({
   invalid = false,
   ariaLabel,
 }: RichTextEditorProps) {
+  const linkInputId = useId();
+  const [isLinkEditorOpen, setIsLinkEditorOpen] = useState(false);
+  const [linkDraft, setLinkDraft] = useState("https://");
+  const [linkError, setLinkError] = useState<string | null>(null);
+  const [linkSelection, setLinkSelection] = useState<{
+    from: number;
+    to: number;
+  } | null>(null);
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
@@ -70,24 +92,86 @@ export function RichTextEditor({
     return null;
   }
 
-  function toggleLink() {
-    if (!editor) {
+  const activeEditor = editor;
+
+  function openLinkEditor() {
+    setLinkError(null);
+    setIsLinkEditorOpen(true);
+  }
+
+  function getCurrentLinkSelection() {
+    const domSelection = window.getSelection();
+
+    if (
+      domSelection?.anchorNode &&
+      domSelection.focusNode &&
+      activeEditor.view.dom.contains(domSelection.anchorNode) &&
+      activeEditor.view.dom.contains(domSelection.focusNode)
+    ) {
+      try {
+        const anchor = activeEditor.view.posAtDOM(
+          domSelection.anchorNode,
+          domSelection.anchorOffset
+        );
+        const focus = activeEditor.view.posAtDOM(
+          domSelection.focusNode,
+          domSelection.focusOffset
+        );
+
+        return {
+          from: Math.min(anchor, focus),
+          to: Math.max(anchor, focus),
+        };
+      } catch {
+        // Fall back to the editor state selection if DOM positions cannot be resolved.
+      }
+    }
+
+    return {
+      from: activeEditor.state.selection.from,
+      to: activeEditor.state.selection.to,
+    };
+  }
+
+  function prepareLinkEditor() {
+    const previousUrl = activeEditor.getAttributes("link").href as
+      | string
+      | undefined;
+    const selection = getCurrentLinkSelection();
+
+    setLinkSelection({
+      from: selection.from,
+      to: selection.to,
+    });
+    setLinkDraft(previousUrl ?? "https://");
+  }
+
+  function applyLink() {
+    const sanitizedHref = sanitizeRichTextHref(linkDraft.trim());
+
+    if (!sanitizedHref) {
+      setLinkError("Enter a valid link.");
       return;
     }
 
-    const previousUrl = editor.getAttributes("link").href as string | undefined;
-    const nextUrl = window.prompt("Enter a URL", previousUrl ?? "https://");
+    const chain = activeEditor.chain().focus();
 
-    if (nextUrl === null) {
-      return;
+    if (linkSelection) {
+      chain.setTextSelection(linkSelection);
     }
 
-    if (!nextUrl.trim()) {
-      editor.chain().focus().unsetLink().run();
-      return;
+    const attributes: { href: string; target?: string; rel?: string } = {
+      href: sanitizedHref,
+    };
+
+    if (shouldOpenHrefInNewTab(sanitizedHref)) {
+      attributes.target = "_blank";
+      attributes.rel = "noopener noreferrer";
     }
 
-    editor.chain().focus().setLink({ href: nextUrl.trim() }).run();
+    chain.extendMarkRange("link").setLink(attributes).run();
+    setIsLinkEditorOpen(false);
+    setLinkError(null);
   }
 
   return (
@@ -104,24 +188,28 @@ export function RichTextEditor({
           variant="outline"
           spacing={1}
           value={[
-            editor.isActive("bold") ? "bold" : "",
-            editor.isActive("italic") ? "italic" : "",
-            editor.isActive("underline") ? "underline" : "",
-            editor.isActive("bulletList") ? "bulletList" : "",
-            editor.isActive("orderedList") ? "orderedList" : "",
+            activeEditor.isActive("bold") ? "bold" : "",
+            activeEditor.isActive("italic") ? "italic" : "",
+            activeEditor.isActive("underline") ? "underline" : "",
+            activeEditor.isActive("bulletList") ? "bulletList" : "",
+            activeEditor.isActive("orderedList") ? "orderedList" : "",
           ].filter(Boolean)}
           onValueChange={(nextValue) => {
             const nextSet = new Set(nextValue as string[]);
             const formatters = [
-              ["bold", () => editor.chain().focus().toggleBold().run()],
-              ["italic", () => editor.chain().focus().toggleItalic().run()],
-              ["underline", () => editor.chain().focus().toggleUnderline().run()],
-              ["bulletList", () => editor.chain().focus().toggleBulletList().run()],
-              ["orderedList", () => editor.chain().focus().toggleOrderedList().run()],
+              ["bold", () => activeEditor.chain().focus().toggleBold().run()],
+              ["italic", () => activeEditor.chain().focus().toggleItalic().run()],
+              ["underline", () => activeEditor.chain().focus().toggleUnderline().run()],
+              ["bulletList", () => activeEditor.chain().focus().toggleBulletList().run()],
+              ["orderedList", () => activeEditor.chain().focus().toggleOrderedList().run()],
             ] as const;
 
             for (const [formatKey, toggle] of formatters) {
-              const isActive = editor.isActive(formatKey === "bulletList" || formatKey === "orderedList" ? formatKey : formatKey);
+              const isActive = activeEditor.isActive(
+                formatKey === "bulletList" || formatKey === "orderedList"
+                  ? formatKey
+                  : formatKey
+              );
               const shouldBeActive = nextSet.has(formatKey);
 
               if (isActive !== shouldBeActive) {
@@ -147,20 +235,75 @@ export function RichTextEditor({
           </ToggleGroupItem>
         </ToggleGroup>
         <Separator orientation="vertical" className="h-6" />
-        <Button type="button" variant="outline" size="sm" onClick={toggleLink}>
-          Link
-        </Button>
+        <Popover open={isLinkEditorOpen} onOpenChange={setIsLinkEditorOpen}>
+          <PopoverTrigger
+            render={<Button type="button" variant="outline" size="sm" />}
+            onMouseDown={(event) => {
+              event.preventDefault();
+              prepareLinkEditor();
+            }}
+            onClick={openLinkEditor}
+          >
+            Link
+          </PopoverTrigger>
+          <PopoverContent role="dialog" aria-label="Link editor" align="start">
+            <PopoverHeader>
+              <PopoverTitle>Edit link</PopoverTitle>
+              <PopoverDescription>
+                Add or update the selected link without leaving the editor.
+              </PopoverDescription>
+            </PopoverHeader>
+            <div className="flex flex-col gap-2">
+              <Label htmlFor={linkInputId}>Link URL</Label>
+              <Input
+                id={linkInputId}
+                type="url"
+                autoComplete="url"
+                inputMode="url"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
+                aria-invalid={linkError ? true : undefined}
+                value={linkDraft}
+                onChange={(event) => {
+                  setLinkDraft(event.target.value);
+                  if (linkError) {
+                    setLinkError(null);
+                  }
+                }}
+              />
+              {linkError ? (
+                <p className="text-sm text-destructive" role="alert">
+                  {linkError}
+                </p>
+              ) : null}
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setIsLinkEditorOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button type="button" size="sm" onClick={applyLink}>
+                Apply link
+              </Button>
+            </div>
+          </PopoverContent>
+        </Popover>
         <Button
           type="button"
           variant="outline"
           size="sm"
-          onClick={() => editor.chain().focus().unsetLink().run()}
+          onClick={() => activeEditor.chain().focus().unsetLink().run()}
         >
           Unlink
         </Button>
       </div>
       <div className={cn("bg-background", minHeightClassName)}>
-        <EditorContent editor={editor} />
+        <EditorContent editor={activeEditor} />
       </div>
     </div>
   );

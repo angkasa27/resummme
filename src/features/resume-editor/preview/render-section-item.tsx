@@ -1,7 +1,8 @@
 import type { ResumeDraft } from "@/lib/resume/schema";
+import { sanitizeRichTextHtml } from "@/lib/resume/sanitize-rich-text";
 
 function renderHtml(content: string) {
-  return { __html: content };
+  return { __html: sanitizeRichTextHtml(content) };
 }
 
 function renderCurrentDateLabel(value: string) {

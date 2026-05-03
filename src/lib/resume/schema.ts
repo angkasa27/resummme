@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { sanitizeRichTextHtml } from "@/lib/resume/sanitize-rich-text";
 
 const monthYearPattern = /^[A-Za-z]{3,9}\s+\d{4}$/;
 const currentValueSchema = z.literal("current");
@@ -36,9 +37,13 @@ function richTextTextContent(value: string) {
 }
 
 function requiredRichText(label: string) {
-  return z.string().trim().refine((value) => richTextTextContent(value).length > 0, {
-    message: `${label} is required.`,
-  });
+  return z
+    .string()
+    .trim()
+    .transform((value) => sanitizeRichTextHtml(value))
+    .refine((value) => richTextTextContent(value).length > 0, {
+      message: `${label} is required.`,
+    });
 }
 
 function requiredMonthYear(label: string) {
@@ -53,7 +58,7 @@ function draftText() {
 }
 
 function draftRichText() {
-  return z.string().trim();
+  return z.string().trim().transform((value) => sanitizeRichTextHtml(value));
 }
 
 function draftMonthYear() {

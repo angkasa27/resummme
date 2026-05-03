@@ -66,6 +66,10 @@ export function CollectionSectionPanel({
   const formValuesWatched = useWatch({ control });
 
   useEffect(() => {
+    form.reset(formValues);
+  }, [form, formValues]);
+
+  useEffect(() => {
     if (!formState.isDirty) return;
 
     const timeoutId = setTimeout(() => {

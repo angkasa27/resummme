@@ -47,9 +47,13 @@ export function SummaryPanel({
     mode: "onBlur",
     reValidateMode: "onChange",
   });
-  const { control, formState, getFieldState } = summaryForm;
+  const { control, formState, getFieldState, reset } = summaryForm;
 
   const formValuesWatched = useWatch({ control });
+
+  useEffect(() => {
+    reset(formValues);
+  }, [formValues, reset]);
 
   useEffect(() => {
     if (!formState.isDirty) return;

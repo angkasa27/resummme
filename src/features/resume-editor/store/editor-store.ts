@@ -49,44 +49,47 @@ export function createResumeEditorStore(initialDraft = createDefaultResumeDraft(
     activeSection: "profile",
     editorViewMode: "list",
     saveProfile: (profile) => {
-      const nextDraft = createNextDraft(get().draft, { profile });
-      saveResumeDraft(nextDraft);
+      const nextDraft = saveResumeDraft(createNextDraft(get().draft, { profile }));
       set({ draft: nextDraft });
     },
     saveSection: (sectionKey, sectionValue) => {
-      const nextDraft = createNextDraft(get().draft, {
-        sections: reorderSections(get().draft.sections, sectionKey, sectionValue),
-      });
-      saveResumeDraft(nextDraft);
+      const nextDraft = saveResumeDraft(
+        createNextDraft(get().draft, {
+          sections: reorderSections(get().draft.sections, sectionKey, sectionValue),
+        })
+      );
       set({ draft: nextDraft });
     },
     moveSection: (sectionKey, direction) => {
-      const nextDraft = createNextDraft(get().draft, {
-        sections: moveSection(get().draft.sections, sectionKey, direction),
-      });
-      saveResumeDraft(nextDraft);
+      const nextDraft = saveResumeDraft(
+        createNextDraft(get().draft, {
+          sections: moveSection(get().draft.sections, sectionKey, direction),
+        })
+      );
       set({ draft: nextDraft });
     },
     reorderSection: (sectionKey, targetIndex) => {
-      const nextDraft = createNextDraft(get().draft, {
-        sections: reorderSectionToIndex(
-          get().draft.sections,
-          sectionKey,
-          targetIndex
-        ),
-      });
-      saveResumeDraft(nextDraft);
+      const nextDraft = saveResumeDraft(
+        createNextDraft(get().draft, {
+          sections: reorderSectionToIndex(
+            get().draft.sections,
+            sectionKey,
+            targetIndex
+          ),
+        })
+      );
       set({ draft: nextDraft });
     },
     setSectionVisibility: (sectionKey, visible) => {
-      const nextDraft = createNextDraft(get().draft, {
-        sections: setSectionVisibilityWithOrder(
-          get().draft.sections,
-          sectionKey,
-          visible
-        ),
-      });
-      saveResumeDraft(nextDraft);
+      const nextDraft = saveResumeDraft(
+        createNextDraft(get().draft, {
+          sections: setSectionVisibilityWithOrder(
+            get().draft.sections,
+            sectionKey,
+            visible
+          ),
+        })
+      );
       set({ draft: nextDraft });
     },
     requestSectionChange: (sectionKey) => {
@@ -101,17 +104,17 @@ export function createResumeEditorStore(initialDraft = createDefaultResumeDraft(
       });
     },
     requestImportDraft: (draft) => {
-      saveResumeDraft(draft);
+      const nextDraft = saveResumeDraft(draft);
       set({
-        draft,
+        draft: nextDraft,
         activeSection: "profile",
         editorViewMode: "list",
       });
     },
     replaceDraft: (draft) => {
-      saveResumeDraft(draft);
+      const nextDraft = saveResumeDraft(draft);
       set({
-        draft,
+        draft: nextDraft,
         activeSection: "profile",
         editorViewMode: "list",
       });

@@ -52,6 +52,10 @@ export function ProfilePanel({
   const formValues = useWatch({ control });
 
   useEffect(() => {
+    profileForm.reset(draft.profile);
+  }, [draft.profile, profileForm]);
+
+  useEffect(() => {
     if (!formState.isDirty) return;
 
     const timeoutId = setTimeout(() => {
@@ -78,6 +82,7 @@ export function ProfilePanel({
           <FieldContent>
             <Input
               id="profile-full-name"
+              autoComplete="name"
               placeholder="Dimas Angkasa Nurindra"
               aria-invalid={
                 getFieldState("fullName", formState).invalid || undefined
@@ -99,6 +104,7 @@ export function ProfilePanel({
           <FieldContent>
             <Input
               id="profile-location"
+              autoComplete="address-level2"
               placeholder="Jakarta, Indonesia"
               aria-invalid={
                 getFieldState("location", formState).invalid || undefined
@@ -118,6 +124,10 @@ export function ProfilePanel({
           <FieldContent>
             <Input
               id="profile-phone"
+              type="tel"
+              autoComplete="tel"
+              inputMode="tel"
+              spellCheck={false}
               placeholder="+62 822-3044-2367"
               aria-invalid={
                 getFieldState("phone", formState).invalid || undefined
@@ -138,6 +148,9 @@ export function ProfilePanel({
             <Input
               id="profile-email"
               type="email"
+              autoComplete="email"
+              inputMode="email"
+              spellCheck={false}
               placeholder="mas.angkasa27@gmail.com"
               aria-invalid={
                 getFieldState("email", formState).invalid || undefined
@@ -158,6 +171,11 @@ export function ProfilePanel({
             <Input
               id="profile-photo"
               type="url"
+              autoComplete="url"
+              inputMode="url"
+              spellCheck={false}
+              autoCapitalize="none"
+              autoCorrect="off"
               placeholder="https://example.com/profile-photo.jpg"
               aria-invalid={
                 getFieldState("photo", formState).invalid || undefined
@@ -238,6 +256,13 @@ export function ProfilePanel({
                           <InputGroup className="rounded-md">
                             <InputGroupInput
                               id={inputId}
+                              name={nextField.name}
+                              type="url"
+                              autoComplete="url"
+                              inputMode="url"
+                              spellCheck={false}
+                              autoCapitalize="none"
+                              autoCorrect="off"
                               value={nextField.value}
                               placeholder="https://www.linkedin.com/in/your-handle"
                               aria-invalid={

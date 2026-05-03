@@ -16,13 +16,15 @@ export function saveResumeDraft(draft: ResumeDraft) {
   const validatedDraft = parseResumeDraft(draft);
 
   if (typeof window === "undefined") {
-    return;
+    return validatedDraft;
   }
 
   window.localStorage.setItem(
     RESUME_STORAGE_KEY,
     exportResumeDraft(validatedDraft)
   );
+
+  return validatedDraft;
 }
 
 export function loadResumeDraft(): ResumeDraft {

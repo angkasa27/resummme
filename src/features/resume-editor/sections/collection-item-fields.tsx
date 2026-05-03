@@ -79,6 +79,31 @@ export function CollectionItemFields({
                 <Input
                   id={fieldName}
                   type={fieldConfig.kind}
+                  inputMode={
+                    fieldConfig.kind === "email"
+                      ? "email"
+                      : fieldConfig.kind === "url"
+                        ? "url"
+                        : undefined
+                  }
+                  autoComplete={
+                    fieldConfig.kind === "email"
+                      ? "email"
+                      : fieldConfig.kind === "url"
+                        ? "url"
+                        : undefined
+                  }
+                  spellCheck={fieldConfig.kind === "text"}
+                  autoCapitalize={
+                    fieldConfig.kind === "email" || fieldConfig.kind === "url"
+                      ? "none"
+                      : undefined
+                  }
+                  autoCorrect={
+                    fieldConfig.kind === "email" || fieldConfig.kind === "url"
+                      ? "off"
+                      : undefined
+                  }
                   placeholder={fieldConfig.placeholder}
                   aria-invalid={fieldState.invalid || undefined}
                   {...register(fieldName as never)}
@@ -223,17 +248,19 @@ export function CollectionItemFields({
                   render={({ field }) => (
                     <Textarea
                       id={fieldName}
+                      name={field.name}
                       rows={3}
                       placeholder={fieldConfig.placeholder}
                       aria-invalid={fieldState.invalid || undefined}
-                      value={
-                        Array.isArray(field.value)
-                          ? (field.value as string[]).join(", ")
-                          : ""
-                      }
-                      onChange={(event) =>
-                        field.onChange(
-                          event.target.value
+                        value={
+                          Array.isArray(field.value)
+                            ? (field.value as string[]).join(", ")
+                            : ""
+                        }
+                        spellCheck={false}
+                        onChange={(event) =>
+                          field.onChange(
+                            event.target.value
                             .split(",")
                             .flatMap((value) => {
                               const trimmedValue = value.trim();
