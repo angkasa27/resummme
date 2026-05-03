@@ -62,7 +62,7 @@ export function EditorPane({
         onStayEditing={onCancelPendingIntent}
       />
       <div className="h-full min-h-0">
-        <div className="flex h-full min-h-0 flex-col overflow-hidden bg-background">
+        <div className="flex h-full min-h-0 flex-col overflow-hidden bg-card">
           <div className="min-h-0 flex-1">
             {editorViewMode === "list" ? (
               <SectionNavigator

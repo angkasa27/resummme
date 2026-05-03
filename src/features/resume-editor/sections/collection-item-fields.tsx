@@ -53,7 +53,7 @@ export function CollectionItemFields({
   }
 
   return (
-    <FieldGroup>
+    <FieldGroup className="grid gap-3 md:grid-cols-2">
       {config.fields.map((fieldConfig) => {
         if (
           fieldConfig.kind === "text" ||
@@ -64,7 +64,11 @@ export function CollectionItemFields({
           const fieldState = getDynamicFieldState(fieldName);
 
           return (
-            <Field key={fieldName} data-invalid={fieldState.invalid || undefined}>
+            <Field
+              key={fieldName}
+              className="md:col-span-2"
+              data-invalid={fieldState.invalid || undefined}
+            >
               <FieldLabel htmlFor={fieldName}>
                 <FieldLabelText
                   label={fieldConfig.label}
@@ -90,7 +94,11 @@ export function CollectionItemFields({
           const fieldState = getDynamicFieldState(fieldName);
 
           return (
-            <Field key={fieldName} data-invalid={fieldState.invalid || undefined}>
+            <Field
+              key={fieldName}
+              className="md:col-span-2"
+              data-invalid={fieldState.invalid || undefined}
+            >
               <FieldLabel htmlFor={fieldName}>
                 <FieldLabelText
                   label={fieldConfig.label}
@@ -127,7 +135,11 @@ export function CollectionItemFields({
           const fieldState = getDynamicFieldState(fieldName);
 
           return (
-            <Field key={fieldName} data-invalid={fieldState.invalid || undefined}>
+            <Field
+              key={fieldName}
+              className="md:col-span-2"
+              data-invalid={fieldState.invalid || undefined}
+            >
               <FieldLabel htmlFor={fieldName}>
                 <FieldLabelText
                   label={fieldConfig.label}
@@ -153,7 +165,11 @@ export function CollectionItemFields({
           const fieldState = getDynamicFieldState(fieldName);
 
           return (
-            <Field key={fieldName} data-invalid={fieldState.invalid || undefined}>
+            <Field
+              key={fieldName}
+              className="md:col-span-2"
+              data-invalid={fieldState.invalid || undefined}
+            >
               <FieldLabel>
                 <FieldLabelText label={fieldConfig.label} />
               </FieldLabel>
@@ -164,6 +180,7 @@ export function CollectionItemFields({
                   render={({ field }) => (
                     <RichTextEditor
                       value={field.value}
+                      ariaLabel={fieldConfig.label}
                       invalid={fieldState.invalid}
                       onChange={(value) =>
                         setValue(fieldName as never, value as never, {
@@ -188,7 +205,11 @@ export function CollectionItemFields({
           const fieldState = getDynamicFieldState(fieldName);
 
           return (
-            <Field key={fieldName} data-invalid={fieldState.invalid || undefined}>
+            <Field
+              key={fieldName}
+              className="md:col-span-2"
+              data-invalid={fieldState.invalid || undefined}
+            >
               <FieldLabel htmlFor={fieldName}>
                 <FieldLabelText
                   label={fieldConfig.label}
@@ -214,8 +235,10 @@ export function CollectionItemFields({
                         field.onChange(
                           event.target.value
                             .split(",")
-                            .map((value) => value.trim())
-                            .filter(Boolean)
+                            .flatMap((value) => {
+                              const trimmedValue = value.trim();
+                              return trimmedValue ? [trimmedValue] : [];
+                            })
                         )
                       }
                     />
@@ -237,7 +260,7 @@ export function CollectionItemFields({
           const isCurrent = endValue === "current";
 
           return (
-            <div key={`${startName}-${endName}`} className="grid gap-4 md:grid-cols-2">
+            <div key={`${startName}-${endName}`} className="grid gap-3 md:col-span-2 md:grid-cols-2">
               <Field data-invalid={startFieldState.invalid || undefined}>
                 <FieldLabel htmlFor={startName}>
                   <FieldLabelText label={`${fieldConfig.label} start`} />

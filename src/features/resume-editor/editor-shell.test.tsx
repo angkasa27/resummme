@@ -50,7 +50,10 @@ describe("resume editor shell", () => {
     expect(screen.getByRole("tab", { name: "Preview" })).toBeInTheDocument();
     expect(screen.queryByRole("tab", { name: "Sections" })).not.toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: /edit profile/i }));
+    expect(screen.getByRole("heading", { name: "Resume Editor" })).toBeInTheDocument();
+    expect(screen.queryByText(/editorial cv builder/i)).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: /^profile/i }));
 
     expect(
       screen.getByRole("button", { name: /back to section list/i })
@@ -64,7 +67,7 @@ describe("resume editor shell", () => {
 
     mockDesktopViewport(true);
     render(<ResumeEditorShell initialDraft={draft} />);
-    await user.click(screen.getByRole("button", { name: /edit profile/i }));
+    await user.click(screen.getByRole("button", { name: /^profile/i }));
 
     const fullNameInput = screen.getByLabelText(/full name/i);
     await user.clear(fullNameInput);
@@ -91,7 +94,7 @@ describe("resume editor shell", () => {
 
     render(<ResumeEditorShell initialDraft={draft} />);
 
-    await user.click(screen.getByRole("button", { name: /edit profile/i }));
+    await user.click(screen.getByRole("button", { name: /^profile/i }));
 
     const fullNameInput = screen.getByLabelText(/full name/i);
     await user.clear(fullNameInput);
@@ -186,7 +189,10 @@ describe("resume editor shell", () => {
     mockDesktopViewport(true);
     render(<ResumeEditorShell initialDraft={draft} />);
 
-    await user.click(screen.getByRole("button", { name: /move projects up/i }));
+    await user.click(
+      screen.getByRole("button", { name: /open projects actions/i })
+    );
+    await user.click(await screen.findByText(/move projects up/i));
 
     const headings = screen
       .getAllByTestId("resume-preview-section-heading")
@@ -212,7 +218,7 @@ describe("resume editor shell", () => {
     mockDesktopViewport(true);
     render(<ResumeEditorShell initialDraft={draft} />);
 
-    await user.click(screen.getByRole("button", { name: /edit projects/i }));
+    await user.click(screen.getByRole("button", { name: /^projects/i }));
 
     const projectNameInput = screen.getByLabelText(/project name/i);
     await user.clear(projectNameInput);
@@ -229,37 +235,80 @@ describe("resume editor shell", () => {
     mockDesktopViewport(true);
     render(<ResumeEditorShell initialDraft={draft} />);
 
-    await user.click(screen.getByRole("button", { name: /edit projects/i }));
-    expect(screen.queryByRole("button", { name: /edit projects/i })).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /^projects/i }));
+    expect(screen.queryByRole("button", { name: /^projects/i })).not.toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: /back to section list/i }));
 
-    expect(screen.getByRole("button", { name: /edit projects/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^projects/i })).toBeInTheDocument();
     expect(
       screen.queryByRole("button", { name: /back to section list/i })
     ).not.toBeInTheDocument();
 
     const profileRow = document.querySelector('[data-section-row="profile"]');
-    expect(profileRow).toHaveClass("hover:bg-muted/55");
-    expect(profileRow).not.toHaveClass("bg-primary/5");
+    expect(profileRow).toHaveClass("hover:bg-muted/70");
+    expect(profileRow).not.toHaveClass("bg-primary/10");
   });
 
-  it("renders grouped section rail controls instead of loose icon buttons", async () => {
+  it("moves secondary section controls into contextual menus", async () => {
+    const user = userEvent.setup();
     const draft = createDefaultResumeDraft();
 
     mockDesktopViewport(true);
     render(<ResumeEditorShell initialDraft={draft} />);
 
-    const summaryActions = screen.getByRole("group", { name: /summary actions/i });
-    expect(within(summaryActions).getByRole("button", { name: /edit summary/i })).toBeInTheDocument();
     expect(
-      within(summaryActions).getByRole("button", { name: /move summary up/i })
+      screen.queryByRole("button", { name: /move summary down/i })
+    ).not.toBeInTheDocument();
+
+    await user.click(
+      screen.getByRole("button", { name: /open summary actions/i })
+    );
+
+    expect(await screen.findByText(/move summary down/i)).toBeInTheDocument();
+    expect(await screen.findByText(/hide summary/i)).toBeInTheDocument();
+  });
+
+  it("separates hidden optional sections under one add area", async () => {
+    const user = userEvent.setup();
+    const draft = createDefaultResumeDraft();
+
+    mockDesktopViewport(true);
+    render(<ResumeEditorShell initialDraft={draft} />);
+
+    expect(screen.queryByText(/build order/i)).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /add optional section/i })
     ).toBeInTheDocument();
+
+    expect(screen.queryByText("Publications")).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: /add optional section/i }));
+
+    const optionalSections = screen
+      .getByRole("button", { name: /add optional section/i })
+      .closest("section");
+
+    expect(optionalSections).not.toBeNull();
     expect(
-      within(summaryActions).getByRole("button", { name: /move summary down/i })
+      within(optionalSections as HTMLElement).getByText("Publications")
     ).toBeInTheDocument();
+  });
+
+  it("edits profile summary as rich text instead of exposing raw stored HTML", async () => {
+    const user = userEvent.setup();
+    const draft = createDefaultResumeDraft();
+
+    mockDesktopViewport(true);
+    render(<ResumeEditorShell initialDraft={draft} />);
+
+    await user.click(screen.getByRole("button", { name: /^profile/i }));
+
+    expect(screen.queryByDisplayValue(/<p>Software engineer/)).not.toBeInTheDocument();
     expect(
-      within(summaryActions).getByRole("button", { name: /hide summary/i })
+      screen.getByText(
+        /Software engineer with experience building frontend-heavy web applications/i
+      )
     ).toBeInTheDocument();
   });
 
@@ -271,7 +320,7 @@ describe("resume editor shell", () => {
     mockDesktopViewport(true);
     render(<ResumeEditorShell initialDraft={draft} />);
 
-    await user.click(screen.getByRole("button", { name: /edit education/i }));
+    await user.click(screen.getByRole("button", { name: /^education/i }));
 
     expect(
       screen.queryByRole("button", { name: /^cancel$/i })
@@ -296,10 +345,22 @@ describe("resume editor shell", () => {
     mockDesktopViewport(true);
     render(<ResumeEditorShell initialDraft={draft} />);
 
-    await user.click(screen.getByRole("button", { name: /edit projects/i }));
+    await user.click(screen.getByRole("button", { name: /^projects/i }));
 
     expect(
       screen.getByRole("button", { name: /remove project 1/i })
     ).toBeDisabled();
+  });
+
+  it("keeps preview chrome minimal", () => {
+    const draft = createDefaultResumeDraft();
+
+    mockDesktopViewport(true);
+    render(<ResumeEditorShell initialDraft={draft} />);
+
+    expect(screen.queryByText(/live preview/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/recruiter-ready page/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/^a4$/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/curriculum vitae/i)).not.toBeInTheDocument();
   });
 });

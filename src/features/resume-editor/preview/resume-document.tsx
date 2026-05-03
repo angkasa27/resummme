@@ -144,21 +144,24 @@ export function ResumeDocument({ draft, className }: ResumeDocumentProps) {
   return (
     <article
       className={cn(
-        "resume-document mx-auto flex min-h-[297mm] w-full max-w-[210mm] flex-col gap-6 bg-background px-10 py-10 text-[13px] leading-6 text-foreground shadow-sm print:min-h-0 print:max-w-none print:shadow-none",
+        "resume-document mx-auto flex min-h-[297mm] w-full max-w-[210mm] flex-col gap-6 bg-white px-9 py-10 text-[13px] leading-6 text-foreground ring-1 ring-border print:min-h-0 print:max-w-none print:bg-white print:ring-0",
         className
       )}
     >
       <header className="flex items-start justify-between gap-6 border-b pb-5">
         <div className="flex-1">
-          <h1 className="font-heading text-3xl font-semibold tracking-tight" data-testid="resume-preview-full-name">
+          <h1
+            className="text-3xl font-semibold leading-tight tracking-[-0.03em]"
+            data-testid="resume-preview-full-name"
+          >
             {draft.profile.fullName}
           </h1>
-          <p className="mt-2 break-words text-sm text-muted-foreground">
+          <p className="mt-2 max-w-[38rem] break-words text-[12px] leading-5 text-muted-foreground">
             {contactItems.join(" • ")}
           </p>
         </div>
         {draft.profile.photo ? (
-          <Avatar size="lg" className="size-16">
+          <Avatar size="lg" className="size-16 border">
             <AvatarImage src={draft.profile.photo} alt={draft.profile.fullName} />
             <AvatarFallback>
               {draft.profile.fullName
@@ -174,14 +177,15 @@ export function ResumeDocument({ draft, className }: ResumeDocumentProps) {
       {orderedSectionKeys.map((sectionKey) => {
         if (sectionKey === "summary") {
           return (
-            <section key={sectionKey} className="flex flex-col gap-2">
+            <section key={sectionKey} className="grid gap-3 sm:grid-cols-[110px_1fr]">
               <h2
-                className="font-heading text-sm font-semibold uppercase tracking-[0.2em] text-muted-foreground"
+                className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground"
                 data-testid="resume-preview-section-heading"
               >
                 Summary
               </h2>
               <div
+                className="[&_p]:m-0"
                 dangerouslySetInnerHTML={renderHtml(draft.sections.summary.content)}
               />
             </section>
@@ -202,14 +206,14 @@ export function ResumeDocument({ draft, className }: ResumeDocumentProps) {
         }
 
         return (
-          <section key={sectionKey} className="flex flex-col gap-3">
+          <section key={sectionKey} className="grid gap-3 sm:grid-cols-[110px_1fr]">
             <h2
-              className="font-heading text-sm font-semibold uppercase tracking-[0.2em] text-muted-foreground"
+              className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground"
               data-testid="resume-preview-section-heading"
             >
               {sectionLabels[sectionKey]}
             </h2>
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-5">
               {renderableItems.map((item) => renderSectionItem(sectionKey, item))}
             </div>
           </section>

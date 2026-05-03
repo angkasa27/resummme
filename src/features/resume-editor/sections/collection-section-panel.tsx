@@ -93,19 +93,20 @@ export function CollectionSectionPanel({
       })}
     >
       {items.fields.length === 0 ? (
-        <div className="py-6 text-sm text-muted-foreground">
-          No items added.
+        <div className="rounded-md border border-dashed px-4 py-6 text-center text-sm text-muted-foreground">
+          No items added yet. Add the first entry to bring this section into the
+          preview.
         </div>
       ) : (
-        <div className="flex flex-col divide-y">
+        <div className="flex flex-col gap-3">
           {items.fields.map((field, index) => (
             <section
               key={field.id}
-              className="flex flex-col gap-4 py-5 first:pt-0 last:pb-0"
+              className="flex flex-col gap-3 rounded-md border bg-background p-3"
             >
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium">
+                  <span className="text-sm font-semibold">
                     {config.itemTitle} {index + 1}
                   </span>
                 </div>
@@ -159,7 +160,8 @@ export function CollectionSectionPanel({
 
       <Button
         type="button"
-        className="mt-4 w-full"
+        variant="outline"
+        className="mt-3 w-full"
         onClick={() => items.append(config.createItem() as never)}
       >
         <PlusIcon data-icon="inline-start" />

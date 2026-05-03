@@ -1,13 +1,11 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Noto_Sans } from "next/font/google";
+import { Geist_Mono, Public_Sans } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/sonner";
 
-const notoSans = Noto_Sans({subsets:['latin'],variable:'--font-sans'});
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const publicSans = Public_Sans({
+  variable: "--font-sans",
   subsets: ["latin"],
 });
 
@@ -29,7 +27,12 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={cn("h-full", "antialiased", geistSans.variable, geistMono.variable, "font-sans", notoSans.variable)}
+      className={cn(
+        "h-full",
+        "antialiased",
+        publicSans.variable,
+        geistMono.variable,
+      )}
     >
       <body className="min-h-full flex flex-col">
         {children}

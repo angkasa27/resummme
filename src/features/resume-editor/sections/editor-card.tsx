@@ -20,7 +20,7 @@ export function EditorCard({
 }: EditorCardProps) {
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden">
-      <div className="sticky top-0 z-10 flex items-center gap-3 border-b bg-background px-4 py-3 sm:px-5">
+      <div className="sticky top-0 z-10 flex items-center gap-2 border-b bg-card px-3 py-3 sm:px-4">
         <Button
           type="button"
           variant="ghost"
@@ -33,19 +33,27 @@ export function EditorCard({
         </Button>
 
         <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
-          <h2 className="min-w-0 truncate text-base font-semibold">{title}</h2>
+          <h2 className="min-w-0 truncate text-base font-semibold leading-none">
+            {title}
+          </h2>
           {meta}
         </div>
 
         <div className="ml-auto flex items-center gap-2">
-          <Button type="button" size="sm" onClick={onSave}>
+          <Button
+            type="button"
+            size="sm"
+            onClick={onSave}
+          >
             <SaveIcon data-icon="inline-start" />
-            Save Section
+            Save section
           </Button>
         </div>
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4 sm:px-5">{children}</div>
+      <div className="min-h-0 flex-1 overflow-y-auto px-3 py-4 sm:px-4">
+        {children}
+      </div>
     </div>
   );
 }

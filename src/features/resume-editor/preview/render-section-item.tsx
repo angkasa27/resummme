@@ -8,6 +8,13 @@ function renderCurrentDateLabel(value: string) {
   return value === "current" ? "Current" : value;
 }
 
+const itemClassName = "flex flex-col gap-1.5 border-b pb-4 last:border-b-0 last:pb-0";
+const itemHeaderClassName = "flex flex-wrap items-start justify-between gap-3";
+const itemTitleClassName = "font-semibold leading-snug";
+const itemMetaClassName = "text-[12px] leading-5 text-muted-foreground";
+const itemDateClassName = "text-right text-[11px] font-medium text-muted-foreground";
+const richTextClassName = "text-[12.5px] leading-6 text-foreground/90 [&_p]:m-0 [&_p+p]:mt-2";
+
 export function renderSectionItem(
   sectionKey: keyof ResumeDraft["sections"],
   item: unknown
@@ -16,97 +23,109 @@ export function renderSectionItem(
     case "workExperience": {
       const entry = item as ResumeDraft["sections"]["workExperience"]["items"][number];
       return (
-        <div key={entry.id} className="flex flex-col gap-2">
-          <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <div key={entry.id} className={itemClassName}>
+          <div className={itemHeaderClassName}>
             <div>
-              <div className="font-semibold">{entry.position}</div>
-              <div className="text-sm text-muted-foreground">
+              <div className={itemTitleClassName}>{entry.position}</div>
+              <div className={itemMetaClassName}>
                 {entry.companyName} · {entry.location}
               </div>
             </div>
-            <div className="text-sm text-muted-foreground">
+            <div className={itemDateClassName}>
               {entry.startDate} - {renderCurrentDateLabel(entry.endDate)}
             </div>
           </div>
-          <div dangerouslySetInnerHTML={renderHtml(entry.description)} />
+          <div
+            className={richTextClassName}
+            dangerouslySetInnerHTML={renderHtml(entry.description)}
+          />
         </div>
       );
     }
     case "skills": {
       const entry = item as ResumeDraft["sections"]["skills"]["items"][number];
       return (
-        <div key={entry.id} className="flex flex-col gap-1">
-          <div className="font-semibold">{entry.categoryName}</div>
-          <div className="text-sm text-muted-foreground">{entry.skills.join(", ")}</div>
+        <div key={entry.id} className={itemClassName}>
+          <div className={itemTitleClassName}>{entry.categoryName}</div>
+          <div className={itemMetaClassName}>{entry.skills.join(", ")}</div>
         </div>
       );
     }
     case "projects": {
       const entry = item as ResumeDraft["sections"]["projects"]["items"][number];
       return (
-        <div key={entry.id} className="flex flex-col gap-2">
-          <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <div key={entry.id} className={itemClassName}>
+          <div className={itemHeaderClassName}>
             <div>
-              <div className="font-semibold">{entry.projectName}</div>
+              <div className={itemTitleClassName}>{entry.projectName}</div>
               {entry.projectLink ? (
                 <a
-                  className="text-sm text-primary underline underline-offset-4"
+                  className="text-[12px] text-primary underline underline-offset-4"
                   href={entry.projectLink}
                 >
                   {entry.projectLink}
                 </a>
               ) : null}
             </div>
-            <div className="text-sm text-muted-foreground">
+            <div className={itemDateClassName}>
               {entry.startDate} - {renderCurrentDateLabel(entry.endDate)}
             </div>
           </div>
-          <div dangerouslySetInnerHTML={renderHtml(entry.description)} />
+          <div
+            className={richTextClassName}
+            dangerouslySetInnerHTML={renderHtml(entry.description)}
+          />
         </div>
       );
     }
     case "education": {
       const entry = item as ResumeDraft["sections"]["education"]["items"][number];
       return (
-        <div key={entry.id} className="flex flex-col gap-2">
-          <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <div key={entry.id} className={itemClassName}>
+          <div className={itemHeaderClassName}>
             <div>
-              <div className="font-semibold">{entry.degree}</div>
-              <div className="text-sm text-muted-foreground">
+              <div className={itemTitleClassName}>{entry.degree}</div>
+              <div className={itemMetaClassName}>
                 {entry.name} · {entry.location}
               </div>
             </div>
-            <div className="text-sm text-muted-foreground">
+            <div className={itemDateClassName}>
               {entry.startDate} - {renderCurrentDateLabel(entry.endDate)}
             </div>
           </div>
           {entry.gpa ? (
-            <div className="text-sm text-muted-foreground">GPA: {entry.gpa}</div>
+            <div className={itemMetaClassName}>GPA: {entry.gpa}</div>
           ) : null}
-          <div dangerouslySetInnerHTML={renderHtml(entry.description)} />
+          <div
+            className={richTextClassName}
+            dangerouslySetInnerHTML={renderHtml(entry.description)}
+          />
         </div>
       );
     }
     case "publications": {
       const entry = item as ResumeDraft["sections"]["publications"]["items"][number];
       return (
-        <div key={entry.id} className="flex flex-col gap-2">
-          <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <div key={entry.id} className={itemClassName}>
+          <div className={itemHeaderClassName}>
             <div>
-              <div className="font-semibold">{entry.title}</div>
-              <div className="text-sm text-muted-foreground">{entry.publisher}</div>
+              <div className={itemTitleClassName}>{entry.title}</div>
+              <div className={itemMetaClassName}>{entry.publisher}</div>
             </div>
-            <div className="text-sm text-muted-foreground">{entry.publicationDate}</div>
+            <div className={itemDateClassName}>{entry.publicationDate}</div>
           </div>
           {entry.publicationUrl ? (
             <a
-              className="text-sm text-primary underline underline-offset-4"
+              className="text-[12px] text-primary underline underline-offset-4"
               href={entry.publicationUrl}
             >
               {entry.publicationUrl}
             </a>
           ) : null}
-          <div dangerouslySetInnerHTML={renderHtml(entry.description)} />
+          <div
+            className={richTextClassName}
+            dangerouslySetInnerHTML={renderHtml(entry.description)}
+          />
         </div>
       );
     }
@@ -114,26 +133,26 @@ export function renderSectionItem(
       const entry =
         item as ResumeDraft["sections"]["certifications"]["items"][number];
       return (
-        <div key={entry.id} className="flex flex-col gap-1">
-          <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <div key={entry.id} className={itemClassName}>
+          <div className={itemHeaderClassName}>
             <div>
-              <div className="font-semibold">{entry.certificationName}</div>
-              <div className="text-sm text-muted-foreground">
+              <div className={itemTitleClassName}>{entry.certificationName}</div>
+              <div className={itemMetaClassName}>
                 {entry.issuingOrganization}
               </div>
             </div>
-            <div className="text-sm text-muted-foreground">{entry.issuedDate}</div>
+            <div className={itemDateClassName}>{entry.issuedDate}</div>
           </div>
           {entry.certificationLink ? (
             <a
-              className="text-sm text-primary underline underline-offset-4"
+              className="text-[12px] text-primary underline underline-offset-4"
               href={entry.certificationLink}
             >
               {entry.certificationLink}
             </a>
           ) : null}
           {entry.credentialId ? (
-            <div className="text-sm text-muted-foreground">
+            <div className={itemMetaClassName}>
               Credential ID: {entry.credentialId}
             </div>
           ) : null}
@@ -143,34 +162,37 @@ export function renderSectionItem(
     case "awards": {
       const entry = item as ResumeDraft["sections"]["awards"]["items"][number];
       return (
-        <div key={entry.id} className="flex flex-col gap-2">
-          <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <div key={entry.id} className={itemClassName}>
+          <div className={itemHeaderClassName}>
             <div>
-              <div className="font-semibold">{entry.title}</div>
-              <div className="text-sm text-muted-foreground">{entry.issuer}</div>
+              <div className={itemTitleClassName}>{entry.title}</div>
+              <div className={itemMetaClassName}>{entry.issuer}</div>
             </div>
-            <div className="text-sm text-muted-foreground">{entry.issuedDate}</div>
+            <div className={itemDateClassName}>{entry.issuedDate}</div>
           </div>
-          <div dangerouslySetInnerHTML={renderHtml(entry.description)} />
+          <div
+            className={richTextClassName}
+            dangerouslySetInnerHTML={renderHtml(entry.description)}
+          />
         </div>
       );
     }
     case "languages": {
       const entry = item as ResumeDraft["sections"]["languages"]["items"][number];
       return (
-        <div key={entry.id} className="flex items-baseline justify-between gap-2">
-          <div className="font-medium">{entry.language}</div>
-          <div className="text-sm text-muted-foreground">{entry.proficiency}</div>
+        <div key={entry.id} className="flex items-baseline justify-between gap-3 border-b pb-3 last:border-b-0 last:pb-0">
+          <div className={itemTitleClassName}>{entry.language}</div>
+          <div className={itemMetaClassName}>{entry.proficiency}</div>
         </div>
       );
     }
     case "references": {
       const entry = item as ResumeDraft["sections"]["references"]["items"][number];
       return (
-        <div key={entry.id} className="flex flex-col gap-1">
-          <div className="font-semibold">{entry.name}</div>
-          <div className="text-sm text-muted-foreground">{entry.background}</div>
-          <div className="text-sm text-muted-foreground">{entry.contactDetails}</div>
+        <div key={entry.id} className={itemClassName}>
+          <div className={itemTitleClassName}>{entry.name}</div>
+          <div className={itemMetaClassName}>{entry.background}</div>
+          <div className={itemMetaClassName}>{entry.contactDetails}</div>
         </div>
       );
     }
@@ -178,19 +200,22 @@ export function renderSectionItem(
       const entry =
         item as ResumeDraft["sections"]["organizationVolunteering"]["items"][number];
       return (
-        <div key={entry.id} className="flex flex-col gap-2">
-          <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <div key={entry.id} className={itemClassName}>
+          <div className={itemHeaderClassName}>
             <div>
-              <div className="font-semibold">{entry.position}</div>
-              <div className="text-sm text-muted-foreground">
+              <div className={itemTitleClassName}>{entry.position}</div>
+              <div className={itemMetaClassName}>
                 {entry.organizationName} · {entry.location}
               </div>
             </div>
-            <div className="text-sm text-muted-foreground">
+            <div className={itemDateClassName}>
               {entry.startDate} - {renderCurrentDateLabel(entry.endDate)}
             </div>
           </div>
-          <div dangerouslySetInnerHTML={renderHtml(entry.description)} />
+          <div
+            className={richTextClassName}
+            dangerouslySetInnerHTML={renderHtml(entry.description)}
+          />
         </div>
       );
     }

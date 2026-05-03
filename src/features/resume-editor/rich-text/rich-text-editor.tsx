@@ -15,6 +15,7 @@ type RichTextEditorProps = {
   className?: string;
   minHeightClassName?: string;
   invalid?: boolean;
+  ariaLabel?: string;
 };
 
 export function RichTextEditor({
@@ -23,6 +24,7 @@ export function RichTextEditor({
   className,
   minHeightClassName = "min-h-32",
   invalid = false,
+  ariaLabel,
 }: RichTextEditorProps) {
   const editor = useEditor({
     immediatelyRender: false,
@@ -43,7 +45,8 @@ export function RichTextEditor({
     editorProps: {
       attributes: {
         class:
-          "prose prose-sm max-w-none rounded-b-[10px] bg-background px-3 py-3 outline-none [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5",
+          "prose prose-sm max-w-none rounded-b-md bg-background px-3 py-3 outline-none [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5",
+        "aria-label": ariaLabel ?? "Rich text editor",
       },
     },
     onUpdate: ({ editor: nextEditor }) => {
@@ -90,12 +93,12 @@ export function RichTextEditor({
   return (
     <div
       className={cn(
-        "overflow-hidden rounded-[12px] border border-input",
-        invalid && "border-destructive ring-3 ring-destructive/20",
+        "overflow-hidden rounded-md border border-input bg-background",
+        invalid && "border-destructive ring-2 ring-destructive/20",
         className
       )}
     >
-      <div className="flex flex-wrap items-center gap-2 border-b bg-muted/40 px-3 py-2">
+      <div className="flex flex-wrap items-center gap-2 border-b bg-muted/50 px-2 py-2">
         <ToggleGroup
           multiple
           variant="outline"

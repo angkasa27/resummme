@@ -15,10 +15,10 @@ import {
 } from "@/components/ui/field";
 import { InputGroup, InputGroupInput } from "@/components/ui/input-group";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { useSectionFormState } from "@/features/resume-editor/hooks/use-section-form-state";
 import { createLocalId } from "@/features/resume-editor/lib/create-local-id";
 import { createSchemaResolver } from "@/features/resume-editor/lib/form-resolver";
+import { RichTextEditor } from "@/features/resume-editor/rich-text/rich-text-editor";
 import { EditorCard } from "@/features/resume-editor/sections/editor-card";
 import { FieldLabelText } from "@/features/resume-editor/sections/field-label-text";
 import { profileSchema } from "@/lib/resume/schema";
@@ -68,7 +68,7 @@ export function ProfilePanel({
         toast.success("Profile saved.");
       })}
     >
-      <FieldGroup>
+      <FieldGroup className="grid gap-3 md:grid-cols-2">
         <Field
           data-invalid={
             getFieldState("fullName", formState).invalid || undefined
@@ -171,29 +171,37 @@ export function ProfilePanel({
         </Field>
 
         <Field
-          data-invalid={
-            getFieldState("summary", formState).invalid || undefined
-          }
+          className="md:col-span-2"
+          data-invalid={getFieldState("summary", formState).invalid || undefined}
         >
-          <FieldLabel htmlFor="profile-summary">
+          <FieldLabel>
             <FieldLabelText label="Short description" />
           </FieldLabel>
           <FieldContent>
-            <Textarea
-              id="profile-summary"
-              rows={3}
-              placeholder="Frontend engineer building enterprise web products and internal platforms."
-              aria-invalid={
-                getFieldState("summary", formState).invalid || undefined
-              }
-              {...register("summary")}
+            <Controller
+              control={control}
+              name="summary"
+              render={({ field }) => (
+                <RichTextEditor
+                  value={field.value}
+                  ariaLabel="Short description"
+                  minHeightClassName="min-h-28"
+                  invalid={getFieldState("summary", formState).invalid}
+                  onChange={(value) =>
+                    profileForm.setValue("summary", value, {
+                      shouldDirty: true,
+                      shouldValidate: formState.isSubmitted,
+                    })
+                  }
+                />
+              )}
             />
             <FieldError errors={[getFieldState("summary", formState).error]} />
           </FieldContent>
         </Field>
       </FieldGroup>
 
-      <div className="flex flex-col gap-3 mt-3">
+      <div className="mt-4 flex flex-col gap-3 border-t pt-4">
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium">Links</span>
           <Badge variant="secondary">
@@ -231,7 +239,7 @@ export function ProfilePanel({
                         control={control}
                         name={urlFieldName}
                         render={({ field: nextField }) => (
-                          <InputGroup className="rounded-[10px]">
+                          <InputGroup className="rounded-md">
                             <InputGroupInput
                               id={`profile-link-url-${field.id}`}
                               value={nextField.value}
@@ -271,6 +279,7 @@ export function ProfilePanel({
 
         <Button
           type="button"
+          variant="outline"
           className="w-full"
           onClick={() =>
             extraLinks.append({
