@@ -3,7 +3,7 @@ import { hydrateRoot } from "react-dom/client";
 import { renderToString } from "react-dom/server";
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createDefaultResumeDraft } from "@/lib/resume/default-draft";
 import { ResumeEditorShell } from "@/features/resume-editor/editor-shell";
@@ -11,11 +11,15 @@ import { exportResumeDraft, RESUME_STORAGE_KEY } from "@/lib/resume/storage";
 
 const originalMatchMedia = window.matchMedia;
 
-function mockDesktopViewport(matches: boolean) {
+function mockViewport(width: number) {
   Object.defineProperty(window, "matchMedia", {
     writable: true,
     value: (query: string) => ({
-      matches,
+      matches: query.includes("1680px")
+        ? width >= 1680
+        : query.includes("1024px")
+          ? width >= 1024
+          : false,
       media: query,
       onchange: null,
       addEventListener: () => undefined,
@@ -28,7 +32,7 @@ function mockDesktopViewport(matches: boolean) {
 }
 
 beforeEach(() => {
-  mockDesktopViewport(false);
+  mockViewport(390);
 });
 
 afterEach(() => {
@@ -40,20 +44,21 @@ afterEach(() => {
 });
 
 describe("resume editor shell", () => {
-  it("uses Editor and Preview tabs on mobile", async () => {
+  it("uses Sections, Edit, and Preview tabs on mobile", async () => {
     const user = userEvent.setup();
     const draft = createDefaultResumeDraft();
 
     render(<ResumeEditorShell initialDraft={draft} />);
 
-    expect(screen.getByRole("tab", { name: "Editor" })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "Sections" })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "Edit" })).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: "Preview" })).toBeInTheDocument();
-    expect(screen.queryByRole("tab", { name: "Sections" })).not.toBeInTheDocument();
 
     expect(screen.getByRole("heading", { name: "Resume Editor" })).toBeInTheDocument();
     expect(screen.queryByText(/editorial cv builder/i)).not.toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: /^profile/i }));
+    await user.click(screen.getByRole("button", { name: /edit profile/i }));
+    await user.click(screen.getByRole("tab", { name: "Edit" }));
 
     expect(
       screen.getByRole("button", { name: /back to section list/i })
@@ -65,9 +70,9 @@ describe("resume editor shell", () => {
     const user = userEvent.setup();
     const draft = createDefaultResumeDraft();
 
-    mockDesktopViewport(true);
+    mockViewport(1440);
     render(<ResumeEditorShell initialDraft={draft} />);
-    await user.click(screen.getByRole("button", { name: /^profile/i }));
+    await user.click(screen.getByRole("button", { name: /edit profile/i }));
 
     const fullNameInput = screen.getByLabelText(/full name/i);
     await user.clear(fullNameInput);
@@ -94,14 +99,15 @@ describe("resume editor shell", () => {
 
     render(<ResumeEditorShell initialDraft={draft} />);
 
-    await user.click(screen.getByRole("button", { name: /^profile/i }));
+    await user.click(screen.getByRole("button", { name: /edit profile/i }));
+    await user.click(screen.getByRole("tab", { name: "Edit" }));
 
     const fullNameInput = screen.getByLabelText(/full name/i);
     await user.clear(fullNameInput);
     await user.type(fullNameInput, "Edited Profile Name");
 
     await user.click(screen.getByRole("tab", { name: "Preview" }));
-    await user.click(screen.getByRole("tab", { name: "Editor" }));
+    await user.click(screen.getByRole("tab", { name: "Edit" }));
 
     expect(screen.getByLabelText(/full name/i)).toHaveValue("Edited Profile Name");
 
@@ -165,6 +171,57 @@ describe("resume editor shell", () => {
     container.remove();
   });
 
+  it("hydrates without console hydration mismatches from generated ids", async () => {
+    const draft = createDefaultResumeDraft();
+    const originalWindowDescriptor = Object.getOwnPropertyDescriptor(
+      globalThis,
+      "window"
+    );
+
+    Object.defineProperty(globalThis, "window", {
+      value: undefined,
+      configurable: true,
+    });
+
+    const serverHtml = renderToString(
+      <ResumeEditorShell initialDraft={draft} />
+    );
+
+    if (originalWindowDescriptor) {
+      Object.defineProperty(globalThis, "window", originalWindowDescriptor);
+    }
+
+    const consoleErrorSpy = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => undefined);
+    const container = document.createElement("div");
+    container.innerHTML = serverHtml;
+    document.body.appendChild(container);
+
+    let root: ReturnType<typeof hydrateRoot> | null = null;
+    let hydrationErrors: unknown[][] = [];
+
+    try {
+      await act(async () => {
+        root = hydrateRoot(
+          container,
+          <ResumeEditorShell initialDraft={draft} />
+        );
+        await Promise.resolve();
+      });
+
+      hydrationErrors = consoleErrorSpy.mock.calls.filter((call) =>
+        String(call[0]).toLowerCase().includes("hydrat")
+      );
+    } finally {
+      consoleErrorSpy.mockRestore();
+      root?.unmount();
+      container.remove();
+    }
+
+    expect(hydrationErrors).toEqual([]);
+  });
+
   it("reorders sections immediately from the navigator and updates the preview order", async () => {
     const user = userEvent.setup();
     const draft = createDefaultResumeDraft();
@@ -186,13 +243,10 @@ describe("resume editor shell", () => {
       },
     ];
 
-    mockDesktopViewport(true);
+    mockViewport(1440);
     render(<ResumeEditorShell initialDraft={draft} />);
 
-    await user.click(
-      screen.getByRole("button", { name: /open projects actions/i })
-    );
-    await user.click(await screen.findByText(/move projects up/i));
+    await user.click(screen.getByRole("button", { name: /move projects up/i }));
 
     const headings = screen
       .getAllByTestId("resume-preview-section-heading")
@@ -215,10 +269,10 @@ describe("resume editor shell", () => {
       },
     ];
 
-    mockDesktopViewport(true);
+    mockViewport(1440);
     render(<ResumeEditorShell initialDraft={draft} />);
 
-    await user.click(screen.getByRole("button", { name: /^projects/i }));
+    await user.click(screen.getByRole("button", { name: /edit projects/i }));
 
     const projectNameInput = screen.getByLabelText(/project name/i);
     await user.clear(projectNameInput);
@@ -232,66 +286,63 @@ describe("resume editor shell", () => {
     const user = userEvent.setup();
     const draft = createDefaultResumeDraft();
 
-    mockDesktopViewport(true);
+    mockViewport(1440);
     render(<ResumeEditorShell initialDraft={draft} />);
 
-    await user.click(screen.getByRole("button", { name: /^projects/i }));
-    expect(screen.queryByRole("button", { name: /^projects/i })).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /edit projects/i }));
+    expect(screen.queryByRole("button", { name: /edit projects/i })).not.toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: /back to section list/i }));
 
-    expect(screen.getByRole("button", { name: /^projects/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /edit projects/i })).toBeInTheDocument();
     expect(
       screen.queryByRole("button", { name: /back to section list/i })
     ).not.toBeInTheDocument();
 
     const profileRow = document.querySelector('[data-section-row="profile"]');
-    expect(profileRow).toHaveClass("hover:bg-muted/70");
-    expect(profileRow).not.toHaveClass("bg-primary/10");
+    expect(profileRow).toBeInTheDocument();
+    expect(profileRow).not.toHaveAttribute("data-active", "true");
+    expect(screen.getByRole("button", { name: /edit profile/i })).toBeInTheDocument();
   });
 
-  it("moves secondary section controls into contextual menus", async () => {
-    const user = userEvent.setup();
+  it("shows section controls without contextual menus", () => {
     const draft = createDefaultResumeDraft();
 
-    mockDesktopViewport(true);
+    mockViewport(1440);
     render(<ResumeEditorShell initialDraft={draft} />);
 
     expect(
-      screen.queryByRole("button", { name: /move summary down/i })
+      screen.queryByRole("button", { name: /open summary actions/i })
     ).not.toBeInTheDocument();
-
-    await user.click(
-      screen.getByRole("button", { name: /open summary actions/i })
-    );
-
-    expect(await screen.findByText(/move summary down/i)).toBeInTheDocument();
-    expect(await screen.findByText(/hide summary/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /drag summary/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /edit summary/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /move summary down/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /hide summary/i })).toBeInTheDocument();
   });
 
-  it("separates hidden optional sections under one add area", async () => {
-    const user = userEvent.setup();
+  it("shows included and available sections with explicit show controls", () => {
     const draft = createDefaultResumeDraft();
 
-    mockDesktopViewport(true);
+    mockViewport(1440);
     render(<ResumeEditorShell initialDraft={draft} />);
 
     expect(screen.queryByText(/build order/i)).not.toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: /add optional section/i })
-    ).toBeInTheDocument();
+      screen.queryByRole("button", { name: /add optional section/i })
+    ).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /included/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /available/i })).toBeInTheDocument();
 
-    expect(screen.queryByText("Publications")).not.toBeInTheDocument();
-
-    await user.click(screen.getByRole("button", { name: /add optional section/i }));
-
-    const optionalSections = screen
-      .getByRole("button", { name: /add optional section/i })
+    const availableSections = screen
+      .getByRole("heading", { name: /available/i })
       .closest("section");
 
-    expect(optionalSections).not.toBeNull();
+    expect(availableSections).not.toBeNull();
+    expect(within(availableSections as HTMLElement).getByText("Publications")).toBeInTheDocument();
     expect(
-      within(optionalSections as HTMLElement).getByText("Publications")
+      within(availableSections as HTMLElement).getByRole("button", {
+        name: /show publications/i,
+      })
     ).toBeInTheDocument();
   });
 
@@ -299,10 +350,10 @@ describe("resume editor shell", () => {
     const user = userEvent.setup();
     const draft = createDefaultResumeDraft();
 
-    mockDesktopViewport(true);
+    mockViewport(1440);
     render(<ResumeEditorShell initialDraft={draft} />);
 
-    await user.click(screen.getByRole("button", { name: /^profile/i }));
+    await user.click(screen.getByRole("button", { name: /edit profile/i }));
 
     expect(screen.queryByDisplayValue(/<p>Software engineer/)).not.toBeInTheDocument();
     expect(
@@ -317,10 +368,10 @@ describe("resume editor shell", () => {
     const draft = createDefaultResumeDraft();
     draft.sections.education.items = [];
 
-    mockDesktopViewport(true);
+    mockViewport(1440);
     render(<ResumeEditorShell initialDraft={draft} />);
 
-    await user.click(screen.getByRole("button", { name: /^education/i }));
+    await user.click(screen.getByRole("button", { name: /edit education/i }));
 
     expect(
       screen.queryByRole("button", { name: /^cancel$/i })
@@ -342,25 +393,76 @@ describe("resume editor shell", () => {
       },
     ];
 
-    mockDesktopViewport(true);
+    mockViewport(1440);
     render(<ResumeEditorShell initialDraft={draft} />);
 
-    await user.click(screen.getByRole("button", { name: /^projects/i }));
+    await user.click(screen.getByRole("button", { name: /edit projects/i }));
 
     expect(
       screen.getByRole("button", { name: /remove project 1/i })
     ).toBeDisabled();
   });
 
+  it("opens a project editor even when stored draft items omit date fields", async () => {
+    const user = userEvent.setup();
+    const draft = createDefaultResumeDraft();
+
+    draft.sections.projects.items = [
+      {
+        id: "project-1",
+        projectName: "Legacy project",
+        projectLink: "",
+        description: "<p>Legacy project description</p>",
+      } as never,
+    ];
+
+    mockViewport(1440);
+    render(<ResumeEditorShell initialDraft={draft} />);
+
+    await user.click(screen.getByRole("button", { name: /edit projects/i }));
+
+    expect(screen.getByLabelText(/project name/i)).toHaveValue("Legacy project");
+    expect(screen.getByRole("button", { name: /save section/i })).toBeInTheDocument();
+  });
+
   it("keeps preview chrome minimal", () => {
     const draft = createDefaultResumeDraft();
 
-    mockDesktopViewport(true);
+    mockViewport(1440);
     render(<ResumeEditorShell initialDraft={draft} />);
 
     expect(screen.queryByText(/live preview/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/recruiter-ready page/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/^a4$/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/curriculum vitae/i)).not.toBeInTheDocument();
+  });
+
+  it("uses a full-bleed two-pane desktop layout before the wide breakpoint", () => {
+    const draft = createDefaultResumeDraft();
+
+    mockViewport(1440);
+    render(<ResumeEditorShell initialDraft={draft} />);
+
+    expect(screen.getByTestId("resume-editor-desktop-main")).toHaveClass("gap-0");
+    expect(screen.getByTestId("resume-editor-desktop-main")).toHaveClass("px-0");
+    expect(screen.getByTestId("resume-editor-desktop-main")).toHaveAttribute(
+      "data-layout",
+      "two-pane"
+    );
+  });
+
+  it("uses a three-pane desktop layout only on very wide screens", () => {
+    const draft = createDefaultResumeDraft();
+
+    mockViewport(1700);
+    render(<ResumeEditorShell initialDraft={draft} />);
+
+    expect(screen.getByTestId("resume-editor-desktop-main")).toHaveAttribute(
+      "data-layout",
+      "three-pane"
+    );
+    expect(screen.getByTestId("outline-pane")).toBeInTheDocument();
+    expect(screen.getByTestId("active-form-pane")).toBeInTheDocument();
+    expect(screen.getByTestId("preview-pane")).toBeInTheDocument();
   });
 });

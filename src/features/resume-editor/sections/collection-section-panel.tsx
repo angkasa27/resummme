@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { collectionSectionConfigs } from "@/features/resume-editor/config/collection-section-config";
+import type { ItemFieldConfig } from "@/features/resume-editor/config/collection-section-config";
 import type { CollectionSectionKey } from "@/features/resume-editor/config/section-metadata";
 import { useSectionFormState } from "@/features/resume-editor/hooks/use-section-form-state";
 import { createSchemaResolver } from "@/features/resume-editor/lib/form-resolver";
@@ -38,11 +39,13 @@ export function CollectionSectionPanel({
 }: CollectionSectionPanelProps) {
   const config = collectionSectionConfigs[sectionKey];
   const sectionValue = draft.sections[sectionKey];
-  const formValues = useMemo(
+  const formValues = useMemo<CollectionSectionFormValues>(
     () => ({
-      items: sectionValue.items,
+      items: sectionValue.items.map((item) =>
+        normalizeCollectionItem(item, config.fields)
+      ) as CollectionSectionFormValues["items"],
     }),
-    [sectionValue.items],
+    [config.fields, sectionValue.items],
   );
   const form = useForm<CollectionSectionFormValues>({
     resolver: createSchemaResolver<CollectionSectionFormValues>(
@@ -102,12 +105,16 @@ export function CollectionSectionPanel({
           {items.fields.map((field, index) => (
             <section
               key={field.id}
-              className="flex flex-col gap-3 rounded-md border bg-background p-3"
+              data-testid="collection-item-card"
+              className="flex flex-col gap-3 rounded-lg border border-border bg-muted/45 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.75)]"
             >
-              <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center justify-between gap-3 rounded-md border bg-background px-3 py-2">
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-semibold">
                     {config.itemTitle} {index + 1}
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    {index === 0 ? "Primary" : "Entry"}
                   </span>
                 </div>
                 <ButtonGroup
@@ -169,4 +176,49 @@ export function CollectionSectionPanel({
       </Button>
     </EditorCard>
   );
+}
+
+function normalizeCollectionItem(
+  item: CollectionSectionFormValues["items"][number],
+  fields: ItemFieldConfig[],
+) {
+  const nextItem = { ...item } as Record<string, unknown>;
+
+  fields.forEach((field) => {
+    if (
+      field.kind === "text" ||
+      field.kind === "email" ||
+      field.kind === "url" ||
+      field.kind === "textarea" ||
+      field.kind === "richText" ||
+      field.kind === "monthYear" ||
+      field.kind === "proficiency"
+    ) {
+      if (typeof nextItem[field.name] !== "string") {
+        nextItem[field.name] = "";
+      }
+
+      return;
+    }
+
+    if (field.kind === "stringArray") {
+      if (!Array.isArray(nextItem[field.name])) {
+        nextItem[field.name] = [];
+      }
+
+      return;
+    }
+
+    if (field.kind === "dateRange") {
+      if (typeof nextItem[field.startName] !== "string") {
+        nextItem[field.startName] = "";
+      }
+
+      if (typeof nextItem[field.endName] !== "string") {
+        nextItem[field.endName] = "";
+      }
+    }
+  });
+
+  return nextItem as CollectionSectionFormValues["items"][number];
 }

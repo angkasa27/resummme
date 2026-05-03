@@ -22,7 +22,7 @@ import { cn } from "@/lib/utils";
 
 type MonthYearPickerProps = {
   id: string;
-  value: string;
+  value?: string;
   onChange: (value: string) => void;
   placeholder?: string;
   disabled?: boolean;

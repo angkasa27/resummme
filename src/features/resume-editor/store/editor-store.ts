@@ -2,7 +2,9 @@ import { createStore } from "zustand/vanilla";
 
 import {
   moveSection,
+  reorderSectionToIndex,
   reorderSections,
+  setSectionVisibilityWithOrder,
 } from "@/features/resume-editor/lib/draft-utils";
 import { createDefaultResumeDraft } from "@/lib/resume/default-draft";
 import type { Profile, ResumeDraft } from "@/lib/resume/schema";
@@ -38,6 +40,7 @@ export type ResumeEditorStoreState = {
     sectionValue: ResumeDraft["sections"][K]
   ) => void;
   moveSection: (sectionKey: ResumeSectionKey, direction: -1 | 1) => void;
+  reorderSection: (sectionKey: ResumeSectionKey, targetIndex: number) => void;
   setSectionVisibility: (sectionKey: ResumeSectionKey, visible: boolean) => void;
   requestSectionChange: (sectionKey: ResumeEditorPanelKey) => void;
   returnToSectionList: () => void;
@@ -127,15 +130,28 @@ export function createResumeEditorStore(initialDraft = createDefaultResumeDraft(
         draft: nextDraft,
       });
     },
+    reorderSection: (sectionKey, targetIndex) => {
+      const nextDraft = createNextDraft(get().draft, {
+        sections: reorderSectionToIndex(
+          get().draft.sections,
+          sectionKey,
+          targetIndex
+        ),
+      });
+
+      saveResumeDraft(nextDraft);
+
+      set({
+        draft: nextDraft,
+      });
+    },
     setSectionVisibility: (sectionKey, visible) => {
       const nextDraft = createNextDraft(get().draft, {
-        sections: {
-          ...get().draft.sections,
-          [sectionKey]: {
-            ...get().draft.sections[sectionKey],
-            visible,
-          },
-        },
+        sections: setSectionVisibilityWithOrder(
+          get().draft.sections,
+          sectionKey,
+          visible
+        ),
       });
 
       saveResumeDraft(nextDraft);

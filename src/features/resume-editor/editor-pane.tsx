@@ -20,6 +20,7 @@ type EditorPaneProps = {
   onRequestSectionChange: (sectionKey: ResumeEditorPanelKey) => void;
   onReturnToSectionList: () => void;
   onMoveSection: (sectionKey: ResumeSectionKey, direction: -1 | 1) => void;
+  onReorderSection: (sectionKey: ResumeSectionKey, targetIndex: number) => void;
   onSetSectionVisibility: (
     sectionKey: ResumeSectionKey,
     visible: boolean,
@@ -46,6 +47,7 @@ export function EditorPane({
   onRequestSectionChange,
   onReturnToSectionList,
   onMoveSection,
+  onReorderSection,
   onSetSectionVisibility,
   onSetSectionDirty,
   onDiscardPendingChanges,
@@ -67,8 +69,10 @@ export function EditorPane({
             {editorViewMode === "list" ? (
               <SectionNavigator
                 draft={draft}
+                activeSection={activeSection}
                 onRequestSectionChange={onRequestSectionChange}
                 onMoveSection={onMoveSection}
+                onReorderSection={onReorderSection}
                 onSetSectionVisibility={onSetSectionVisibility}
               />
             ) : (

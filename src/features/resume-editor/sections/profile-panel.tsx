@@ -48,6 +48,7 @@ export function ProfilePanel({
   const extraLinks = useFieldArray({
     control,
     name: "extraLinks",
+    keyName: "fieldKey",
   });
 
   useSectionFormState({
@@ -218,9 +219,10 @@ export function ProfilePanel({
           <div className="flex flex-col gap-2.5">
             {extraLinks.fields.map((field, index) => {
               const urlFieldName = `extraLinks.${index}.url` as const;
+              const inputId = `profile-link-url-${field.id}`;
 
               return (
-                <div key={field.id} className="flex items-start gap-2">
+                <div key={field.fieldKey} className="flex items-start gap-2">
                   <Field
                     className="flex-1"
                     data-invalid={
@@ -228,10 +230,7 @@ export function ProfilePanel({
                       undefined
                     }
                   >
-                    <FieldLabel
-                      htmlFor={`profile-link-url-${field.id}`}
-                      className="sr-only"
-                    >
+                    <FieldLabel htmlFor={inputId} className="sr-only">
                       <FieldLabelText label={`Link ${index + 1}`} />
                     </FieldLabel>
                     <FieldContent>
@@ -241,7 +240,7 @@ export function ProfilePanel({
                         render={({ field: nextField }) => (
                           <InputGroup className="rounded-md">
                             <InputGroupInput
-                              id={`profile-link-url-${field.id}`}
+                              id={inputId}
                               value={nextField.value}
                               placeholder="https://www.linkedin.com/in/your-handle"
                               aria-invalid={

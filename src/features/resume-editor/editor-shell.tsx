@@ -3,9 +3,11 @@
 import { useEffect, useState } from "react";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ActiveSectionEditor } from "@/features/resume-editor/active-section-editor";
+import { DirtyExitDialog } from "@/features/resume-editor/dirty-exit-dialog";
 import { EditorNavbar } from "@/features/resume-editor/editor-navbar";
-import { EditorPane } from "@/features/resume-editor/editor-pane";
 import { PreviewPane } from "@/features/resume-editor/preview-pane";
+import { SectionNavigator } from "@/features/resume-editor/section-navigator";
 import { useResumeEditorController } from "@/features/resume-editor/hooks/use-resume-editor-controller";
 import type { ResumeDraft } from "@/lib/resume/schema";
 
@@ -15,6 +17,7 @@ type ResumeEditorShellProps = {
 
 export function ResumeEditorShell({ initialDraft }: ResumeEditorShellProps) {
   const [isDesktop, setIsDesktop] = useState(false);
+  const [isWideDesktop, setIsWideDesktop] = useState(false);
   const {
     fileInputRef,
     draft,
@@ -29,6 +32,7 @@ export function ResumeEditorShell({ initialDraft }: ResumeEditorShellProps) {
     requestSectionChange,
     returnToSectionList,
     moveSection,
+    reorderSection,
     setSectionVisibility,
     setSectionDirty,
     discardPendingChanges,
@@ -45,19 +49,45 @@ export function ResumeEditorShell({ initialDraft }: ResumeEditorShellProps) {
       return;
     }
 
-    const mediaQuery = window.matchMedia("(min-width: 1024px)");
+    const desktopQuery = window.matchMedia("(min-width: 1024px)");
+    const wideDesktopQuery = window.matchMedia("(min-width: 1680px)");
 
-    function syncDesktopState(event?: MediaQueryListEvent) {
-      setIsDesktop(event?.matches ?? mediaQuery.matches);
+    function syncDesktopState() {
+      setIsDesktop(desktopQuery.matches);
+      setIsWideDesktop(wideDesktopQuery.matches);
     }
 
     syncDesktopState();
-    mediaQuery.addEventListener("change", syncDesktopState);
+    desktopQuery.addEventListener("change", syncDesktopState);
+    wideDesktopQuery.addEventListener("change", syncDesktopState);
 
     return () => {
-      mediaQuery.removeEventListener("change", syncDesktopState);
+      desktopQuery.removeEventListener("change", syncDesktopState);
+      wideDesktopQuery.removeEventListener("change", syncDesktopState);
     };
   }, []);
+
+  const outlinePane = (
+    <SectionNavigator
+      draft={draft}
+      activeSection={activeSection}
+      onRequestSectionChange={requestSectionChange}
+      onMoveSection={moveSection}
+      onReorderSection={reorderSection}
+      onSetSectionVisibility={setSectionVisibility}
+    />
+  );
+
+  const activeFormPane = (
+    <ActiveSectionEditor
+      draft={draft}
+      activeSection={activeSection}
+      onBack={returnToSectionList}
+      onSetSectionDirty={setSectionDirty}
+      onSaveProfile={saveProfile}
+      onSaveSection={saveSection}
+    />
+  );
 
   return (
     <div className="grid h-dvh grid-rows-[auto_minmax(0,1fr)] overflow-hidden bg-muted/40 text-foreground print:block print:h-auto print:overflow-visible print:bg-background">
@@ -75,58 +105,75 @@ export function ResumeEditorShell({ initialDraft }: ResumeEditorShellProps) {
         onPrint={handlePrint}
       />
 
+      <DirtyExitDialog
+        open={confirmExitOpen}
+        pendingIntent={pendingIntent}
+        onDiscardChanges={discardPendingChanges}
+        onStayEditing={cancelPendingIntent}
+      />
+
       {isDesktop ? (
-        <main className="mx-auto grid h-full min-h-0 w-full max-w-[1500px] grid-cols-[minmax(320px,420px)_minmax(0,1fr)] gap-4 overflow-hidden px-4 py-4 print:block print:h-auto print:overflow-visible print:px-0 print:py-0">
-          <div className="h-full min-h-0 overflow-hidden rounded-lg border bg-card print:hidden">
-            <EditorPane
-              draft={draft}
-              activeSection={activeSection}
-              editorViewMode={editorViewMode}
-              pendingIntent={pendingIntent}
-              confirmExitOpen={confirmExitOpen}
-              onRequestSectionChange={requestSectionChange}
-              onReturnToSectionList={returnToSectionList}
-              onMoveSection={moveSection}
-              onSetSectionVisibility={setSectionVisibility}
-              onSetSectionDirty={setSectionDirty}
-              onDiscardPendingChanges={discardPendingChanges}
-              onCancelPendingIntent={cancelPendingIntent}
-              onSaveProfile={saveProfile}
-              onSaveSection={saveSection}
-            />
-          </div>
-          <div className="h-full min-h-0 overflow-hidden rounded-lg border bg-background">
+        <main
+          data-testid="resume-editor-desktop-main"
+          data-layout={isWideDesktop ? "three-pane" : "two-pane"}
+          className={
+            isWideDesktop
+              ? "grid h-full min-h-0 w-full grid-cols-[340px_520px_minmax(0,1fr)] gap-0 overflow-hidden px-0 py-0 print:block print:h-auto print:overflow-visible"
+              : "grid h-full min-h-0 w-full grid-cols-[minmax(360px,480px)_minmax(0,1fr)] gap-0 overflow-hidden px-0 py-0 print:block print:h-auto print:overflow-visible"
+          }
+        >
+          {isWideDesktop ? (
+            <>
+              <div
+                data-testid="outline-pane"
+                className="h-full min-h-0 overflow-hidden border-r bg-card print:hidden"
+              >
+                {outlinePane}
+              </div>
+              <div
+                data-testid="active-form-pane"
+                className="h-full min-h-0 overflow-hidden border-r bg-card print:hidden"
+              >
+                {activeFormPane}
+              </div>
+            </>
+          ) : (
+            <div
+              data-testid="editor-workspace-pane"
+              className="h-full min-h-0 overflow-hidden border-r bg-card print:hidden"
+            >
+              {editorViewMode === "list" ? outlinePane : activeFormPane}
+            </div>
+          )}
+
+          <div
+            data-testid="preview-pane"
+            className="h-full min-h-0 overflow-hidden bg-background"
+          >
             <PreviewPane draft={draft} />
           </div>
         </main>
       ) : (
         <main className="mx-auto flex h-full min-h-0 w-full max-w-[720px] flex-col gap-3 overflow-hidden px-3 py-3 print:h-auto print:overflow-visible print:px-0 print:py-0">
-          <Tabs defaultValue="editor" className="flex min-h-0 flex-1 flex-col gap-2">
+          <Tabs defaultValue="sections" className="flex min-h-0 flex-1 flex-col gap-2">
             <TabsList className="h-10 w-full rounded-md bg-background p-1">
-              <TabsTrigger value="editor">Editor</TabsTrigger>
+              <TabsTrigger value="sections">Sections</TabsTrigger>
+              <TabsTrigger value="edit">Edit</TabsTrigger>
               <TabsTrigger value="preview">Preview</TabsTrigger>
             </TabsList>
             <TabsContent
-              value="editor"
+              value="sections"
               keepMounted
               className="min-h-0 flex-1 overflow-hidden rounded-lg border bg-card"
             >
-              <EditorPane
-                draft={draft}
-                activeSection={activeSection}
-                editorViewMode={editorViewMode}
-                pendingIntent={pendingIntent}
-                confirmExitOpen={confirmExitOpen}
-                onRequestSectionChange={requestSectionChange}
-                onReturnToSectionList={returnToSectionList}
-                onMoveSection={moveSection}
-                onSetSectionVisibility={setSectionVisibility}
-                onSetSectionDirty={setSectionDirty}
-                onDiscardPendingChanges={discardPendingChanges}
-                onCancelPendingIntent={cancelPendingIntent}
-                onSaveProfile={saveProfile}
-                onSaveSection={saveSection}
-              />
+              {outlinePane}
+            </TabsContent>
+            <TabsContent
+              value="edit"
+              keepMounted
+              className="min-h-0 flex-1 overflow-hidden rounded-lg border bg-card"
+            >
+              {activeFormPane}
             </TabsContent>
             <TabsContent
               value="preview"

@@ -44,6 +44,7 @@ export type ResumeEditorController = {
   requestSectionChange: (sectionKey: ResumeEditorPanelKey) => void;
   returnToSectionList: () => void;
   moveSection: (sectionKey: ResumeSectionKey, direction: -1 | 1) => void;
+  reorderSection: (sectionKey: ResumeSectionKey, targetIndex: number) => void;
   setSectionVisibility: (sectionKey: ResumeSectionKey, visible: boolean) => void;
   setSectionDirty: (sectionKey: ResumeEditorPanelKey, isDirty: boolean) => void;
   discardPendingChanges: () => void;
@@ -163,6 +164,8 @@ export function useResumeEditorController({
     returnToSectionList: () => store.getState().returnToSectionList(),
     moveSection: (sectionKey, direction) =>
       store.getState().moveSection(sectionKey, direction),
+    reorderSection: (sectionKey, targetIndex) =>
+      store.getState().reorderSection(sectionKey, targetIndex),
     setSectionVisibility: (sectionKey, visible) =>
       store.getState().setSectionVisibility(sectionKey, visible),
     setSectionDirty: (sectionKey, isDirty) =>

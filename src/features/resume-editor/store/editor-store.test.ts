@@ -151,6 +151,38 @@ describe("resume editor store", () => {
     expect(store.getState().draft.sections.skills.order).toBe(3);
   });
 
+  it("reorders a section to a target index immediately", () => {
+    const store = createResumeEditorStore(createDefaultResumeDraft());
+
+    store.getState().reorderSection("projects", 1);
+
+    expect(store.getState().draft.sections.summary.order).toBe(0);
+    expect(store.getState().draft.sections.projects.order).toBe(1);
+    expect(store.getState().draft.sections.workExperience.order).toBe(2);
+    expect(store.getState().draft.sections.skills.order).toBe(3);
+  });
+
+  it("hides a section by moving it to the available group order", () => {
+    const store = createResumeEditorStore(createDefaultResumeDraft());
+
+    store.getState().setSectionVisibility("projects", false);
+
+    expect(store.getState().draft.sections.projects.visible).toBe(false);
+    expect(store.getState().draft.sections.projects.order).toBeGreaterThan(
+      store.getState().draft.sections.education.order
+    );
+  });
+
+  it("shows an available section at the bottom of included sections", () => {
+    const store = createResumeEditorStore(createDefaultResumeDraft());
+
+    store.getState().setSectionVisibility("publications", true);
+
+    expect(store.getState().draft.sections.publications.visible).toBe(true);
+    expect(store.getState().draft.sections.publications.order).toBe(5);
+    expect(store.getState().draft.sections.certifications.order).toBe(6);
+  });
+
   it("toggles section visibility immediately without touching dirty content", () => {
     const store = createResumeEditorStore(createDefaultResumeDraft());
 
