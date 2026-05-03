@@ -42,7 +42,7 @@ export function CollectionSectionPanel({
   const formValues = useMemo<CollectionSectionFormValues>(
     () => ({
       items: sectionValue.items.map((item) =>
-        normalizeCollectionItem(item, config.fields)
+        normalizeCollectionItem(item, config.fields),
       ) as CollectionSectionFormValues["items"],
     }),
     [config.fields, sectionValue.items],
@@ -106,9 +106,9 @@ export function CollectionSectionPanel({
             <section
               key={field.id}
               data-testid="collection-item-card"
-              className="flex flex-col gap-3 rounded-lg border border-border bg-muted/45 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.75)]"
+              className="flex flex-col gap-3 rounded-lg border border-border shadow-[inset_0_1px_0_rgba(255,255,255,0.75)] overflow-hidden"
             >
-              <div className="flex items-center justify-between gap-3 rounded-md border bg-background px-3 py-2">
+              <div className="flex items-center justify-between gap-3 border-b bg-background px-3 py-2">
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-semibold">
                     {config.itemTitle} {index + 1}
@@ -152,14 +152,21 @@ export function CollectionSectionPanel({
                     disabled={items.fields.length === 1}
                     aria-label={`Remove ${config.itemTitle.toLowerCase()} ${index + 1}`}
                     title={`Remove ${config.itemTitle.toLowerCase()} ${index + 1}`}
-                    onClick={() => items.fields.length > 1 && items.remove(index)}
+                    onClick={() =>
+                      items.fields.length > 1 && items.remove(index)
+                    }
                   >
                     <Trash2Icon />
                   </Button>
                 </ButtonGroup>
               </div>
-
-              <CollectionItemFields config={config} form={form} index={index} />
+              <div className="p-3">
+                <CollectionItemFields
+                  config={config}
+                  form={form}
+                  index={index}
+                />
+              </div>{" "}
             </section>
           ))}
         </div>

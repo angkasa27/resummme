@@ -18,8 +18,8 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import {
-  ArrowDownIcon,
-  ArrowUpIcon,
+  // ArrowDownIcon,
+  // ArrowUpIcon,
   EyeIcon,
   EyeOffIcon,
   GripVerticalIcon,
@@ -102,7 +102,10 @@ export function SectionNavigator({
         </p>
       </div>
 
-      <nav className="min-h-0 flex-1 overflow-y-auto p-2" aria-label="Resume sections">
+      <nav
+        className="min-h-0 flex-1 overflow-y-auto p-2"
+        aria-label="Resume sections"
+      >
         <section aria-labelledby="included-sections-heading">
           <SectionGroupHeader
             id="included-sections-heading"
@@ -119,7 +122,9 @@ export function SectionNavigator({
                 <SectionRowText label="Profile" meta="Name, contact, links" />
                 <Button
                   type="button"
-                  variant={activeSection === "profile" ? "secondary" : "outline"}
+                  variant={
+                    activeSection === "profile" ? "secondary" : "outline"
+                  }
                   size="sm"
                   aria-label="Edit Profile"
                   onClick={() => onRequestSectionChange("profile")}
@@ -149,7 +154,9 @@ export function SectionNavigator({
                     active={activeSection === sectionKey}
                     sectionKey={sectionKey}
                     isFirstIncluded={visibleIndex === 0}
-                    isLastIncluded={visibleIndex === visibleSectionKeys.length - 1}
+                    isLastIncluded={
+                      visibleIndex === visibleSectionKeys.length - 1
+                    }
                     onRequestSectionChange={onRequestSectionChange}
                     onMoveSection={onMoveSection}
                     onSetSectionVisibility={onSetSectionVisibility}
@@ -248,7 +255,9 @@ function SectionRowText({ label, meta }: { label: string; meta: string }) {
   return (
     <span className="min-w-0 flex-1">
       <span className="block truncate text-sm font-medium">{label}</span>
-      <span className="block truncate text-xs text-muted-foreground">{meta}</span>
+      <span className="block truncate text-xs text-muted-foreground">
+        {meta}
+      </span>
     </span>
   );
 }
@@ -288,10 +297,10 @@ function SortableSectionRow({
   draft,
   active,
   sectionKey,
-  isFirstIncluded,
-  isLastIncluded,
+  // isFirstIncluded,
+  // isLastIncluded,
   onRequestSectionChange,
-  onMoveSection,
+  // onMoveSection,
   onSetSectionVisibility,
 }: SectionRowProps) {
   const {
@@ -313,7 +322,7 @@ function SortableSectionRow({
       <SectionRowShell
         active={active}
         sectionRowKey={sectionKey}
-        className={cn(isDragging && "relative z-10 opacity-80 shadow-sm")}
+        className={cn(isDragging ? "relative z-50 shadow-xl" : "z-0")}
       >
         <Button
           type="button"
@@ -328,7 +337,10 @@ function SortableSectionRow({
           <GripVerticalIcon />
         </Button>
 
-        <SectionRowText label={label} meta={getSectionMeta(draft, sectionKey)} />
+        <SectionRowText
+          label={label}
+          meta={getSectionMeta(draft, sectionKey)}
+        />
 
         <ButtonGroup aria-label={`${label} controls`} className="shrink-0">
           <Button
@@ -341,7 +353,7 @@ function SortableSectionRow({
             <PencilIcon data-icon="inline-start" />
             Edit
           </Button>
-          <Button
+          {/* <Button
             type="button"
             variant="outline"
             size="icon-sm"
@@ -362,7 +374,7 @@ function SortableSectionRow({
             onClick={() => onMoveSection(sectionKey, 1)}
           >
             <ArrowDownIcon />
-          </Button>
+          </Button> */}
           <Button
             type="button"
             variant="outline"
@@ -400,7 +412,10 @@ function AvailableSectionRow({
         className="border-dashed bg-muted/25 text-muted-foreground"
       >
         <StaticControlSlot>Off</StaticControlSlot>
-        <SectionRowText label={label} meta={getSectionMeta(draft, sectionKey)} />
+        <SectionRowText
+          label={label}
+          meta={getSectionMeta(draft, sectionKey)}
+        />
         <Button
           type="button"
           variant="outline"
