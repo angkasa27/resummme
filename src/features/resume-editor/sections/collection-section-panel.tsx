@@ -18,6 +18,7 @@ import { ButtonGroup } from "@/components/ui/button-group";
 import { collectionSectionConfigs } from "@/features/resume-editor/config/collection-section-config";
 import type { CollectionSectionKey } from "@/features/resume-editor/config/section-metadata";
 import { createSchemaResolver } from "@/features/resume-editor/lib/form-resolver";
+import { normalizeCollectionItem } from "@/features/resume-editor/lib/normalize-collection-item";
 import { collectionSectionFormSchemaMap } from "@/features/resume-editor/lib/section-schemas";
 import { CollectionItemFields } from "@/features/resume-editor/sections/collection-item-fields";
 import { EditorCard } from "@/features/resume-editor/sections/editor-card";
@@ -72,10 +73,11 @@ export function CollectionSectionPanel({
   const items = useFieldArray({
     control,
     name: "items",
+    keyName: "fieldKey",
   });
 
   const [shrunkIds, setShrunkIds] = useState<Set<string>>(
-    () => new Set(items.fields.slice(1).map((f) => f.id)),
+    () => new Set(items.fields.slice(1).map((f) => f.fieldKey)),
   );
 
   function toggleShrunk(id: string) {
@@ -116,7 +118,9 @@ export function CollectionSectionPanel({
       const values = form.getValues();
       const nextSectionValue = {
         ...sectionValue,
-        items: values.items,
+        items: values.items.map((item) =>
+          normalizeCollectionItem(item, config.createItem()),
+        ),
       };
       onSave(nextSectionValue as ResumeDraft["sections"][CollectionSectionKey]);
     }, 500);
@@ -176,7 +180,7 @@ export function CollectionSectionPanel({
         <div className="flex flex-col gap-3">
           {items.fields.map((field, index) => (
             <section
-              key={field.id}
+              key={field.fieldKey}
               data-testid="collection-item-card"
               className="flex flex-col rounded-lg border border-border shadow-[inset_0_1px_0_rgba(255,255,255,0.75)] overflow-hidden"
             >
@@ -187,9 +191,9 @@ export function CollectionSectionPanel({
                     variant="ghost"
                     size="icon-sm"
                     className="shrink-0"
-                    onClick={() => toggleShrunk(field.id)}
+                    onClick={() => toggleShrunk(field.fieldKey)}
                   >
-                    {shrunkIds.has(field.id) ? (
+                    {shrunkIds.has(field.fieldKey) ? (
                       <ChevronRightIcon className="size-4" />
                     ) : (
                       <ChevronDownIcon className="size-4" />
@@ -197,7 +201,7 @@ export function CollectionSectionPanel({
                   </Button>
                   <span
                     className="cursor-pointer select-none truncate text-sm font-semibold"
-                    onClick={() => toggleShrunk(field.id)}
+                    onClick={() => toggleShrunk(field.fieldKey)}
                   >
                     {(() => {
                       const item = currentItems?.[index] as Record<
@@ -263,7 +267,7 @@ export function CollectionSectionPanel({
                   </Button>
                 </ButtonGroup>
               </div>
-              {!shrunkIds.has(field.id) && (
+              {!shrunkIds.has(field.fieldKey) && (
                 <div className="p-3 border-t bg-muted/50">
                   <CollectionItemFields
                     config={config}
@@ -288,27 +292,4 @@ export function CollectionSectionPanel({
       </Button>
     </EditorCard>
   );
-}
-
-function normalizeCollectionItem<T extends Record<string, unknown>>(
-  item: T,
-  template: T,
-): T {
-  const nextItem = { ...template, ...item } as Record<string, unknown>;
-
-  // Ensure all string fields are strings (not null/undefined)
-  Object.keys(nextItem).forEach((key) => {
-    const templateValue = template[key];
-    const currentValue = nextItem[key];
-
-    if (typeof templateValue === "string" && typeof currentValue !== "string") {
-      nextItem[key] = "";
-    }
-
-    if (Array.isArray(templateValue) && !Array.isArray(currentValue)) {
-      nextItem[key] = [];
-    }
-  });
-
-  return nextItem as T;
 }

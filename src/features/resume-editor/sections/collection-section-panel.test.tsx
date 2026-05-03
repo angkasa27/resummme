@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
@@ -154,6 +154,40 @@ describe("collection section panel", () => {
 
     expect(screen.getByLabelText(/end date/i)).toHaveTextContent(
       /current or oct 2024/i
+    );
+  });
+
+  it("preserves appended skill item ids and arrays during autosave", async () => {
+    const user = userEvent.setup();
+    const draft = createDefaultResumeDraft();
+    const handleSave = vi.fn();
+
+    render(
+      <CollectionSectionPanel
+        draft={draft}
+        sectionKey="skills"
+        onBack={vi.fn()}
+        onSave={handleSave}
+      />
+    );
+
+    await user.click(screen.getByRole("button", { name: /add skill category/i }));
+
+    const categoryInputs = screen.getAllByLabelText(/category name/i);
+    await user.type(categoryInputs[1], "Backend");
+
+    await waitFor(() =>
+      expect(handleSave).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          items: expect.arrayContaining([
+            expect.objectContaining({
+              categoryName: "Backend",
+              id: expect.any(String),
+              skills: expect.any(Array),
+            }),
+          ]),
+        })
+      )
     );
   });
 });

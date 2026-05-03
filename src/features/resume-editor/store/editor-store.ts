@@ -1,11 +1,14 @@
 import { createStore } from "zustand/vanilla";
 
+import { collectionSectionConfigs } from "@/features/resume-editor/config/collection-section-config";
+import { isCollectionSectionKey } from "@/features/resume-editor/config/section-metadata";
 import {
   moveSection,
   reorderSectionToIndex,
   reorderSections,
   setSectionVisibilityWithOrder,
 } from "@/features/resume-editor/lib/draft-utils";
+import { normalizeCollectionItem } from "@/features/resume-editor/lib/normalize-collection-item";
 import { createDefaultResumeDraft } from "@/lib/resume/default-draft";
 import type { Profile, ResumeDraft } from "@/lib/resume/schema";
 import { saveResumeDraft } from "@/lib/resume/storage";
@@ -43,6 +46,27 @@ function createNextDraft(
   };
 }
 
+function normalizeSectionValue<K extends ResumeSectionKey>(
+  sectionKey: K,
+  sectionValue: ResumeDraft["sections"][K]
+): ResumeDraft["sections"][K] {
+  if (!isCollectionSectionKey(sectionKey)) {
+    return sectionValue;
+  }
+
+  const config = collectionSectionConfigs[sectionKey];
+  const collectionSectionValue = sectionValue as ResumeDraft["sections"][typeof sectionKey] & {
+    items: Record<string, unknown>[];
+  };
+
+  return {
+    ...collectionSectionValue,
+    items: collectionSectionValue.items.map((item) =>
+      normalizeCollectionItem(item, config.createItem())
+    ),
+  } as ResumeDraft["sections"][K];
+}
+
 export function createResumeEditorStore(initialDraft = createDefaultResumeDraft()) {
   return createStore<ResumeEditorStoreState>()((set, get) => ({
     draft: initialDraft,
@@ -53,9 +77,14 @@ export function createResumeEditorStore(initialDraft = createDefaultResumeDraft(
       set({ draft: nextDraft });
     },
     saveSection: (sectionKey, sectionValue) => {
+      const normalizedSectionValue = normalizeSectionValue(sectionKey, sectionValue);
       const nextDraft = saveResumeDraft(
         createNextDraft(get().draft, {
-          sections: reorderSections(get().draft.sections, sectionKey, sectionValue),
+          sections: reorderSections(
+            get().draft.sections,
+            sectionKey,
+            normalizedSectionValue
+          ),
         })
       );
       set({ draft: nextDraft });
