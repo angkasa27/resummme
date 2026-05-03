@@ -345,7 +345,10 @@ export function RichTextEditor({
         </Button>
       </div>
       <div className={cn("bg-background", heightClassName)}>
-        <EditorContent editor={activeEditor} className="h-full overflow-auto" />
+        <EditorContent
+          editor={activeEditor}
+          className="h-full overflow-auto [&_div]:h-full"
+        />
       </div>
     </div>
   );
