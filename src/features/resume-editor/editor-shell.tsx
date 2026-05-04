@@ -40,9 +40,10 @@ type ResumeEditorShellProps = {
 };
 
 export function ResumeEditorShell({ initialDraft }: ResumeEditorShellProps) {
-  const [desktopLayoutReady, setDesktopLayoutReady] = useState(false);
+  const [hasMounted, setHasMounted] = useState(false);
   const {
     fileInputRef,
+    isDraftReady,
     draft,
     activeSection,
     openImportPicker,
@@ -59,8 +60,24 @@ export function ResumeEditorShell({ initialDraft }: ResumeEditorShellProps) {
   } = useResumeEditorController({ initialDraft });
 
   useEffect(() => {
-    setDesktopLayoutReady(true);
+    setHasMounted(true);
   }, []);
+
+  if (!hasMounted || !isDraftReady) {
+    return (
+      <div className="flex h-dvh items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-3 text-center">
+          <div className="size-10 animate-pulse rounded-2xl border bg-muted/70" />
+          <div className="space-y-1">
+            <p className="text-sm font-semibold tracking-tight">Loading editor</p>
+            <p className="text-sm text-muted-foreground">
+              Preparing your resume draft...
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="h-dvh overflow-hidden">
@@ -162,31 +179,8 @@ export function ResumeEditorShell({ initialDraft }: ResumeEditorShellProps) {
           <div className="min-h-0 flex-1 overflow-hidden">
             {/* Desktop: resizable split */}
             <div className="hidden h-full lg:block">
-              {desktopLayoutReady ? (
-                <ResizablePanelGroup orientation="horizontal">
-                  <ResizablePanel defaultSize={50} minSize={35}>
-                    <div className="h-full overflow-hidden">
-                      <ActiveSectionEditor
-                        draft={draft}
-                        activeSection={activeSection}
-                        onBack={() => {}}
-                        onSaveProfile={saveProfile}
-                        onSaveSection={saveSection}
-                      />
-                    </div>
-                  </ResizablePanel>
-                  <ResizableHandle withHandle />
-                  <ResizablePanel defaultSize={50} minSize={30}>
-                    <div className="h-full overflow-hidden bg-muted">
-                      <PreviewPane
-                        draft={draft}
-                        onSavePdfPresentation={savePdfPresentation}
-                      />
-                    </div>
-                  </ResizablePanel>
-                </ResizablePanelGroup>
-              ) : (
-                <div className="grid h-full min-w-0 grid-cols-2">
+              <ResizablePanelGroup orientation="horizontal">
+                <ResizablePanel defaultSize={50} minSize={35}>
                   <div className="h-full overflow-hidden">
                     <ActiveSectionEditor
                       draft={draft}
@@ -196,14 +190,17 @@ export function ResumeEditorShell({ initialDraft }: ResumeEditorShellProps) {
                       onSaveSection={saveSection}
                     />
                   </div>
+                </ResizablePanel>
+                <ResizableHandle withHandle />
+                <ResizablePanel defaultSize={50} minSize={30}>
                   <div className="h-full overflow-hidden bg-muted">
                     <PreviewPane
                       draft={draft}
                       onSavePdfPresentation={savePdfPresentation}
                     />
                   </div>
-                </div>
-              )}
+                </ResizablePanel>
+              </ResizablePanelGroup>
             </div>
 
             {/* Mobile/Tablet: stacked with toggle */}

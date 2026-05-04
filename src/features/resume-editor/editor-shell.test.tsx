@@ -43,12 +43,14 @@ afterEach(() => {
 });
 
 describe("resume editor shell", () => {
-  it("renders the navbar with title and action buttons", () => {
+  it("renders the navbar with title and action buttons", async () => {
     const draft = createDefaultResumeDraft();
 
     render(<ResumeEditorShell initialDraft={draft} />);
 
-    expect(screen.getByRole("heading", { name: "Resume Editor" })).toBeInTheDocument();
+    await waitFor(() =>
+      expect(screen.getByRole("heading", { name: "Resume Editor" })).toBeInTheDocument()
+    );
   });
 
   it("hydrates without recoverable errors when local storage differs from the server draft", async () => {
@@ -153,12 +155,15 @@ describe("resume editor shell", () => {
     expect(hydrationErrors).toEqual([]);
   });
 
-  it("keeps preview chrome minimal", () => {
+  it("keeps preview chrome minimal", async () => {
     const draft = createDefaultResumeDraft();
 
     mockViewport(1440);
     render(<ResumeEditorShell initialDraft={draft} />);
 
+    await waitFor(() =>
+      expect(screen.getByRole("heading", { name: "Resume Editor" })).toBeInTheDocument()
+    );
     expect(screen.queryByText(/live preview/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/recruiter-ready page/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/^a4$/i)).not.toBeInTheDocument();
@@ -174,5 +179,26 @@ describe("resume editor shell", () => {
     await waitFor(() =>
       expect(screen.getByText(/style settings/i)).toBeInTheDocument()
     );
+  });
+
+  it("renders the loading screen in the initial server html", () => {
+    const originalWindowDescriptor = Object.getOwnPropertyDescriptor(
+      globalThis,
+      "window"
+    );
+
+    Object.defineProperty(globalThis, "window", {
+      value: undefined,
+      configurable: true,
+    });
+
+    const serverHtml = renderToString(<ResumeEditorShell />);
+
+    if (originalWindowDescriptor) {
+      Object.defineProperty(globalThis, "window", originalWindowDescriptor);
+    }
+
+    expect(serverHtml).toContain("Loading editor");
+    expect(serverHtml).toContain("Preparing your resume draft...");
   });
 });

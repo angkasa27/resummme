@@ -29,6 +29,7 @@ type UseResumeEditorControllerOptions = {
 
 export type ResumeEditorController = {
   fileInputRef: RefObject<HTMLInputElement | null>;
+  isDraftReady: boolean;
   draft: ResumeDraft;
   activeSection: ResumeEditorPanelKey;
   openImportPicker: () => void;
@@ -54,12 +55,14 @@ export function useResumeEditorController({
   const [store] = useState(() =>
     createResumeEditorStore(initialDraft ?? createDefaultResumeDraft())
   );
+  const [isDraftReady, setIsDraftReady] = useState(() => Boolean(initialDraft));
   const fileInputRef = useRef<HTMLInputElement>(null);
   const draft = useStore(store, (state) => state.draft);
   const activeSection = useStore(store, (state) => state.activeSection);
 
   useEffect(() => {
     if (initialDraft) {
+      setIsDraftReady(true);
       return;
     }
 
@@ -68,6 +71,8 @@ export function useResumeEditorController({
     if (exportResumeDraft(store.getState().draft) !== exportResumeDraft(storedDraft)) {
       store.getState().replaceDraft(storedDraft);
     }
+
+    setIsDraftReady(true);
   }, [initialDraft, store]);
 
   function openImportPicker() {
@@ -158,6 +163,7 @@ export function useResumeEditorController({
 
   return {
     fileInputRef,
+    isDraftReady,
     draft,
     activeSection,
     openImportPicker,
