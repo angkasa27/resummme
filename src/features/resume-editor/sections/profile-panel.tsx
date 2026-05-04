@@ -69,7 +69,7 @@ export function ProfilePanel({ draft, onBack, onSave }: ProfilePanelProps) {
       onSave(profileForm.getValues());
     }, 500);
     return () => clearTimeout(timeoutId);
-  }, [formValues, formState.isDirty, profileForm, onSave]);
+  }, [formState.isDirty, profileForm, onSave]);
 
   return (
     <EditorCard

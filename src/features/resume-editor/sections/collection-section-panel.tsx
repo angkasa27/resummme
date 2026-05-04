@@ -125,7 +125,7 @@ export function CollectionSectionPanel({
       onSave(nextSectionValue as ResumeDraft["sections"][CollectionSectionKey]);
     }, 500);
     return () => clearTimeout(timeoutId);
-  }, [config, formValuesWatched, formState.isDirty, form, onSave, sectionValue]);
+  }, [config, formState.isDirty, form, onSave, sectionValue]);
 
   return (
     <EditorCard

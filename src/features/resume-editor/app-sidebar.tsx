@@ -39,7 +39,11 @@ import {
   SidebarSeparator,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import {
   getOrderedSectionKeys,
   sectionLabels,
@@ -49,6 +53,7 @@ import { SectionIcon } from "@/features/resume-editor/sections/section-icons";
 import type { ResumeEditorPanelKey } from "@/features/resume-editor/store/editor-store";
 import type { ResumeDraft } from "@/lib/resume/schema";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 type AppSidebarProps = {
   draft: ResumeDraft;
@@ -56,15 +61,18 @@ type AppSidebarProps = {
   onRequestSectionChange: (sectionKey: ResumeEditorPanelKey) => void;
   onReorderSection: (
     sectionKey: ResumeSectionPanelKey,
-    targetIndex: number
+    targetIndex: number,
   ) => void;
   onSetSectionVisibility: (
     sectionKey: ResumeSectionPanelKey,
-    visible: boolean
+    visible: boolean,
   ) => void;
 };
 
-function getSectionItemCount(draft: ResumeDraft, sectionKey: ResumeSectionPanelKey) {
+function getSectionItemCount(
+  draft: ResumeDraft,
+  sectionKey: ResumeSectionPanelKey,
+) {
   if (sectionKey === "summary") return null;
   return draft.sections[sectionKey].items.length;
 }
@@ -90,16 +98,16 @@ export function AppSidebar({
     }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
+    }),
   );
   const { setOpenMobile } = useSidebar();
 
   const orderedSectionKeys = getOrderedSectionKeys(draft.sections);
   const visibleSectionKeys = orderedSectionKeys.filter(
-    (sectionKey) => draft.sections[sectionKey].visible
+    (sectionKey) => draft.sections[sectionKey].visible,
   );
   const hiddenSectionKeys = orderedSectionKeys.filter(
-    (sectionKey) => !draft.sections[sectionKey].visible
+    (sectionKey) => !draft.sections[sectionKey].visible,
   );
 
   const [availableOpen, setAvailableOpen] = useState(true);
@@ -124,7 +132,9 @@ export function AppSidebar({
   return (
     <Sidebar collapsible="offcanvas" className="border-r">
       <SidebarHeader className="h-12 flex-row shrink-0 items-center border-b px-4 m-0">
-        <span className="text-sm font-semibold tracking-tight">Resume Editor</span>
+        <span className="text-sm font-semibold tracking-tight">
+          Resume Editor
+        </span>
       </SidebarHeader>
       <SidebarContent>
         {/* Profile — always first, not sortable */}
@@ -162,9 +172,7 @@ export function AppSidebar({
                       sectionKey={sectionKey}
                       isActive={activeSection === sectionKey}
                       onClick={() => handleSectionClick(sectionKey)}
-                      onHide={() =>
-                        onSetSectionVisibility(sectionKey, false)
-                      }
+                      onHide={() => onSetSectionVisibility(sectionKey, false)}
                     />
                   ))}
                 </SidebarMenu>
@@ -249,8 +257,11 @@ function SortableSectionItem({
     transition,
   };
   const itemCount = getSectionItemCount(draft, sectionKey);
-  const { role: _sortableRole, tabIndex: _sortableTabIndex, ...sortableAttributes } =
-    attributes;
+  const {
+    role: _sortableRole,
+    tabIndex: _sortableTabIndex,
+    ...sortableAttributes
+  } = attributes;
   void _sortableRole;
   void _sortableTabIndex;
 
@@ -263,40 +274,36 @@ function SortableSectionItem({
       <SidebarMenuButton
         isActive={isActive}
         onClick={onClick}
-        className={cn(
-          isDragging && "relative z-50 opacity-80 shadow-lg"
-        )}
-      >
-        {/* Drag handle — always visible, acts as the drag target so the rest of the button is clickable on mobile */}
-        <div
-          role="button"
-          tabIndex={0}
-          aria-label={`Drag ${label}`}
-          className="flex shrink-0 cursor-grab touch-none items-center text-muted-foreground/40 transition-colors hover:text-foreground active:cursor-grabbing"
-          {...sortableAttributes}
-          {...listeners}
-          onClick={(e) => e.stopPropagation()}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              e.stopPropagation();
-            }
-          }}
-        >
-          <GripVerticalIcon className="size-3.5" />
-        </div>
-        <SectionMenuIcon sectionKey={sectionKey} />
-        <span className="flex-1 truncate">{label}</span>
-        {itemCount != null && (
-          <span className="text-xs tabular-nums text-muted-foreground group-hover/section:hidden">
-            {itemCount}
-          </span>
-        )}
-      </SidebarMenuButton>
+        className={cn(isDragging && "relative z-50 opacity-80 shadow-lg")}
+        render={
+          <div className="cursor-pointer">
+            <button
+              type="button"
+              aria-label={`Drag ${label}`}
+              className="flex shrink-0 cursor-grab touch-none items-center text-muted-foreground/40 transition-colors hover:text-foreground active:cursor-grabbing"
+              {...sortableAttributes}
+              {...listeners}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <GripVerticalIcon className="size-3.5" />
+            </button>
+            <SectionMenuIcon sectionKey={sectionKey} />
+            <span className="flex-1 truncate">{label}</span>
+            {itemCount != null && (
+              <span className="text-xs tabular-nums text-muted-foreground group-hover/section:hidden">
+                {itemCount}
+              </span>
+            )}
+          </div>
+        }
+      ></SidebarMenuButton>
 
       {/* Remove button — replaces the count on hover */}
-      <button
+      <Button
         type="button"
-        className="absolute right-2 top-1/2 hidden size-5 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground hover:bg-destructive/10 hover:text-destructive group-hover/section:flex"
+        size="icon-xs"
+        variant="destructive"
+        className="absolute right-1.5 top-1/2 hidden -translate-y-1/2 group-hover/section:flex"
         onClick={(e) => {
           e.stopPropagation();
           onHide();
@@ -305,7 +312,7 @@ function SortableSectionItem({
       >
         <Trash2Icon className="size-3.5" />
         <span className="sr-only">Remove {label}</span>
-      </button>
+      </Button>
     </SidebarMenuItem>
   );
 }

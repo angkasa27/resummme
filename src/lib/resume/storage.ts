@@ -19,10 +19,17 @@ export function saveResumeDraft(draft: ResumeDraft) {
     return validatedDraft;
   }
 
-  window.localStorage.setItem(
-    RESUME_STORAGE_KEY,
-    exportResumeDraft(validatedDraft)
-  );
+  try {
+    window.localStorage.setItem(
+      RESUME_STORAGE_KEY,
+      exportResumeDraft(validatedDraft)
+    );
+  } catch (error) {
+    console.warn(
+      "Failed to save resume draft to localStorage:",
+      error instanceof Error ? error.message : "Unknown error"
+    );
+  }
 
   return validatedDraft;
 }
@@ -40,7 +47,11 @@ export function loadResumeDraft(): ResumeDraft {
 
   try {
     return importResumeDraft(storedDraft);
-  } catch {
+  } catch (error) {
+    console.warn(
+      "Failed to parse stored resume draft, using default:",
+      error instanceof Error ? error.message : "Unknown error"
+    );
     return createDefaultResumeDraft();
   }
 }

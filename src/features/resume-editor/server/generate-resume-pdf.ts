@@ -32,9 +32,11 @@ export async function generateResumePdf({
       height: 1800,
     },
   });
-  const page = await context.newPage();
 
+  let page;
   try {
+    page = await context.newPage();
+
     await page.addInitScript(
       ({ serializedDraft, storageKey }) => {
         window.sessionStorage.setItem(storageKey, serializedDraft);
@@ -68,6 +70,10 @@ export async function generateResumePdf({
         printBackground: true,
       })
     );
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Unknown PDF generation error";
+    throw new Error(`PDF generation failed: ${message}`);
   } finally {
     await context.close();
   }

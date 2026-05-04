@@ -231,28 +231,39 @@ export function ResumeDocument({
               color: presentation.mutedTextColor,
             }}
           >
-            {contactItems.map((item, index) => (
-              <span key={`${item.kind}-${item.value}-${index}`}>
-                {index > 0 ? " • " : null}
-                {item.kind === "link" ? (
-                  <a
-                    href={item.value}
-                    target={shouldOpenHrefInNewTab(item.value) ? "_blank" : undefined}
-                    rel={
-                      shouldOpenHrefInNewTab(item.value)
-                        ? "noopener noreferrer"
-                        : undefined
-                    }
-                    className="underline underline-offset-4"
-                    style={{ color: presentation.accentColor }}
-                  >
-                    {item.value}
-                  </a>
-                ) : (
-                  item.value
-                )}
-              </span>
-            ))}
+            {contactItems.map((item, index) => {
+              const label =
+                index === 0
+                  ? `Location: ${item.value}`
+                  : index === 1
+                    ? `Phone: ${item.value}`
+                    : index === 2
+                      ? `Email: ${item.value}`
+                      : `Link: ${item.value}`;
+              return (
+                <span key={`${item.kind}-${item.value}-${index}`}>
+                  {index > 0 ? " • " : null}
+                  {item.kind === "link" ? (
+                    <a
+                      href={item.value}
+                      aria-label={label}
+                      target={shouldOpenHrefInNewTab(item.value) ? "_blank" : undefined}
+                      rel={
+                        shouldOpenHrefInNewTab(item.value)
+                          ? "noopener noreferrer"
+                          : undefined
+                      }
+                      className="underline underline-offset-4"
+                      style={{ color: presentation.accentColor }}
+                    >
+                      {item.value}
+                    </a>
+                  ) : (
+                    <span aria-hidden="true">{item.value}</span>
+                  )}
+                </span>
+              );
+            })}
           </p>
         </div>
 

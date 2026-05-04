@@ -80,7 +80,7 @@ export function SummaryPanel({
       onSave(nextSectionValue);
     }, 500);
     return () => clearTimeout(timeoutId);
-  }, [formValuesWatched, formState.isDirty, summaryForm, onSave, sectionValue]);
+  }, [formState.isDirty, summaryForm, onSave, sectionValue]);
 
   return (
     <EditorCard
