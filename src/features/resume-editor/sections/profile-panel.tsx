@@ -305,7 +305,6 @@ export function ProfilePanel({ draft, onBack, onSave }: ProfilePanelProps) {
 
         <Button
           type="button"
-          variant="outline"
           className="w-full"
           onClick={() =>
             extraLinks.append({

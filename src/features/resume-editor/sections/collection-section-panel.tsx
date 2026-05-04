@@ -285,7 +285,6 @@ export function CollectionSectionPanel({
 
       <Button
         type="button"
-        variant="outline"
         className="mt-3 w-full"
         onClick={() => items.append(config.createItem() as never)}
       >
