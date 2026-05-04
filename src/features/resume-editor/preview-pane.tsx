@@ -1,21 +1,7 @@
 "use client";
 
-import {
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type ComponentType,
-  type ReactNode,
-} from "react";
-import {
-  BetweenHorizontalStartIcon,
-  BetweenVerticalStartIcon,
-  LayoutTemplateIcon,
-  SettingsIcon,
-  SquareStackIcon,
-  TypeIcon,
-} from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { SettingsIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -37,68 +23,53 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { ResumeDocument } from "@/features/resume-editor/preview/resume-document";
 import {
-  normalizePdfPresentation,
-  pdfAccentStrengthLabels,
-  pdfAccentStrengths,
-  pdfAccentToneLabels,
-  pdfAccentTones,
-  pdfLayoutIds,
-  pdfLayoutLabels,
-  pdfLineHeightIds,
-  pdfLineHeightLabels,
-  pdfSpacingIds,
-  pdfSpacingLabels,
-  pdfTypeScaleIds,
-  pdfTypeScaleLabels,
-} from "@/lib/resume/pdf-presentation";
+  previewControlDefinitions,
+  previewControlLabelIcons,
+} from "@/features/resume-editor/preview/control-registry";
+import { ResumeDocument } from "@/features/resume-editor/preview/resume-document";
+import { normalizePdfPresentation } from "@/lib/resume/pdf-presentation";
 import type { ResumeDraft } from "@/lib/resume/schema";
-
-type PreviewPaneProps = {
-  draft: ResumeDraft;
-  onSavePdfPresentation: (
-    pdfPresentation: ResumeDraft["pdfPresentation"],
-  ) => void;
-};
-
-type PresentationUpdates = Partial<
-  ResumeDraft["pdfPresentation"]["overrides"]
-> & {
-  layoutId?: ResumeDraft["pdfPresentation"]["layoutId"];
-};
+import type {
+  PreviewControlDefinition,
+  PreviewPaneProps,
+  PreviewToolbarContentProps,
+} from "@/features/resume-editor/preview/types";
 
 type ToolbarSelectProps = {
+  controlId: string;
   ariaLabel: string;
-  icon: ComponentType<{ className?: string }>;
   value: string;
-  options: ReadonlyArray<string>;
-  labels: Record<string, string>;
+  options: ReadonlyArray<PreviewControlDefinition["options"][number]>;
   onValueChange: (value: string | null) => void;
 };
 
 function ToolbarSelect({
+  controlId,
   ariaLabel,
-  icon: Icon,
   value,
   options,
-  labels,
   onValueChange,
 }: ToolbarSelectProps) {
+  const Icon =
+    previewControlLabelIcons[controlId as keyof typeof previewControlLabelIcons];
+
   return (
     <div className="flex flex-col gap-1.5">
       <label className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
-        <Icon className="size-3.5" />
+        {Icon ? <Icon className="size-3.5" /> : null}
         {ariaLabel}
       </label>
       <Select value={value} onValueChange={onValueChange}>
         <SelectTrigger size="sm" aria-label={ariaLabel}>
-          <SelectValue>{labels[value] ?? value}</SelectValue>
+          <SelectValue>
+            {options.find((option) => option.value === value)?.label ?? value}
+          </SelectValue>
         </SelectTrigger>
         <SelectContent align="start">
           {options.map((option) => (
-            <SelectItem key={option} value={option}>
-              {labels[option] ?? option}
+            <SelectItem key={option.value} value={option.value}>
+              {option.label}
             </SelectItem>
           ))}
         </SelectContent>
@@ -110,21 +81,15 @@ function ToolbarSelect({
 type ToolbarToggleGroupProps = {
   ariaLabel: string;
   value: string;
-  options: ReadonlyArray<string>;
-  labels: Record<string, string>;
+  options: ReadonlyArray<PreviewControlDefinition["options"][number]>;
   onValueChange: (value: string) => void;
-  renderOption?: (option: string) => ReactNode;
-  renderTooltip?: (option: string) => ReactNode;
 };
 
 function ToolbarToggleGroup({
   ariaLabel,
   value,
   options,
-  labels,
   onValueChange,
-  renderOption,
-  renderTooltip,
 }: ToolbarToggleGroupProps) {
   return (
     <div className="flex flex-col gap-1.5">
@@ -144,23 +109,19 @@ function ToolbarToggleGroup({
         }}
       >
         {options.map((option) => (
-          <Tooltip key={option}>
+          <Tooltip key={option.value}>
             <TooltipTrigger
               render={
                 <ToggleGroupItem
-                  value={option}
-                  aria-label={`${ariaLabel} ${labels[option] ?? option}`}
+                  value={option.value}
+                  aria-label={`${ariaLabel} ${option.label}`}
                 >
-                  {renderOption
-                    ? renderOption(option)
-                    : (labels[option] ?? option)}
+                  {option.renderOption ? option.renderOption() : option.label}
                 </ToggleGroupItem>
               }
             />
             <TooltipContent>
-              {renderTooltip
-                ? renderTooltip(option)
-                : `${ariaLabel}: ${labels[option] ?? option}`}
+              {option.renderTooltip ? option.renderTooltip() : `${ariaLabel}: ${option.label}`}
             </TooltipContent>
           </Tooltip>
         ))}
@@ -169,72 +130,87 @@ function ToolbarToggleGroup({
   );
 }
 
-function SpacingGlyph({
-  gapClassName,
-  topClassName = "w-4",
-  bottomClassName = "w-4",
-}: {
-  gapClassName: string;
-  topClassName?: string;
-  bottomClassName?: string;
-}) {
+function PreviewToolbarContent({
+  presentation,
+  onChange,
+  definitions = previewControlDefinitions,
+}: PreviewToolbarContentProps) {
   return (
-    <span
-      aria-hidden="true"
-      className={`flex flex-col items-center ${gapClassName}`}
-    >
-      <span className={`h-0.5 rounded-full bg-current ${topClassName}`} />
-      <span className={`h-0.5 rounded-full bg-current ${bottomClassName}`} />
-    </span>
+    <div className="flex flex-col gap-4">
+      <h3 className="text-sm font-semibold">Style Settings</h3>
+
+      <div className="flex flex-col gap-3">
+        {definitions
+          .filter((definition) => definition.kind === "select")
+          .map((definition) => (
+            <ToolbarSelect
+              key={definition.id}
+              controlId={definition.id}
+              ariaLabel={definition.label}
+              value={definition.value(presentation)}
+              options={definition.options}
+              onValueChange={(value) => {
+                if (!value) return;
+                onChange(definition.update(value, presentation));
+              }}
+            />
+          ))}
+      </div>
+
+      <Separator />
+
+      <div className="flex flex-col gap-3">
+        {definitions
+          .filter(
+            (definition) =>
+              definition.kind === "toggle-group" &&
+              !definition.id.startsWith("accent-"),
+          )
+          .map((definition) => (
+            <ToolbarToggleGroup
+              key={definition.id}
+              ariaLabel={definition.label}
+              value={definition.value(presentation)}
+              options={definition.options}
+              onValueChange={(value) =>
+                onChange(definition.update(value, presentation))
+              }
+            />
+          ))}
+      </div>
+
+      <Separator />
+
+      <div className="flex flex-col gap-3">
+        {definitions
+          .filter(
+            (definition) =>
+              definition.kind === "toggle-group" &&
+              definition.id.startsWith("accent-"),
+          )
+          .map((definition) => (
+            <ToolbarToggleGroup
+              key={definition.id}
+              ariaLabel={definition.label}
+              value={definition.value(presentation)}
+              options={definition.options}
+              onValueChange={(value) =>
+                onChange(definition.update(value, presentation))
+              }
+            />
+          ))}
+      </div>
+    </div>
   );
 }
-
-function ListSpacingGlyph({ gapClassName }: { gapClassName: string }) {
-  const rowKeys = ["first", "second", "third"] as const;
-
-  return (
-    <span aria-hidden="true" className={`flex flex-col ${gapClassName}`}>
-      {rowKeys.map((rowKey) => (
-        <span key={rowKey} className="flex items-center gap-1">
-          <span className="size-1 rounded-full bg-current" />
-          <span className="h-0.5 w-3.5 rounded-full bg-current" />
-        </span>
-      ))}
-    </span>
-  );
-}
-
-function StrengthGlyph({
-  widthClassName,
-  opacityClassName,
-}: {
-  widthClassName: string;
-  opacityClassName: string;
-}) {
-  return (
-    <span aria-hidden="true" className="flex items-end gap-0.5">
-      <span
-        className={`h-2 rounded-full bg-current ${widthClassName} ${opacityClassName}`}
-      />
-      <span
-        className={`h-3 rounded-full bg-current ${widthClassName} ${opacityClassName}`}
-      />
-      <span
-        className={`h-4 rounded-full bg-current ${widthClassName} ${opacityClassName}`}
-      />
-    </span>
-  );
-}
-
-type PreviewToolbarProps = {
-  presentation: ResumeDraft["pdfPresentation"];
-  onUpdatePresentation: (updates: PresentationUpdates) => void;
-};
 
 function PreviewToolbar({
   presentation,
-  onUpdatePresentation,
-}: PreviewToolbarProps) {
+  onChange,
+}: {
+  presentation: ResumeDraft["pdfPresentation"];
+  onChange: (nextPresentation: ResumeDraft["pdfPresentation"]) => void;
+}) {
   return (
     <div className="flex h-12 shrink-0 items-center justify-between gap-2 border-b bg-background px-4">
       <span className="text-xs font-medium text-muted-foreground">
@@ -250,189 +226,10 @@ function PreviewToolbar({
           }
         />
         <PopoverContent align="end" className="w-80">
-          <div className="flex flex-col gap-4">
-            <h3 className="text-sm font-semibold">Style Settings</h3>
-
-            <div className="flex flex-col gap-3">
-              <ToolbarSelect
-                ariaLabel="Layout"
-                icon={LayoutTemplateIcon}
-                value={presentation.layoutId}
-                options={pdfLayoutIds}
-                labels={pdfLayoutLabels}
-                onValueChange={(value) => {
-                  if (!value) return;
-                  onUpdatePresentation({
-                    layoutId:
-                      value as ResumeDraft["pdfPresentation"]["layoutId"],
-                  });
-                }}
-              />
-              <ToolbarSelect
-                ariaLabel="Type scale"
-                icon={TypeIcon}
-                value={presentation.overrides.typeScale}
-                options={pdfTypeScaleIds}
-                labels={pdfTypeScaleLabels}
-                onValueChange={(value) => {
-                  if (!value) return;
-                  onUpdatePresentation({
-                    typeScale:
-                      value as ResumeDraft["pdfPresentation"]["overrides"]["typeScale"],
-                  });
-                }}
-              />
-            </div>
-
-            <Separator />
-
-            <div className="flex flex-col gap-3">
-              <ToolbarToggleGroup
-                ariaLabel="Line height"
-                value={presentation.overrides.lineHeight}
-                options={pdfLineHeightIds}
-                labels={pdfLineHeightLabels}
-                onValueChange={(value) =>
-                  onUpdatePresentation({
-                    lineHeight:
-                      value as ResumeDraft["pdfPresentation"]["overrides"]["lineHeight"],
-                  })
-                }
-                renderOption={(option) => {
-                  if (option === "tight") {
-                    return <SpacingGlyph gapClassName="gap-0.5" />;
-                  }
-                  if (option === "relaxed") {
-                    return <SpacingGlyph gapClassName="gap-1.5" />;
-                  }
-                  return <SpacingGlyph gapClassName="gap-1" />;
-                }}
-              />
-              <ToolbarToggleGroup
-                ariaLabel="Spacing"
-                value={presentation.overrides.spacing}
-                options={pdfSpacingIds}
-                labels={pdfSpacingLabels}
-                onValueChange={(value) =>
-                  onUpdatePresentation({
-                    spacing:
-                      value as ResumeDraft["pdfPresentation"]["overrides"]["spacing"],
-                  })
-                }
-                renderOption={(option) => {
-                  if (option === "compact") {
-                    return (
-                      <ListSpacingGlyph gapClassName="gap-0.5" />
-                    );
-                  }
-                  if (option === "airy") {
-                    return <ListSpacingGlyph gapClassName="gap-1.5" />;
-                  }
-                  return <ListSpacingGlyph gapClassName="gap-1" />;
-                }}
-                renderTooltip={(option) => (
-                  <span className="inline-flex items-center gap-1.5">
-                    <BetweenVerticalStartIcon className="size-3" />
-                    Spacing:{" "}
-                    {pdfSpacingLabels[option as keyof typeof pdfSpacingLabels]}
-                  </span>
-                )}
-              />
-            </div>
-
-            <Separator />
-
-            <div className="flex flex-col gap-3">
-              <ToolbarToggleGroup
-                ariaLabel="Accent tone"
-                value={presentation.overrides.accentTone}
-                options={pdfAccentTones}
-                labels={pdfAccentToneLabels}
-                onValueChange={(value) =>
-                  onUpdatePresentation({
-                    accentTone:
-                      value as ResumeDraft["pdfPresentation"]["overrides"]["accentTone"],
-                  })
-                }
-                renderOption={(option) => (
-                  <span
-                    aria-hidden="true"
-                    className="size-3 rounded-full border border-black/10"
-                    style={{
-                      backgroundColor:
-                        option === "slate"
-                          ? "#475569"
-                          : option === "blue"
-                            ? "#2563eb"
-                            : option === "emerald"
-                              ? "#059669"
-                              : option === "rose"
-                                ? "#e11d48"
-                                : "#d97706",
-                    }}
-                  />
-                )}
-                renderTooltip={(option) => (
-                  <span className="inline-flex items-center gap-1.5">
-                    <SquareStackIcon className="size-3" />
-                    Accent tone:{" "}
-                    {
-                      pdfAccentToneLabels[
-                        option as keyof typeof pdfAccentToneLabels
-                      ]
-                    }
-                  </span>
-                )}
-              />
-              <ToolbarToggleGroup
-                ariaLabel="Accent strength"
-                value={presentation.overrides.accentStrength}
-                options={pdfAccentStrengths}
-                labels={pdfAccentStrengthLabels}
-                onValueChange={(value) =>
-                  onUpdatePresentation({
-                    accentStrength:
-                      value as ResumeDraft["pdfPresentation"]["overrides"]["accentStrength"],
-                  })
-                }
-                renderOption={(option) => {
-                  if (option === "soft") {
-                    return (
-                      <StrengthGlyph
-                        widthClassName="w-1"
-                        opacityClassName="opacity-55"
-                      />
-                    );
-                  }
-                  if (option === "strong") {
-                    return (
-                      <StrengthGlyph
-                        widthClassName="w-1.5"
-                        opacityClassName="opacity-100"
-                      />
-                    );
-                  }
-                  return (
-                    <StrengthGlyph
-                      widthClassName="w-1.25"
-                      opacityClassName="opacity-75"
-                    />
-                  );
-                }}
-                renderTooltip={(option) => (
-                  <span className="inline-flex items-center gap-1.5">
-                    <BetweenHorizontalStartIcon className="size-3" />
-                    Accent strength:{" "}
-                    {
-                      pdfAccentStrengthLabels[
-                        option as keyof typeof pdfAccentStrengthLabels
-                      ]
-                    }
-                  </span>
-                )}
-              />
-            </div>
-          </div>
+          <PreviewToolbarContent
+            presentation={presentation}
+            onChange={onChange}
+          />
         </PopoverContent>
       </Popover>
     </div>
@@ -557,25 +354,15 @@ export function PreviewPane({
     [draft.pdfPresentation],
   );
 
-  function updatePresentation(updates: PresentationUpdates) {
-    const { layoutId, ...overrideUpdates } = updates;
-
-    onSavePdfPresentation({
-      layoutId: layoutId ?? presentation.layoutId,
-      overrides: {
-        ...presentation.overrides,
-        ...overrideUpdates,
-      },
-    });
-  }
-
   return (
     <div className="h-full w-full">
       <PreviewToolbar
         presentation={presentation}
-        onUpdatePresentation={updatePresentation}
+        onChange={onSavePdfPresentation}
       />
       <PreviewSheet draft={draft} presentation={presentation} />
     </div>
   );
 }
+
+export { PreviewToolbarContent };

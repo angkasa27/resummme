@@ -49,7 +49,8 @@ describe("profile panel", () => {
 
     const fullNameInput = screen.getByLabelText(/full name/i);
     await user.clear(fullNameInput);
-    await user.type(fullNameInput, "Edited Profile Name");
+    await user.click(fullNameInput);
+    await user.paste("Edited Profile Name");
 
     await waitFor(
       () =>

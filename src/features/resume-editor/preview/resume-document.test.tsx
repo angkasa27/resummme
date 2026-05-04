@@ -10,7 +10,9 @@ describe("resume document", () => {
 
     render(<ResumeDocument draft={draft} />);
 
-    const header = screen.getByTestId("resume-preview-full-name").closest("header");
+    const header = screen
+      .getByTestId("resume-preview-full-name")
+      .closest("header");
 
     expect(header).not.toBeNull();
 
@@ -34,10 +36,8 @@ describe("resume document", () => {
     expect(name).toHaveStyle({ color: "rgb(5, 150, 105)" });
 
     const header = name.closest("header");
-    const photoFrame = header?.querySelector('[data-slot="avatar"]');
+    const photoFrame = header?.querySelector('[data-slot="photo-frame"]');
     expect(photoFrame).toHaveClass("h-24", "w-18", "rounded-md");
-    const photoFallback = header?.querySelector('[data-slot="avatar-fallback"]');
-    expect(photoFallback).toHaveClass("rounded-md");
 
     expect(header).toHaveClass("items-center", "text-center");
   });
@@ -54,15 +54,14 @@ describe("resume document", () => {
     expect(name).toHaveStyle({ color: "rgb(37, 99, 235)" });
 
     const header = name.closest("header");
-    const photoFrame = header?.querySelector('[data-slot="avatar"]');
+    const photoFrame = header?.querySelector('[data-slot="photo-frame"]');
     expect(photoFrame).toHaveClass("h-24", "w-18", "rounded-md");
-    const photoFallback = header?.querySelector('[data-slot="avatar-fallback"]');
-    expect(photoFallback).toHaveClass("rounded-md");
 
     expect(header).toHaveClass("items-start");
-    expect(header?.firstElementChild).not.toBeNull();
     expect(photoFrame).not.toBeNull();
-    expect(header?.firstElementChild).toContainElement(photoFrame as HTMLElement);
+    expect(header?.querySelector(".flex.flex-1.items-center")).toContainElement(
+      photoFrame as HTMLElement,
+    );
   });
 
   it("applies saved pdf presentation styles to the preview document", () => {
@@ -104,11 +103,17 @@ describe("resume document", () => {
       .getByRole("heading", { name: "WORK EXPERIENCE" })
       .closest("section");
     expect(workSection).not.toBeNull();
-    const workHeading = screen.getByRole("heading", { name: "WORK EXPERIENCE" });
-    const itemsContainer = workSection?.querySelector('[data-section-items="workExperience"]');
+    const workHeading = screen.getByRole("heading", {
+      name: "WORK EXPERIENCE",
+    });
+    const itemsContainer = workSection?.querySelector(
+      '[data-section-items="workExperience"]',
+    );
     expect(itemsContainer).not.toBeNull();
     expect(itemsContainer).toHaveStyle({ gap: "20px" });
-    const firstDescription = document.querySelector('[data-classic-description="true"]');
+    const firstDescription = document.querySelector(
+      '[data-classic-description="true"]',
+    );
     expect(firstDescription).toHaveStyle({
       paddingLeft: "18px",
       paddingRight: "12px",
@@ -145,7 +150,9 @@ describe("resume document", () => {
     render(<ResumeDocument draft={draft} />);
 
     const summaryText = screen
-      .getByText(/Software engineer with experience building frontend-heavy systems/i)
+      .getByText(
+        /Software engineer with experience building frontend-heavy systems/i,
+      )
       .closest("div");
     expect(summaryText).toHaveStyle({ textAlign: "justify" });
 
@@ -172,8 +179,7 @@ describe("resume document", () => {
     draft.sections.publications.items = [
       {
         id: "publication-1",
-        title:
-          "User Experience Analysis of AI-Based Interview Platform",
+        title: "User Experience Analysis of AI-Based Interview Platform",
         publisher: "ICIMTech",
         publicationUrl: "https://example.com/paper",
         publicationDate: "Sep 2025",
@@ -228,12 +234,12 @@ describe("resume document", () => {
       .getByRole("heading", { name: "WORK EXPERIENCE" })
       .closest("section");
     const workItemsContainer = workSection?.querySelector(
-      '[data-section-items="workExperience"]'
+      '[data-section-items="workExperience"]',
     );
     expect(workItemsContainer).toHaveStyle({ paddingLeft: "8px" });
 
     const indentedDescriptions = document.querySelectorAll(
-      '[data-classic-description="true"]'
+      '[data-classic-description="true"]',
     );
     expect(indentedDescriptions.length).toBeGreaterThan(0);
     expect(indentedDescriptions[0]).toHaveStyle({
@@ -243,26 +249,30 @@ describe("resume document", () => {
     });
 
     expect(
-      screen.getByText(/User Experience Analysis of AI-Based Interview Platform/i)
+      screen.getByText(
+        /User Experience Analysis of AI-Based Interview Platform/i,
+      ),
     ).toBeInTheDocument();
     expect(screen.getByText(/on ICIMTech/i)).toBeInTheDocument();
     expect(screen.getByText(/Credential ID: ABC-123/i)).toBeInTheDocument();
     expect(screen.getByText(/by EKIPA/i)).toBeInTheDocument();
     expect(
-      screen.getByText(/\(Professional working proficiency\)/i)
+      screen.getByText(/\(Professional working proficiency\)/i),
     ).toBeInTheDocument();
 
     expect(
-      screen.getByRole("link", { name: "User Experience Analysis of AI-Based Interview Platform" })
+      screen.getByRole("link", {
+        name: "User Experience Analysis of AI-Based Interview Platform",
+      }),
     ).toHaveAttribute("href", "https://example.com/paper");
     expect(
-      screen.getByRole("link", { name: "Certified Indonesia Scrum Master" })
+      screen.getByRole("link", { name: "Certified Indonesia Scrum Master" }),
     ).toHaveAttribute("href", "https://example.com/cert");
     expect(
-      screen.getByRole("link", { name: "Email Operations Dashboard" })
+      screen.getByRole("link", { name: "Email Operations Dashboard" }),
     ).toHaveAttribute("href", "https://example.com/project");
     expect(
-      screen.getByRole("link", { name: "Email Operations Dashboard" })
+      screen.getByRole("link", { name: "Email Operations Dashboard" }),
     ).toHaveStyle({
       color: "rgb(31, 41, 55)",
       textDecoration: "underline",
@@ -323,8 +333,7 @@ describe("resume document", () => {
 
     const titleCell = screen
       .getByRole("link", {
-        name:
-          "thIS IS LONG TITLE thIS IS LONG TITLE thIS IS LONG TITLE thIS IS LONG TITLE thIS IS LONG TITLE",
+        name: "thIS IS LONG TITLE thIS IS LONG TITLE thIS IS LONG TITLE thIS IS LONG TITLE thIS IS LONG TITLE",
       })
       .closest("div");
     expect(titleCell?.parentElement).toHaveStyle({ minWidth: "0px" });

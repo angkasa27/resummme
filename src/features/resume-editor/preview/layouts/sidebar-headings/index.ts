@@ -1,0 +1,1 @@
+export { sidebarHeadingsLayout } from "./page";
