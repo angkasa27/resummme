@@ -10,7 +10,7 @@ import {
 } from "@/features/resume-editor/lib/draft-utils";
 import { normalizeCollectionItem } from "@/features/resume-editor/lib/normalize-collection-item";
 import { createDefaultResumeDraft } from "@/lib/resume/default-draft";
-import type { Profile, ResumeDraft } from "@/lib/resume/schema";
+import type { PdfPresentation, Profile, ResumeDraft } from "@/lib/resume/schema";
 import { saveResumeDraft } from "@/lib/resume/storage";
 
 export type ResumeSectionKey = keyof ResumeDraft["sections"];
@@ -22,6 +22,7 @@ export type ResumeEditorStoreState = {
   activeSection: ResumeEditorPanelKey;
   editorViewMode: ResumeEditorViewMode;
   saveProfile: (profile: Profile) => void;
+  savePdfPresentation: (pdfPresentation: PdfPresentation) => void;
   saveSection: <K extends ResumeSectionKey>(
     sectionKey: K,
     sectionValue: ResumeDraft["sections"][K]
@@ -74,6 +75,12 @@ export function createResumeEditorStore(initialDraft = createDefaultResumeDraft(
     editorViewMode: "list",
     saveProfile: (profile) => {
       const nextDraft = saveResumeDraft(createNextDraft(get().draft, { profile }));
+      set({ draft: nextDraft });
+    },
+    savePdfPresentation: (pdfPresentation) => {
+      const nextDraft = saveResumeDraft(
+        createNextDraft(get().draft, { pdfPresentation })
+      );
       set({ draft: nextDraft });
     },
     saveSection: (sectionKey, sectionValue) => {

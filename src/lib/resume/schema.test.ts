@@ -11,7 +11,49 @@ describe("resume schema", () => {
 
     expect(parsed.schemaVersion).toBe(2);
     expect(parsed.templateId).toBe("recruiter-first-clean");
+    expect(parsed.pdfPresentation.layoutId).toBe("sidebar-headings");
+    expect(parsed.pdfPresentation.overrides.typeScale).toBe("standard");
     expect(parsed.profile.fullName).toBeTruthy();
+  });
+
+  it("fills default pdf presentation settings for older drafts", () => {
+    const draft = createDefaultResumeDraft();
+    const { pdfPresentation: _pdfPresentation, ...legacyDraft } = draft;
+
+    const parsed = parseResumeDraft(legacyDraft);
+
+    expect(parsed.pdfPresentation).toEqual(draft.pdfPresentation);
+  });
+
+  it("normalizes legacy numeric pdf presentation overrides to preset tokens", () => {
+    const draft = createDefaultResumeDraft();
+
+    const parsed = parseResumeDraft({
+      ...draft,
+      pdfPresentation: {
+        themeId: "classic-serif",
+        overrides: {
+          fontSizePx: 14.8,
+          lineHeight: 1.9,
+          sectionSpacingPx: 34,
+          itemSpacingPx: 27,
+          accentTone: "emerald",
+          accentStrength: "strong",
+        },
+      },
+    });
+
+    expect(parsed.pdfPresentation).toEqual({
+      layoutId: "sidebar-headings",
+      overrides: {
+        typeScale: "large",
+        lineHeight: "relaxed",
+        sectionSpacing: "airy",
+        itemSpacing: "airy",
+        accentTone: "emerald",
+        accentStrength: "strong",
+      },
+    });
   });
 
   it("rejects unsupported schema versions", () => {

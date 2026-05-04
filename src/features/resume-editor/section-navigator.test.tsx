@@ -61,8 +61,28 @@ describe("section navigator", () => {
     ).toBeInTheDocument();
     expect(
       within(availableSections as HTMLElement).getByRole("button", {
-        name: /show publications/i,
+        name: /add publications/i,
       })
     ).toBeInTheDocument();
+  });
+
+  it("does not show a dedicated pdf style editor row", () => {
+    const draft = createDefaultResumeDraft();
+
+    render(
+      <SectionNavigator
+        draft={draft}
+        activeSection="profile"
+        onRequestSectionChange={vi.fn()}
+        onMoveSection={vi.fn()}
+        onReorderSection={vi.fn()}
+        onSetSectionVisibility={vi.fn()}
+      />
+    );
+
+    expect(screen.queryByText("PDF Style")).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /edit pdf style/i })
+    ).not.toBeInTheDocument();
   });
 });

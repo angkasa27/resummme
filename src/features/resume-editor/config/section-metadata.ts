@@ -36,7 +36,10 @@ export const collectionSectionKeys = [
 
 export type CollectionSectionKey = (typeof collectionSectionKeys)[number];
 
-export const sectionLabels: Record<Exclude<EditorPanelKey, "profile">, string> = {
+export const sectionLabels: Record<
+  Exclude<EditorPanelKey, "profile">,
+  string
+> = {
   summary: "Summary",
   workExperience: "Work Experience",
   skills: "Skills",

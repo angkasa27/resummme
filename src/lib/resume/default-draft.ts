@@ -1,4 +1,5 @@
 import type { ResumeDraft } from "@/lib/resume/schema";
+import { createDefaultPdfPresentation } from "@/lib/resume/pdf-presentation";
 
 function createTimestamp() {
   return new Date().toISOString();
@@ -114,6 +115,7 @@ export function createDefaultResumeDraft(): ResumeDraft {
     schemaVersion: 2,
     templateId: "recruiter-first-clean",
     updatedAt: createTimestamp(),
+    pdfPresentation: createDefaultPdfPresentation(),
     profile: {
       fullName: "Fulan bin Fulan",
       location: "Jakarta, Indonesia",

@@ -195,7 +195,7 @@ export function RichTextEditor({
         <ToggleGroup
           multiple
           variant="outline"
-          spacing={1}
+          // spacing={1}
           value={[
             activeEditor.isActive("bold") ? "bold" : "",
             activeEditor.isActive("italic") ? "italic" : "",
@@ -267,14 +267,14 @@ export function RichTextEditor({
             <ListOrderedIcon className="size-4" />
           </ToggleGroupItem>
         </ToggleGroup>
-        <Separator orientation="vertical" className="h-6" />
+        <Separator orientation="vertical" />
         <Popover open={isLinkEditorOpen} onOpenChange={setIsLinkEditorOpen}>
           <PopoverTrigger
             render={
               <Button
                 type="button"
                 variant="outline"
-                size="icon-sm"
+                size="icon"
                 title="Edit link"
               />
             }
@@ -336,7 +336,7 @@ export function RichTextEditor({
         <Button
           type="button"
           variant="outline"
-          size="icon-sm"
+          size="icon"
           title="Remove link"
           aria-label="Remove link"
           onClick={() => activeEditor.chain().focus().unsetLink().run()}

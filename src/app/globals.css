@@ -156,26 +156,6 @@
   padding-left: 1.25rem;
 }
 
-.resume-page-sheet {
-  display: block;
-  break-after: page;
-  page-break-after: always;
-}
-
-.resume-page-sheet:last-child {
-  break-after: auto;
-  page-break-after: auto;
-}
-
-.resume-page-block {
-  break-inside: avoid-page;
-  page-break-inside: avoid;
-}
-
-.resume-page-frame {
-  box-sizing: border-box;
-}
-
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -184,33 +164,5 @@
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
-  }
-}
-
-@media print {
-  @page {
-    size: A4;
-    margin: 0;
-  }
-
-  html,
-  body {
-    background: white;
-  }
-
-  body {
-    min-height: auto;
-  }
-
-  .resume-page-sheet {
-    box-shadow: none !important;
-    margin: 0 !important;
-    width: 210mm !important;
-    height: 297mm !important;
-  }
-
-  .resume-page-frame {
-    height: 297mm !important;
-    padding: 12mm !important;
   }
 }

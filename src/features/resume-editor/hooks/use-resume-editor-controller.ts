@@ -11,7 +11,7 @@ import { toast } from "sonner";
 import { useStore } from "zustand";
 
 import { createDefaultResumeDraft } from "@/lib/resume/default-draft";
-import type { Profile, ResumeDraft } from "@/lib/resume/schema";
+import type { PdfPresentation, Profile, ResumeDraft } from "@/lib/resume/schema";
 import {
   exportResumeDraft,
   importResumeDraft,
@@ -42,6 +42,7 @@ export type ResumeEditorController = {
   moveSection: (sectionKey: ResumeSectionKey, direction: -1 | 1) => void;
   reorderSection: (sectionKey: ResumeSectionKey, targetIndex: number) => void;
   setSectionVisibility: (sectionKey: ResumeSectionKey, visible: boolean) => void;
+  savePdfPresentation: (pdfPresentation: PdfPresentation) => void;
   saveProfile: (profile: Profile) => void;
   saveSection: <K extends ResumeSectionKey>(
     sectionKey: K,
@@ -176,6 +177,8 @@ export function useResumeEditorController({
       store.getState().reorderSection(sectionKey, targetIndex),
     setSectionVisibility: (sectionKey, visible) =>
       store.getState().setSectionVisibility(sectionKey, visible),
+    savePdfPresentation: (pdfPresentation) =>
+      store.getState().savePdfPresentation(pdfPresentation),
     saveProfile: (profile) => store.getState().saveProfile(profile),
     saveSection: (sectionKey, sectionValue) =>
       store.getState().saveSection(sectionKey, sectionValue),

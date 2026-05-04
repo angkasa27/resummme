@@ -13,6 +13,9 @@ describe("resume pdf page", () => {
 
   it("renders the resume document from session storage without editor chrome", async () => {
     const draft = createDefaultResumeDraft();
+    draft.pdfPresentation.layoutId = "classic-centered";
+    draft.pdfPresentation.overrides.typeScale = "large";
+    draft.pdfPresentation.overrides.lineHeight = "relaxed";
     draft.sections.workExperience.items = [
       {
         id: "work-1",
@@ -40,5 +43,14 @@ describe("resume pdf page", () => {
     expect(screen.queryByText("Resume Editor")).not.toBeInTheDocument();
     expect(screen.getAllByRole("list")).toHaveLength(2);
     expect(document.querySelector('[data-pdf-ready="true"]')).not.toBeNull();
+    const documentRoot = screen
+      .getByTestId("resume-preview-full-name")
+      .closest("article");
+    expect(documentRoot).not.toBeNull();
+    expect(documentRoot).toHaveStyle({
+      fontSize: "15px",
+      lineHeight: "1.9",
+    });
+    expect(screen.getByRole("heading", { name: "WORK EXPERIENCE" })).toBeInTheDocument();
   });
 });

@@ -1,5 +1,15 @@
 import { z } from "zod";
 import { sanitizeRichTextHtml } from "@/lib/resume/sanitize-rich-text";
+import {
+  createDefaultPdfPresentation,
+  normalizePdfPresentation,
+  pdfLayoutIds,
+  pdfLineHeightIds,
+  pdfSpacingIds,
+  pdfTypeScaleIds,
+  pdfAccentStrengths,
+  pdfAccentTones,
+} from "@/lib/resume/pdf-presentation";
 
 const monthYearPattern = /^[A-Za-z]{3,9}\s+\d{4}$/;
 const currentValueSchema = z.literal("current");
@@ -99,6 +109,29 @@ function draftCurrentOrMonthYear() {
 function draftUrl() {
   return z.string().trim();
 }
+
+const pdfPresentationLayoutSchema = z.enum(pdfLayoutIds);
+const pdfPresentationAccentToneSchema = z.enum(pdfAccentTones);
+const pdfPresentationAccentStrengthSchema = z.enum(pdfAccentStrengths);
+
+export const pdfPresentationOverridesSchema = z.object({
+  typeScale: z.enum(pdfTypeScaleIds),
+  lineHeight: z.enum(pdfLineHeightIds),
+  sectionSpacing: z.enum(pdfSpacingIds),
+  itemSpacing: z.enum(pdfSpacingIds),
+  accentTone: pdfPresentationAccentToneSchema,
+  accentStrength: pdfPresentationAccentStrengthSchema,
+});
+
+export const pdfPresentationSchema = z.preprocess(
+  normalizePdfPresentation,
+  z.object({
+    layoutId: pdfPresentationLayoutSchema,
+    overrides: pdfPresentationOverridesSchema,
+  })
+);
+
+export const pdfPresentationFormSchema = pdfPresentationSchema;
 
 export const summarySectionSchema = z.object({
   visible: z.boolean(),
@@ -468,12 +501,16 @@ export const resumeDraftSchema = z.object({
   schemaVersion: z.literal(2),
   templateId: z.literal("recruiter-first-clean"),
   updatedAt: z.string().min(1),
+  pdfPresentation: pdfPresentationSchema
+    .optional()
+    .default(createDefaultPdfPresentation()),
   profile: profileDraftSchema,
   sections: sectionsSchema,
 });
 
 export type ExtraLink = z.infer<typeof extraLinkSchema>;
 export type Profile = z.infer<typeof profileSchema>;
+export type PdfPresentation = z.infer<typeof pdfPresentationSchema>;
 export type SummarySection = z.infer<typeof summarySectionSchema>;
 export type WorkExperienceItem = z.infer<typeof workExperienceItemSchema>;
 export type SkillCategoryItem = z.infer<typeof skillCategoryItemSchema>;

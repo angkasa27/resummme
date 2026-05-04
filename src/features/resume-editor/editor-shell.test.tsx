@@ -169,6 +169,20 @@ describe("resume editor shell", () => {
     expect(screen.queryByText(/curriculum vitae/i)).not.toBeInTheDocument();
   });
 
+  it("renders the pdf style toolbar in the preview pane", async () => {
+    const draft = createDefaultResumeDraft();
+
+    mockViewport(1440);
+    render(<ResumeEditorShell initialDraft={draft} />);
+
+    await waitFor(() =>
+      expect(
+        screen.getByRole("toolbar", { name: /pdf style/i })
+      ).toBeInTheDocument()
+    );
+    expect(screen.getByRole("combobox", { name: /layout/i })).toBeInTheDocument();
+  });
+
   it("uses a full-bleed two-pane desktop layout before the wide breakpoint", () => {
     const draft = createDefaultResumeDraft();
 
@@ -190,15 +204,15 @@ describe("resume editor shell", () => {
     expect(screen.getByTestId("preview-pane")).toBeInTheDocument();
   });
 
-  it("renders a dedicated print-only resume surface outside the editor panes", async () => {
+  it("does not mount a hidden print-only resume surface in the editor shell", async () => {
     const draft = createDefaultResumeDraft();
 
     mockViewport(1440);
     render(<ResumeEditorShell initialDraft={draft} />);
 
     await waitFor(() =>
-      expect(screen.getByTestId("resume-print-pages")).toBeInTheDocument()
+      expect(screen.getByTestId("resume-editor-desktop-main")).toBeInTheDocument()
     );
-    expect(screen.getByTestId("resume-editor-desktop-main")).toHaveClass("print:hidden");
+    expect(screen.queryByTestId("resume-print-pages")).not.toBeInTheDocument();
   });
 });
