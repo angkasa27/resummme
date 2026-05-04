@@ -22,6 +22,49 @@ describe("resume document", () => {
     expect(links[0]).toHaveAttribute("rel", "noopener noreferrer");
   });
 
+  it("uses the accent color for the name and renders a centered portrait in the classic-centered layout", () => {
+    const draft = createDefaultResumeDraft();
+    draft.pdfPresentation.layoutId = "classic-centered";
+    draft.pdfPresentation.overrides.accentTone = "emerald";
+    draft.profile.photo = "https://images.example.com/profile.jpg";
+
+    render(<ResumeDocument draft={draft} />);
+
+    const name = screen.getByTestId("resume-preview-full-name");
+    expect(name).toHaveStyle({ color: "rgb(5, 150, 105)" });
+
+    const header = name.closest("header");
+    const photoFrame = header?.querySelector('[data-slot="avatar"]');
+    expect(photoFrame).toHaveClass("h-24", "w-18", "rounded-md");
+    const photoFallback = header?.querySelector('[data-slot="avatar-fallback"]');
+    expect(photoFallback).toHaveClass("rounded-md");
+
+    expect(header).toHaveClass("items-center", "text-center");
+  });
+
+  it("places the sidebar photo on the left as a portrait and keeps the name accented", () => {
+    const draft = createDefaultResumeDraft();
+    draft.pdfPresentation.layoutId = "sidebar-headings";
+    draft.pdfPresentation.overrides.accentTone = "blue";
+    draft.profile.photo = "https://images.example.com/profile.jpg";
+
+    render(<ResumeDocument draft={draft} />);
+
+    const name = screen.getByTestId("resume-preview-full-name");
+    expect(name).toHaveStyle({ color: "rgb(37, 99, 235)" });
+
+    const header = name.closest("header");
+    const photoFrame = header?.querySelector('[data-slot="avatar"]');
+    expect(photoFrame).toHaveClass("h-24", "w-18", "rounded-md");
+    const photoFallback = header?.querySelector('[data-slot="avatar-fallback"]');
+    expect(photoFallback).toHaveClass("rounded-md");
+
+    expect(header).toHaveClass("items-start");
+    expect(header?.firstElementChild).not.toBeNull();
+    expect(photoFrame).not.toBeNull();
+    expect(header?.firstElementChild).toContainElement(photoFrame as HTMLElement);
+  });
+
   it("applies saved pdf presentation styles to the preview document", () => {
     const draft = createDefaultResumeDraft();
     draft.pdfPresentation.layoutId = "classic-centered";
@@ -61,6 +104,7 @@ describe("resume document", () => {
       .getByRole("heading", { name: "WORK EXPERIENCE" })
       .closest("section");
     expect(workSection).not.toBeNull();
+    const workHeading = screen.getByRole("heading", { name: "WORK EXPERIENCE" });
     const itemsContainer = workSection?.querySelector('[data-section-items="workExperience"]');
     expect(itemsContainer).not.toBeNull();
     expect(itemsContainer).toHaveStyle({ gap: "20px" });
@@ -71,11 +115,15 @@ describe("resume document", () => {
       textAlign: "justify",
     });
     expect(firstDescription?.parentElement).toHaveStyle({ gap: "4px" });
+    expect(workHeading).toHaveStyle({ color: "rgb(5, 150, 105)" });
+    expect(workHeading?.parentElement).toHaveStyle({
+      borderColor: "rgb(5, 150, 105)",
+    });
 
     const profileLink = screen.getByRole("link", {
       name: `Link: ${draft.profile.extraLinks[0].url}`,
     });
-    expect(profileLink.style.color).not.toBe("");
+    expect(profileLink).toHaveStyle({ color: "rgb(75, 85, 99)" });
   });
 
   it("renders summary and item body copy with justified text", () => {
@@ -213,5 +261,72 @@ describe("resume document", () => {
     expect(
       screen.getByRole("link", { name: "Email Operations Dashboard" })
     ).toHaveAttribute("href", "https://example.com/project");
+    expect(
+      screen.getByRole("link", { name: "Email Operations Dashboard" })
+    ).toHaveStyle({
+      color: "rgb(31, 41, 55)",
+      textDecoration: "underline",
+    });
+  });
+
+  it("uses accent color on section labels instead of links in the sidebar layout", () => {
+    const draft = createDefaultResumeDraft();
+    draft.pdfPresentation.overrides.accentTone = "rose";
+    draft.sections.projects.items = [
+      {
+        id: "project-1",
+        projectName: "Resume Export",
+        projectLink: "https://example.com/project",
+        startDate: "Jan 2026",
+        endDate: "current",
+        description: "<p>Built a deterministic PDF export pipeline.</p>",
+      },
+    ];
+
+    render(<ResumeDocument draft={draft} />);
+
+    const sectionHeading = screen.getByRole("heading", { name: "Projects" });
+    expect(sectionHeading).toHaveStyle({ color: "rgb(225, 29, 72)" });
+
+    const projectLink = screen.getByRole("link", { name: "Resume Export" });
+    expect(projectLink).toHaveStyle({
+      color: "rgb(17, 24, 39)",
+      textDecoration: "underline",
+    });
+  });
+
+  it("keeps the date column fixed when a sidebar-layout item title is very long", () => {
+    const draft = createDefaultResumeDraft();
+    draft.sections.publications.items = [
+      {
+        id: "publication-1",
+        title:
+          "thIS IS LONG TITLE thIS IS LONG TITLE thIS IS LONG TITLE thIS IS LONG TITLE thIS IS LONG TITLE",
+        publisher:
+          "2025 International Conference on Information Management and Technology (ICIMTech)",
+        publicationUrl: "https://example.com/paper",
+        publicationDate: "Sep 2025",
+        description:
+          "<p>Co-authored a usability study evaluating an AI-based interview platform.</p>",
+      },
+    ];
+    draft.sections.publications.visible = true;
+
+    render(<ResumeDocument draft={draft} />);
+
+    const dateCell = screen.getByText("Sep 2025");
+    const headerRow = dateCell.parentElement;
+    expect(headerRow).toHaveStyle({
+      display: "grid",
+      gridTemplateColumns: "minmax(0, 1fr) auto",
+    });
+
+    const titleCell = screen
+      .getByRole("link", {
+        name:
+          "thIS IS LONG TITLE thIS IS LONG TITLE thIS IS LONG TITLE thIS IS LONG TITLE thIS IS LONG TITLE",
+      })
+      .closest("div");
+    expect(titleCell?.parentElement).toHaveStyle({ minWidth: "0px" });
   });
 });

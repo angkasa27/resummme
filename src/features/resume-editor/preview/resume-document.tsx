@@ -150,6 +150,22 @@ function formatSectionHeading(
     : sectionLabel;
 }
 
+function renderHeaderPhoto(draft: ResumeDraft, className?: string) {
+  if (!draft.profile.photo) {
+    return null;
+  }
+
+  return (
+    <div className={cn("overflow-hidden", className)}>
+      <img
+        src={draft.profile.photo}
+        alt={draft.profile.fullName}
+        className="object-cover w-full h-full"
+      />
+    </div>
+  );
+}
+
 export function ResumeDocument({
   draft,
   className,
@@ -191,24 +207,15 @@ export function ResumeDocument({
           "border-b pb-5",
           isClassicCentered
             ? "flex flex-col items-center gap-3 text-center"
-            : "flex items-start justify-between gap-6",
+            : "flex items-center justify-between gap-6",
         )}
       >
-        {draft.profile.photo && isClassicCentered ? (
-          <Avatar size="lg" className="size-18 border">
-            <AvatarImage
-              src={draft.profile.photo}
-              alt={draft.profile.fullName}
-            />
-            <AvatarFallback>
-              {draft.profile.fullName
-                .split(" ")
-                .map((part) => part[0])
-                .slice(0, 2)
-                .join("")}
-            </AvatarFallback>
-          </Avatar>
-        ) : null}
+        {isClassicCentered
+          ? renderHeaderPhoto(draft, "aspect-square h-24 rounded")
+          : null}
+        {!isClassicCentered
+          ? renderHeaderPhoto(draft, "shrink-0 w-auto h-24 aspect-3/4 rounded")
+          : null}
 
         <div className={cn("flex-1", isClassicCentered && "w-full")}>
           <h1
@@ -222,6 +229,7 @@ export function ResumeDocument({
               fontSize: `${presentation.nameFontSizePx}px`,
               fontWeight: presentation.headingWeight,
               lineHeight: "1.1",
+              color: presentation.accentColor,
             }}
           >
             {draft.profile.fullName}
@@ -266,7 +274,7 @@ export function ResumeDocument({
                           : undefined
                       }
                       className="underline"
-                      style={{ color: presentation.accentColor }}
+                      style={{ color: presentation.mutedTextColor }}
                     >
                       {item.value}
                     </a>
@@ -278,22 +286,6 @@ export function ResumeDocument({
             })}
           </p>
         </div>
-
-        {draft.profile.photo && !isClassicCentered ? (
-          <Avatar size="lg" className="size-16 border">
-            <AvatarImage
-              src={draft.profile.photo}
-              alt={draft.profile.fullName}
-            />
-            <AvatarFallback>
-              {draft.profile.fullName
-                .split(" ")
-                .map((part) => part[0])
-                .slice(0, 2)
-                .join("")}
-            </AvatarFallback>
-          </Avatar>
-        ) : null}
       </header>
 
       {orderedSectionKeys.map((sectionKey) => {
@@ -314,7 +306,8 @@ export function ResumeDocument({
                       fontWeight: presentation.sectionLabelWeight,
                       letterSpacing: `${presentation.sectionLabelLetterSpacingEm}em`,
                       textTransform: presentation.sectionLabelTransform,
-                      borderColor: presentation.itemBorderColor,
+                      color: presentation.accentColor,
+                      borderColor: presentation.accentColor,
                     }}
                   >
                     {formatSectionHeading("Summary", presentation.layoutId)}
@@ -345,7 +338,7 @@ export function ResumeDocument({
                   fontWeight: presentation.sectionLabelWeight,
                   letterSpacing: `${presentation.sectionLabelLetterSpacingEm}em`,
                   textTransform: presentation.sectionLabelTransform,
-                  color: presentation.mutedTextColor,
+                  color: presentation.accentColor,
                 }}
               >
                 Summary
@@ -384,7 +377,7 @@ export function ResumeDocument({
             <section key={sectionKey} className="space-y-4">
               <div
                 className="border-b pb-1"
-                style={{ borderColor: presentation.itemBorderColor }}
+                style={{ borderColor: presentation.accentColor }}
               >
                 <h2
                   data-testid="resume-preview-section-heading"
@@ -394,7 +387,7 @@ export function ResumeDocument({
                     fontWeight: presentation.sectionLabelWeight,
                     letterSpacing: `${presentation.sectionLabelLetterSpacingEm}em`,
                     textTransform: presentation.sectionLabelTransform,
-                    color: presentation.bodyTextColor,
+                    color: presentation.accentColor,
                   }}
                 >
                   {sectionHeading}
@@ -430,7 +423,7 @@ export function ResumeDocument({
                 fontWeight: presentation.sectionLabelWeight,
                 letterSpacing: `${presentation.sectionLabelLetterSpacingEm}em`,
                 textTransform: presentation.sectionLabelTransform,
-                color: presentation.mutedTextColor,
+                color: presentation.accentColor,
               }}
             >
               {sectionHeading}

@@ -105,9 +105,8 @@ function createItemStyles(presentation: ResolvedPdfPresentation) {
     link: {
       fontSize: `${presentation.metaFontSizePx}px`,
       lineHeight: String(presentation.bodyLineHeight),
-      color: presentation.accentColor,
+      color: presentation.bodyTextColor,
       textDecoration: "underline",
-      // textUnderlineOffset: "4px",
       overflowWrap: "anywhere" as const,
     },
     splitRow: {
@@ -152,9 +151,8 @@ function renderLinkedItemTitle({
       rel={shouldOpenInNewTab ? "noopener noreferrer" : undefined}
       style={{
         ...styles.itemTitle,
-        color: styles.link.color,
+        color: styles.itemTitle.color,
         textDecoration: "underline",
-        // textUnderlineOffset: styles.link.textUnderlineOffset,
         overflowWrap: styles.link.overflowWrap,
       }}
     >
