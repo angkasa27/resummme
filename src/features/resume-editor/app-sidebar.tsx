@@ -184,7 +184,7 @@ export function AppSidebar({
         {/* Hidden sections — add them back */}
         {hiddenSectionKeys.length > 0 && (
           <>
-            <SidebarSeparator className="mx-2" />
+            <SidebarSeparator className="mx-0!" />
             <Collapsible open={availableOpen} onOpenChange={setAvailableOpen}>
               <SidebarGroup className="px-2 py-2">
                 <CollapsibleTrigger
