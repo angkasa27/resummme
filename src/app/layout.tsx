@@ -1,13 +1,11 @@
 import type { Metadata } from "next";
-import { Geist_Mono, Public_Sans } from "next/font/google";
+import { Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
-const publicSans = Public_Sans({
-  variable: "--font-sans",
-  subsets: ["latin"],
-});
+const inter = Inter({subsets:['latin'],variable:'--font-sans'});
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -30,12 +28,13 @@ export default function RootLayout({
       className={cn(
         "h-full",
         "antialiased",
-        publicSans.variable,
         geistMono.variable,
+        "font-sans",
+        inter.variable,
       )}
     >
       <body className="min-h-full flex flex-col">
-        {children}
+        <TooltipProvider>{children}</TooltipProvider>
         <Toaster />
       </body>
     </html>
