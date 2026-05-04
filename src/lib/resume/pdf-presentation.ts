@@ -29,8 +29,7 @@ export type PdfAccentStrength = (typeof pdfAccentStrengths)[number];
 export type PdfPresentationOverrides = {
   typeScale: PdfTypeScaleId;
   lineHeight: PdfLineHeightId;
-  sectionSpacing: PdfSpacingId;
-  itemSpacing: PdfSpacingId;
+  spacing: PdfSpacingId;
   accentTone: PdfAccentTone;
   accentStrength: PdfAccentStrength;
 };
@@ -46,6 +45,7 @@ type LegacyPdfPresentationInput = {
   overrides?: {
     typeScale?: unknown;
     lineHeight?: unknown;
+    spacing?: unknown;
     sectionSpacing?: unknown;
     itemSpacing?: unknown;
     fontSizePx?: number;
@@ -186,9 +186,9 @@ const sectionSpacingValues: Record<PdfSpacingId, number> = {
 };
 
 const itemSpacingValues: Record<PdfSpacingId, number> = {
-  compact: 16,
-  standard: 20,
-  airy: 26,
+  compact: 12,
+  standard: 16,
+  airy: 20,
 };
 
 export const pdfLayouts: Record<PdfLayoutId, PdfLayoutDefinition> = {
@@ -203,8 +203,7 @@ export const pdfLayouts: Record<PdfLayoutId, PdfLayoutDefinition> = {
     defaults: {
       typeScale: "standard",
       lineHeight: "standard",
-      sectionSpacing: "standard",
-      itemSpacing: "standard",
+      spacing: "standard",
       accentTone: "blue",
       accentStrength: "balanced",
     },
@@ -227,8 +226,7 @@ export const pdfLayouts: Record<PdfLayoutId, PdfLayoutDefinition> = {
     defaults: {
       typeScale: "standard",
       lineHeight: "standard",
-      sectionSpacing: "standard",
-      itemSpacing: "standard",
+      spacing: "standard",
       accentTone: "slate",
       accentStrength: "balanced",
     },
@@ -299,6 +297,12 @@ function normalizePresetOverrides(
   overrides: Record<string, unknown>,
   fallback: PdfPresentationOverrides
 ): PdfPresentationOverrides {
+  const normalizedSpacing = pdfSpacingIds.includes(overrides.spacing as PdfSpacingId)
+    ? (overrides.spacing as PdfSpacingId)
+    : pdfSpacingIds.includes(overrides.sectionSpacing as PdfSpacingId)
+      ? (overrides.sectionSpacing as PdfSpacingId)
+      : fallback.spacing;
+
   return {
     typeScale: pdfTypeScaleIds.includes(overrides.typeScale as PdfTypeScaleId)
       ? (overrides.typeScale as PdfTypeScaleId)
@@ -308,14 +312,7 @@ function normalizePresetOverrides(
     )
       ? (overrides.lineHeight as PdfLineHeightId)
       : fallback.lineHeight,
-    sectionSpacing: pdfSpacingIds.includes(
-      overrides.sectionSpacing as PdfSpacingId
-    )
-      ? (overrides.sectionSpacing as PdfSpacingId)
-      : fallback.sectionSpacing,
-    itemSpacing: pdfSpacingIds.includes(overrides.itemSpacing as PdfSpacingId)
-      ? (overrides.itemSpacing as PdfSpacingId)
-      : fallback.itemSpacing,
+    spacing: normalizedSpacing,
     accentTone: normalizeAccentTone(overrides.accentTone, fallback.accentTone),
     accentStrength: normalizeAccentStrength(
       overrides.accentStrength,
@@ -339,15 +336,10 @@ function normalizeLegacyOverrides(
       lineHeightValues,
       fallback.lineHeight
     ),
-    sectionSpacing: closestPresetId(
+    spacing: closestPresetId(
       overrides?.sectionSpacingPx,
       sectionSpacingValues,
-      fallback.sectionSpacing
-    ),
-    itemSpacing: closestPresetId(
-      overrides?.itemSpacingPx,
-      itemSpacingValues,
-      fallback.itemSpacing
+      fallback.spacing
     ),
     accentTone: normalizeAccentTone(overrides?.accentTone, fallback.accentTone),
     accentStrength: normalizeAccentStrength(
@@ -379,6 +371,7 @@ export function normalizePdfPresentation(input: unknown): PdfPresentation {
     isObject(presentation.overrides) &&
     ("typeScale" in presentation.overrides ||
       typeof presentation.overrides.lineHeight === "string" ||
+      "spacing" in presentation.overrides ||
       "sectionSpacing" in presentation.overrides ||
       "itemSpacing" in presentation.overrides)
       ? normalizePresetOverrides(presentation.overrides, defaults)
@@ -401,8 +394,8 @@ export function resolvePdfPresentation(
   };
   const bodyFontSizePx = typeScaleValues[overrides.typeScale];
   const bodyLineHeight = lineHeightValues[overrides.lineHeight];
-  const articleGapPx = sectionSpacingValues[overrides.sectionSpacing];
-  const itemGapPx = itemSpacingValues[overrides.itemSpacing];
+  const articleGapPx = sectionSpacingValues[overrides.spacing];
+  const itemGapPx = itemSpacingValues[overrides.spacing];
   const accentColor =
     accentPalette[overrides.accentTone][overrides.accentStrength];
 

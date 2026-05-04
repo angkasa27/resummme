@@ -12,7 +12,6 @@ import {
   BetweenHorizontalStartIcon,
   BetweenVerticalStartIcon,
   LayoutTemplateIcon,
-  ListIcon,
   SettingsIcon,
   SquareStackIcon,
   TypeIcon,
@@ -310,65 +309,21 @@ function PreviewToolbar({
                 }}
               />
               <ToolbarToggleGroup
-                ariaLabel="Section spacing"
-                value={presentation.overrides.sectionSpacing}
+                ariaLabel="Spacing"
+                value={presentation.overrides.spacing}
                 options={pdfSpacingIds}
                 labels={pdfSpacingLabels}
                 onValueChange={(value) =>
                   onUpdatePresentation({
-                    sectionSpacing:
-                      value as ResumeDraft["pdfPresentation"]["overrides"]["sectionSpacing"],
+                    spacing:
+                      value as ResumeDraft["pdfPresentation"]["overrides"]["spacing"],
                   })
                 }
                 renderOption={(option) => {
                   if (option === "compact") {
                     return (
-                      <SpacingGlyph
-                        gapClassName="gap-0.5"
-                        topClassName="w-4"
-                        bottomClassName="w-5"
-                      />
+                      <ListSpacingGlyph gapClassName="gap-0.5" />
                     );
-                  }
-                  if (option === "airy") {
-                    return (
-                      <SpacingGlyph
-                        gapClassName="gap-2"
-                        topClassName="w-4"
-                        bottomClassName="w-5"
-                      />
-                    );
-                  }
-                  return (
-                    <SpacingGlyph
-                      gapClassName="gap-1"
-                      topClassName="w-4"
-                      bottomClassName="w-5"
-                    />
-                  );
-                }}
-                renderTooltip={(option) => (
-                  <span className="inline-flex items-center gap-1.5">
-                    <BetweenVerticalStartIcon className="size-3" />
-                    Section spacing:{" "}
-                    {pdfSpacingLabels[option as keyof typeof pdfSpacingLabels]}
-                  </span>
-                )}
-              />
-              <ToolbarToggleGroup
-                ariaLabel="Item spacing"
-                value={presentation.overrides.itemSpacing}
-                options={pdfSpacingIds}
-                labels={pdfSpacingLabels}
-                onValueChange={(value) =>
-                  onUpdatePresentation({
-                    itemSpacing:
-                      value as ResumeDraft["pdfPresentation"]["overrides"]["itemSpacing"],
-                  })
-                }
-                renderOption={(option) => {
-                  if (option === "compact") {
-                    return <ListSpacingGlyph gapClassName="gap-0.5" />;
                   }
                   if (option === "airy") {
                     return <ListSpacingGlyph gapClassName="gap-1.5" />;
@@ -377,8 +332,8 @@ function PreviewToolbar({
                 }}
                 renderTooltip={(option) => (
                   <span className="inline-flex items-center gap-1.5">
-                    <ListIcon className="size-3" />
-                    Item spacing:{" "}
+                    <BetweenVerticalStartIcon className="size-3" />
+                    Spacing:{" "}
                     {pdfSpacingLabels[option as keyof typeof pdfSpacingLabels]}
                   </span>
                 )}

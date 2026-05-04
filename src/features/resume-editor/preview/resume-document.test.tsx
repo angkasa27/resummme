@@ -27,8 +27,7 @@ describe("resume document", () => {
     draft.pdfPresentation.layoutId = "classic-centered";
     draft.pdfPresentation.overrides.typeScale = "large";
     draft.pdfPresentation.overrides.lineHeight = "relaxed";
-    draft.pdfPresentation.overrides.sectionSpacing = "airy";
-    draft.pdfPresentation.overrides.itemSpacing = "airy";
+    draft.pdfPresentation.overrides.spacing = "airy";
     draft.pdfPresentation.overrides.accentTone = "emerald";
     draft.sections.workExperience.items = [
       {
@@ -64,15 +63,48 @@ describe("resume document", () => {
     expect(workSection).not.toBeNull();
     const itemsContainer = workSection?.querySelector('[data-section-items="workExperience"]');
     expect(itemsContainer).not.toBeNull();
-    expect(itemsContainer).toHaveStyle({ gap: "26px" });
+    expect(itemsContainer).toHaveStyle({ gap: "20px" });
     const firstDescription = document.querySelector('[data-classic-description="true"]');
-    expect(firstDescription).toHaveStyle({ paddingLeft: "18px", paddingRight: "12px" });
+    expect(firstDescription).toHaveStyle({
+      paddingLeft: "18px",
+      paddingRight: "12px",
+      textAlign: "justify",
+    });
     expect(firstDescription?.parentElement).toHaveStyle({ gap: "4px" });
 
     const profileLink = screen.getByRole("link", {
-      name: draft.profile.extraLinks[0].url,
+      name: `Link: ${draft.profile.extraLinks[0].url}`,
     });
     expect(profileLink.style.color).not.toBe("");
+  });
+
+  it("renders summary and item body copy with justified text", () => {
+    const draft = createDefaultResumeDraft();
+    draft.sections.summary.content =
+      "<p>Software engineer with experience building frontend-heavy systems for product teams.</p>";
+    draft.sections.projects.items = [
+      {
+        id: "project-1",
+        projectName: "Resume Export",
+        projectLink: "https://example.com/project",
+        startDate: "Jan 2026",
+        endDate: "current",
+        description:
+          "<p>Built a deterministic PDF export pipeline with cleaner document rendering.</p>",
+      },
+    ];
+
+    render(<ResumeDocument draft={draft} />);
+
+    const summaryText = screen
+      .getByText(/Software engineer with experience building frontend-heavy systems/i)
+      .closest("div");
+    expect(summaryText).toHaveStyle({ textAlign: "justify" });
+
+    const projectDescription = screen
+      .getByText(/Built a deterministic PDF export pipeline/i)
+      .closest("div");
+    expect(projectDescription).toHaveStyle({ textAlign: "justify" });
   });
 
   it("adds clearer indentation and compact metadata rows in the classic-centered layout", () => {
@@ -126,10 +158,21 @@ describe("resume document", () => {
         proficiency: "Professional working proficiency",
       },
     ];
+    draft.sections.projects.items = [
+      {
+        id: "project-1",
+        projectName: "Email Operations Dashboard",
+        projectLink: "https://example.com/project",
+        startDate: "Apr 2026",
+        endDate: "Apr 2026",
+        description: "<p>Built an internal operations dashboard.</p>",
+      },
+    ];
     draft.sections.publications.visible = true;
     draft.sections.certifications.visible = true;
     draft.sections.awards.visible = true;
     draft.sections.languages.visible = true;
+    draft.sections.projects.visible = true;
 
     render(<ResumeDocument draft={draft} />);
 
@@ -148,6 +191,7 @@ describe("resume document", () => {
     expect(indentedDescriptions[0]).toHaveStyle({
       paddingLeft: "18px",
       paddingRight: "12px",
+      textAlign: "justify",
     });
 
     expect(
@@ -156,10 +200,18 @@ describe("resume document", () => {
     expect(screen.getByText(/on ICIMTech/i)).toBeInTheDocument();
     expect(screen.getByText(/Credential ID: ABC-123/i)).toBeInTheDocument();
     expect(screen.getByText(/by EKIPA/i)).toBeInTheDocument();
-    expect(screen.getByText(/1st Non-Academic Best Graduate/i)).toBeInTheDocument();
-    expect(screen.getByText(/by SMK Telkom Malang/i)).toBeInTheDocument();
     expect(
       screen.getByText(/\(Professional working proficiency\)/i)
     ).toBeInTheDocument();
+
+    expect(
+      screen.getByRole("link", { name: "User Experience Analysis of AI-Based Interview Platform" })
+    ).toHaveAttribute("href", "https://example.com/paper");
+    expect(
+      screen.getByRole("link", { name: "Certified Indonesia Scrum Master" })
+    ).toHaveAttribute("href", "https://example.com/cert");
+    expect(
+      screen.getByRole("link", { name: "Email Operations Dashboard" })
+    ).toHaveAttribute("href", "https://example.com/project");
   });
 });

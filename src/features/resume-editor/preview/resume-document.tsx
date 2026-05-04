@@ -36,7 +36,7 @@ function richTextHasContent(value: string) {
 
 function hasRenderableItem(
   sectionKey: keyof ResumeDraft["sections"],
-  item: unknown
+  item: unknown,
 ) {
   if (sectionKey === "workExperience") {
     const value =
@@ -47,7 +47,7 @@ function hasRenderableItem(
         value.location ||
         value.startDate ||
         value.endDate ||
-        richTextHasContent(value.description)
+        richTextHasContent(value.description),
     );
   }
 
@@ -63,7 +63,7 @@ function hasRenderableItem(
         value.projectLink ||
         value.startDate ||
         value.endDate ||
-        richTextHasContent(value.description)
+        richTextHasContent(value.description),
     );
   }
 
@@ -76,7 +76,7 @@ function hasRenderableItem(
         value.endDate ||
         value.degree ||
         value.gpa ||
-        richTextHasContent(value.description)
+        richTextHasContent(value.description),
     );
   }
 
@@ -88,7 +88,7 @@ function hasRenderableItem(
         value.publisher ||
         value.publicationUrl ||
         value.publicationDate ||
-        richTextHasContent(value.description)
+        richTextHasContent(value.description),
     );
   }
 
@@ -100,7 +100,7 @@ function hasRenderableItem(
         value.issuingOrganization ||
         value.issuedDate ||
         value.certificationLink ||
-        value.credentialId
+        value.credentialId,
     );
   }
 
@@ -110,7 +110,7 @@ function hasRenderableItem(
       value.title ||
         value.issuer ||
         value.issuedDate ||
-        richTextHasContent(value.description)
+        richTextHasContent(value.description),
     );
   }
 
@@ -134,7 +134,7 @@ function hasRenderableItem(
         value.location ||
         value.startDate ||
         value.endDate ||
-        richTextHasContent(value.description)
+        richTextHasContent(value.description),
     );
   }
 
@@ -143,7 +143,7 @@ function hasRenderableItem(
 
 function formatSectionHeading(
   sectionLabel: string,
-  layoutId: ResumeDraft["pdfPresentation"]["layoutId"]
+  layoutId: ResumeDraft["pdfPresentation"]["layoutId"],
 ) {
   return layoutId === "classic-centered"
     ? sectionLabel.toUpperCase()
@@ -182,7 +182,7 @@ export function ResumeDocument({
         mode === "preview"
           ? "resume-document mx-0 flex min-h-[297mm] w-[210mm] max-w-none flex-col bg-white px-9 py-10 ring-1 ring-border print:min-h-0 print:max-w-none print:bg-white print:ring-0"
           : "resume-document mx-0 flex min-h-0 w-[186mm] max-w-none flex-col bg-white px-0 py-0 ring-0",
-        className
+        className,
       )}
     >
       <header
@@ -191,12 +191,15 @@ export function ResumeDocument({
           "border-b pb-5",
           isClassicCentered
             ? "flex flex-col items-center gap-3 text-center"
-            : "flex items-start justify-between gap-6"
+            : "flex items-start justify-between gap-6",
         )}
       >
         {draft.profile.photo && isClassicCentered ? (
           <Avatar size="lg" className="size-18 border">
-            <AvatarImage src={draft.profile.photo} alt={draft.profile.fullName} />
+            <AvatarImage
+              src={draft.profile.photo}
+              alt={draft.profile.fullName}
+            />
             <AvatarFallback>
               {draft.profile.fullName
                 .split(" ")
@@ -209,7 +212,10 @@ export function ResumeDocument({
 
         <div className={cn("flex-1", isClassicCentered && "w-full")}>
           <h1
-            className={cn("tracking-[-0.03em]", isClassicCentered && "text-balance")}
+            className={cn(
+              "tracking-[-0.03em]",
+              isClassicCentered && "text-balance",
+            )}
             data-testid="resume-preview-full-name"
             style={{
               fontFamily: presentation.headingFontFamily,
@@ -223,11 +229,13 @@ export function ResumeDocument({
           <p
             className={cn(
               "wrap-break-word",
-              isClassicCentered ? "mx-auto mt-2 max-w-full" : "mt-2 max-w-152"
+              isClassicCentered ? "mx-auto mt-2 max-w-full" : "mt-2 max-w-152",
             )}
             style={{
               fontSize: `${presentation.contactFontSizePx}px`,
-              lineHeight: String(Math.max(1.45, presentation.bodyLineHeight - 0.1)),
+              lineHeight: String(
+                Math.max(1.45, presentation.bodyLineHeight - 0.1),
+              ),
               color: presentation.mutedTextColor,
             }}
           >
@@ -247,13 +255,17 @@ export function ResumeDocument({
                     <a
                       href={item.value}
                       aria-label={label}
-                      target={shouldOpenHrefInNewTab(item.value) ? "_blank" : undefined}
+                      target={
+                        shouldOpenHrefInNewTab(item.value)
+                          ? "_blank"
+                          : undefined
+                      }
                       rel={
                         shouldOpenHrefInNewTab(item.value)
                           ? "noopener noreferrer"
                           : undefined
                       }
-                      className="underline underline-offset-4"
+                      className="underline"
                       style={{ color: presentation.accentColor }}
                     >
                       {item.value}
@@ -269,7 +281,10 @@ export function ResumeDocument({
 
         {draft.profile.photo && !isClassicCentered ? (
           <Avatar size="lg" className="size-16 border">
-            <AvatarImage src={draft.profile.photo} alt={draft.profile.fullName} />
+            <AvatarImage
+              src={draft.profile.photo}
+              alt={draft.profile.fullName}
+            />
             <AvatarFallback>
               {draft.profile.fullName
                 .split(" ")
@@ -307,8 +322,10 @@ export function ResumeDocument({
                 ) : null}
                 <div
                   className="[&_p]:m-0"
-                  style={{ overflowWrap: "anywhere" }}
-                  dangerouslySetInnerHTML={renderHtml(draft.sections.summary.content)}
+                  style={{ overflowWrap: "anywhere", textAlign: "justify" }}
+                  dangerouslySetInnerHTML={renderHtml(
+                    draft.sections.summary.content,
+                  )}
                 />
               </section>
             );
@@ -335,8 +352,10 @@ export function ResumeDocument({
               </h2>
               <div
                 className="[&_p]:m-0"
-                style={{ overflowWrap: "anywhere" }}
-                dangerouslySetInnerHTML={renderHtml(draft.sections.summary.content)}
+                style={{ overflowWrap: "anywhere", textAlign: "justify" }}
+                dangerouslySetInnerHTML={renderHtml(
+                  draft.sections.summary.content,
+                )}
               />
             </section>
           );
@@ -348,7 +367,7 @@ export function ResumeDocument({
 
         const section = draft.sections[sectionKey];
         const renderableItems = section.items.filter((item) =>
-          hasRenderableItem(sectionKey, item)
+          hasRenderableItem(sectionKey, item),
         );
 
         if (renderableItems.length === 0) {
@@ -357,13 +376,16 @@ export function ResumeDocument({
 
         const sectionHeading = formatSectionHeading(
           sectionLabels[sectionKey],
-          presentation.layoutId
+          presentation.layoutId,
         );
 
         if (isClassicCentered) {
           return (
             <section key={sectionKey} className="space-y-4">
-              <div className="border-b pb-1" style={{ borderColor: presentation.itemBorderColor }}>
+              <div
+                className="border-b pb-1"
+                style={{ borderColor: presentation.itemBorderColor }}
+              >
                 <h2
                   data-testid="resume-preview-section-heading"
                   style={{
@@ -387,7 +409,7 @@ export function ResumeDocument({
                 }}
               >
                 {renderableItems.map((item) =>
-                  renderSectionItem(sectionKey, item, presentation)
+                  renderSectionItem(sectionKey, item, presentation),
                 )}
               </div>
             </section>
@@ -419,7 +441,7 @@ export function ResumeDocument({
               style={{ gap: `${presentation.itemGapPx}px` }}
             >
               {renderableItems.map((item) =>
-                renderSectionItem(sectionKey, item, presentation)
+                renderSectionItem(sectionKey, item, presentation),
               )}
             </div>
           </section>

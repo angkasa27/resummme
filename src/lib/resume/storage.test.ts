@@ -50,8 +50,7 @@ describe("resume storage", () => {
     draft.pdfPresentation.layoutId = "classic-centered";
     draft.pdfPresentation.overrides.typeScale = "large";
     draft.pdfPresentation.overrides.lineHeight = "relaxed";
-    draft.pdfPresentation.overrides.sectionSpacing = "airy";
-    draft.pdfPresentation.overrides.itemSpacing = "compact";
+    draft.pdfPresentation.overrides.spacing = "airy";
 
     const exported = exportResumeDraft(draft);
     const imported = importResumeDraft(exported);

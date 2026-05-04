@@ -117,8 +117,7 @@ const pdfPresentationAccentStrengthSchema = z.enum(pdfAccentStrengths);
 export const pdfPresentationOverridesSchema = z.object({
   typeScale: z.enum(pdfTypeScaleIds),
   lineHeight: z.enum(pdfLineHeightIds),
-  sectionSpacing: z.enum(pdfSpacingIds),
-  itemSpacing: z.enum(pdfSpacingIds),
+  spacing: z.enum(pdfSpacingIds),
   accentTone: pdfPresentationAccentToneSchema,
   accentStrength: pdfPresentationAccentStrengthSchema,
 });

@@ -1,5 +1,9 @@
 import type { ResolvedPdfPresentation } from "@/lib/resume/pdf-presentation";
-import { sanitizeRichTextHtml } from "@/lib/resume/sanitize-rich-text";
+import {
+  sanitizeRichTextHref,
+  sanitizeRichTextHtml,
+  shouldOpenHrefInNewTab,
+} from "@/lib/resume/sanitize-rich-text";
 import type { ResumeDraft } from "@/lib/resume/schema";
 
 function renderHtml(content: string) {
@@ -26,7 +30,9 @@ function createItemStyles(presentation: ResolvedPdfPresentation) {
       display: "flex",
       flexDirection: "column" as const,
       gap: `${presentation.sectionBodyGapPx}px`,
-      paddingBottom: isClassicCentered ? "0px" : `${presentation.itemPaddingBottomPx}px`,
+      paddingBottom: isClassicCentered
+        ? "0px"
+        : `${presentation.itemPaddingBottomPx}px`,
       borderBottom: isClassicCentered
         ? "0px solid transparent"
         : `1px solid ${presentation.itemBorderColor}`,
@@ -87,6 +93,7 @@ function createItemStyles(presentation: ResolvedPdfPresentation) {
       fontSize: `${presentation.metaFontSizePx}px`,
       lineHeight: String(presentation.bodyLineHeight),
       color: presentation.bodyTextColor,
+      textAlign: "justify" as const,
     },
     classicBody: {
       paddingLeft: "18px",
@@ -100,7 +107,7 @@ function createItemStyles(presentation: ResolvedPdfPresentation) {
       lineHeight: String(presentation.bodyLineHeight),
       color: presentation.accentColor,
       textDecoration: "underline",
-      textUnderlineOffset: "4px",
+      // textUnderlineOffset: "4px",
       overflowWrap: "anywhere" as const,
     },
     splitRow: {
@@ -120,11 +127,43 @@ function createItemStyles(presentation: ResolvedPdfPresentation) {
   };
 }
 
-function renderDateRange(
-  startDate?: string,
-  endDate?: string,
-  fallback = ""
-) {
+function renderLinkedItemTitle({
+  title,
+  link,
+  styles,
+}: {
+  title: string;
+  link?: string;
+  styles: ReturnType<typeof createItemStyles>;
+}) {
+  const safeHref = link ? sanitizeRichTextHref(link) : null;
+  const shouldOpenInNewTab = safeHref
+    ? shouldOpenHrefInNewTab(safeHref)
+    : false;
+
+  if (!safeHref) {
+    return <span>{title}</span>;
+  }
+
+  return (
+    <a
+      href={safeHref}
+      target={shouldOpenInNewTab ? "_blank" : undefined}
+      rel={shouldOpenInNewTab ? "noopener noreferrer" : undefined}
+      style={{
+        ...styles.itemTitle,
+        color: styles.link.color,
+        textDecoration: "underline",
+        // textUnderlineOffset: styles.link.textUnderlineOffset,
+        overflowWrap: styles.link.overflowWrap,
+      }}
+    >
+      {title}
+    </a>
+  );
+}
+
+function renderDateRange(startDate?: string, endDate?: string, fallback = "") {
   if (startDate || endDate) {
     return `${startDate || ""}${startDate || endDate ? " - " : ""}${renderCurrentDateLabel(endDate || "")}`.trim();
   }
@@ -133,15 +172,17 @@ function renderDateRange(
 }
 
 function renderCompactMetaLine({
-  leading,
+  title,
+  titleLink,
+  suffix,
   trailing,
-  link,
   body,
   styles,
 }: {
-  leading: string;
+  title: string;
+  titleLink?: string;
+  suffix?: string;
   trailing?: string;
-  link?: string;
   body?: string;
   styles: ReturnType<typeof createItemStyles>;
 }) {
@@ -153,15 +194,8 @@ function renderCompactMetaLine({
       >
         <div style={styles.classicSectionInset}>
           <div style={styles.itemTitle}>
-            {leading}
-            {link ? (
-              <>
-                {" "}
-                <a href={link} style={styles.link}>
-                  {link}
-                </a>
-              </>
-            ) : null}
+            {renderLinkedItemTitle({ title, link: titleLink, styles })}
+            {suffix ? ` ${suffix}` : null}
           </div>
         </div>
         {trailing ? <div style={styles.itemDate}>{trailing}</div> : null}
@@ -181,7 +215,7 @@ function renderCompactMetaLine({
 export function renderSectionItem(
   sectionKey: keyof ResumeDraft["sections"],
   item: unknown,
-  presentation: ResolvedPdfPresentation
+  presentation: ResolvedPdfPresentation,
 ) {
   const styles = createItemStyles(presentation);
   const isClassicCentered = presentation.layoutId === "classic-centered";
@@ -191,14 +225,26 @@ export function renderSectionItem(
       const entry =
         item as ResumeDraft["sections"]["workExperience"]["items"][number];
       return (
-        <div key={entry.id} className="flex flex-col last:border-b-0 last:pb-0" style={styles.item}>
+        <div
+          key={entry.id}
+          className="flex flex-col last:border-b-0 last:pb-0"
+          style={styles.item}
+        >
           <div
-            className={isClassicCentered ? "grid grid-cols-[minmax(0,1fr)_auto] gap-3" : "flex flex-wrap items-start justify-between gap-3"}
+            className={
+              isClassicCentered
+                ? "grid grid-cols-[minmax(0,1fr)_auto] gap-3"
+                : "flex flex-wrap items-start justify-between gap-3"
+            }
             style={isClassicCentered ? styles.classicHeader : styles.itemHeader}
           >
             <div>
               <div style={styles.itemTitle}>{entry.position}</div>
-              <div style={isClassicCentered ? styles.itemSubTitle : styles.itemMeta}>
+              <div
+                style={
+                  isClassicCentered ? styles.itemSubTitle : styles.itemMeta
+                }
+              >
                 {entry.companyName}
               </div>
             </div>
@@ -230,7 +276,11 @@ export function renderSectionItem(
     case "skills": {
       const entry = item as ResumeDraft["sections"]["skills"]["items"][number];
       return (
-        <div key={entry.id} className="flex flex-col last:border-b-0 last:pb-0" style={styles.item}>
+        <div
+          key={entry.id}
+          className="flex flex-col last:border-b-0 last:pb-0"
+          style={styles.item}
+        >
           <div style={styles.itemTitle}>{entry.categoryName}</div>
           <div style={isClassicCentered ? styles.richText : styles.itemMeta}>
             {entry.skills.join(", ")}
@@ -239,20 +289,30 @@ export function renderSectionItem(
       );
     }
     case "projects": {
-      const entry = item as ResumeDraft["sections"]["projects"]["items"][number];
+      const entry =
+        item as ResumeDraft["sections"]["projects"]["items"][number];
       return (
-        <div key={entry.id} className="flex flex-col last:border-b-0 last:pb-0" style={styles.item}>
+        <div
+          key={entry.id}
+          className="flex flex-col last:border-b-0 last:pb-0"
+          style={styles.item}
+        >
           <div
-            className={isClassicCentered ? "grid grid-cols-[minmax(0,1fr)_auto] gap-3" : "flex flex-wrap items-start justify-between gap-3"}
+            className={
+              isClassicCentered
+                ? "grid grid-cols-[minmax(0,1fr)_auto] gap-3"
+                : "flex flex-wrap items-start justify-between gap-3"
+            }
             style={isClassicCentered ? styles.classicHeader : styles.itemHeader}
           >
             <div>
-              <div style={styles.itemTitle}>{entry.projectName}</div>
-              {entry.projectLink ? (
-                <a href={entry.projectLink} style={styles.link}>
-                  {entry.projectLink}
-                </a>
-              ) : null}
+              <div style={styles.itemTitle}>
+                {renderLinkedItemTitle({
+                  title: entry.projectName,
+                  link: entry.projectLink,
+                  styles,
+                })}
+              </div>
             </div>
             <div style={styles.itemDate}>
               {renderDateRange(entry.startDate, entry.endDate)}
@@ -275,16 +335,28 @@ export function renderSectionItem(
       const entry =
         item as ResumeDraft["sections"]["education"]["items"][number];
       return (
-        <div key={entry.id} className="flex flex-col last:border-b-0 last:pb-0" style={styles.item}>
+        <div
+          key={entry.id}
+          className="flex flex-col last:border-b-0 last:pb-0"
+          style={styles.item}
+        >
           <div
-            className={isClassicCentered ? "grid grid-cols-[minmax(0,1fr)_auto] gap-3" : "flex flex-wrap items-start justify-between gap-3"}
+            className={
+              isClassicCentered
+                ? "grid grid-cols-[minmax(0,1fr)_auto] gap-3"
+                : "flex flex-wrap items-start justify-between gap-3"
+            }
             style={isClassicCentered ? styles.classicHeader : styles.itemHeader}
           >
             <div>
               <div style={styles.itemTitle}>
                 {isClassicCentered ? entry.name : entry.degree}
               </div>
-              <div style={isClassicCentered ? styles.itemSubTitle : styles.itemMeta}>
+              <div
+                style={
+                  isClassicCentered ? styles.itemSubTitle : styles.itemMeta
+                }
+              >
                 {isClassicCentered
                   ? joinParts([entry.degree, entry.location])
                   : joinParts([entry.name, entry.location])}
@@ -295,7 +367,13 @@ export function renderSectionItem(
             </div>
           </div>
           {entry.gpa ? (
-            <div style={isClassicCentered ? { ...styles.itemMeta, ...styles.classicBody } : styles.itemMeta}>
+            <div
+              style={
+                isClassicCentered
+                  ? { ...styles.itemMeta, ...styles.classicBody }
+                  : styles.itemMeta
+              }
+            >
               GPA: {entry.gpa}
             </div>
           ) : null}
@@ -316,17 +394,17 @@ export function renderSectionItem(
       const entry =
         item as ResumeDraft["sections"]["publications"]["items"][number];
       if (isClassicCentered) {
-        const leading = compactJoin([
-          entry.title,
-          entry.publisher ? `on ${entry.publisher}` : undefined,
-        ]);
-
         return (
-          <div key={entry.id} className="flex flex-col last:border-b-0 last:pb-0" style={styles.item}>
+          <div
+            key={entry.id}
+            className="flex flex-col last:border-b-0 last:pb-0"
+            style={styles.item}
+          >
             {renderCompactMetaLine({
-              leading,
+              title: entry.title,
+              titleLink: entry.publicationUrl || undefined,
+              suffix: entry.publisher ? `on ${entry.publisher}` : undefined,
               trailing: entry.publicationDate,
-              link: entry.publicationUrl || undefined,
               body: entry.description,
               styles,
             })}
@@ -334,24 +412,37 @@ export function renderSectionItem(
         );
       }
       return (
-        <div key={entry.id} className="flex flex-col last:border-b-0 last:pb-0" style={styles.item}>
+        <div
+          key={entry.id}
+          className="flex flex-col last:border-b-0 last:pb-0"
+          style={styles.item}
+        >
           <div
-            className={isClassicCentered ? "grid grid-cols-[minmax(0,1fr)_auto] gap-3" : "flex flex-wrap items-start justify-between gap-3"}
+            className={
+              isClassicCentered
+                ? "grid grid-cols-[minmax(0,1fr)_auto] gap-3"
+                : "flex flex-wrap items-start justify-between gap-3"
+            }
             style={isClassicCentered ? styles.classicHeader : styles.itemHeader}
           >
             <div>
-              <div style={styles.itemTitle}>{entry.title}</div>
-              <div style={isClassicCentered ? styles.itemSubTitle : styles.itemMeta}>
+              <div style={styles.itemTitle}>
+                {renderLinkedItemTitle({
+                  title: entry.title,
+                  link: entry.publicationUrl,
+                  styles,
+                })}
+              </div>
+              <div
+                style={
+                  isClassicCentered ? styles.itemSubTitle : styles.itemMeta
+                }
+              >
                 {entry.publisher}
               </div>
             </div>
             <div style={styles.itemDate}>{entry.publicationDate}</div>
           </div>
-          {entry.publicationUrl ? (
-            <a href={entry.publicationUrl} style={styles.link}>
-              {entry.publicationUrl}
-            </a>
-          ) : null}
           <div
             className="[&_p]:m-0 [&_p+p]:mt-2"
             style={styles.richText}
@@ -364,46 +455,67 @@ export function renderSectionItem(
       const entry =
         item as ResumeDraft["sections"]["certifications"]["items"][number];
       if (isClassicCentered) {
-        const leading = compactJoin([
-          entry.certificationName,
+        const suffix = compactJoin([
           entry.credentialId
             ? `(Credential ID: ${entry.credentialId})`
             : undefined,
-          entry.issuingOrganization ? `by ${entry.issuingOrganization}` : undefined,
+          entry.issuingOrganization
+            ? `by ${entry.issuingOrganization}`
+            : undefined,
         ]);
 
         return (
-          <div key={entry.id} className="flex flex-col last:border-b-0 last:pb-0" style={styles.item}>
+          <div
+            key={entry.id}
+            className="flex flex-col last:border-b-0 last:pb-0"
+            style={styles.item}
+          >
             {renderCompactMetaLine({
-              leading,
+              title: entry.certificationName,
+              titleLink: entry.certificationLink || undefined,
+              suffix: suffix || undefined,
               trailing: entry.issuedDate,
-              link: entry.certificationLink || undefined,
               styles,
             })}
           </div>
         );
       }
       return (
-        <div key={entry.id} className="flex flex-col last:border-b-0 last:pb-0" style={styles.item}>
+        <div
+          key={entry.id}
+          className="flex flex-col last:border-b-0 last:pb-0"
+          style={styles.item}
+        >
           <div
-            className={isClassicCentered ? "grid grid-cols-[minmax(0,1fr)_auto] gap-3" : "flex flex-wrap items-start justify-between gap-3"}
+            className={
+              isClassicCentered
+                ? "grid grid-cols-[minmax(0,1fr)_auto] gap-3"
+                : "flex flex-wrap items-start justify-between gap-3"
+            }
             style={isClassicCentered ? styles.classicHeader : styles.itemHeader}
           >
             <div>
-              <div style={styles.itemTitle}>{entry.certificationName}</div>
-              <div style={isClassicCentered ? styles.itemSubTitle : styles.itemMeta}>
+              <div style={styles.itemTitle}>
+                {renderLinkedItemTitle({
+                  title: entry.certificationName,
+                  link: entry.certificationLink,
+                  styles,
+                })}
+              </div>
+              <div
+                style={
+                  isClassicCentered ? styles.itemSubTitle : styles.itemMeta
+                }
+              >
                 {entry.issuingOrganization}
               </div>
             </div>
             <div style={styles.itemDate}>{entry.issuedDate}</div>
           </div>
-          {entry.certificationLink ? (
-            <a href={entry.certificationLink} style={styles.link}>
-              {entry.certificationLink}
-            </a>
-          ) : null}
           {entry.credentialId ? (
-            <div style={styles.itemMeta}>Credential ID: {entry.credentialId}</div>
+            <div style={styles.itemMeta}>
+              Credential ID: {entry.credentialId}
+            </div>
           ) : null}
         </div>
       );
@@ -411,15 +523,15 @@ export function renderSectionItem(
     case "awards": {
       const entry = item as ResumeDraft["sections"]["awards"]["items"][number];
       if (isClassicCentered) {
-        const leading = compactJoin([
-          entry.title,
-          entry.issuer ? `by ${entry.issuer}` : undefined,
-        ]);
-
         return (
-          <div key={entry.id} className="flex flex-col last:border-b-0 last:pb-0" style={styles.item}>
+          <div
+            key={entry.id}
+            className="flex flex-col last:border-b-0 last:pb-0"
+            style={styles.item}
+          >
             {renderCompactMetaLine({
-              leading,
+              title: entry.title,
+              suffix: entry.issuer ? `by ${entry.issuer}` : undefined,
               trailing: entry.issuedDate,
               body: entry.description,
               styles,
@@ -428,14 +540,26 @@ export function renderSectionItem(
         );
       }
       return (
-        <div key={entry.id} className="flex flex-col last:border-b-0 last:pb-0" style={styles.item}>
+        <div
+          key={entry.id}
+          className="flex flex-col last:border-b-0 last:pb-0"
+          style={styles.item}
+        >
           <div
-            className={isClassicCentered ? "grid grid-cols-[minmax(0,1fr)_auto] gap-3" : "flex flex-wrap items-start justify-between gap-3"}
+            className={
+              isClassicCentered
+                ? "grid grid-cols-[minmax(0,1fr)_auto] gap-3"
+                : "flex flex-wrap items-start justify-between gap-3"
+            }
             style={isClassicCentered ? styles.classicHeader : styles.itemHeader}
           >
             <div>
               <div style={styles.itemTitle}>{entry.title}</div>
-              <div style={isClassicCentered ? styles.itemSubTitle : styles.itemMeta}>
+              <div
+                style={
+                  isClassicCentered ? styles.itemSubTitle : styles.itemMeta
+                }
+              >
                 {entry.issuer}
               </div>
             </div>
@@ -457,12 +581,18 @@ export function renderSectionItem(
           <div
             key={entry.id}
             className="last:border-b-0 last:pb-0"
-            style={{ ...styles.splitRow, ...styles.classicSectionInset, justifyContent: "flex-start" }}
+            style={{
+              ...styles.splitRow,
+              ...styles.classicSectionInset,
+              justifyContent: "flex-start",
+            }}
           >
             <div style={styles.itemTitle}>
               {entry.language}
               {entry.proficiency ? (
-                <span style={{ ...styles.itemMeta, color: styles.itemTitle.color }}>
+                <span
+                  style={{ ...styles.itemMeta, color: styles.itemTitle.color }}
+                >
                   {" "}
                   ({entry.proficiency})
                 </span>
@@ -472,7 +602,11 @@ export function renderSectionItem(
         );
       }
       return (
-        <div key={entry.id} className="last:border-b-0 last:pb-0" style={styles.splitRow}>
+        <div
+          key={entry.id}
+          className="last:border-b-0 last:pb-0"
+          style={styles.splitRow}
+        >
           <div style={styles.itemTitle}>{entry.language}</div>
           <div style={isClassicCentered ? styles.itemDate : styles.itemMeta}>
             {entry.proficiency}
@@ -484,9 +618,15 @@ export function renderSectionItem(
       const entry =
         item as ResumeDraft["sections"]["references"]["items"][number];
       return (
-        <div key={entry.id} className="flex flex-col last:border-b-0 last:pb-0" style={styles.item}>
+        <div
+          key={entry.id}
+          className="flex flex-col last:border-b-0 last:pb-0"
+          style={styles.item}
+        >
           <div style={styles.itemTitle}>{entry.name}</div>
-          <div style={isClassicCentered ? styles.itemSubTitle : styles.itemMeta}>
+          <div
+            style={isClassicCentered ? styles.itemSubTitle : styles.itemMeta}
+          >
             {entry.background}
           </div>
           <div style={styles.itemMeta}>{entry.contactDetails}</div>
@@ -497,14 +637,26 @@ export function renderSectionItem(
       const entry =
         item as ResumeDraft["sections"]["organizationVolunteering"]["items"][number];
       return (
-        <div key={entry.id} className="flex flex-col last:border-b-0 last:pb-0" style={styles.item}>
+        <div
+          key={entry.id}
+          className="flex flex-col last:border-b-0 last:pb-0"
+          style={styles.item}
+        >
           <div
-            className={isClassicCentered ? "grid grid-cols-[minmax(0,1fr)_auto] gap-3" : "flex flex-wrap items-start justify-between gap-3"}
+            className={
+              isClassicCentered
+                ? "grid grid-cols-[minmax(0,1fr)_auto] gap-3"
+                : "flex flex-wrap items-start justify-between gap-3"
+            }
             style={isClassicCentered ? styles.classicHeader : styles.itemHeader}
           >
             <div>
               <div style={styles.itemTitle}>{entry.position}</div>
-              <div style={isClassicCentered ? styles.itemSubTitle : styles.itemMeta}>
+              <div
+                style={
+                  isClassicCentered ? styles.itemSubTitle : styles.itemMeta
+                }
+              >
                 {entry.organizationName}
               </div>
             </div>

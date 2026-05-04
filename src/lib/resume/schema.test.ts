@@ -49,8 +49,7 @@ describe("resume schema", () => {
       overrides: {
         typeScale: "large",
         lineHeight: "relaxed",
-        sectionSpacing: "airy",
-        itemSpacing: "airy",
+        spacing: "airy",
         accentTone: "emerald",
         accentStrength: "strong",
       },
