@@ -1,51 +1,54 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 
 import { ResumeDocument } from "@/features/resume-editor/preview/resume-document";
 import { RESUME_PDF_SESSION_STORAGE_KEY } from "@/features/resume-editor/server/resume-pdf-session";
+import { useClientReady } from "@/hooks/use-client-ready";
 import { importResumeDraft } from "@/lib/resume/storage";
-import type { ResumeDraft } from "@/lib/resume/schema";
 
 export function ResumePdfPage() {
-  const [draft, setDraft] = useState<ResumeDraft | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const isClientReady = useClientReady();
+  const pdfState = useMemo(() => {
+    if (!isClientReady) {
+      return { draft: null, error: null };
+    }
 
-  useEffect(() => {
     try {
       const serializedDraft = window.sessionStorage.getItem(
-        RESUME_PDF_SESSION_STORAGE_KEY
+        RESUME_PDF_SESSION_STORAGE_KEY,
       );
 
       if (!serializedDraft) {
-        setError("No draft was provided for PDF export.");
-        return;
+        return { draft: null, error: "No draft was provided for PDF export." };
       }
 
-      setDraft(importResumeDraft(serializedDraft));
+      return { draft: importResumeDraft(serializedDraft), error: null };
     } catch (nextError) {
-      setError(
-        nextError instanceof Error
-          ? nextError.message
-          : "Unable to load the draft for PDF export."
-      );
+      return {
+        draft: null,
+        error:
+          nextError instanceof Error
+            ? nextError.message
+            : "Unable to load the draft for PDF export.",
+      };
     }
-  }, []);
+  }, [isClientReady]);
 
-  if (error) {
+  if (pdfState.error) {
     return (
       <main
         data-pdf-ready="error"
         className="flex min-h-screen items-center justify-center bg-white p-6"
       >
         <p className="max-w-xl text-center text-sm text-destructive">
-          {error}
+          {pdfState.error}
         </p>
       </main>
     );
   }
 
-  if (!draft) {
+  if (!pdfState.draft) {
     return (
       <main
         data-pdf-ready="loading"
@@ -61,7 +64,7 @@ export function ResumePdfPage() {
       data-pdf-ready="true"
       className="flex min-h-screen justify-center bg-white p-0"
     >
-      <ResumeDocument draft={draft} mode="pdf" />
+      <ResumeDocument draft={pdfState.draft} mode="pdf" />
     </main>
   );
 }

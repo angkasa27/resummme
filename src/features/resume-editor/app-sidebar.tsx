@@ -45,7 +45,7 @@ import {
   sectionLabels,
   type ResumeSectionPanelKey,
 } from "@/features/resume-editor/config/section-metadata";
-import { renderSectionIcon } from "@/features/resume-editor/sections/section-icons";
+import { SectionIcon } from "@/features/resume-editor/sections/section-icons";
 import type { ResumeEditorPanelKey } from "@/features/resume-editor/store/editor-store";
 import type { ResumeDraft } from "@/lib/resume/schema";
 import { cn } from "@/lib/utils";
@@ -54,10 +54,6 @@ type AppSidebarProps = {
   draft: ResumeDraft;
   activeSection: ResumeEditorPanelKey;
   onRequestSectionChange: (sectionKey: ResumeEditorPanelKey) => void;
-  onMoveSection: (
-    sectionKey: ResumeSectionPanelKey,
-    direction: -1 | 1
-  ) => void;
   onReorderSection: (
     sectionKey: ResumeSectionPanelKey,
     targetIndex: number
@@ -73,11 +69,18 @@ function getSectionItemCount(draft: ResumeDraft, sectionKey: ResumeSectionPanelK
   return draft.sections[sectionKey].items.length;
 }
 
+function SectionMenuIcon({
+  sectionKey,
+}: {
+  sectionKey: ResumeEditorPanelKey | ResumeSectionPanelKey;
+}) {
+  return <SectionIcon sectionKey={sectionKey} />;
+}
+
 export function AppSidebar({
   draft,
   activeSection,
   onRequestSectionChange,
-  onMoveSection,
   onReorderSection,
   onSetSectionVisibility,
 }: AppSidebarProps) {
@@ -132,7 +135,7 @@ export function AppSidebar({
                 isActive={activeSection === "profile"}
                 onClick={() => handleSectionClick("profile")}
               >
-                {renderSectionIcon("profile")}
+                <SectionMenuIcon sectionKey="profile" />
                 <span>Profile</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
@@ -201,6 +204,7 @@ export function AppSidebar({
                             }
                           >
                             <PlusIcon className="size-4" />
+                            <SectionMenuIcon sectionKey={sectionKey} />
                             <span>{sectionLabels[sectionKey]}</span>
                           </SidebarMenuButton>
                         </SidebarMenuItem>
@@ -245,6 +249,10 @@ function SortableSectionItem({
     transition,
   };
   const itemCount = getSectionItemCount(draft, sectionKey);
+  const { role: _sortableRole, tabIndex: _sortableTabIndex, ...sortableAttributes } =
+    attributes;
+  void _sortableRole;
+  void _sortableTabIndex;
 
   return (
     <SidebarMenuItem
@@ -261,14 +269,22 @@ function SortableSectionItem({
       >
         {/* Drag handle — always visible, acts as the drag target so the rest of the button is clickable on mobile */}
         <div
+          role="button"
+          tabIndex={0}
+          aria-label={`Drag ${label}`}
           className="flex shrink-0 cursor-grab touch-none items-center text-muted-foreground/40 transition-colors hover:text-foreground active:cursor-grabbing"
-          {...attributes}
+          {...sortableAttributes}
           {...listeners}
           onClick={(e) => e.stopPropagation()}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.stopPropagation();
+            }
+          }}
         >
           <GripVerticalIcon className="size-3.5" />
         </div>
-        {renderSectionIcon(sectionKey)}
+        <SectionMenuIcon sectionKey={sectionKey} />
         <span className="flex-1 truncate">{label}</span>
         {itemCount != null && (
           <span className="text-xs tabular-nums text-muted-foreground group-hover/section:hidden">

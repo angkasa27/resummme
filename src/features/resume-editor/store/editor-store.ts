@@ -3,7 +3,6 @@ import { createStore } from "zustand/vanilla";
 import { collectionSectionConfigs } from "@/features/resume-editor/config/collection-section-config";
 import { isCollectionSectionKey } from "@/features/resume-editor/config/section-metadata";
 import {
-  moveSection,
   reorderSectionToIndex,
   reorderSections,
   setSectionVisibilityWithOrder,
@@ -15,24 +14,19 @@ import { saveResumeDraft } from "@/lib/resume/storage";
 
 export type ResumeSectionKey = keyof ResumeDraft["sections"];
 export type ResumeEditorPanelKey = "profile" | ResumeSectionKey;
-export type ResumeEditorViewMode = "list" | "form";
 
 export type ResumeEditorStoreState = {
   draft: ResumeDraft;
   activeSection: ResumeEditorPanelKey;
-  editorViewMode: ResumeEditorViewMode;
   saveProfile: (profile: Profile) => void;
   savePdfPresentation: (pdfPresentation: PdfPresentation) => void;
   saveSection: <K extends ResumeSectionKey>(
     sectionKey: K,
     sectionValue: ResumeDraft["sections"][K]
   ) => void;
-  moveSection: (sectionKey: ResumeSectionKey, direction: -1 | 1) => void;
   reorderSection: (sectionKey: ResumeSectionKey, targetIndex: number) => void;
   setSectionVisibility: (sectionKey: ResumeSectionKey, visible: boolean) => void;
   requestSectionChange: (sectionKey: ResumeEditorPanelKey) => void;
-  returnToSectionList: () => void;
-  requestImportDraft: (draft: ResumeDraft) => void;
   replaceDraft: (draft: ResumeDraft) => void;
 };
 
@@ -72,7 +66,6 @@ export function createResumeEditorStore(initialDraft = createDefaultResumeDraft(
   return createStore<ResumeEditorStoreState>()((set, get) => ({
     draft: initialDraft,
     activeSection: "profile",
-    editorViewMode: "list",
     saveProfile: (profile) => {
       const nextDraft = saveResumeDraft(createNextDraft(get().draft, { profile }));
       set({ draft: nextDraft });
@@ -92,14 +85,6 @@ export function createResumeEditorStore(initialDraft = createDefaultResumeDraft(
             sectionKey,
             normalizedSectionValue
           ),
-        })
-      );
-      set({ draft: nextDraft });
-    },
-    moveSection: (sectionKey, direction) => {
-      const nextDraft = saveResumeDraft(
-        createNextDraft(get().draft, {
-          sections: moveSection(get().draft.sections, sectionKey, direction),
         })
       );
       set({ draft: nextDraft });
@@ -131,18 +116,6 @@ export function createResumeEditorStore(initialDraft = createDefaultResumeDraft(
     requestSectionChange: (sectionKey) => {
       set({
         activeSection: sectionKey,
-      });
-    },
-    returnToSectionList: () => {
-      set({
-        editorViewMode: "list",
-      });
-    },
-    requestImportDraft: (draft) => {
-      const nextDraft = saveResumeDraft(draft);
-      set({
-        draft: nextDraft,
-        activeSection: "profile",
       });
     },
     replaceDraft: (draft) => {

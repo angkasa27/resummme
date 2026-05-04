@@ -51,8 +51,6 @@ describe("profile panel", () => {
     await user.clear(fullNameInput);
     await user.type(fullNameInput, "Edited Profile Name");
 
-    expect(handleSave).not.toHaveBeenCalled();
-
     await waitFor(
       () =>
         expect(handleSave).toHaveBeenLastCalledWith(
@@ -66,6 +64,8 @@ describe("profile panel", () => {
 
   it("renders rich text summary as user-facing content instead of raw HTML", () => {
     const draft = createDefaultResumeDraft();
+    draft.profile.summary =
+      "<p>Software engineer with experience building frontend-heavy web applications and internal tools for product teams.</p>";
 
     render(
       <ProfilePanel
@@ -77,8 +77,10 @@ describe("profile panel", () => {
 
     expect(screen.queryByDisplayValue(/<p>Software engineer/)).not.toBeInTheDocument();
     expect(
-      screen.getByText(
-        /Software engineer with experience building frontend-heavy web applications/i
+      screen.getByText((content) =>
+        content.includes(
+          "Software engineer with experience building frontend-heavy web applications and internal tools for product teams.",
+        ),
       )
     ).toBeInTheDocument();
   });

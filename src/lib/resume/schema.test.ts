@@ -18,7 +18,8 @@ describe("resume schema", () => {
 
   it("fills default pdf presentation settings for older drafts", () => {
     const draft = createDefaultResumeDraft();
-    const { pdfPresentation: _pdfPresentation, ...legacyDraft } = draft;
+    const { pdfPresentation: omittedPdfPresentation, ...legacyDraft } = draft;
+    void omittedPdfPresentation;
 
     const parsed = parseResumeDraft(legacyDraft);
 

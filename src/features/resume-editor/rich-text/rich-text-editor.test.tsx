@@ -30,8 +30,8 @@ describe("rich text editor", () => {
     expect(screen.getByRole("button", { name: "Underline" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Bullet list" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Ordered list" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Link" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Unlink" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Edit link" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Remove link" })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /heading/i })).not.toBeInTheDocument();
   });
 
@@ -41,7 +41,7 @@ describe("rich text editor", () => {
     render(<RichTextEditor value="<p>Hello</p>" onChange={vi.fn()} />);
     selectEditorText();
 
-    await user.click(screen.getByRole("button", { name: "Link" }));
+    await user.click(screen.getByRole("button", { name: "Edit link" }));
 
     expect(screen.getByRole("dialog")).toBeInTheDocument();
     expect(screen.getByLabelText(/link url/i)).toBeInTheDocument();
@@ -53,7 +53,7 @@ describe("rich text editor", () => {
     render(<RichTextEditor value="<p>Hello</p>" onChange={vi.fn()} />);
     selectEditorText();
 
-    await user.click(screen.getByRole("button", { name: "Link" }));
+    await user.click(screen.getByRole("button", { name: "Edit link" }));
     await user.clear(screen.getByLabelText(/link url/i));
     await user.type(screen.getByLabelText(/link url/i), "https://example.com");
     await user.click(screen.getByRole("button", { name: /apply link/i }));
@@ -69,18 +69,23 @@ describe("rich text editor", () => {
 
   it("rejects an invalid link in the inline editor", async () => {
     const user = userEvent.setup();
-    const handleChange = vi.fn();
+    const handleContentChange = vi.fn();
 
-    render(<RichTextEditor value="<p>Hello</p>" onChange={handleChange} />);
+    render(
+      <RichTextEditor
+        value="<p>Hello</p>"
+        onChange={handleContentChange}
+      />
+    );
     selectEditorText();
 
-    await user.click(screen.getByRole("button", { name: "Link" }));
+    await user.click(screen.getByRole("button", { name: "Edit link" }));
     await user.clear(screen.getByLabelText(/link url/i));
     await user.type(screen.getByLabelText(/link url/i), "javascript:alert(1)");
     await user.click(screen.getByRole("button", { name: /apply link/i }));
 
     expect(screen.getByText(/enter a valid link/i)).toBeInTheDocument();
-    expect(handleChange).not.toHaveBeenCalledWith(
+    expect(handleContentChange).not.toHaveBeenCalledWith(
       expect.stringContaining("javascript:alert(1)")
     );
   });
@@ -96,7 +101,7 @@ describe("rich text editor", () => {
     );
     selectEditorText();
 
-    await user.click(screen.getByRole("button", { name: "Unlink" }));
+    await user.click(screen.getByRole("button", { name: "Remove link" }));
 
     await waitFor(() => {
       expect(

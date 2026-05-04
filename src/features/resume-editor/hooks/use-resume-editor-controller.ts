@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  useEffect,
   useRef,
   useState,
   type ChangeEvent,
@@ -10,7 +9,6 @@ import {
 import { toast } from "sonner";
 import { useStore } from "zustand";
 
-import { createDefaultResumeDraft } from "@/lib/resume/default-draft";
 import type { PdfPresentation, Profile, ResumeDraft } from "@/lib/resume/schema";
 import {
   exportResumeDraft,
@@ -29,7 +27,6 @@ type UseResumeEditorControllerOptions = {
 
 export type ResumeEditorController = {
   fileInputRef: RefObject<HTMLInputElement | null>;
-  isDraftReady: boolean;
   draft: ResumeDraft;
   activeSection: ResumeEditorPanelKey;
   openImportPicker: () => void;
@@ -37,8 +34,6 @@ export type ResumeEditorController = {
   handleExport: () => void;
   handlePrint: () => Promise<void>;
   requestSectionChange: (sectionKey: ResumeEditorPanelKey) => void;
-  returnToSectionList: () => void;
-  moveSection: (sectionKey: ResumeSectionKey, direction: -1 | 1) => void;
   reorderSection: (sectionKey: ResumeSectionKey, targetIndex: number) => void;
   setSectionVisibility: (sectionKey: ResumeSectionKey, visible: boolean) => void;
   savePdfPresentation: (pdfPresentation: PdfPresentation) => void;
@@ -53,27 +48,11 @@ export function useResumeEditorController({
   initialDraft,
 }: UseResumeEditorControllerOptions = {}): ResumeEditorController {
   const [store] = useState(() =>
-    createResumeEditorStore(initialDraft ?? createDefaultResumeDraft())
+    createResumeEditorStore(initialDraft ?? loadResumeDraft())
   );
-  const [isDraftReady, setIsDraftReady] = useState(() => Boolean(initialDraft));
   const fileInputRef = useRef<HTMLInputElement>(null);
   const draft = useStore(store, (state) => state.draft);
   const activeSection = useStore(store, (state) => state.activeSection);
-
-  useEffect(() => {
-    if (initialDraft) {
-      setIsDraftReady(true);
-      return;
-    }
-
-    const storedDraft = loadResumeDraft();
-
-    if (exportResumeDraft(store.getState().draft) !== exportResumeDraft(storedDraft)) {
-      store.getState().replaceDraft(storedDraft);
-    }
-
-    setIsDraftReady(true);
-  }, [initialDraft, store]);
 
   function openImportPicker() {
     fileInputRef.current?.click();
@@ -163,7 +142,6 @@ export function useResumeEditorController({
 
   return {
     fileInputRef,
-    isDraftReady,
     draft,
     activeSection,
     openImportPicker,
@@ -172,9 +150,6 @@ export function useResumeEditorController({
     handlePrint,
     requestSectionChange: (sectionKey) =>
       store.getState().requestSectionChange(sectionKey),
-    returnToSectionList: () => store.getState().returnToSectionList(),
-    moveSection: (sectionKey, direction) =>
-      store.getState().moveSection(sectionKey, direction),
     reorderSection: (sectionKey, targetIndex) =>
       store.getState().reorderSection(sectionKey, targetIndex),
     setSectionVisibility: (sectionKey, visible) =>

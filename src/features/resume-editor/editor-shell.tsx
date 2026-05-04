@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 
 import {
   SidebarProvider,
@@ -20,17 +20,18 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Separator } from "@/components/ui/separator";
 import {
   DownloadIcon,
   EllipsisVerticalIcon,
   EyeIcon,
+  Loader,
   PenLineIcon,
   PrinterIcon,
   UploadIcon,
 } from "lucide-react";
 import { useResumeEditorController } from "@/features/resume-editor/hooks/use-resume-editor-controller";
 import { AppSidebar } from "@/features/resume-editor/app-sidebar";
+import { useClientReady } from "@/hooks/use-client-ready";
 import type { ResumeDraft } from "@/lib/resume/schema";
 import { PreviewPane } from "./preview-pane";
 import { ActiveSectionEditor } from "./active-section-editor";
@@ -40,10 +41,9 @@ type ResumeEditorShellProps = {
 };
 
 export function ResumeEditorShell({ initialDraft }: ResumeEditorShellProps) {
-  const [hasMounted, setHasMounted] = useState(false);
+  const isClientReady = useClientReady();
   const {
     fileInputRef,
-    isDraftReady,
     draft,
     activeSection,
     openImportPicker,
@@ -51,7 +51,6 @@ export function ResumeEditorShell({ initialDraft }: ResumeEditorShellProps) {
     handleExport,
     handlePrint,
     requestSectionChange,
-    moveSection,
     reorderSection,
     setSectionVisibility,
     savePdfPresentation,
@@ -59,17 +58,15 @@ export function ResumeEditorShell({ initialDraft }: ResumeEditorShellProps) {
     saveSection,
   } = useResumeEditorController({ initialDraft });
 
-  useEffect(() => {
-    setHasMounted(true);
-  }, []);
-
-  if (!hasMounted || !isDraftReady) {
+  if (!isClientReady) {
     return (
       <div className="flex h-dvh items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-3 text-center">
-          <div className="size-10 animate-pulse rounded-2xl border bg-muted/70" />
+          <Loader className="size-8 animate-spin" />
           <div className="space-y-1">
-            <p className="text-sm font-semibold tracking-tight">Loading editor</p>
+            <p className="text-sm font-semibold tracking-tight">
+              Loading editor
+            </p>
             <p className="text-sm text-muted-foreground">
               Preparing your resume draft...
             </p>
@@ -100,7 +97,6 @@ export function ResumeEditorShell({ initialDraft }: ResumeEditorShellProps) {
           draft={draft}
           activeSection={activeSection}
           onRequestSectionChange={requestSectionChange}
-          onMoveSection={moveSection}
           onReorderSection={reorderSection}
           onSetSectionVisibility={setSectionVisibility}
         />

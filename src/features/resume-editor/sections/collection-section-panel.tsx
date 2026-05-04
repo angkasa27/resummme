@@ -125,7 +125,7 @@ export function CollectionSectionPanel({
       onSave(nextSectionValue as ResumeDraft["sections"][CollectionSectionKey]);
     }, 500);
     return () => clearTimeout(timeoutId);
-  }, [formValuesWatched, formState.isDirty, form, onSave, sectionValue]);
+  }, [config, formValuesWatched, formState.isDirty, form, onSave, sectionValue]);
 
   return (
     <EditorCard
@@ -199,8 +199,9 @@ export function CollectionSectionPanel({
                       <ChevronDownIcon className="size-4" />
                     )}
                   </Button>
-                  <span
-                    className="cursor-pointer select-none truncate text-sm font-semibold"
+                  <button
+                    type="button"
+                    className="truncate text-left text-sm font-semibold"
                     onClick={() => toggleShrunk(field.fieldKey)}
                   >
                     {(() => {
@@ -222,7 +223,7 @@ export function CollectionSectionPanel({
                         `${config.itemTitle} ${index + 1}`
                       );
                     })()}
-                  </span>
+                  </button>
                 </div>
                 <ButtonGroup
                   aria-label={`${config.itemTitle} ${index + 1} actions`}

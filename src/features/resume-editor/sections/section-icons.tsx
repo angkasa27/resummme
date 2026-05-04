@@ -31,7 +31,11 @@ const sectionIconMap: Record<EditorPanelKey, LucideIcon> = {
   organizationVolunteering: BriefcaseBusinessIcon,
 };
 
-export function renderSectionIcon(sectionKey: EditorPanelKey | CollectionSectionKey) {
+export function SectionIcon({
+  sectionKey,
+}: {
+  sectionKey: EditorPanelKey | CollectionSectionKey;
+}) {
   const Icon = sectionIconMap[sectionKey];
   return <Icon data-icon="inline-start" />;
 }

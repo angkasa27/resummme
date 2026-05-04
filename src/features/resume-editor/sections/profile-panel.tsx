@@ -13,7 +13,6 @@ import {
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
-import { InputGroup, InputGroupInput } from "@/components/ui/input-group";
 import { Input } from "@/components/ui/input";
 
 import { createLocalId } from "@/features/resume-editor/lib/create-local-id";
