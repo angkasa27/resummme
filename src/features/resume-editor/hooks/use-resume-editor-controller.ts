@@ -36,7 +36,7 @@ export type ResumeEditorController = {
   openImportPicker: () => void;
   handleImport: (event: ChangeEvent<HTMLInputElement>) => Promise<void>;
   handleExport: () => void;
-  handlePrint: () => void;
+  handlePrint: () => Promise<void>;
   requestSectionChange: (sectionKey: ResumeEditorPanelKey) => void;
   returnToSectionList: () => void;
   moveSection: (sectionKey: ResumeSectionKey, direction: -1 | 1) => void;
@@ -112,8 +112,50 @@ export function useResumeEditorController({
     toast.success("Draft exported.");
   }
 
-  function handlePrint() {
-    window.print();
+  async function handlePrint() {
+    const loadingToastId = toast.loading("Generating PDF...");
+
+    try {
+      const response = await fetch("/api/export-pdf", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({ draft }),
+      });
+
+      if (!response.ok) {
+        let message = "Unable to generate the PDF.";
+
+        try {
+          const payload = (await response.json()) as { message?: string };
+          if (payload.message) {
+            message = payload.message;
+          }
+        } catch {}
+
+        throw new Error(message);
+      }
+
+      const pdfBlob = await response.blob();
+      const downloadUrl = URL.createObjectURL(pdfBlob);
+      const anchor = document.createElement("a");
+
+      anchor.href = downloadUrl;
+      anchor.download = "resume.pdf";
+      anchor.click();
+      URL.revokeObjectURL(downloadUrl);
+      toast.success("PDF exported.", {
+        id: loadingToastId,
+      });
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Unable to generate the PDF.",
+        {
+          id: loadingToastId,
+        }
+      );
+    }
   }
 
   return {

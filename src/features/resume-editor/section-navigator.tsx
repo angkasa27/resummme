@@ -387,6 +387,7 @@ function SortableSectionRow({
             aria-label={`Hide ${label}`}
             title={`Hide ${label}`}
             onClick={() => onSetSectionVisibility(sectionKey, false)}
+            className="border! border-l-0! border-border!"
           >
             <Trash2Icon />
           </Button>

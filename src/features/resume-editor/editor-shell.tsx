@@ -16,6 +16,10 @@ const PreviewPane = dynamic(
   () => import("@/features/resume-editor/preview-pane").then((mod) => mod.PreviewPane),
   { ssr: false }
 );
+const ResumePages = dynamic(
+  () => import("@/features/resume-editor/preview/resume-pages").then((mod) => mod.ResumePages),
+  { ssr: false }
+);
 const SectionNavigator = dynamic(
   () => import("@/features/resume-editor/section-navigator").then((mod) => mod.SectionNavigator),
   { ssr: false }
@@ -85,7 +89,7 @@ export function ResumeEditorShell({ initialDraft }: ResumeEditorShellProps) {
 
       <main
         data-testid="resume-editor-desktop-main"
-        className="hidden lg:grid h-full min-h-0 w-full grid-cols-[minmax(360px,480px)_minmax(0,1fr)] min-[1680px]:grid-cols-[340px_520px_minmax(0,1fr)] gap-0 overflow-hidden px-0 py-0 print:block print:h-auto print:overflow-visible"
+        className="hidden lg:grid h-full min-h-0 w-full grid-cols-[minmax(360px,480px)_minmax(0,1fr)] min-[1680px]:grid-cols-[340px_520px_minmax(0,1fr)] gap-0 overflow-hidden px-0 py-0 print:hidden"
       >
         <div
           data-testid="outline-pane"
@@ -114,7 +118,7 @@ export function ResumeEditorShell({ initialDraft }: ResumeEditorShellProps) {
         </div>
       </main>
 
-      <main className="mx-auto flex lg:hidden h-full min-h-0 w-full max-w-[720px] flex-col gap-3 overflow-hidden px-3 py-3 print:h-auto print:overflow-visible print:px-0 print:py-0">
+      <main className="mx-auto flex lg:hidden h-full min-h-0 w-full max-w-[720px] flex-col gap-3 overflow-hidden px-3 py-3 print:hidden">
         <Tabs defaultValue="sections" className="flex min-h-0 flex-1 flex-col gap-2">
           <TabsList className="h-10 w-full rounded-md bg-background p-1">
             <TabsTrigger value="sections">Sections</TabsTrigger>
@@ -144,6 +148,8 @@ export function ResumeEditorShell({ initialDraft }: ResumeEditorShellProps) {
           </TabsContent>
         </Tabs>
       </main>
+
+      <ResumePages draft={draft} mode="print" testId="resume-print-pages" />
     </div>
   );
 }

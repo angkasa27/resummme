@@ -262,6 +262,7 @@ export function CollectionSectionPanel({
                     onClick={() =>
                       items.fields.length > 1 && items.remove(index)
                     }
+                    className="border! border-l-0! border-border!"
                   >
                     <Trash2Icon />
                   </Button>

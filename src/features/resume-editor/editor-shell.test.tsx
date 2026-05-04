@@ -1,7 +1,7 @@
 import { act } from "react";
 import { hydrateRoot } from "react-dom/client";
 import { renderToString } from "react-dom/server";
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ResumeEditorShell } from "@/features/resume-editor/editor-shell";
@@ -188,5 +188,17 @@ describe("resume editor shell", () => {
     expect(screen.getByTestId("outline-pane")).toBeInTheDocument();
     expect(screen.getByTestId("active-form-pane")).toBeInTheDocument();
     expect(screen.getByTestId("preview-pane")).toBeInTheDocument();
+  });
+
+  it("renders a dedicated print-only resume surface outside the editor panes", async () => {
+    const draft = createDefaultResumeDraft();
+
+    mockViewport(1440);
+    render(<ResumeEditorShell initialDraft={draft} />);
+
+    await waitFor(() =>
+      expect(screen.getByTestId("resume-print-pages")).toBeInTheDocument()
+    );
+    expect(screen.getByTestId("resume-editor-desktop-main")).toHaveClass("print:hidden");
   });
 });

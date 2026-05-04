@@ -50,7 +50,7 @@ export function EditorNavbar({
             onClick={onPrint}
           >
             <PrinterIcon data-icon="inline-start" />
-            Print / PDF
+            Export PDF
           </Button>
         </div>
 
@@ -73,7 +73,7 @@ export function EditorNavbar({
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={onPrint}>
                   <PrinterIcon />
-                  Print / PDF
+                  Export PDF
                 </DropdownMenuItem>
               </DropdownMenuGroup>
             </DropdownMenuContent>

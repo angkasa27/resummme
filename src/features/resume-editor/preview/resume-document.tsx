@@ -16,6 +16,7 @@ import { cn } from "@/lib/utils";
 type ResumeDocumentProps = {
   draft: ResumeDraft;
   className?: string;
+  mode?: "preview" | "pdf";
 };
 
 function renderHtml(content: string) {
@@ -139,7 +140,11 @@ function hasRenderableItem(
   return false;
 }
 
-export function ResumeDocument({ draft, className }: ResumeDocumentProps) {
+export function ResumeDocument({
+  draft,
+  className,
+  mode = "preview",
+}: ResumeDocumentProps) {
   const orderedSectionKeys = getOrderedVisibleSectionKeys(draft.sections);
   const contactItems = [
     { kind: "text" as const, value: draft.profile.location },
@@ -154,7 +159,9 @@ export function ResumeDocument({ draft, className }: ResumeDocumentProps) {
   return (
     <article
       className={cn(
-        "resume-document mx-auto flex min-h-[297mm] w-full max-w-[210mm] flex-col gap-6 bg-white px-9 py-10 text-[13px] leading-6 text-foreground ring-1 ring-border print:min-h-0 print:max-w-none print:bg-white print:ring-0",
+        mode === "preview"
+          ? "resume-document mx-auto flex min-h-[297mm] w-full max-w-[210mm] flex-col gap-6 bg-white px-9 py-10 text-[13px] leading-6 text-foreground ring-1 ring-border print:min-h-0 print:max-w-none print:bg-white print:ring-0"
+          : "resume-document mx-0 flex min-h-0 w-[186mm] max-w-none flex-col gap-6 bg-white px-0 py-0 text-[13px] leading-6 text-foreground ring-0",
         className,
       )}
     >

@@ -1,5 +1,6 @@
 import type { ResumeDraft } from "@/lib/resume/schema";
 import { sanitizeRichTextHtml } from "@/lib/resume/sanitize-rich-text";
+import { cn } from "@/lib/utils";
 
 function renderHtml(content: string) {
   return { __html: sanitizeRichTextHtml(content) };
@@ -9,37 +10,62 @@ function renderCurrentDateLabel(value: string) {
   return value === "current" ? "Current" : value;
 }
 
-const itemClassName = "flex flex-col gap-1.5 border-b pb-4 last:border-b-0 last:pb-0";
+const itemClassName =
+  "flex flex-col gap-1.5 border-b pb-4 last:border-b-0 last:pb-0";
 const itemHeaderClassName = "flex flex-wrap items-start justify-between gap-3";
 const itemTitleClassName = "font-semibold leading-snug";
 const itemMetaClassName = "text-[12px] leading-5 text-muted-foreground";
-const itemDateClassName = "text-right text-[11px] font-medium text-muted-foreground";
-const richTextClassName = "text-[12.5px] leading-6 text-foreground/90 [&_p]:m-0 [&_p+p]:mt-2";
+const itemDateClassName =
+  "text-right text-[11px] font-medium text-muted-foreground";
+const richTextClassName =
+  "text-[12.5px] leading-6 text-foreground/90 [&_p]:m-0 [&_p+p]:mt-2";
+
+type RenderSectionItemOptions = {
+  richTextHtml?: string;
+  showHeader?: boolean;
+  showDivider?: boolean;
+};
+
+function buildContainerClassName(showDivider: boolean) {
+  return cn("flex flex-col gap-1.5", showDivider && "border-b pb-4");
+}
 
 export function renderSectionItem(
   sectionKey: keyof ResumeDraft["sections"],
-  item: unknown
+  item: unknown,
+  {
+    richTextHtml,
+    showHeader = true,
+    showDivider = true,
+  }: RenderSectionItemOptions = {}
 ) {
+  const containerClassName = buildContainerClassName(showDivider);
+
   switch (sectionKey) {
     case "workExperience": {
-      const entry = item as ResumeDraft["sections"]["workExperience"]["items"][number];
+      const entry =
+        item as ResumeDraft["sections"]["workExperience"]["items"][number];
       return (
-        <div key={entry.id} className={itemClassName}>
-          <div className={itemHeaderClassName}>
-            <div>
-              <div className={itemTitleClassName}>{entry.position}</div>
-              <div className={itemMetaClassName}>
-                {entry.companyName} · {entry.location}
+        <div key={entry.id} className={containerClassName}>
+          {showHeader ? (
+            <div className={itemHeaderClassName}>
+              <div>
+                <div className={itemTitleClassName}>{entry.position}</div>
+                <div className={itemMetaClassName}>
+                  {entry.companyName} · {entry.location}
+                </div>
+              </div>
+              <div className={itemDateClassName}>
+                {entry.startDate} - {renderCurrentDateLabel(entry.endDate)}
               </div>
             </div>
-            <div className={itemDateClassName}>
-              {entry.startDate} - {renderCurrentDateLabel(entry.endDate)}
-            </div>
-          </div>
-          <div
-            className={richTextClassName}
-            dangerouslySetInnerHTML={renderHtml(entry.description)}
-          />
+          ) : null}
+          {richTextHtml ?? entry.description ? (
+            <div
+              className={richTextClassName}
+              dangerouslySetInnerHTML={renderHtml(richTextHtml ?? entry.description)}
+            />
+          ) : null}
         </div>
       );
     }
@@ -55,78 +81,96 @@ export function renderSectionItem(
     case "projects": {
       const entry = item as ResumeDraft["sections"]["projects"]["items"][number];
       return (
-        <div key={entry.id} className={itemClassName}>
-          <div className={itemHeaderClassName}>
-            <div>
-              <div className={itemTitleClassName}>{entry.projectName}</div>
-              {entry.projectLink ? (
-                <a
-                  className="text-[12px] text-primary underline underline-offset-4"
-                  href={entry.projectLink}
-                >
-                  {entry.projectLink}
-                </a>
-              ) : null}
+        <div key={entry.id} className={containerClassName}>
+          {showHeader ? (
+            <div className={itemHeaderClassName}>
+              <div>
+                <div className={itemTitleClassName}>{entry.projectName}</div>
+                {entry.projectLink ? (
+                  <a
+                    className="text-[12px] text-primary underline underline-offset-4"
+                    href={entry.projectLink}
+                  >
+                    {entry.projectLink}
+                  </a>
+                ) : null}
+              </div>
+              <div className={itemDateClassName}>
+                {entry.startDate} - {renderCurrentDateLabel(entry.endDate)}
+              </div>
             </div>
-            <div className={itemDateClassName}>
-              {entry.startDate} - {renderCurrentDateLabel(entry.endDate)}
-            </div>
-          </div>
-          <div
-            className={richTextClassName}
-            dangerouslySetInnerHTML={renderHtml(entry.description)}
-          />
+          ) : null}
+          {richTextHtml ?? entry.description ? (
+            <div
+              className={richTextClassName}
+              dangerouslySetInnerHTML={renderHtml(richTextHtml ?? entry.description)}
+            />
+          ) : null}
         </div>
       );
     }
     case "education": {
-      const entry = item as ResumeDraft["sections"]["education"]["items"][number];
+      const entry =
+        item as ResumeDraft["sections"]["education"]["items"][number];
       return (
-        <div key={entry.id} className={itemClassName}>
-          <div className={itemHeaderClassName}>
-            <div>
-              <div className={itemTitleClassName}>{entry.degree}</div>
-              <div className={itemMetaClassName}>
-                {entry.name} · {entry.location}
+        <div key={entry.id} className={containerClassName}>
+          {showHeader ? (
+            <>
+              <div className={itemHeaderClassName}>
+                <div>
+                  <div className={itemTitleClassName}>{entry.degree}</div>
+                  <div className={itemMetaClassName}>
+                    {entry.name} · {entry.location}
+                  </div>
+                </div>
+                <div className={itemDateClassName}>
+                  {entry.startDate} - {renderCurrentDateLabel(entry.endDate)}
+                </div>
               </div>
-            </div>
-            <div className={itemDateClassName}>
-              {entry.startDate} - {renderCurrentDateLabel(entry.endDate)}
-            </div>
-          </div>
-          {entry.gpa ? (
-            <div className={itemMetaClassName}>GPA: {entry.gpa}</div>
+              {entry.gpa ? (
+                <div className={itemMetaClassName}>GPA: {entry.gpa}</div>
+              ) : null}
+            </>
           ) : null}
-          <div
-            className={richTextClassName}
-            dangerouslySetInnerHTML={renderHtml(entry.description)}
-          />
+          {richTextHtml ?? entry.description ? (
+            <div
+              className={richTextClassName}
+              dangerouslySetInnerHTML={renderHtml(richTextHtml ?? entry.description)}
+            />
+          ) : null}
         </div>
       );
     }
     case "publications": {
-      const entry = item as ResumeDraft["sections"]["publications"]["items"][number];
+      const entry =
+        item as ResumeDraft["sections"]["publications"]["items"][number];
       return (
-        <div key={entry.id} className={itemClassName}>
-          <div className={itemHeaderClassName}>
-            <div>
-              <div className={itemTitleClassName}>{entry.title}</div>
-              <div className={itemMetaClassName}>{entry.publisher}</div>
-            </div>
-            <div className={itemDateClassName}>{entry.publicationDate}</div>
-          </div>
-          {entry.publicationUrl ? (
-            <a
-              className="text-[12px] text-primary underline underline-offset-4"
-              href={entry.publicationUrl}
-            >
-              {entry.publicationUrl}
-            </a>
+        <div key={entry.id} className={containerClassName}>
+          {showHeader ? (
+            <>
+              <div className={itemHeaderClassName}>
+                <div>
+                  <div className={itemTitleClassName}>{entry.title}</div>
+                  <div className={itemMetaClassName}>{entry.publisher}</div>
+                </div>
+                <div className={itemDateClassName}>{entry.publicationDate}</div>
+              </div>
+              {entry.publicationUrl ? (
+                <a
+                  className="text-[12px] text-primary underline underline-offset-4"
+                  href={entry.publicationUrl}
+                >
+                  {entry.publicationUrl}
+                </a>
+              ) : null}
+            </>
           ) : null}
-          <div
-            className={richTextClassName}
-            dangerouslySetInnerHTML={renderHtml(entry.description)}
-          />
+          {richTextHtml ?? entry.description ? (
+            <div
+              className={richTextClassName}
+              dangerouslySetInnerHTML={renderHtml(richTextHtml ?? entry.description)}
+            />
+          ) : null}
         </div>
       );
     }
@@ -163,32 +207,41 @@ export function renderSectionItem(
     case "awards": {
       const entry = item as ResumeDraft["sections"]["awards"]["items"][number];
       return (
-        <div key={entry.id} className={itemClassName}>
-          <div className={itemHeaderClassName}>
-            <div>
-              <div className={itemTitleClassName}>{entry.title}</div>
-              <div className={itemMetaClassName}>{entry.issuer}</div>
+        <div key={entry.id} className={containerClassName}>
+          {showHeader ? (
+            <div className={itemHeaderClassName}>
+              <div>
+                <div className={itemTitleClassName}>{entry.title}</div>
+                <div className={itemMetaClassName}>{entry.issuer}</div>
+              </div>
+              <div className={itemDateClassName}>{entry.issuedDate}</div>
             </div>
-            <div className={itemDateClassName}>{entry.issuedDate}</div>
-          </div>
-          <div
-            className={richTextClassName}
-            dangerouslySetInnerHTML={renderHtml(entry.description)}
-          />
+          ) : null}
+          {richTextHtml ?? entry.description ? (
+            <div
+              className={richTextClassName}
+              dangerouslySetInnerHTML={renderHtml(richTextHtml ?? entry.description)}
+            />
+          ) : null}
         </div>
       );
     }
     case "languages": {
-      const entry = item as ResumeDraft["sections"]["languages"]["items"][number];
+      const entry =
+        item as ResumeDraft["sections"]["languages"]["items"][number];
       return (
-        <div key={entry.id} className="flex items-baseline justify-between gap-3 border-b pb-3 last:border-b-0 last:pb-0">
+        <div
+          key={entry.id}
+          className="flex items-baseline justify-between gap-3 border-b pb-3 last:border-b-0 last:pb-0"
+        >
           <div className={itemTitleClassName}>{entry.language}</div>
           <div className={itemMetaClassName}>{entry.proficiency}</div>
         </div>
       );
     }
     case "references": {
-      const entry = item as ResumeDraft["sections"]["references"]["items"][number];
+      const entry =
+        item as ResumeDraft["sections"]["references"]["items"][number];
       return (
         <div key={entry.id} className={itemClassName}>
           <div className={itemTitleClassName}>{entry.name}</div>
@@ -201,22 +254,26 @@ export function renderSectionItem(
       const entry =
         item as ResumeDraft["sections"]["organizationVolunteering"]["items"][number];
       return (
-        <div key={entry.id} className={itemClassName}>
-          <div className={itemHeaderClassName}>
-            <div>
-              <div className={itemTitleClassName}>{entry.position}</div>
-              <div className={itemMetaClassName}>
-                {entry.organizationName} · {entry.location}
+        <div key={entry.id} className={containerClassName}>
+          {showHeader ? (
+            <div className={itemHeaderClassName}>
+              <div>
+                <div className={itemTitleClassName}>{entry.position}</div>
+                <div className={itemMetaClassName}>
+                  {entry.organizationName} · {entry.location}
+                </div>
+              </div>
+              <div className={itemDateClassName}>
+                {entry.startDate} - {renderCurrentDateLabel(entry.endDate)}
               </div>
             </div>
-            <div className={itemDateClassName}>
-              {entry.startDate} - {renderCurrentDateLabel(entry.endDate)}
-            </div>
-          </div>
-          <div
-            className={richTextClassName}
-            dangerouslySetInnerHTML={renderHtml(entry.description)}
-          />
+          ) : null}
+          {richTextHtml ?? entry.description ? (
+            <div
+              className={richTextClassName}
+              dangerouslySetInnerHTML={renderHtml(richTextHtml ?? entry.description)}
+            />
+          ) : null}
         </div>
       );
     }
