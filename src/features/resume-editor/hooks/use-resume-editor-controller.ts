@@ -20,7 +20,6 @@ import {
 import {
   createResumeEditorStore,
   type ResumeEditorPanelKey,
-  type ResumeEditorViewMode,
   type ResumeSectionKey,
 } from "@/features/resume-editor/store/editor-store";
 
@@ -32,7 +31,6 @@ export type ResumeEditorController = {
   fileInputRef: RefObject<HTMLInputElement | null>;
   draft: ResumeDraft;
   activeSection: ResumeEditorPanelKey;
-  editorViewMode: ResumeEditorViewMode;
   openImportPicker: () => void;
   handleImport: (event: ChangeEvent<HTMLInputElement>) => Promise<void>;
   handleExport: () => void;
@@ -59,7 +57,6 @@ export function useResumeEditorController({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const draft = useStore(store, (state) => state.draft);
   const activeSection = useStore(store, (state) => state.activeSection);
-  const editorViewMode = useStore(store, (state) => state.editorViewMode);
 
   useEffect(() => {
     if (initialDraft) {
@@ -163,7 +160,6 @@ export function useResumeEditorController({
     fileInputRef,
     draft,
     activeSection,
-    editorViewMode,
     openImportPicker,
     handleImport,
     handleExport,

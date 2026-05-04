@@ -131,7 +131,6 @@ export function createResumeEditorStore(initialDraft = createDefaultResumeDraft(
     requestSectionChange: (sectionKey) => {
       set({
         activeSection: sectionKey,
-        editorViewMode: "form",
       });
     },
     returnToSectionList: () => {
@@ -144,7 +143,6 @@ export function createResumeEditorStore(initialDraft = createDefaultResumeDraft(
       set({
         draft: nextDraft,
         activeSection: "profile",
-        editorViewMode: "list",
       });
     },
     replaceDraft: (draft) => {
@@ -152,7 +150,6 @@ export function createResumeEditorStore(initialDraft = createDefaultResumeDraft(
       set({
         draft: nextDraft,
         activeSection: "profile",
-        editorViewMode: "list",
       });
     },
   }));

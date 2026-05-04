@@ -1,42 +1,55 @@
 "use client";
 
-import dynamic from "next/dynamic";
+import React, { useEffect, useState } from "react";
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { EditorNavbar } from "@/features/resume-editor/editor-navbar";
+import {
+  SidebarProvider,
+  SidebarInset,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
+import {
+  ResizablePanelGroup,
+  ResizablePanel,
+  ResizableHandle,
+} from "@/components/ui/resizable";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Separator } from "@/components/ui/separator";
+import {
+  DownloadIcon,
+  EllipsisVerticalIcon,
+  EyeIcon,
+  PenLineIcon,
+  PrinterIcon,
+  UploadIcon,
+} from "lucide-react";
 import { useResumeEditorController } from "@/features/resume-editor/hooks/use-resume-editor-controller";
+import { AppSidebar } from "@/features/resume-editor/app-sidebar";
 import type { ResumeDraft } from "@/lib/resume/schema";
-import { cn } from "@/lib/utils";
-
-const ActiveSectionEditor = dynamic(
-  () => import("@/features/resume-editor/active-section-editor").then((mod) => mod.ActiveSectionEditor),
-  { ssr: false }
-);
-const PreviewPane = dynamic(
-  () => import("@/features/resume-editor/preview-pane").then((mod) => mod.PreviewPane),
-  { ssr: false }
-);
-const SectionNavigator = dynamic(
-  () => import("@/features/resume-editor/section-navigator").then((mod) => mod.SectionNavigator),
-  { ssr: false }
-);
+import { PreviewPane } from "./preview-pane";
+import { ActiveSectionEditor } from "./active-section-editor";
 
 type ResumeEditorShellProps = {
   initialDraft?: ResumeDraft;
 };
 
 export function ResumeEditorShell({ initialDraft }: ResumeEditorShellProps) {
+  const [desktopLayoutReady, setDesktopLayoutReady] = useState(false);
   const {
     fileInputRef,
     draft,
     activeSection,
-    editorViewMode,
     openImportPicker,
     handleImport,
     handleExport,
     handlePrint,
     requestSectionChange,
-    returnToSectionList,
     moveSection,
     reorderSection,
     setSectionVisibility,
@@ -45,31 +58,12 @@ export function ResumeEditorShell({ initialDraft }: ResumeEditorShellProps) {
     saveSection,
   } = useResumeEditorController({ initialDraft });
 
-
-
-  const outlinePane = (
-    <SectionNavigator
-      draft={draft}
-      activeSection={activeSection}
-      onRequestSectionChange={requestSectionChange}
-      onMoveSection={moveSection}
-      onReorderSection={reorderSection}
-      onSetSectionVisibility={setSectionVisibility}
-    />
-  );
-
-  const activeFormPane = (
-    <ActiveSectionEditor
-      draft={draft}
-      activeSection={activeSection}
-      onBack={returnToSectionList}
-      onSaveProfile={saveProfile}
-      onSaveSection={saveSection}
-    />
-  );
+  useEffect(() => {
+    setDesktopLayoutReady(true);
+  }, []);
 
   return (
-    <div className="grid h-dvh grid-rows-[auto_minmax(0,1fr)] overflow-hidden bg-muted/40 text-foreground">
+    <div className="h-dvh overflow-hidden">
       <input
         ref={fileInputRef}
         type="file"
@@ -78,80 +72,216 @@ export function ResumeEditorShell({ initialDraft }: ResumeEditorShellProps) {
         onChange={handleImport}
       />
 
-      <EditorNavbar
-        onOpenImportPicker={openImportPicker}
-        onExport={handleExport}
-        onPrint={handlePrint}
-      />
-
-      <main
-        data-testid="resume-editor-desktop-main"
-        className="hidden lg:grid h-full min-h-0 w-full grid-cols-[minmax(360px,480px)_minmax(0,1fr)] min-[1680px]:grid-cols-[340px_520px_minmax(0,1fr)] gap-0 overflow-hidden px-0 py-0"
+      <SidebarProvider
+        defaultOpen={true}
+        className="h-full min-h-0"
+        style={
+          { "--sidebar-width": "260px", minHeight: 0 } as React.CSSProperties
+        }
       >
-        <div
-          data-testid="outline-pane"
-          className={cn(
-            "h-full min-h-0 overflow-hidden border-r bg-card",
-            editorViewMode === "list" ? "block" : "hidden min-[1680px]:block"
-          )}
-        >
-          {outlinePane}
-        </div>
-        <div
-          data-testid="active-form-pane"
-          className={cn(
-            "h-full min-h-0 overflow-hidden border-r bg-card",
-            editorViewMode === "form" ? "block" : "hidden min-[1680px]:block"
-          )}
-        >
-          {activeFormPane}
-        </div>
+        <AppSidebar
+          draft={draft}
+          activeSection={activeSection}
+          onRequestSectionChange={requestSectionChange}
+          onMoveSection={moveSection}
+          onReorderSection={reorderSection}
+          onSetSectionVisibility={setSectionVisibility}
+        />
 
-        <div
-          data-testid="preview-pane"
-          className="h-full min-h-0 overflow-hidden bg-background"
-        >
+        <SidebarInset className="flex min-h-0 flex-col overflow-hidden">
+          {/* Top navbar — h-12 to match sidebar header */}
+          <header className="flex h-12 shrink-0 items-center gap-2 border-b bg-background px-3 print:hidden">
+            <SidebarTrigger className="-ml-1" />
+            <h1 className="truncate text-sm font-semibold tracking-tight">
+              Resume Editor
+            </h1>
+
+            <div className="ml-auto flex items-center gap-1.5">
+              {/* Desktop actions */}
+              <div className="hidden items-center gap-1.5 sm:flex">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={openImportPicker}
+                >
+                  <UploadIcon data-icon="inline-start" />
+                  Import
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleExport}
+                >
+                  <DownloadIcon data-icon="inline-start" />
+                  Export
+                </Button>
+                <Button type="button" size="sm" onClick={handlePrint}>
+                  <PrinterIcon data-icon="inline-start" />
+                  Export PDF
+                </Button>
+              </div>
+
+              {/* Mobile actions */}
+              <div className="sm:hidden">
+                <DropdownMenu>
+                  <DropdownMenuTrigger
+                    render={
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        aria-label="More actions"
+                      />
+                    }
+                  >
+                    <EllipsisVerticalIcon />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" sideOffset={8}>
+                    <DropdownMenuGroup>
+                      <DropdownMenuItem onClick={openImportPicker}>
+                        <UploadIcon />
+                        Import
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={handleExport}>
+                        <DownloadIcon />
+                        Export
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={handlePrint}>
+                        <PrinterIcon />
+                        Export PDF
+                      </DropdownMenuItem>
+                    </DropdownMenuGroup>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </div>
+          </header>
+
+          {/* Main content: resizable editor + preview */}
+          <div className="min-h-0 flex-1 overflow-hidden">
+            {/* Desktop: resizable split */}
+            <div className="hidden h-full lg:block">
+              {desktopLayoutReady ? (
+                <ResizablePanelGroup orientation="horizontal">
+                  <ResizablePanel defaultSize={50} minSize={35}>
+                    <div className="h-full overflow-hidden">
+                      <ActiveSectionEditor
+                        draft={draft}
+                        activeSection={activeSection}
+                        onBack={() => {}}
+                        onSaveProfile={saveProfile}
+                        onSaveSection={saveSection}
+                      />
+                    </div>
+                  </ResizablePanel>
+                  <ResizableHandle withHandle />
+                  <ResizablePanel defaultSize={50} minSize={30}>
+                    <div className="h-full overflow-hidden bg-muted">
+                      <PreviewPane
+                        draft={draft}
+                        onSavePdfPresentation={savePdfPresentation}
+                      />
+                    </div>
+                  </ResizablePanel>
+                </ResizablePanelGroup>
+              ) : (
+                <div className="grid h-full min-w-0 grid-cols-2">
+                  <div className="h-full overflow-hidden">
+                    <ActiveSectionEditor
+                      draft={draft}
+                      activeSection={activeSection}
+                      onBack={() => {}}
+                      onSaveProfile={saveProfile}
+                      onSaveSection={saveSection}
+                    />
+                  </div>
+                  <div className="h-full overflow-hidden bg-muted">
+                    <PreviewPane
+                      draft={draft}
+                      onSavePdfPresentation={savePdfPresentation}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Mobile/Tablet: stacked with toggle */}
+            <MobileMainContent
+              draft={draft}
+              activeSection={activeSection}
+              saveProfile={saveProfile}
+              saveSection={saveSection}
+              savePdfPresentation={savePdfPresentation}
+            />
+          </div>
+        </SidebarInset>
+      </SidebarProvider>
+    </div>
+  );
+}
+
+function MobileMainContent({
+  draft,
+  activeSection,
+  saveProfile,
+  saveSection,
+  savePdfPresentation,
+}: {
+  draft: ResumeDraft;
+  activeSection: string;
+  saveProfile: (profile: ResumeDraft["profile"]) => void;
+  saveSection: <K extends keyof ResumeDraft["sections"]>(
+    sectionKey: K,
+    sectionValue: ResumeDraft["sections"][K],
+  ) => void;
+  savePdfPresentation: (
+    pdfPresentation: ResumeDraft["pdfPresentation"],
+  ) => void;
+}) {
+  const [showPreview, setShowPreview] = useState(false);
+
+  return (
+    <div className="relative h-full lg:hidden">
+      {showPreview ? (
+        <div className="h-full overflow-hidden bg-muted">
           <PreviewPane
             draft={draft}
             onSavePdfPresentation={savePdfPresentation}
           />
         </div>
-      </main>
+      ) : (
+        <div className="h-full overflow-hidden">
+          <ActiveSectionEditor
+            draft={draft}
+            activeSection={activeSection as never}
+            onBack={() => {}}
+            onSaveProfile={saveProfile}
+            onSaveSection={saveSection}
+          />
+        </div>
+      )}
 
-      <main className="mx-auto flex lg:hidden h-full min-h-0 w-full max-w-[720px] flex-col gap-3 overflow-hidden px-3 py-3">
-        <Tabs defaultValue="sections" className="flex min-h-0 flex-1 flex-col gap-2">
-          <TabsList className="h-10 w-full rounded-md bg-background p-1">
-            <TabsTrigger value="sections">Sections</TabsTrigger>
-            <TabsTrigger value="edit">Edit</TabsTrigger>
-            <TabsTrigger value="preview">Preview</TabsTrigger>
-          </TabsList>
-          <TabsContent
-            value="sections"
-            keepMounted
-            className="min-h-0 flex-1 overflow-hidden rounded-lg border bg-card"
-          >
-            {outlinePane}
-          </TabsContent>
-          <TabsContent
-            value="edit"
-            keepMounted
-            className="min-h-0 flex-1 overflow-hidden rounded-lg border bg-card"
-          >
-            {activeFormPane}
-          </TabsContent>
-          <TabsContent
-            value="preview"
-            keepMounted
-            className="min-h-0 flex-1 overflow-hidden rounded-lg border bg-background"
-          >
-            <PreviewPane
-              draft={draft}
-              onSavePdfPresentation={savePdfPresentation}
-            />
-          </TabsContent>
-        </Tabs>
-      </main>
-
+      {/* Floating preview toggle */}
+      <Button
+        type="button"
+        size="sm"
+        variant={showPreview ? "default" : "outline"}
+        className="fixed bottom-4 right-4 z-50 shadow-lg"
+        onClick={() => setShowPreview(!showPreview)}
+      >
+        {showPreview ? (
+          <>
+            <PenLineIcon data-icon="inline-start" />
+            Editor
+          </>
+        ) : (
+          <>
+            <EyeIcon data-icon="inline-start" />
+            Preview
+          </>
+        )}
+      </Button>
     </div>
   );
 }

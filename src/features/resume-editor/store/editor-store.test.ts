@@ -4,17 +4,14 @@ import { createResumeEditorStore } from "@/features/resume-editor/store/editor-s
 import { createDefaultResumeDraft } from "@/lib/resume/default-draft";
 
 describe("resume editor store", () => {
-  it("returns to the section list without clearing the active section", () => {
+  it("switches the active section when requesting a section change", () => {
     const store = createResumeEditorStore(createDefaultResumeDraft());
 
     store.getState().requestSectionChange("projects");
     expect(store.getState().activeSection).toBe("projects");
-    expect(store.getState().editorViewMode).toBe("form");
 
-    store.getState().returnToSectionList();
-
-    expect(store.getState().activeSection).toBe("projects");
-    expect(store.getState().editorViewMode).toBe("list");
+    store.getState().requestSectionChange("skills");
+    expect(store.getState().activeSection).toBe("skills");
   });
 
   it("normalizes malformed collection items before saving", () => {

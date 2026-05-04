@@ -134,6 +134,20 @@
   }
 }
 
+/* Override sidebar min-height to work within h-dvh layout */
+[data-slot="sidebar-wrapper"] {
+  min-height: 0 !important;
+  height: 100%;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 .ProseMirror {
   min-height: inherit;
 }

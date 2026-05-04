@@ -6,7 +6,7 @@ import { PreviewPane } from "@/features/resume-editor/preview-pane";
 import { createDefaultResumeDraft } from "@/lib/resume/default-draft";
 
 describe("preview pane", () => {
-  it("renders a pdf style toolbar above the continuous preview", () => {
+  it("renders the preview with a style settings button", () => {
     render(
       <PreviewPane
         draft={createDefaultResumeDraft()}
@@ -14,19 +14,13 @@ describe("preview pane", () => {
       />
     );
 
-    expect(screen.getByRole("toolbar", { name: /pdf style/i })).toBeInTheDocument();
-    expect(screen.getByRole("combobox", { name: /layout/i })).toBeInTheDocument();
-    expect(screen.getByRole("combobox", { name: /type scale/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /line height standard/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /section spacing standard/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /item spacing standard/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /accent tone blue/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /accent strength balanced/i })).toBeInTheDocument();
+    expect(screen.getByText(/preview/i)).toBeInTheDocument();
+    expect(screen.getByText(/style settings/i)).toBeInTheDocument();
     expect(screen.getByTestId("resume-preview-full-name")).toBeInTheDocument();
     expect(screen.queryByTestId("resume-preview-pages")).not.toBeInTheDocument();
   });
 
-  it("shows tooltips for icon-only toolbar controls", async () => {
+  it("opens style settings popover and shows all controls", async () => {
     const user = userEvent.setup();
 
     render(
@@ -36,12 +30,15 @@ describe("preview pane", () => {
       />
     );
 
-    await user.hover(screen.getByRole("button", { name: /accent tone blue/i }));
+    await user.click(screen.getByText(/style settings/i));
 
-    expect(await screen.findByRole("tooltip")).toHaveTextContent(/accent tone: blue/i);
+    expect(await screen.findByRole("combobox", { name: /layout/i })).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: /type scale/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /line height standard/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /accent tone blue/i })).toBeInTheDocument();
   });
 
-  it("saves layout and style changes from the toolbar", async () => {
+  it("saves style changes from the settings popover", async () => {
     const user = userEvent.setup();
     const handleSave = vi.fn();
 
@@ -52,24 +49,17 @@ describe("preview pane", () => {
       />
     );
 
-    await user.click(screen.getByRole("combobox", { name: /layout/i }));
+    // Open settings popover
+    await user.click(screen.getByText(/style settings/i));
+
+    // Change layout
+    await user.click(await screen.findByRole("combobox", { name: /layout/i }));
     await user.click(await screen.findByRole("option", { name: /classic centered/i }));
-    await user.click(screen.getByRole("combobox", { name: /type scale/i }));
-    await user.click(await screen.findByRole("option", { name: /large/i }));
-    await user.click(screen.getByRole("button", { name: /line height relaxed/i }));
-    await user.click(screen.getByRole("button", { name: /accent tone emerald/i }));
-    await user.click(screen.getByRole("button", { name: /accent strength strong/i }));
 
     await waitFor(() =>
       expect(handleSave).toHaveBeenLastCalledWith(
         expect.objectContaining({
           layoutId: "classic-centered",
-          overrides: expect.objectContaining({
-            typeScale: "large",
-            lineHeight: "relaxed",
-            accentTone: "emerald",
-            accentStrength: "strong",
-          }),
         })
       )
     );

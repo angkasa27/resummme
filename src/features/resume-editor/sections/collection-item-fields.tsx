@@ -77,6 +77,7 @@ export function CollectionItemFields({
                 <Input
                   id={fieldName}
                   type={fieldConfig.kind}
+                  className="bg-background!"
                   inputMode={
                     fieldConfig.kind === "email"
                       ? "email"
@@ -241,26 +242,26 @@ export function CollectionItemFields({
                       rows={3}
                       placeholder={fieldConfig.placeholder}
                       aria-invalid={fieldState.invalid || undefined}
-                        value={
-                          Array.isArray(field.value)
-                            ? (field.value as string[]).join(", ")
-                            : ""
-                        }
-                        spellCheck={false}
-                        onChange={(event) =>
-                          field.onChange(
-                            event.target.value
-                            .split(",")
-                            .flatMap((value) => {
-                              const trimmedValue = value.trim();
-                              return trimmedValue ? [trimmedValue] : [];
-                            })
+                      value={
+                        Array.isArray(field.value)
+                          ? (field.value as string[]).join(", ")
+                          : ""
+                      }
+                      spellCheck={false}
+                      onChange={(event) =>
+                        field.onChange(
+                          event.target.value.split(",").flatMap((value) => {
+                            const trimmedValue = value.trim();
+                            return trimmedValue ? [trimmedValue] : [];
+                          }),
                         )
                       }
                     />
                   )}
                 />
-                <FieldDescription>Separate each skill with a comma.</FieldDescription>
+                <FieldDescription>
+                  Separate each skill with a comma.
+                </FieldDescription>
                 <FieldError errors={[fieldState.error]} />
               </FieldContent>
             </Field>
@@ -277,7 +278,10 @@ export function CollectionItemFields({
           const isCurrent = endValue === "current";
 
           return (
-            <div key={`${startName}-${endName}`} className="grid gap-3 md:col-span-2 md:grid-cols-2">
+            <div
+              key={`${startName}-${endName}`}
+              className="grid gap-3 md:col-span-2 md:grid-cols-2"
+            >
               <Field data-invalid={startFieldState.invalid || undefined}>
                 <FieldLabel htmlFor={startName}>
                   <FieldLabelText label="Start date" />
@@ -332,7 +336,9 @@ export function CollectionItemFields({
                       <MonthYearPicker
                         id={endName}
                         value={isCurrent ? "" : field.value}
-                        placeholder={fieldConfig.endPlaceholder ?? "Current or Dec 2024"}
+                        placeholder={
+                          fieldConfig.endPlaceholder ?? "Current or Dec 2024"
+                        }
                         disabled={isCurrent}
                         ariaInvalid={endFieldState.invalid}
                         minValueExclusive={startValue}
@@ -349,10 +355,14 @@ export function CollectionItemFields({
                     <Switch
                       checked={isCurrent}
                       onCheckedChange={(checked) =>
-                        setValue(endName as never, (checked ? "current" : "") as never, {
-                          shouldDirty: true,
-                          shouldValidate: formState.isSubmitted,
-                        })
+                        setValue(
+                          endName as never,
+                          (checked ? "current" : "") as never,
+                          {
+                            shouldDirty: true,
+                            shouldValidate: formState.isSubmitted,
+                          },
+                        )
                       }
                     />
                     <span>Mark this role as current</span>
@@ -369,7 +379,10 @@ export function CollectionItemFields({
           const fieldState = getDynamicFieldState(fieldName);
 
           return (
-            <Field key={fieldName} data-invalid={fieldState.invalid || undefined}>
+            <Field
+              key={fieldName}
+              data-invalid={fieldState.invalid || undefined}
+            >
               <FieldLabel>
                 <FieldLabelText label={fieldConfig.label} />
               </FieldLabel>

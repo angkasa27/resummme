@@ -193,7 +193,7 @@ export function SectionNavigator({
               ))}
             </ul>
           ) : (
-            <p className="mt-2 rounded-md border border-dashed bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
+            <p className="mt-2 rounded-md border border-dashed bg-muted px-3 py-2 text-xs text-muted-foreground">
               Every resume section is currently included.
             </p>
           )}
@@ -415,7 +415,7 @@ function AvailableSectionRow({
     <li>
       <SectionRowShell
         sectionRowKey={sectionKey}
-        className="border-dashed bg-muted/25 text-muted-foreground"
+        className="border-dashed bg-muted text-muted-foreground"
       >
         <StaticControlSlot>
           <EyeOffIcon className="size-4" />

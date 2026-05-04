@@ -14,10 +14,10 @@ function mockViewport(width: number) {
   Object.defineProperty(window, "matchMedia", {
     writable: true,
     value: (query: string) => ({
-      matches: query.includes("1680px")
-        ? width >= 1680
-        : query.includes("1024px")
-          ? width >= 1024
+      matches: query.includes("1024px")
+        ? width >= 1024
+        : query.includes("768px")
+          ? width >= 768
           : false,
       media: query,
       onchange: null,
@@ -43,16 +43,12 @@ afterEach(() => {
 });
 
 describe("resume editor shell", () => {
-  it("uses Sections, Edit, and Preview tabs on mobile", () => {
+  it("renders the navbar with title and action buttons", () => {
     const draft = createDefaultResumeDraft();
 
     render(<ResumeEditorShell initialDraft={draft} />);
 
-    expect(screen.getByRole("tab", { name: "Sections" })).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: "Edit" })).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: "Preview" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Resume Editor" })).toBeInTheDocument();
-    expect(screen.queryByText(/editorial cv builder/i)).not.toBeInTheDocument();
   });
 
   it("hydrates without recoverable errors when local storage differs from the server draft", async () => {
@@ -169,50 +165,14 @@ describe("resume editor shell", () => {
     expect(screen.queryByText(/curriculum vitae/i)).not.toBeInTheDocument();
   });
 
-  it("renders the pdf style toolbar in the preview pane", async () => {
+  it("renders a style settings button in the preview pane", async () => {
     const draft = createDefaultResumeDraft();
 
     mockViewport(1440);
     render(<ResumeEditorShell initialDraft={draft} />);
 
     await waitFor(() =>
-      expect(
-        screen.getByRole("toolbar", { name: /pdf style/i })
-      ).toBeInTheDocument()
+      expect(screen.getByText(/style settings/i)).toBeInTheDocument()
     );
-    expect(screen.getByRole("combobox", { name: /layout/i })).toBeInTheDocument();
-  });
-
-  it("uses a full-bleed two-pane desktop layout before the wide breakpoint", () => {
-    const draft = createDefaultResumeDraft();
-
-    mockViewport(1440);
-    render(<ResumeEditorShell initialDraft={draft} />);
-
-    expect(screen.getByTestId("resume-editor-desktop-main")).toHaveClass("gap-0");
-    expect(screen.getByTestId("resume-editor-desktop-main")).toHaveClass("px-0");
-  });
-
-  it("uses a three-pane desktop layout only on very wide screens", () => {
-    const draft = createDefaultResumeDraft();
-
-    mockViewport(1700);
-    render(<ResumeEditorShell initialDraft={draft} />);
-
-    expect(screen.getByTestId("outline-pane")).toBeInTheDocument();
-    expect(screen.getByTestId("active-form-pane")).toBeInTheDocument();
-    expect(screen.getByTestId("preview-pane")).toBeInTheDocument();
-  });
-
-  it("does not mount a hidden print-only resume surface in the editor shell", async () => {
-    const draft = createDefaultResumeDraft();
-
-    mockViewport(1440);
-    render(<ResumeEditorShell initialDraft={draft} />);
-
-    await waitFor(() =>
-      expect(screen.getByTestId("resume-editor-desktop-main")).toBeInTheDocument()
-    );
-    expect(screen.queryByTestId("resume-print-pages")).not.toBeInTheDocument();
   });
 });

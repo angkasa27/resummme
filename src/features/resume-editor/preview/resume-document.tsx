@@ -180,7 +180,7 @@ export function ResumeDocument({
       }}
       className={cn(
         mode === "preview"
-          ? "resume-document mx-auto flex min-h-[297mm] w-full max-w-[210mm] flex-col bg-white px-9 py-10 ring-1 ring-border print:min-h-0 print:max-w-none print:bg-white print:ring-0"
+          ? "resume-document mx-0 flex min-h-[297mm] w-[210mm] max-w-none flex-col bg-white px-9 py-10 ring-1 ring-border print:min-h-0 print:max-w-none print:bg-white print:ring-0"
           : "resume-document mx-0 flex min-h-0 w-[186mm] max-w-none flex-col bg-white px-0 py-0 ring-0",
         className
       )}
