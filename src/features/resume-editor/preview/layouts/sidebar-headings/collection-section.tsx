@@ -9,11 +9,12 @@ export function sidebarCollectionSection(
   context: PreviewRenderContext,
   section: PreviewRenderableSection,
   children: ReactNode,
+  key: string,
 ) {
   const { presentation } = context;
 
   return (
-    <section className="grid gap-3 sm:grid-cols-[110px_1fr]">
+    <section className="grid gap-3 sm:grid-cols-[110px_1fr]" key={key}>
       <h2
         className="text-muted-foreground"
         data-testid="resume-preview-section-heading"

@@ -24,11 +24,12 @@ function sidebarBody({
   return (
     <>
       {summaryContent ? sidebarSummarySection(context, summaryContent) : null}
-      {sections.map((section) =>
+      {sections.map((section, idx) =>
         sidebarCollectionSection(
           context,
           section,
           renderSectionItems(section, itemRenderers),
+          `${idx}`,
         ),
       )}
     </>

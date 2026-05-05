@@ -9,11 +9,12 @@ export function classicCollectionSection(
   context: PreviewRenderContext,
   section: PreviewRenderableSection,
   children: ReactNode,
+  key: string,
 ) {
   const { presentation } = context;
 
   return (
-    <section className="space-y-4">
+    <section className="space-y-4" key={key}>
       <div
         className="border-b pb-1"
         style={{ borderColor: presentation.accentColor }}

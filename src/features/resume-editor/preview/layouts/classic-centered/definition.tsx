@@ -24,11 +24,12 @@ function classicCenteredBody({
   return (
     <>
       {summaryContent ? classicSummarySection(context, summaryContent) : null}
-      {sections.map((section) =>
+      {sections.map((section, idx) =>
         classicCollectionSection(
           context,
           section,
           renderSectionItems(section, itemRenderers),
+          `${idx}`,
         ),
       )}
     </>
