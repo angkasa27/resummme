@@ -3,6 +3,8 @@ import type {
 } from "@/features/resume-editor/domain/sections/section-metadata";
 import type {
   PdfPresentation,
+  PdfLayoutId,
+  PdfProfileLayoutId,
   ResolvedPdfPresentation,
 } from "@/features/resume-editor/domain/presentation/pdf-presentation";
 import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
@@ -61,14 +63,24 @@ export type PreviewSectionItemRendererMap = {
   [K in CollectionSectionKey]: PreviewSectionItemRenderer<K>;
 };
 
-export type PreviewLayoutDefinition = {
-  id: string;
-  Header: (props: PreviewHeaderProps) => ReactNode;
-  SummarySection: (props: PreviewSummarySectionProps) => ReactNode;
-  CollectionSection: (props: PreviewCollectionSectionProps) => ReactNode;
+export type PreviewDocumentBodyProps = {
+  context: PreviewRenderContext;
+  summaryContent: string | null;
+  sections: AnyPreviewRenderableSection[];
+  itemRenderers: PreviewSectionItemRendererMap;
+};
+
+export type PreviewDocumentLayoutDefinition = {
+  id: PdfLayoutId;
+  Body: (props: PreviewDocumentBodyProps) => ReactNode;
   createSectionItemRenderers: (
     context: PreviewRenderContext,
   ) => PreviewSectionItemRendererMap;
+};
+
+export type PreviewProfileLayoutDefinition = {
+  id: PdfProfileLayoutId;
+  Header: (props: PreviewHeaderProps) => ReactNode;
 };
 
 export type PreviewControlKind = "select" | "toggle-group";

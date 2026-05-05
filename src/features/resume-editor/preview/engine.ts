@@ -145,11 +145,9 @@ export function hasRenderableItem(
 
 function formatSectionHeading(
   sectionLabel: string,
-  layoutId: ResumeDraft["pdfPresentation"]["layoutId"],
+  transform: PreviewRenderContext["presentation"]["sectionLabelTransform"],
 ) {
-  return layoutId === "classic-centered"
-    ? sectionLabel.toUpperCase()
-    : sectionLabel;
+  return transform === "uppercase" ? sectionLabel.toUpperCase() : sectionLabel;
 }
 
 function createContactItems(draft: ResumeDraft) {
@@ -166,7 +164,7 @@ function createContactItems(draft: ResumeDraft) {
 
 function createRenderableSections(
   draft: ResumeDraft,
-  layoutId: ResumeDraft["pdfPresentation"]["layoutId"],
+  sectionLabelTransform: PreviewRenderContext["presentation"]["sectionLabelTransform"],
 ): AnyPreviewRenderableSection[] {
   const sections: AnyPreviewRenderableSection[] = [];
 
@@ -175,7 +173,11 @@ function createRenderableSections(
       continue;
     }
 
-    const section = createRenderableSection(sectionKey, draft, layoutId);
+    const section = createRenderableSection(
+      sectionKey,
+      draft,
+      sectionLabelTransform,
+    );
     if (section) {
       sections.push(section);
     }
@@ -187,7 +189,7 @@ function createRenderableSections(
 function createRenderableSection<K extends CollectionSectionKey>(
   sectionKey: K,
   draft: ResumeDraft,
-  layoutId: ResumeDraft["pdfPresentation"]["layoutId"],
+  sectionLabelTransform: PreviewRenderContext["presentation"]["sectionLabelTransform"],
 ) {
   const section = draft.sections[sectionKey];
   const items = section.items.filter((item) =>
@@ -201,7 +203,10 @@ function createRenderableSection<K extends CollectionSectionKey>(
   return {
     key: sectionKey,
     label: sectionLabels[sectionKey],
-    heading: formatSectionHeading(sectionLabels[sectionKey], layoutId),
+    heading: formatSectionHeading(
+      sectionLabels[sectionKey],
+      sectionLabelTransform,
+    ),
     items,
   } as AnyPreviewRenderableSection;
 }
@@ -220,6 +225,6 @@ export function createPreviewRenderContext(
     summaryContent: richTextHasContent(draft.sections.summary.content)
       ? draft.sections.summary.content
       : null,
-    sections: createRenderableSections(draft, presentation.layoutId),
+    sections: createRenderableSections(draft, presentation.sectionLabelTransform),
   };
 }

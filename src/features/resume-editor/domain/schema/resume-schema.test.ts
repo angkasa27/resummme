@@ -12,6 +12,7 @@ describe("resume schema", () => {
     expect(parsed.schemaVersion).toBe(2);
     expect(parsed.templateId).toBe("recruiter-first-clean");
     expect(parsed.pdfPresentation.layoutId).toBe("sidebar-headings");
+    expect(parsed.pdfPresentation.profileLayoutId).toBe("sidebar-profile");
     expect(parsed.pdfPresentation.overrides.typeScale).toBe("standard");
     expect(parsed.profile.fullName).toBeTruthy();
   });
@@ -46,6 +47,7 @@ describe("resume schema", () => {
 
     expect(parsed.pdfPresentation).toEqual({
       layoutId: "sidebar-headings",
+      profileLayoutId: "sidebar-profile",
       overrides: {
         typeScale: "large",
         lineHeight: "relaxed",
@@ -54,6 +56,22 @@ describe("resume schema", () => {
         accentStrength: "strong",
       },
     });
+  });
+
+  it("fills a profile layout default for legacy drafts that only saved document layout", () => {
+    const draft = createDefaultResumeDraft();
+
+    const parsed = parseResumeDraft({
+      ...draft,
+      pdfPresentation: {
+        layoutId: "classic-centered",
+        overrides: draft.pdfPresentation.overrides,
+      },
+    });
+
+    expect(parsed.pdfPresentation.profileLayoutId).toBe(
+      "centered-portrait-profile",
+    );
   });
 
   it("rejects unsupported schema versions", () => {

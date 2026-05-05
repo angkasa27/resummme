@@ -1,9 +1,13 @@
-export const pdfLayoutIds = [
-  "sidebar-headings",
-  "classic-centered",
-] as const;
+export const pdfLayoutIds = ["sidebar-headings", "classic-centered"] as const;
 
 export type PdfLayoutId = (typeof pdfLayoutIds)[number];
+
+export const pdfProfileLayoutIds = [
+  "sidebar-profile",
+  "centered-portrait-profile",
+] as const;
+
+export type PdfProfileLayoutId = (typeof pdfProfileLayoutIds)[number];
 
 export const pdfTypeScaleIds = ["small", "standard", "large"] as const;
 export type PdfTypeScaleId = (typeof pdfTypeScaleIds)[number];
@@ -36,11 +40,13 @@ export type PdfPresentationOverrides = {
 
 export type PdfPresentation = {
   layoutId: PdfLayoutId;
+  profileLayoutId: PdfProfileLayoutId;
   overrides: PdfPresentationOverrides;
 };
 
 type LegacyPdfPresentationInput = {
   layoutId?: unknown;
+  profileLayoutId?: unknown;
   themeId?: unknown;
   overrides?: {
     typeScale?: unknown;
@@ -70,13 +76,12 @@ type PdfLayoutDefinition = {
   sectionLabelLetterSpacingEm: number;
   sectionLabelTransform: "uppercase" | "none";
   summaryLabelVisible: boolean;
-  sectionHeadingStyle: "sidebar" | "top-rule";
-  headerAlignment: "left" | "center";
 };
 
 export type ResolvedPdfPresentation = {
   layout: PdfLayoutDefinition;
   layoutId: PdfLayoutId;
+  profileLayoutId: PdfProfileLayoutId;
   bodyFontFamily: string;
   headingFontFamily: string;
   bodyTextColor: string;
@@ -105,6 +110,11 @@ export type ResolvedPdfPresentation = {
 export const pdfLayoutLabels: Record<PdfLayoutId, string> = {
   "sidebar-headings": "Sidebar Headings",
   "classic-centered": "Classic Centered",
+};
+
+export const pdfProfileLayoutLabels: Record<PdfProfileLayoutId, string> = {
+  "sidebar-profile": "Sidebar Profile",
+  "centered-portrait-profile": "Centered Portrait",
 };
 
 export const pdfTypeScaleLabels: Record<PdfTypeScaleId, string> = {
@@ -139,7 +149,10 @@ export const pdfAccentStrengthLabels: Record<PdfAccentStrength, string> = {
   strong: "Strong",
 };
 
-const accentPalette: Record<PdfAccentTone, Record<PdfAccentStrength, string>> = {
+const accentPalette: Record<
+  PdfAccentTone,
+  Record<PdfAccentStrength, string>
+> = {
   slate: {
     soft: "#64748b",
     balanced: "#475569",
@@ -212,8 +225,6 @@ export const pdfLayouts: Record<PdfLayoutId, PdfLayoutDefinition> = {
     sectionLabelLetterSpacingEm: 0.18,
     sectionLabelTransform: "uppercase",
     summaryLabelVisible: true,
-    sectionHeadingStyle: "sidebar",
-    headerAlignment: "left",
   },
   "classic-centered": {
     id: "classic-centered",
@@ -235,8 +246,6 @@ export const pdfLayouts: Record<PdfLayoutId, PdfLayoutDefinition> = {
     sectionLabelLetterSpacingEm: 0,
     sectionLabelTransform: "uppercase",
     summaryLabelVisible: false,
-    sectionHeadingStyle: "top-rule",
-    headerAlignment: "center",
   },
 };
 
@@ -247,22 +256,22 @@ function isObject(value: unknown): value is Record<string, unknown> {
 function closestPresetId<T extends string>(
   value: number | undefined,
   presets: Record<T, number>,
-  fallback: T
+  fallback: T,
 ): T {
   if (typeof value !== "number" || Number.isNaN(value)) {
     return fallback;
   }
 
-  return (Object.entries(presets) as [T, number][])
-    .sort(
-      (left, right) =>
-        Math.abs(left[1] - value) - Math.abs(right[1] - value)
-    )[0]?.[0] ?? fallback;
+  return (
+    (Object.entries(presets) as [T, number][]).sort(
+      (left, right) => Math.abs(left[1] - value) - Math.abs(right[1] - value),
+    )[0]?.[0] ?? fallback
+  );
 }
 
 function normalizeAccentTone(
   value: unknown,
-  fallback: PdfAccentTone
+  fallback: PdfAccentTone,
 ): PdfAccentTone {
   return pdfAccentTones.includes(value as PdfAccentTone)
     ? (value as PdfAccentTone)
@@ -271,17 +280,14 @@ function normalizeAccentTone(
 
 function normalizeAccentStrength(
   value: unknown,
-  fallback: PdfAccentStrength
+  fallback: PdfAccentStrength,
 ): PdfAccentStrength {
   return pdfAccentStrengths.includes(value as PdfAccentStrength)
     ? (value as PdfAccentStrength)
     : fallback;
 }
 
-function normalizeLayoutId(
-  layoutId: unknown,
-  themeId: unknown
-): PdfLayoutId {
+function normalizeLayoutId(layoutId: unknown, themeId: unknown): PdfLayoutId {
   if (pdfLayoutIds.includes(layoutId as PdfLayoutId)) {
     return layoutId as PdfLayoutId;
   }
@@ -293,11 +299,34 @@ function normalizeLayoutId(
   return "sidebar-headings";
 }
 
+function defaultProfileLayoutIdForLayout(
+  layoutId: PdfLayoutId,
+): PdfProfileLayoutId {
+  if (layoutId === "classic-centered") {
+    return "centered-portrait-profile";
+  }
+
+  return "sidebar-profile";
+}
+
+function normalizeProfileLayoutId(
+  profileLayoutId: unknown,
+  layoutId: PdfLayoutId,
+): PdfProfileLayoutId {
+  if (pdfProfileLayoutIds.includes(profileLayoutId as PdfProfileLayoutId)) {
+    return profileLayoutId as PdfProfileLayoutId;
+  }
+
+  return defaultProfileLayoutIdForLayout(layoutId);
+}
+
 function normalizePresetOverrides(
   overrides: Record<string, unknown>,
-  fallback: PdfPresentationOverrides
+  fallback: PdfPresentationOverrides,
 ): PdfPresentationOverrides {
-  const normalizedSpacing = pdfSpacingIds.includes(overrides.spacing as PdfSpacingId)
+  const normalizedSpacing = pdfSpacingIds.includes(
+    overrides.spacing as PdfSpacingId,
+  )
     ? (overrides.spacing as PdfSpacingId)
     : pdfSpacingIds.includes(overrides.sectionSpacing as PdfSpacingId)
       ? (overrides.sectionSpacing as PdfSpacingId)
@@ -308,7 +337,7 @@ function normalizePresetOverrides(
       ? (overrides.typeScale as PdfTypeScaleId)
       : fallback.typeScale,
     lineHeight: pdfLineHeightIds.includes(
-      overrides.lineHeight as PdfLineHeightId
+      overrides.lineHeight as PdfLineHeightId,
     )
       ? (overrides.lineHeight as PdfLineHeightId)
       : fallback.lineHeight,
@@ -316,35 +345,37 @@ function normalizePresetOverrides(
     accentTone: normalizeAccentTone(overrides.accentTone, fallback.accentTone),
     accentStrength: normalizeAccentStrength(
       overrides.accentStrength,
-      fallback.accentStrength
+      fallback.accentStrength,
     ),
   };
 }
 
 function normalizeLegacyOverrides(
   overrides: LegacyPdfPresentationInput["overrides"],
-  fallback: PdfPresentationOverrides
+  fallback: PdfPresentationOverrides,
 ): PdfPresentationOverrides {
   return {
     typeScale: closestPresetId(
       overrides?.fontSizePx,
       typeScaleValues,
-      fallback.typeScale
+      fallback.typeScale,
     ),
     lineHeight: closestPresetId(
-      typeof overrides?.lineHeight === "number" ? overrides.lineHeight : undefined,
+      typeof overrides?.lineHeight === "number"
+        ? overrides.lineHeight
+        : undefined,
       lineHeightValues,
-      fallback.lineHeight
+      fallback.lineHeight,
     ),
     spacing: closestPresetId(
       overrides?.sectionSpacingPx,
       sectionSpacingValues,
-      fallback.spacing
+      fallback.spacing,
     ),
     accentTone: normalizeAccentTone(overrides?.accentTone, fallback.accentTone),
     accentStrength: normalizeAccentStrength(
       overrides?.accentStrength,
-      fallback.accentStrength
+      fallback.accentStrength,
     ),
   };
 }
@@ -352,6 +383,7 @@ function normalizeLegacyOverrides(
 export function createDefaultPdfPresentation(): PdfPresentation {
   return {
     layoutId: "sidebar-headings",
+    profileLayoutId: "sidebar-profile",
     overrides: {
       ...pdfLayouts["sidebar-headings"].defaults,
     },
@@ -364,7 +396,14 @@ export function normalizePdfPresentation(input: unknown): PdfPresentation {
   }
 
   const presentation = input as LegacyPdfPresentationInput;
-  const layoutId = normalizeLayoutId(presentation.layoutId, presentation.themeId);
+  const layoutId = normalizeLayoutId(
+    presentation.layoutId,
+    presentation.themeId,
+  );
+  const profileLayoutId = normalizeProfileLayoutId(
+    presentation.profileLayoutId,
+    layoutId,
+  );
   const defaults = pdfLayouts[layoutId].defaults;
 
   const normalizedOverrides =
@@ -379,12 +418,13 @@ export function normalizePdfPresentation(input: unknown): PdfPresentation {
 
   return {
     layoutId,
+    profileLayoutId,
     overrides: normalizedOverrides,
   };
 }
 
 export function resolvePdfPresentation(
-  presentation?: PdfPresentation
+  presentation?: PdfPresentation,
 ): ResolvedPdfPresentation {
   const normalizedPresentation = normalizePdfPresentation(presentation);
   const layout = pdfLayouts[normalizedPresentation.layoutId];
@@ -402,6 +442,7 @@ export function resolvePdfPresentation(
   return {
     layout,
     layoutId: normalizedPresentation.layoutId,
+    profileLayoutId: normalizedPresentation.profileLayoutId,
     bodyFontFamily: layout.bodyFontFamily,
     headingFontFamily: layout.headingFontFamily,
     bodyTextColor: layout.bodyTextColor,

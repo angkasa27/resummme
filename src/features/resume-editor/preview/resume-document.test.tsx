@@ -27,6 +27,7 @@ describe("resume document", () => {
   it("uses the accent color for the name and renders a centered portrait in the classic-centered layout", () => {
     const draft = createDefaultResumeDraft();
     draft.pdfPresentation.layoutId = "classic-centered";
+    draft.pdfPresentation.profileLayoutId = "centered-portrait-profile";
     draft.pdfPresentation.overrides.accentTone = "emerald";
     draft.profile.photo = "https://images.example.com/profile.jpg";
 
@@ -45,6 +46,7 @@ describe("resume document", () => {
   it("places the sidebar photo on the left as a portrait and keeps the name accented", () => {
     const draft = createDefaultResumeDraft();
     draft.pdfPresentation.layoutId = "sidebar-headings";
+    draft.pdfPresentation.profileLayoutId = "sidebar-profile";
     draft.pdfPresentation.overrides.accentTone = "blue";
     draft.profile.photo = "https://images.example.com/profile.jpg";
 
@@ -295,7 +297,7 @@ describe("resume document", () => {
 
     render(<ResumeDocument draft={draft} />);
 
-    const sectionHeading = screen.getByRole("heading", { name: "Projects" });
+    const sectionHeading = screen.getByRole("heading", { name: /projects/i });
     expect(sectionHeading).toHaveStyle({ color: "rgb(225, 29, 72)" });
 
     const projectLink = screen.getByRole("link", { name: "Resume Export" });

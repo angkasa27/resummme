@@ -14,7 +14,10 @@ describe("preview control registry", () => {
       />
     );
 
-    expect(screen.getByRole("combobox", { name: /layout/i })).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: /^layout$/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("combobox", { name: /profile layout/i })
+    ).toBeInTheDocument();
     expect(
       screen.getByRole("combobox", { name: /type scale/i })
     ).toBeInTheDocument();
@@ -25,13 +28,13 @@ describe("preview control registry", () => {
 
   it("accepts a fake control definition without changing the toolbar component", async () => {
     const user = userEvent.setup();
-    const handleChange = vi.fn();
+    const updatePresentation = vi.fn();
     const presentation = createDefaultResumeDraft().pdfPresentation;
 
     render(
       <PreviewToolbarContent
         presentation={presentation}
-        onChange={handleChange}
+        onChange={updatePresentation}
         definitions={[
           {
             id: "fake-spacing",
@@ -55,6 +58,6 @@ describe("preview control registry", () => {
     );
 
     await user.click(screen.getByRole("button", { name: /fake spacing far/i }));
-    expect(handleChange).toHaveBeenCalledWith(presentation);
+    expect(updatePresentation).toHaveBeenCalledWith(presentation);
   });
 });

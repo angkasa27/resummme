@@ -1,23 +1,23 @@
-import { classicCenteredLayout } from "@/features/resume-editor/preview/layouts/classic-centered/page";
-import { sidebarHeadingsLayout } from "@/features/resume-editor/preview/layouts/sidebar-headings/page";
+import { classicCenteredLayout } from "@/features/resume-editor/preview/layouts/classic-centered/definition";
+import { sidebarHeadingsLayout } from "@/features/resume-editor/preview/layouts/sidebar-headings/definition";
 import type { PdfLayoutId } from "@/features/resume-editor/domain/presentation/pdf-presentation";
 
-import type { PreviewLayoutDefinition } from "./types";
+import type { PreviewDocumentLayoutDefinition } from "./types";
 
 export const previewLayoutDefinitions = [
   sidebarHeadingsLayout,
   classicCenteredLayout,
-] as const satisfies ReadonlyArray<PreviewLayoutDefinition>;
+] as const satisfies ReadonlyArray<PreviewDocumentLayoutDefinition>;
 
 export function createPreviewLayoutRegistry(
-  definitions: ReadonlyArray<PreviewLayoutDefinition> = previewLayoutDefinitions,
+  definitions: ReadonlyArray<PreviewDocumentLayoutDefinition> = previewLayoutDefinitions,
 ) {
   return new Map(definitions.map((definition) => [definition.id, definition]));
 }
 
 export function getPreviewLayoutDefinition(
   layoutId: PdfLayoutId,
-  definitions: ReadonlyArray<PreviewLayoutDefinition> = previewLayoutDefinitions,
+  definitions: ReadonlyArray<PreviewDocumentLayoutDefinition> = previewLayoutDefinitions,
 ) {
   const registry = createPreviewLayoutRegistry(definitions);
   const definition = registry.get(layoutId);

@@ -1,19 +1,11 @@
 import { createPreviewRenderContext } from "@/features/resume-editor/preview/engine";
 import { PreviewDocumentRoot } from "@/features/resume-editor/preview/kit/document-root";
 import { getPreviewLayoutDefinition } from "@/features/resume-editor/preview/layout-registry";
+import { getPreviewProfileLayoutDefinition } from "@/features/resume-editor/preview/profile-layout-registry";
 import type {
   PreviewRendererProps,
-  PreviewRenderableSection,
-  PreviewSectionItemRendererMap,
 } from "@/features/resume-editor/preview/types";
 import { cn } from "@/lib/utils";
-
-function renderSectionItems<K extends keyof PreviewSectionItemRendererMap>(
-  section: PreviewRenderableSection<K>,
-  itemRenderers: PreviewSectionItemRendererMap,
-) {
-  return section.items.map((item) => itemRenderers[section.key](item));
-}
 
 export function ResumeDocument({
   draft,
@@ -22,26 +14,20 @@ export function ResumeDocument({
 }: PreviewRendererProps) {
   const context = createPreviewRenderContext(draft, mode);
   const layout = getPreviewLayoutDefinition(context.presentation.layoutId);
+  const profileLayout = getPreviewProfileLayoutDefinition(
+    context.presentation.profileLayoutId,
+  );
   const itemRenderers = layout.createSectionItemRenderers(context);
 
   return (
     <PreviewDocumentRoot context={context} className={cn(className)}>
-      <layout.Header context={context} />
-      {context.summaryContent ? (
-        <layout.SummarySection
-          context={context}
-          content={context.summaryContent}
-        />
-      ) : null}
-      {context.sections.map((section) => (
-        <layout.CollectionSection
-          key={section.key}
-          context={context}
-          section={section}
-        >
-          {renderSectionItems(section, itemRenderers)}
-        </layout.CollectionSection>
-      ))}
+      <profileLayout.Header context={context} />
+      <layout.Body
+        context={context}
+        summaryContent={context.summaryContent}
+        sections={context.sections}
+        itemRenderers={itemRenderers}
+      />
     </PreviewDocumentRoot>
   );
 }

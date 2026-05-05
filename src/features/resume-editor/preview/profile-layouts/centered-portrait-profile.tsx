@@ -2,26 +2,28 @@ import {
   PreviewContactLine,
 } from "@/features/resume-editor/preview/kit/contact-line";
 import { PreviewHeaderPhoto } from "@/features/resume-editor/preview/kit/header-photo";
-import type { PreviewRenderContext } from "@/features/resume-editor/preview/types";
+import type { PreviewProfileLayoutDefinition } from "@/features/resume-editor/preview/types";
 
-export function sidebarHeader(context: PreviewRenderContext) {
-  const { draft, presentation } = context;
+export const centeredPortraitProfileLayout: PreviewProfileLayoutDefinition = {
+  id: "centered-portrait-profile",
+  Header: ({ context }) => {
+    const { draft, presentation } = context;
 
-  return (
-    <header
-      data-layout={presentation.layoutId}
-      className="flex items-start justify-between gap-6 border-b pb-5"
-    >
-      <div className="flex flex-1 items-center gap-6">
+    return (
+      <header
+        data-layout={presentation.layoutId}
+        data-profile-layout="centered-portrait-profile"
+        className="flex flex-col items-center gap-3 text-center"
+      >
         <PreviewHeaderPhoto
           src={draft.profile.photo}
           alt={draft.profile.fullName}
-          className="h-24 w-18 shrink-0"
+          className="h-24 w-18"
         />
-        <div className="flex-1">
+        <div className="w-full">
           <h1
             data-testid="resume-preview-full-name"
-            className="tracking-[-0.03em]"
+            className="text-balance tracking-[-0.03em]"
             style={{
               fontFamily: presentation.headingFontFamily,
               fontSize: `${presentation.nameFontSizePx}px`,
@@ -32,9 +34,9 @@ export function sidebarHeader(context: PreviewRenderContext) {
           >
             {draft.profile.fullName}
           </h1>
-          <PreviewContactLine context={context} />
+          <PreviewContactLine context={context} centered />
         </div>
-      </div>
-    </header>
-  );
-}
+      </header>
+    );
+  },
+};

@@ -13,6 +13,8 @@ import {
   pdfAccentTones,
   pdfLayoutIds,
   pdfLayoutLabels,
+  pdfProfileLayoutIds,
+  pdfProfileLayoutLabels,
   pdfLineHeightIds,
   pdfLineHeightLabels,
   pdfSpacingIds,
@@ -106,6 +108,20 @@ export const previewControlDefinitions = [
     options: pdfLayoutIds.map((value) => ({
       value,
       label: pdfLayoutLabels[value],
+    })),
+  },
+  {
+    id: "profile-layout",
+    kind: "select",
+    label: "Profile layout",
+    value: (presentation) => presentation.profileLayoutId,
+    update: (nextValue, presentation) => ({
+      ...presentation,
+      profileLayoutId: nextValue as PdfPresentation["profileLayoutId"],
+    }),
+    options: pdfProfileLayoutIds.map((value) => ({
+      value,
+      label: pdfProfileLayoutLabels[value],
     })),
   },
   {
@@ -246,5 +262,6 @@ export const previewControlDefinitions = [
 
 export const previewControlLabelIcons = {
   layout: LayoutTemplateIcon,
+  "profile-layout": LayoutTemplateIcon,
   "type-scale": TypeIcon,
 };
