@@ -1,8 +1,7 @@
 import { generateResumePdf } from "@/features/resume-editor/server/generate-resume-pdf";
-import { parseResumeDraft } from "@/lib/resume/schema";
+import { parseResumeDraft } from "@/features/resume-editor/domain/schema";
 
 export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
   let body: unknown;

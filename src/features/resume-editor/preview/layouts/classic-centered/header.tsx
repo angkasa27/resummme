@@ -1,7 +1,7 @@
 import {
   PreviewContactLine,
-  PreviewHeaderPhoto,
-} from "@/features/resume-editor/preview/kit";
+} from "@/features/resume-editor/preview/kit/contact-line";
+import { PreviewHeaderPhoto } from "@/features/resume-editor/preview/kit/header-photo";
 import type { PreviewRenderContext } from "@/features/resume-editor/preview/types";
 
 export function classicHeader(context: PreviewRenderContext) {

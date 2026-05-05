@@ -1,1 +1,0 @@
-export { classicCenteredLayout } from "./page";

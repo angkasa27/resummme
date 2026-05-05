@@ -3,7 +3,7 @@ import type { CSSProperties } from "react";
 import {
   sanitizeRichTextHref,
   shouldOpenHrefInNewTab,
-} from "@/lib/resume/sanitize-rich-text";
+} from "@/features/resume-editor/domain/rich-text/sanitize-rich-text";
 
 export function PreviewLinkedTitle({
   title,

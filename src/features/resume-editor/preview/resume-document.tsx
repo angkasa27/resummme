@@ -1,5 +1,5 @@
 import { createPreviewRenderContext } from "@/features/resume-editor/preview/engine";
-import { PreviewDocumentRoot } from "@/features/resume-editor/preview/kit";
+import { PreviewDocumentRoot } from "@/features/resume-editor/preview/kit/document-root";
 import { getPreviewLayoutDefinition } from "@/features/resume-editor/preview/layout-registry";
 import type {
   PreviewRendererProps,

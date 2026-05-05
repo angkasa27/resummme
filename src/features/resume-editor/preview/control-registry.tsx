@@ -20,7 +20,7 @@ import {
   pdfTypeScaleIds,
   pdfTypeScaleLabels,
   type PdfPresentation,
-} from "@/lib/resume/pdf-presentation";
+} from "@/features/resume-editor/domain/presentation/pdf-presentation";
 import type { PreviewControlDefinition } from "@/features/resume-editor/preview/types";
 
 function spacingGlyph({

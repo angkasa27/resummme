@@ -1,12 +1,11 @@
 import type {
   CollectionSectionKey,
-} from "@/features/resume-editor/config/section-metadata";
+} from "@/features/resume-editor/domain/sections/section-metadata";
 import type {
-  PdfLayoutId,
   PdfPresentation,
   ResolvedPdfPresentation,
-} from "@/lib/resume/pdf-presentation";
-import type { ResumeDraft } from "@/lib/resume/schema";
+} from "@/features/resume-editor/domain/presentation/pdf-presentation";
+import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
 import type { ReactNode } from "react";
 
 export type PreviewMode = "preview" | "pdf";

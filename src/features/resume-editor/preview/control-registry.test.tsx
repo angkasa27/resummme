@@ -2,8 +2,8 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
-import { PreviewToolbarContent } from "@/features/resume-editor/preview-pane";
-import { createDefaultResumeDraft } from "@/lib/resume/default-draft";
+import { PreviewToolbarContent } from "@/features/resume-editor/preview/components/preview-toolbar-content";
+import { createDefaultResumeDraft } from "@/features/resume-editor/domain/draft/create-default-resume-draft";
 
 describe("preview control registry", () => {
   it("renders the default toolbar controls from the registry", async () => {

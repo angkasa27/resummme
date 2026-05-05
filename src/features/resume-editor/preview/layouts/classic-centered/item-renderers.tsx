@@ -1,7 +1,7 @@
 import {
   PreviewLinkedTitle,
-  PreviewRichTextBlock,
-} from "@/features/resume-editor/preview/kit";
+} from "@/features/resume-editor/preview/kit/linked-title";
+import { PreviewRichTextBlock } from "@/features/resume-editor/preview/kit/rich-text-block";
 import {
   createClassicItemStyles,
   itemContainer,
@@ -12,7 +12,7 @@ import type {
   PreviewRenderContext,
   PreviewSectionItemRendererMap,
 } from "@/features/resume-editor/preview/types";
-import type { ResumeDraft } from "@/lib/resume/schema";
+import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
 
 function renderCompactMetaLine({
   title,

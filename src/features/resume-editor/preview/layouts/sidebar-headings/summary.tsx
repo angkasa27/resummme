@@ -1,4 +1,4 @@
-import { PreviewRichTextBlock } from "@/features/resume-editor/preview/kit";
+import { PreviewRichTextBlock } from "@/features/resume-editor/preview/kit/rich-text-block";
 import type { PreviewRenderContext } from "@/features/resume-editor/preview/types";
 
 export function sidebarSummarySection(

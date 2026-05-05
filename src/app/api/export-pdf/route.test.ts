@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { createDefaultResumeDraft } from "@/lib/resume/default-draft";
+import { createDefaultResumeDraft } from "@/features/resume-editor/domain/draft/create-default-resume-draft";
 
 const { generateResumePdf } = vi.hoisted(() => ({
   generateResumePdf: vi.fn(),

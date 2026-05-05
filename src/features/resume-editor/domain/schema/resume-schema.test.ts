@@ -1,0 +1,149 @@
+import { describe, expect, it } from "vitest";
+
+import { createDefaultResumeDraft } from "@/features/resume-editor/domain/draft/create-default-resume-draft";
+import { parseResumeDraft, profileSchema } from "@/features/resume-editor/domain/schema";
+
+describe("resume schema", () => {
+  it("parses the default resume draft", () => {
+    const draft = createDefaultResumeDraft();
+
+    const parsed = parseResumeDraft(draft);
+
+    expect(parsed.schemaVersion).toBe(2);
+    expect(parsed.templateId).toBe("recruiter-first-clean");
+    expect(parsed.pdfPresentation.layoutId).toBe("sidebar-headings");
+    expect(parsed.pdfPresentation.overrides.typeScale).toBe("standard");
+    expect(parsed.profile.fullName).toBeTruthy();
+  });
+
+  it("fills default pdf presentation settings for older drafts", () => {
+    const draft = createDefaultResumeDraft();
+    const { pdfPresentation: omittedPdfPresentation, ...legacyDraft } = draft;
+    void omittedPdfPresentation;
+
+    const parsed = parseResumeDraft(legacyDraft);
+
+    expect(parsed.pdfPresentation).toEqual(draft.pdfPresentation);
+  });
+
+  it("normalizes legacy numeric pdf presentation overrides to preset tokens", () => {
+    const draft = createDefaultResumeDraft();
+
+    const parsed = parseResumeDraft({
+      ...draft,
+      pdfPresentation: {
+        themeId: "classic-serif",
+        overrides: {
+          fontSizePx: 14.8,
+          lineHeight: 1.9,
+          sectionSpacingPx: 34,
+          itemSpacingPx: 27,
+          accentTone: "emerald",
+          accentStrength: "strong",
+        },
+      },
+    });
+
+    expect(parsed.pdfPresentation).toEqual({
+      layoutId: "sidebar-headings",
+      overrides: {
+        typeScale: "large",
+        lineHeight: "relaxed",
+        spacing: "airy",
+        accentTone: "emerald",
+        accentStrength: "strong",
+      },
+    });
+  });
+
+  it("rejects unsupported schema versions", () => {
+    const draft = createDefaultResumeDraft();
+
+    expect(() =>
+      parseResumeDraft({
+        ...draft,
+        schemaVersion: 99,
+      })
+    ).toThrow(/schemaVersion/i);
+  });
+
+  it("rejects malformed profile links", () => {
+    const draft = createDefaultResumeDraft();
+
+    expect(() =>
+      profileSchema.parse({
+        ...draft.profile,
+        extraLinks: [
+          {
+            id: "link-1",
+            url: "not-a-url",
+          },
+        ],
+      })
+    ).toThrow(/url/i);
+  });
+
+  it("rejects legacy profile link objects that still include labels", () => {
+    const draft = createDefaultResumeDraft();
+
+    expect(() =>
+      parseResumeDraft({
+        ...draft,
+        profile: {
+          ...draft.profile,
+          extraLinks: [
+            {
+              id: "link-1",
+              label: "Portfolio",
+              url: "https://asaa.dev",
+            },
+          ],
+        },
+      })
+    ).toThrow();
+  });
+
+  it("allows blank summary content in stored drafts", () => {
+    const draft = createDefaultResumeDraft();
+
+    expect(() =>
+      parseResumeDraft({
+        ...draft,
+        sections: {
+          ...draft.sections,
+          summary: {
+            ...draft.sections.summary,
+            content: "",
+          },
+        },
+      })
+    ).not.toThrow();
+  });
+
+  it("keeps default visible sections focused on the core resume flow", () => {
+    const draft = createDefaultResumeDraft();
+
+    expect(draft.sections.summary.visible).toBe(true);
+    expect(draft.sections.workExperience.visible).toBe(true);
+    expect(draft.sections.skills.visible).toBe(true);
+    expect(draft.sections.projects.visible).toBe(true);
+    expect(draft.sections.education.visible).toBe(true);
+    expect(draft.sections.publications.visible).toBe(false);
+    expect(draft.sections.references.visible).toBe(false);
+  });
+
+  it("seeds every collection section with one empty item", () => {
+    const draft = createDefaultResumeDraft();
+
+    expect(draft.sections.workExperience.items).toHaveLength(1);
+    expect(draft.sections.skills.items).toHaveLength(1);
+    expect(draft.sections.projects.items).toHaveLength(1);
+    expect(draft.sections.education.items).toHaveLength(1);
+    expect(draft.sections.publications.items).toHaveLength(1);
+    expect(draft.sections.certifications.items).toHaveLength(1);
+    expect(draft.sections.awards.items).toHaveLength(1);
+    expect(draft.sections.languages.items).toHaveLength(1);
+    expect(draft.sections.references.items).toHaveLength(1);
+    expect(draft.sections.organizationVolunteering.items).toHaveLength(1);
+  });
+});

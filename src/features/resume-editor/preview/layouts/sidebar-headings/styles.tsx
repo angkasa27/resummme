@@ -1,6 +1,6 @@
 import type { CSSProperties, ReactNode } from "react";
 
-import type { ResolvedPdfPresentation } from "@/lib/resume/pdf-presentation";
+import type { ResolvedPdfPresentation } from "@/features/resume-editor/domain/presentation/pdf-presentation";
 
 export type SidebarItemStyles = {
   item: CSSProperties;

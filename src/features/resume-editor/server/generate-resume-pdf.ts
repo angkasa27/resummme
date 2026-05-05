@@ -1,7 +1,7 @@
 import { chromium, type Browser } from "playwright";
 
-import { exportResumeDraft } from "@/lib/resume/storage";
-import type { ResumeDraft } from "@/lib/resume/schema";
+import { exportResumeDraft } from "@/features/resume-editor/domain/draft/resume-draft-storage";
+import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
 import { RESUME_PDF_SESSION_STORAGE_KEY } from "@/features/resume-editor/server/resume-pdf-session";
 
 type GenerateResumePdfOptions = {

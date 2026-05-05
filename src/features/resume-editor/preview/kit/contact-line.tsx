@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import {
   shouldOpenHrefInNewTab,
-} from "@/lib/resume/sanitize-rich-text";
+} from "@/features/resume-editor/domain/rich-text/sanitize-rich-text";
 
 import type { PreviewContactItem } from "../types";
 import type { PreviewRenderContext } from "../types";

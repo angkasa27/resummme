@@ -3,8 +3,8 @@ import { beforeEach, describe, expect, it } from "vitest";
 
 import { ResumePdfPage } from "@/features/resume-editor/preview/resume-pdf-page";
 import { RESUME_PDF_SESSION_STORAGE_KEY } from "@/features/resume-editor/server/resume-pdf-session";
-import { createDefaultResumeDraft } from "@/lib/resume/default-draft";
-import { exportResumeDraft } from "@/lib/resume/storage";
+import { createDefaultResumeDraft } from "@/features/resume-editor/domain/draft/create-default-resume-draft";
+import { exportResumeDraft } from "@/features/resume-editor/domain/draft/resume-draft-storage";
 
 describe("resume pdf page", () => {
   beforeEach(() => {

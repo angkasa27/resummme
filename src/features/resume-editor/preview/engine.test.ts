@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { createPreviewRenderContext } from "@/features/resume-editor/preview/engine";
-import { createDefaultResumeDraft } from "@/lib/resume/default-draft";
+import { createDefaultResumeDraft } from "@/features/resume-editor/domain/draft/create-default-resume-draft";
 
 describe("preview render context", () => {
   it("normalizes visible renderable sections without repeating empty items", () => {

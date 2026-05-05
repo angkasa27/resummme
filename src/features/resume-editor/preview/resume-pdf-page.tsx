@@ -5,7 +5,7 @@ import { useMemo } from "react";
 import { ResumeDocument } from "@/features/resume-editor/preview/resume-document";
 import { RESUME_PDF_SESSION_STORAGE_KEY } from "@/features/resume-editor/server/resume-pdf-session";
 import { useClientReady } from "@/hooks/use-client-ready";
-import { importResumeDraft } from "@/lib/resume/storage";
+import { importResumeDraft } from "@/features/resume-editor/domain/draft/resume-draft-storage";
 
 export function ResumePdfPage() {
   const isClientReady = useClientReady();

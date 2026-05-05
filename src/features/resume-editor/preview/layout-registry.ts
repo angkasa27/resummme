@@ -1,6 +1,6 @@
-import { classicCenteredLayout } from "@/features/resume-editor/preview/layouts/classic-centered";
-import { sidebarHeadingsLayout } from "@/features/resume-editor/preview/layouts/sidebar-headings";
-import type { PdfLayoutId } from "@/lib/resume/pdf-presentation";
+import { classicCenteredLayout } from "@/features/resume-editor/preview/layouts/classic-centered/page";
+import { sidebarHeadingsLayout } from "@/features/resume-editor/preview/layouts/sidebar-headings/page";
+import type { PdfLayoutId } from "@/features/resume-editor/domain/presentation/pdf-presentation";
 
 import type { PreviewLayoutDefinition } from "./types";
 

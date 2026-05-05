@@ -3,13 +3,13 @@ import {
   isCollectionSectionKey,
   sectionLabels,
   type CollectionSectionKey,
-} from "@/features/resume-editor/config/section-metadata";
-import { resolvePdfPresentation } from "@/lib/resume/pdf-presentation";
+} from "@/features/resume-editor/domain/sections/section-metadata";
+import { resolvePdfPresentation } from "@/features/resume-editor/domain/presentation/pdf-presentation";
 import {
   sanitizeRichTextHref,
   sanitizeRichTextHtml,
-} from "@/lib/resume/sanitize-rich-text";
-import type { ResumeDraft } from "@/lib/resume/schema";
+} from "@/features/resume-editor/domain/rich-text/sanitize-rich-text";
+import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
 
 import type {
   AnyPreviewRenderableSection,

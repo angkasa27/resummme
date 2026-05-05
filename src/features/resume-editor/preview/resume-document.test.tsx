@@ -2,7 +2,7 @@ import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { ResumeDocument } from "@/features/resume-editor/preview/resume-document";
-import { createDefaultResumeDraft } from "@/lib/resume/default-draft";
+import { createDefaultResumeDraft } from "@/features/resume-editor/domain/draft/create-default-resume-draft";
 
 describe("resume document", () => {
   it("renders profile extra links as safe anchors", () => {
