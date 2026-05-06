@@ -1,5 +1,5 @@
-import { ResumeEditorShell } from "@/features/resume-editor/editor/shell/resume-editor-shell";
+import { ResumeEditorCanvas } from "@/features/resume-editor/canvas/resume-editor-canvas";
 
 export default function Home() {
-  return <ResumeEditorShell />;
+  return <ResumeEditorCanvas />;
 }

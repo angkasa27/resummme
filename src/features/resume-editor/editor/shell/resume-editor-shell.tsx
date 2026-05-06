@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import React from "react";
 
 import {
@@ -95,6 +96,15 @@ export function ResumeEditorShell({ initialDraft }: ResumeEditorShellProps) {
             <h1 className="truncate text-sm font-semibold tracking-tight">
               Resume Editor
             </h1>
+            <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+              Legacy
+            </span>
+            <Link
+              href="/"
+              className="text-xs text-muted-foreground underline-offset-4 hover:underline"
+            >
+              Back to canvas
+            </Link>
             <ResumeEditorShellActions
               onImport={openImportPicker}
               onExport={handleExport}
