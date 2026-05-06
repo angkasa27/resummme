@@ -1,10 +1,16 @@
 "use client";
 
-import { ArrowDownIcon, ArrowUpIcon, PencilIcon, Trash2Icon } from "lucide-react";
+import {
+  ArrowDownIcon,
+  ArrowUpIcon,
+  PencilIcon,
+  Trash2Icon,
+} from "lucide-react";
 import type { ReactNode } from "react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { ButtonGroup } from "@/components/ui/button-group";
 
 type CanvasSectionShellProps = {
   children: ReactNode;
@@ -40,11 +46,11 @@ export function CanvasSectionShell({
       aria-label={ariaLabel}
     >
       {!isEditing ? (
-        <div className="pointer-events-none absolute right-2 top-2 z-10 flex items-center gap-1 rounded-md border bg-background/95 p-1 opacity-0 shadow-sm backdrop-blur transition-opacity group-hover/section:pointer-events-auto group-hover/section:opacity-100 print:hidden">
+        <ButtonGroup className="pointer-events-none absolute right-2 top-2 z-20 drop-shadow-sm opacity-0 transition-opacity group-hover/section:pointer-events-auto group-hover/section:opacity-100 print:hidden bg-white rounded-md">
           {onEdit ? (
             <Button
               type="button"
-              variant="ghost"
+              variant="outline"
               size="icon-sm"
               aria-label={`Edit ${ariaLabel}`}
               onClick={onEdit}
@@ -55,7 +61,7 @@ export function CanvasSectionShell({
           {onMoveUp ? (
             <Button
               type="button"
-              variant="ghost"
+              variant="outline"
               size="icon-sm"
               aria-label={`Move ${ariaLabel} up`}
               disabled={!canMoveUp}
@@ -67,7 +73,7 @@ export function CanvasSectionShell({
           {onMoveDown ? (
             <Button
               type="button"
-              variant="ghost"
+              variant="outline"
               size="icon-sm"
               aria-label={`Move ${ariaLabel} down`}
               disabled={!canMoveDown}
@@ -79,15 +85,16 @@ export function CanvasSectionShell({
           {onDelete ? (
             <Button
               type="button"
-              variant="ghost"
+              variant="destructive"
               size="icon-sm"
               aria-label={`Hide ${ariaLabel}`}
               onClick={onDelete}
+              className="border border-border! border-l-0"
             >
               <Trash2Icon className="text-destructive" />
             </Button>
           ) : null}
-        </div>
+        </ButtonGroup>
       ) : null}
 
       <div className="px-3 py-2">{children}</div>

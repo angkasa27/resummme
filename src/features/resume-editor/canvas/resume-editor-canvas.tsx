@@ -1,20 +1,25 @@
 "use client";
 
-import { Loader, PlusIcon } from "lucide-react";
+import { Loader, PlusIcon, SettingsIcon } from "lucide-react";
 import Link from "next/link";
 import { useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useClientReady } from "@/hooks/use-client-ready";
+
 import { useResumeEditorController } from "@/features/resume-editor/editor/hooks/use-resume-editor-controller";
 import { ResumeEditorShellActions } from "@/features/resume-editor/editor/shell/resume-editor-shell-actions";
-import { CollectionSectionPanel } from "@/features/resume-editor/editor/sections/collection-section-panel";
-import { ProfilePanel } from "@/features/resume-editor/editor/sections/profile-panel";
-import { SummaryPanel } from "@/features/resume-editor/editor/sections/summary-panel";
 import { CanvasSectionShell } from "@/features/resume-editor/canvas/canvas-section-shell";
-import { SectionEditBlock } from "@/features/resume-editor/canvas/section-edit-block";
-import { PreviewToolbar } from "@/features/resume-editor/preview/components/preview-toolbar";
+import { CanvasCollectionForm } from "@/features/resume-editor/canvas/forms/canvas-collection-form";
+import { CanvasProfileForm } from "@/features/resume-editor/canvas/forms/canvas-profile-form";
+import { CanvasSummaryForm } from "@/features/resume-editor/canvas/forms/canvas-summary-form";
+import { PreviewToolbarContent } from "@/features/resume-editor/preview/components/preview-toolbar-content";
 import { createPreviewRenderContext } from "@/features/resume-editor/preview/engine";
 import { PreviewDocumentRoot } from "@/features/resume-editor/preview/kit/document-root";
 import { getPreviewLayoutDefinition } from "@/features/resume-editor/preview/layout-registry";
@@ -28,7 +33,10 @@ import {
   type CollectionSectionKey,
   type ResumeSectionPanelKey,
 } from "@/features/resume-editor/domain/sections/section-metadata";
-import type { Profile, ResumeDraft } from "@/features/resume-editor/domain/schema";
+import type {
+  Profile,
+  ResumeDraft,
+} from "@/features/resume-editor/domain/schema";
 
 type ResumeEditorCanvasProps = {
   initialDraft?: ResumeDraft;
@@ -54,13 +62,10 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
 
   const [editing, setEditing] = useState<EditingTarget>(null);
   const profileSnapshotRef = useRef<Profile | null>(null);
-  const sectionSnapshotRef = useRef<
-    | {
-        key: ResumeSectionPanelKey;
-        value: ResumeDraft["sections"][ResumeSectionPanelKey];
-      }
-    | null
-  >(null);
+  const sectionSnapshotRef = useRef<{
+    key: ResumeSectionPanelKey;
+    value: ResumeDraft["sections"][ResumeSectionPanelKey];
+  } | null>(null);
 
   if (!isClientReady) {
     return (
@@ -99,10 +104,7 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
   }
 
   function startEditingSection<K extends ResumeSectionPanelKey>(key: K) {
-    sectionSnapshotRef.current = {
-      key,
-      value: draft.sections[key],
-    };
+    sectionSnapshotRef.current = { key, value: draft.sections[key] };
     setEditing(key);
   }
   function cancelEditingSection() {
@@ -150,21 +152,38 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
             href="/legacy"
             className="text-xs text-muted-foreground underline-offset-4 hover:underline"
           >
-            Open legacy editor
+            Legacy editor
           </Link>
-          <ResumeEditorShellActions
-            onImport={openImportPicker}
-            onExport={handleExport}
-            onExportPdf={handlePrint}
-          />
-        </header>
 
-        <div className="border-b bg-background print:hidden">
-          <PreviewToolbar
-            presentation={presentation}
-            onChange={savePdfPresentation}
-          />
-        </div>
+          <div className="ml-auto flex items-center gap-1.5">
+            <Popover>
+              <PopoverTrigger
+                render={
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    aria-label="Style settings"
+                  >
+                    <SettingsIcon data-icon="inline-start" />
+                    Style
+                  </Button>
+                }
+              />
+              <PopoverContent align="end" className="w-80">
+                <PreviewToolbarContent
+                  presentation={presentation}
+                  onChange={savePdfPresentation}
+                />
+              </PopoverContent>
+            </Popover>
+            <ResumeEditorShellActions
+              onImport={openImportPicker}
+              onExport={handleExport}
+              onExportPdf={handlePrint}
+            />
+          </div>
+        </header>
 
         <main className="flex flex-1 justify-center overflow-x-hidden px-4 py-8 sm:px-6 sm:py-10">
           <div className="w-full max-w-[920px]">
@@ -176,12 +195,12 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
                 onEdit={startEditingProfile}
               >
                 {editing === "profile" ? (
-                  <SectionEditBlock
+                  <CanvasProfileForm
+                    draft={draft}
+                    onSave={saveProfile}
                     onCancel={cancelEditingProfile}
                     onClose={() => setEditing(null)}
-                  >
-                    <ProfilePanel draft={draft} onSave={saveProfile} />
-                  </SectionEditBlock>
+                  />
                 ) : (
                   <ProfileHeader context={context} />
                 )}
@@ -195,15 +214,12 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
                   onEdit={() => startEditingSection("summary")}
                 >
                   {editing === "summary" ? (
-                    <SectionEditBlock
+                    <CanvasSummaryForm
+                      draft={draft}
+                      onSave={(value) => saveSection("summary", value)}
                       onCancel={cancelEditingSection}
                       onClose={() => setEditing(null)}
-                    >
-                      <SummaryPanel
-                        draft={draft}
-                        onSave={(value) => saveSection("summary", value)}
-                      />
-                    </SectionEditBlock>
+                    />
                   ) : (
                     layout.Summary({
                       context,
@@ -213,7 +229,7 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
                 </CanvasSectionShell>
               ) : null}
 
-              {/* Collection sections — visible */}
+              {/* Collection sections */}
               {visibleSectionKeys
                 .filter(isCollectionSectionKey)
                 .map((sectionKey) => {
@@ -221,12 +237,13 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
                   const renderable = context.sections.find(
                     (s) => s.key === sectionKey,
                   );
+                  const isEditing = editing === sectionKey;
 
                   return (
                     <CanvasSectionShell
                       key={sectionKey}
                       ariaLabel={sectionLabels[sectionKey]}
-                      isEditing={editing === sectionKey}
+                      isEditing={isEditing}
                       onEdit={() => startEditingSection(sectionKey)}
                       onMoveUp={() =>
                         reorderSection(sectionKey, orderIndex - 1)
@@ -238,17 +255,16 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
                       canMoveUp={orderIndex > 0}
                       canMoveDown={orderIndex < visibleSectionKeys.length - 1}
                     >
-                      {editing === sectionKey ? (
-                        <SectionEditBlock
+                      {isEditing ? (
+                        <CanvasCollectionForm
+                          draft={draft}
+                          sectionKey={sectionKey}
+                          onSave={(value) =>
+                            saveSection(sectionKey, value as never)
+                          }
                           onCancel={cancelEditingSection}
                           onClose={() => setEditing(null)}
-                        >
-                          <CollectionSectionPanel
-                            draft={draft}
-                            sectionKey={sectionKey}
-                            onSave={(value) => saveSection(sectionKey, value)}
-                          />
-                        </SectionEditBlock>
+                        />
                       ) : renderable ? (
                         layout.CollectionSection({
                           context,
@@ -277,11 +293,7 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
                       className="rounded-full"
                       onClick={() => {
                         setSectionVisibility(key, true);
-                        if (isCollectionSectionKey(key)) {
-                          startEditingSection(key);
-                        } else {
-                          startEditingSection(key);
-                        }
+                        startEditingSection(key);
                       }}
                     >
                       <PlusIcon data-icon="inline-start" />
