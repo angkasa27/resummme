@@ -12,7 +12,6 @@ import { profileFormSchema } from "@/features/resume-editor/domain/schema";
 import { createFormSchemaResolver } from "@/features/resume-editor/forms/schemas/create-form-schema-resolver";
 import { useAutoSave } from "@/features/resume-editor/forms/use-auto-save";
 import { useSyncedFormValues } from "@/features/resume-editor/forms/use-synced-form-values";
-import { RichTextEditor } from "@/features/resume-editor/editor/rich-text/rich-text-editor";
 import { CanvasFormShell } from "@/features/resume-editor/canvas/forms/canvas-form-shell";
 import type {
   Profile,
@@ -189,35 +188,6 @@ export function CanvasProfileForm({
           </Field>
         </div>
       </div>
-
-      {/* Short description */}
-      <Field
-        data-invalid={getFieldState("summary", formState).invalid || undefined}
-      >
-        <FieldContent>
-          <span className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-            Short description
-          </span>
-          <Controller
-            control={control}
-            name="summary"
-            render={({ field }) => (
-              <RichTextEditor
-                value={field.value}
-                ariaLabel="Short description"
-                invalid={getFieldState("summary", formState).invalid}
-                onChange={(value) =>
-                  form.setValue("summary", value, {
-                    shouldDirty: true,
-                    shouldValidate: formState.isSubmitted,
-                  })
-                }
-              />
-            )}
-          />
-          <FieldError errors={[getFieldState("summary", formState).error]} />
-        </FieldContent>
-      </Field>
 
       {/* Links */}
       <div className="flex flex-col gap-2">

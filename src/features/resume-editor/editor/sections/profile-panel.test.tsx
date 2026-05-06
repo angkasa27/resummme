@@ -12,24 +12,18 @@ describe("profile panel", () => {
     nextDraft.profile.fullName = "Stored Draft Name";
 
     const { rerender } = render(
-      <ProfilePanel
-        draft={initialDraft}
-        onSave={vi.fn()}
-      />
+      <ProfilePanel draft={initialDraft} onSave={vi.fn()} />,
     );
 
     expect(screen.getByLabelText(/full name/i)).toHaveValue(
-      initialDraft.profile.fullName
+      initialDraft.profile.fullName,
     );
 
-    rerender(
-      <ProfilePanel
-        draft={nextDraft}
-        onSave={vi.fn()}
-      />
-    );
+    rerender(<ProfilePanel draft={nextDraft} onSave={vi.fn()} />);
 
-    expect(screen.getByLabelText(/full name/i)).toHaveValue("Stored Draft Name");
+    expect(screen.getByLabelText(/full name/i)).toHaveValue(
+      "Stored Draft Name",
+    );
   });
 
   it("autosaves profile changes after the debounce window", async () => {
@@ -37,12 +31,7 @@ describe("profile panel", () => {
     const draft = createDefaultResumeDraft();
     const handleSave = vi.fn();
 
-    render(
-      <ProfilePanel
-        draft={draft}
-        onSave={handleSave}
-      />
-    );
+    render(<ProfilePanel draft={draft} onSave={handleSave} />);
 
     const fullNameInput = screen.getByLabelText(/full name/i);
     await user.clear(fullNameInput);
@@ -52,64 +41,34 @@ describe("profile panel", () => {
     await waitFor(
       () =>
         expect(handleSave).toHaveBeenLastCalledWith(
-        expect.objectContaining({
-          fullName: "Edited Profile Name",
-        })
-      ),
-      { timeout: 1500 }
-    );
-  });
-
-  it("renders rich text summary as user-facing content instead of raw HTML", () => {
-    const draft = createDefaultResumeDraft();
-    draft.profile.summary =
-      "<p>Software engineer with experience building frontend-heavy web applications and internal tools for product teams.</p>";
-
-    render(
-      <ProfilePanel
-        draft={draft}
-        onSave={vi.fn()}
-      />
-    );
-
-    expect(screen.queryByDisplayValue(/<p>Software engineer/)).not.toBeInTheDocument();
-    expect(
-      screen.getByText((content) =>
-        content.includes(
-          "Software engineer with experience building frontend-heavy web applications and internal tools for product teams.",
+          expect.objectContaining({
+            fullName: "Edited Profile Name",
+          }),
         ),
-      )
-    ).toBeInTheDocument();
+      { timeout: 1500 },
+    );
   });
 
   it("does not show required errors for blank profile fields", async () => {
     const user = userEvent.setup();
     const draft = createDefaultResumeDraft();
 
-    render(
-      <ProfilePanel
-        draft={draft}
-        onSave={vi.fn()}
-      />
-    );
+    render(<ProfilePanel draft={draft} onSave={vi.fn()} />);
 
     const fullNameInput = screen.getByLabelText(/full name/i);
     await user.clear(fullNameInput);
     await user.tab();
 
-    expect(screen.queryByText(/full name is required/i)).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(/full name is required/i),
+    ).not.toBeInTheDocument();
   });
 
   it("still shows format errors for malformed email addresses", async () => {
     const user = userEvent.setup();
     const draft = createDefaultResumeDraft();
 
-    render(
-      <ProfilePanel
-        draft={draft}
-        onSave={vi.fn()}
-      />
-    );
+    render(<ProfilePanel draft={draft} onSave={vi.fn()} />);
 
     const emailInput = screen.getByLabelText(/email address/i);
     await user.clear(emailInput);
@@ -117,7 +76,7 @@ describe("profile panel", () => {
     await user.tab();
 
     expect(
-      screen.getByText(/email address must be a valid email address/i)
+      screen.getByText(/email address must be a valid email address/i),
     ).toBeInTheDocument();
   });
 });

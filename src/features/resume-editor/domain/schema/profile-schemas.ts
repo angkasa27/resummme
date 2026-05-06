@@ -7,7 +7,6 @@ import {
   editorEmail,
   editorUrl,
   requiredEmail,
-  requiredRichText,
   requiredText,
   requiredUrl,
 } from "@/features/resume-editor/domain/schema/shared";
@@ -31,7 +30,6 @@ export const profileSchema = z.object({
   location: requiredText("Location"),
   phone: requiredText("Phone number"),
   email: requiredEmail("Email address"),
-  summary: requiredRichText("Short description"),
   photo: z.literal("").or(requiredUrl("Photo URL")),
   extraLinks: z.array(extraLinkSchema),
 });
@@ -41,7 +39,6 @@ export const profileFormSchema = z.object({
   location: draftText(),
   phone: draftText(),
   email: editorEmail("Email address"),
-  summary: draftRichText(),
   photo: editorUrl("Photo URL"),
   extraLinks: z.array(extraLinkFormSchema),
 });

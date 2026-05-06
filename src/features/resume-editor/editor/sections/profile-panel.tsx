@@ -19,10 +19,12 @@ import { profileFormSchema } from "@/features/resume-editor/domain/schema";
 import { createFormSchemaResolver } from "@/features/resume-editor/forms/schemas/create-form-schema-resolver";
 import { useAutoSave } from "@/features/resume-editor/forms/use-auto-save";
 import { useSyncedFormValues } from "@/features/resume-editor/forms/use-synced-form-values";
-import { RichTextEditor } from "@/features/resume-editor/editor/rich-text/rich-text-editor";
 import { EditorCard } from "@/features/resume-editor/editor/sections/editor-card";
 import { FieldLabelText } from "@/features/resume-editor/editor/sections/field-label-text";
-import type { Profile, ResumeDraft } from "@/features/resume-editor/domain/schema";
+import type {
+  Profile,
+  ResumeDraft,
+} from "@/features/resume-editor/domain/schema";
 
 type ProfilePanelProps = {
   draft: ResumeDraft;
@@ -47,7 +49,10 @@ export function ProfilePanel({ draft, onSave }: ProfilePanelProps) {
   useAutoSave(profileForm, onSave);
 
   return (
-    <EditorCard title="Profile" meta={<Badge variant="secondary">Header</Badge>}>
+    <EditorCard
+      title="Profile"
+      meta={<Badge variant="secondary">Header</Badge>}
+    >
       <FieldGroup className="grid gap-3 md:grid-cols-2">
         <Field
           data-invalid={
@@ -161,37 +166,6 @@ export function ProfilePanel({ draft, onSave }: ProfilePanelProps) {
               {...register("photo")}
             />
             <FieldError errors={[getFieldState("photo", formState).error]} />
-          </FieldContent>
-        </Field>
-
-        <Field
-          className="md:col-span-2"
-          data-invalid={
-            getFieldState("summary", formState).invalid || undefined
-          }
-        >
-          <FieldLabel>
-            <FieldLabelText label="Short description" />
-          </FieldLabel>
-          <FieldContent>
-            <Controller
-              control={control}
-              name="summary"
-              render={({ field }) => (
-                <RichTextEditor
-                  value={field.value}
-                  ariaLabel="Short description"
-                  invalid={getFieldState("summary", formState).invalid}
-                  onChange={(value) =>
-                    profileForm.setValue("summary", value, {
-                      shouldDirty: true,
-                      shouldValidate: formState.isSubmitted,
-                    })
-                  }
-                />
-              )}
-            />
-            <FieldError errors={[getFieldState("summary", formState).error]} />
           </FieldContent>
         </Field>
       </FieldGroup>
