@@ -1,12 +1,31 @@
 # Resume Editor
 
-A web-based resume editor built with Next.js 16, React 19, and a feature-first App Router structure.
+A free, no-login resume editor that treats your CV as portable data. Edit a detailed, structured draft in your browser, switch layouts without losing a single bullet, and export to PDF or JSON whenever you want.
 
-The app lets you:
-- edit a structured resume draft in the browser
-- preview the rendered document live
-- export and import JSON drafts
-- generate a PDF through a server-side Playwright flow
+## Why This Exists
+
+Most resume editors force a tradeoff:
+
+- **Detailed but rigid** — they let you express the full shape of a real CV (multiple roles per company, project sub-bullets, links, custom sections) but lock you into one fixed visual style.
+- **Customizable but shallow** — they offer themes and layouts but flatten everything into "title / company / dates / one paragraph," and your nuance is gone.
+- **Free but gated** — even the lightweight ones tend to ask you to sign up, hand over an email, and store your CV on someone else's server before you can export a single PDF.
+
+The thing that pushed me to build this: every time I tried switching editors because I disliked the current one, I had to retype every bullet, every date, every link from scratch. Your resume should be portable.
+
+This project is a personal answer to those frustrations:
+
+- **Structured data, not a styled blob.** Your CV is a typed, validated draft you can export as JSON and re-import anywhere this tool runs. Switching themes never costs you data.
+- **Detail without compromise.** The schema supports the things real CVs actually have — multiple links, rich text bullets, dated achievements, project breakdowns — and the layout system reflects that detail rather than collapsing it.
+- **Customization that's actually customizable.** Layouts are pluggable definitions (see `preview/layouts`), and presentation settings (theme, density, font) are separate from content. Swap the look without touching the data.
+- **No login, no account, no server-side storage.** Drafts live in your browser's `localStorage`. PDF export runs through a stateless server route that doesn't persist anything.
+
+## What It Does
+
+- Edit a structured resume draft in the browser with an inline canvas editor (hover a section to edit/move/delete it).
+- Preview the rendered document live with switchable layouts and presentation settings.
+- Zoom the canvas in and out without affecting the exported PDF.
+- Export and import JSON drafts so your data is yours and travels with you.
+- Generate a print-ready PDF through a server-side Playwright flow.
 
 ## Stack
 
