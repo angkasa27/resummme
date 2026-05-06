@@ -1,6 +1,8 @@
 import type {
   PreviewDocumentBodyProps,
+  PreviewDocumentCollectionSectionProps,
   PreviewDocumentLayoutDefinition,
+  PreviewDocumentSummaryProps,
   PreviewRenderableSection,
   PreviewSectionItemRendererMap,
 } from "@/features/resume-editor/preview/types";
@@ -15,6 +17,23 @@ function renderSectionItems<K extends keyof PreviewSectionItemRendererMap>(
   return section.items.map((item) => itemRenderers[section.key](item));
 }
 
+function classicSummary({ context, content }: PreviewDocumentSummaryProps) {
+  return classicSummarySection(context, content);
+}
+
+function classicCollection({
+  context,
+  section,
+  itemRenderers,
+}: PreviewDocumentCollectionSectionProps) {
+  return classicCollectionSection(
+    context,
+    section,
+    renderSectionItems(section, itemRenderers),
+    section.key,
+  );
+}
+
 function classicCenteredBody({
   context,
   summaryContent,
@@ -23,14 +42,11 @@ function classicCenteredBody({
 }: PreviewDocumentBodyProps) {
   return (
     <>
-      {summaryContent ? classicSummarySection(context, summaryContent) : null}
-      {sections.map((section, idx) =>
-        classicCollectionSection(
-          context,
-          section,
-          renderSectionItems(section, itemRenderers),
-          `${idx}`,
-        ),
+      {summaryContent
+        ? classicSummary({ context, content: summaryContent })
+        : null}
+      {sections.map((section) =>
+        classicCollection({ context, section, itemRenderers }),
       )}
     </>
   );
@@ -39,5 +55,7 @@ function classicCenteredBody({
 export const classicCenteredLayout: PreviewDocumentLayoutDefinition = {
   id: "classic-centered",
   Body: classicCenteredBody,
+  Summary: classicSummary,
+  CollectionSection: classicCollection,
   createSectionItemRenderers: (context) => createClassicItemRenderers(context),
 };

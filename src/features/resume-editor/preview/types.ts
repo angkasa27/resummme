@@ -70,9 +70,22 @@ export type PreviewDocumentBodyProps = {
   itemRenderers: PreviewSectionItemRendererMap;
 };
 
+export type PreviewDocumentSummaryProps = {
+  context: PreviewRenderContext;
+  content: string;
+};
+
+export type PreviewDocumentCollectionSectionProps = {
+  context: PreviewRenderContext;
+  section: AnyPreviewRenderableSection;
+  itemRenderers: PreviewSectionItemRendererMap;
+};
+
 export type PreviewDocumentLayoutDefinition = {
   id: PdfLayoutId;
   Body: (props: PreviewDocumentBodyProps) => ReactNode;
+  Summary: (props: PreviewDocumentSummaryProps) => ReactNode;
+  CollectionSection: (props: PreviewDocumentCollectionSectionProps) => ReactNode;
   createSectionItemRenderers: (
     context: PreviewRenderContext,
   ) => PreviewSectionItemRendererMap;

@@ -17,10 +17,8 @@ import { SectionEditBlock } from "@/features/resume-editor/canvas/section-edit-b
 import { PreviewToolbar } from "@/features/resume-editor/preview/components/preview-toolbar";
 import { createPreviewRenderContext } from "@/features/resume-editor/preview/engine";
 import { PreviewDocumentRoot } from "@/features/resume-editor/preview/kit/document-root";
+import { getPreviewLayoutDefinition } from "@/features/resume-editor/preview/layout-registry";
 import { getPreviewProfileLayoutDefinition } from "@/features/resume-editor/preview/profile-layout-registry";
-import { classicCollectionSection } from "@/features/resume-editor/preview/layouts/classic-centered/collection-section";
-import { classicSummarySection } from "@/features/resume-editor/preview/layouts/classic-centered/summary";
-import { createClassicItemRenderers } from "@/features/resume-editor/preview/layouts/classic-centered/item-renderers";
 import { normalizePdfPresentation } from "@/features/resume-editor/domain/presentation/pdf-presentation";
 import {
   getOrderedVisibleSectionKeys,
@@ -31,23 +29,12 @@ import {
   type ResumeSectionPanelKey,
 } from "@/features/resume-editor/domain/sections/section-metadata";
 import type { Profile, ResumeDraft } from "@/features/resume-editor/domain/schema";
-import type {
-  PreviewRenderableSection,
-  PreviewSectionItemRendererMap,
-} from "@/features/resume-editor/preview/types";
 
 type ResumeEditorCanvasProps = {
   initialDraft?: ResumeDraft;
 };
 
 type EditingTarget = "profile" | "summary" | CollectionSectionKey | null;
-
-function renderSectionItems<K extends keyof PreviewSectionItemRendererMap>(
-  section: PreviewRenderableSection<K>,
-  itemRenderers: PreviewSectionItemRendererMap,
-) {
-  return section.items.map((item) => itemRenderers[section.key](item));
-}
 
 export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
   const isClientReady = useClientReady();
@@ -88,7 +75,8 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
 
   const presentation = normalizePdfPresentation(draft.pdfPresentation);
   const context = createPreviewRenderContext(draft, "preview");
-  const itemRenderers = createClassicItemRenderers(context);
+  const layout = getPreviewLayoutDefinition(context.presentation.layoutId);
+  const itemRenderers = layout.createSectionItemRenderers(context);
   const visibleSectionKeys = getOrderedVisibleSectionKeys(draft.sections);
   const profileLayout = getPreviewProfileLayoutDefinition(
     context.presentation.profileLayoutId,
@@ -217,7 +205,10 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
                       />
                     </SectionEditBlock>
                   ) : (
-                    classicSummarySection(context, context.summaryContent ?? "")
+                    layout.Summary({
+                      context,
+                      content: context.summaryContent ?? "",
+                    })
                   )}
                 </CanvasSectionShell>
               ) : null}
@@ -259,12 +250,11 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
                           />
                         </SectionEditBlock>
                       ) : renderable ? (
-                        classicCollectionSection(
+                        layout.CollectionSection({
                           context,
-                          renderable,
-                          renderSectionItems(renderable, itemRenderers),
-                          sectionKey,
-                        )
+                          section: renderable,
+                          itemRenderers,
+                        })
                       ) : (
                         <EmptySectionPlaceholder
                           label={sectionLabels[sectionKey]}

@@ -1,6 +1,8 @@
 import type {
   PreviewDocumentBodyProps,
+  PreviewDocumentCollectionSectionProps,
   PreviewDocumentLayoutDefinition,
+  PreviewDocumentSummaryProps,
   PreviewRenderableSection,
   PreviewSectionItemRendererMap,
 } from "@/features/resume-editor/preview/types";
@@ -15,6 +17,23 @@ function renderSectionItems<K extends keyof PreviewSectionItemRendererMap>(
   return section.items.map((item) => itemRenderers[section.key](item));
 }
 
+function sidebarSummary({ context, content }: PreviewDocumentSummaryProps) {
+  return sidebarSummarySection(context, content);
+}
+
+function sidebarCollection({
+  context,
+  section,
+  itemRenderers,
+}: PreviewDocumentCollectionSectionProps) {
+  return sidebarCollectionSection(
+    context,
+    section,
+    renderSectionItems(section, itemRenderers),
+    section.key,
+  );
+}
+
 function sidebarBody({
   context,
   summaryContent,
@@ -23,14 +42,11 @@ function sidebarBody({
 }: PreviewDocumentBodyProps) {
   return (
     <>
-      {summaryContent ? sidebarSummarySection(context, summaryContent) : null}
-      {sections.map((section, idx) =>
-        sidebarCollectionSection(
-          context,
-          section,
-          renderSectionItems(section, itemRenderers),
-          `${idx}`,
-        ),
+      {summaryContent
+        ? sidebarSummary({ context, content: summaryContent })
+        : null}
+      {sections.map((section) =>
+        sidebarCollection({ context, section, itemRenderers }),
       )}
     </>
   );
@@ -39,5 +55,7 @@ function sidebarBody({
 export const sidebarHeadingsLayout: PreviewDocumentLayoutDefinition = {
   id: "sidebar-headings",
   Body: sidebarBody,
+  Summary: sidebarSummary,
+  CollectionSection: sidebarCollection,
   createSectionItemRenderers: (context) => createSidebarItemRenderers(context),
 };
