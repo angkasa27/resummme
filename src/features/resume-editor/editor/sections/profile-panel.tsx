@@ -15,7 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 
 import { createLocalId } from "@/features/resume-editor/domain/create-local-id";
-import { profileFormSchema } from "@/features/resume-editor/domain/schema";
+import { profileSchema } from "@/features/resume-editor/domain/schema";
 import { createFormSchemaResolver } from "@/features/resume-editor/forms/schemas/create-form-schema-resolver";
 import { useAutoSave } from "@/features/resume-editor/forms/use-auto-save";
 import { useSyncedFormValues } from "@/features/resume-editor/forms/use-synced-form-values";
@@ -33,7 +33,7 @@ type ProfilePanelProps = {
 
 export function ProfilePanel({ draft, onSave }: ProfilePanelProps) {
   const profileForm = useForm<Profile>({
-    resolver: createFormSchemaResolver<Profile>(profileFormSchema),
+    resolver: createFormSchemaResolver<Profile>(profileSchema),
     defaultValues: draft.profile,
     mode: "onBlur",
     reValidateMode: "onChange",

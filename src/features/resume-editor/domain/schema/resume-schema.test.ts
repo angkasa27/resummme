@@ -101,6 +101,38 @@ describe("resume schema", () => {
     ).toThrow(/url/i);
   });
 
+  it("allows blank profile fields in stored drafts", () => {
+    const draft = createDefaultResumeDraft();
+
+    expect(() =>
+      profileSchema.parse({
+        ...draft.profile,
+        fullName: "",
+        location: "",
+        phone: "",
+        email: "",
+        photo: "",
+        extraLinks: [
+          {
+            id: "link-1",
+            url: "",
+          },
+        ],
+      }),
+    ).not.toThrow();
+  });
+
+  it("rejects malformed profile email addresses", () => {
+    const draft = createDefaultResumeDraft();
+
+    expect(() =>
+      profileSchema.parse({
+        ...draft.profile,
+        email: "not-an-email",
+      }),
+    ).toThrow(/email/i);
+  });
+
   it("rejects legacy profile link objects that still include labels", () => {
     const draft = createDefaultResumeDraft();
 
@@ -136,6 +168,50 @@ describe("resume schema", () => {
         },
       })
     ).not.toThrow();
+  });
+
+  it("rejects malformed project links in stored drafts", () => {
+    const draft = createDefaultResumeDraft();
+
+    expect(() =>
+      parseResumeDraft({
+        ...draft,
+        sections: {
+          ...draft.sections,
+          projects: {
+            ...draft.sections.projects,
+            items: [
+              {
+                ...draft.sections.projects.items[0],
+                projectLink: "not-a-url",
+              },
+            ],
+          },
+        },
+      }),
+    ).toThrow(/project link/i);
+  });
+
+  it("rejects malformed month-year values in stored drafts", () => {
+    const draft = createDefaultResumeDraft();
+
+    expect(() =>
+      parseResumeDraft({
+        ...draft,
+        sections: {
+          ...draft.sections,
+          workExperience: {
+            ...draft.sections.workExperience,
+            items: [
+              {
+                ...draft.sections.workExperience.items[0],
+                startDate: "2024-01",
+              },
+            ],
+          },
+        },
+      }),
+    ).toThrow(/start date/i);
   });
 
   it("keeps default visible sections focused on the core resume flow", () => {

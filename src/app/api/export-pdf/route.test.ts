@@ -61,6 +61,25 @@ describe("POST /api/export-pdf", () => {
     expect(generateResumePdf).not.toHaveBeenCalled();
   });
 
+  it("rejects malformed formatted fields before invoking Chromium", async () => {
+    const draft = createDefaultResumeDraft();
+    draft.sections.projects.items[0].projectLink = "not-a-url";
+
+    const response = await POST(
+      new Request("http://localhost:3000/api/export-pdf", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({ draft }),
+      })
+    );
+
+    expect(response.status).toBe(400);
+    expect(response.headers.get("content-type")).toContain("application/json");
+    expect(generateResumePdf).not.toHaveBeenCalled();
+  });
+
   it("returns a controlled error when PDF generation fails", async () => {
     generateResumePdf.mockRejectedValue(new Error("Chromium exploded"));
 

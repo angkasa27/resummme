@@ -2,7 +2,7 @@ import { z } from "zod";
 
 import { createDefaultPdfPresentation } from "@/features/resume-editor/domain/presentation/pdf-presentation";
 import { pdfPresentationSchema } from "@/features/resume-editor/domain/schema/presentation-schemas";
-import { profileDraftSchema } from "@/features/resume-editor/domain/schema/profile-schemas";
+import { profileSchema } from "@/features/resume-editor/domain/schema/profile-schemas";
 import { sectionsSchema } from "@/features/resume-editor/domain/schema/section-schemas";
 
 export const resumeDraftSchema = z.object({
@@ -12,7 +12,7 @@ export const resumeDraftSchema = z.object({
   pdfPresentation: pdfPresentationSchema
     .optional()
     .default(createDefaultPdfPresentation()),
-  profile: profileDraftSchema,
+  profile: profileSchema,
   sections: sectionsSchema,
 });
 

@@ -16,7 +16,7 @@ const pdfPresentationProfileLayoutSchema = z.enum(pdfProfileLayoutIds);
 const pdfPresentationAccentToneSchema = z.enum(pdfAccentTones);
 const pdfPresentationAccentStrengthSchema = z.enum(pdfAccentStrengths);
 
-export const pdfPresentationOverridesSchema = z.object({
+const pdfPresentationOverridesSchema = z.object({
   typeScale: z.enum(pdfTypeScaleIds),
   lineHeight: z.enum(pdfLineHeightIds),
   spacing: z.enum(pdfSpacingIds),
@@ -32,5 +32,3 @@ export const pdfPresentationSchema = z.preprocess(
     overrides: pdfPresentationOverridesSchema,
   }),
 );
-
-export const pdfPresentationFormSchema = pdfPresentationSchema;

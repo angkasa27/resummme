@@ -71,6 +71,22 @@ describe("resume storage", () => {
     ).toThrow(/profile/i);
   });
 
+  it("rejects malformed imported field formats", () => {
+    const draft = createDefaultResumeDraft();
+
+    expect(() =>
+      importResumeDraft(
+        JSON.stringify({
+          ...draft,
+          profile: {
+            ...draft.profile,
+            email: "not-an-email",
+          },
+        }),
+      ),
+    ).toThrow(/email/i);
+  });
+
   it("sanitizes imported rich text content", () => {
     const draft = createDefaultResumeDraft();
     draft.sections.summary.content =

@@ -121,7 +121,6 @@ export function createDefaultResumeDraft(): ResumeDraft {
       location: "Jakarta, Indonesia",
       phone: "+6280011112222",
       email: "email.me@here.is",
-      summary: "Start editing your resume!",
       photo: "",
       extraLinks: [
         {

@@ -9,7 +9,7 @@ import {
   FieldError,
 } from "@/components/ui/field";
 
-import { summaryFormSchema } from "@/features/resume-editor/domain/schema";
+import { summaryContentSchema } from "@/features/resume-editor/domain/schema";
 import { createFormSchemaResolver } from "@/features/resume-editor/forms/schemas/create-form-schema-resolver";
 import { useAutoSave } from "@/features/resume-editor/forms/use-auto-save";
 import { useSyncedFormValues } from "@/features/resume-editor/forms/use-synced-form-values";
@@ -40,7 +40,7 @@ export function CanvasSummaryForm({
     [sectionValue.content],
   );
   const form = useForm<SummaryFormValues>({
-    resolver: createFormSchemaResolver<SummaryFormValues>(summaryFormSchema),
+    resolver: createFormSchemaResolver<SummaryFormValues>(summaryContentSchema),
     defaultValues: formValues,
     mode: "onBlur",
     reValidateMode: "onChange",

@@ -13,38 +13,37 @@ export function optionalText() {
   return z.string().trim().optional().or(z.literal(""));
 }
 
-export function requiredUrl(label: string) {
-  return z.string().trim().url(`${label} must be a valid URL.`);
-}
-
-export function optionalUrl(label: string) {
-  return z.literal("").or(requiredUrl(label));
-}
-
-export function editorEmail(label: string) {
+function refineBlankableString(
+  label: string,
+  validator: z.ZodType<string>,
+  message: string,
+) {
   return z.string().trim().refine(
-    (value) => value === "" || z.email().safeParse(value).success,
+    (value) => value === "" || validator.safeParse(value).success,
     {
-      message: `${label} must be a valid email address.`,
+      message: `${label} ${message}`,
     },
   );
 }
 
-export function editorUrl(label: string) {
-  return z.string().trim().refine(
-    (value) => value === "" || z.url().safeParse(value).success,
-    {
-      message: `${label} must be a valid URL.`,
-    },
+export function textField() {
+  return z.string().trim();
+}
+
+export function richTextField() {
+  return z.string().trim().transform((value) => sanitizeRichTextHtml(value));
+}
+
+export function emailField(label: string) {
+  return refineBlankableString(
+    label,
+    z.email(),
+    "must be a valid email address.",
   );
 }
 
-export function requiredEmail(label: string) {
-  return z
-    .string()
-    .trim()
-    .min(1, `${label} is required.`)
-    .email(`${label} must be a valid email address.`);
+export function urlField(label: string) {
+  return refineBlankableString(label, z.url(), "must be a valid URL.");
 }
 
 export function richTextTextContent(value: string) {
@@ -55,52 +54,16 @@ export function richTextTextContent(value: string) {
     .trim();
 }
 
-export function requiredRichText(label: string) {
+export function monthYearField(label: string) {
   return z
-    .string()
-    .trim()
-    .transform((value) => sanitizeRichTextHtml(value))
-    .refine((value) => richTextTextContent(value).length > 0, {
-      message: `${label} is required.`,
-    });
+    .literal("")
+    .or(z.string().trim().regex(monthYearPattern, `${label} must use the format MMM YYYY.`));
 }
 
-export function requiredMonthYear(label: string) {
-  return z
-    .string()
-    .trim()
-    .regex(monthYearPattern, `${label} must use the format MMM YYYY.`);
-}
-
-export function editorMonthYear(label: string) {
-  return z.string().trim().refine(
-    (value) => value === "" || monthYearPattern.test(value),
-    {
-      message: `${label} must use the format MMM YYYY.`,
-    },
-  );
-}
-
-export function draftText() {
-  return z.string().trim();
-}
-
-export function draftRichText() {
-  return z.string().trim().transform((value) => sanitizeRichTextHtml(value));
-}
-
-export function draftMonthYear() {
-  return z.literal("").or(z.string().trim().regex(monthYearPattern));
-}
-
-export function draftCurrentOrMonthYear() {
+export function monthYearOrCurrentField(label: string) {
   return z.union([
     z.literal(""),
-    z.string().trim().regex(monthYearPattern),
+    z.string().trim().regex(monthYearPattern, `${label} must use the format MMM YYYY.`),
     currentValueSchema,
   ]);
-}
-
-export function draftUrl() {
-  return z.string().trim();
 }
