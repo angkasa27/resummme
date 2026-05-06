@@ -18,7 +18,10 @@ import { useClientReady } from "@/hooks/use-client-ready";
 
 import { useResumeEditorController } from "@/features/resume-editor/editor/hooks/use-resume-editor-controller";
 import { CanvasSectionShell } from "@/features/resume-editor/canvas/canvas-section-shell";
-import { CanvasControlPanel } from "@/features/resume-editor/canvas/canvas-control-panel";
+import {
+  CanvasControlPanel,
+  ZOOM_DEFAULT,
+} from "@/features/resume-editor/canvas/canvas-control-panel";
 import { CanvasCollectionForm } from "@/features/resume-editor/canvas/forms/canvas-collection-form";
 import { CanvasProfileForm } from "@/features/resume-editor/canvas/forms/canvas-profile-form";
 import { CanvasSummaryForm } from "@/features/resume-editor/canvas/forms/canvas-summary-form";
@@ -66,6 +69,7 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
 
   const [editing, setEditing] = useState<EditingTarget>(null);
   const [isMobilePanelOpen, setIsMobilePanelOpen] = useState(false);
+  const [zoom, setZoom] = useState<number>(ZOOM_DEFAULT);
   const profileSnapshotRef = useRef<Profile | null>(null);
   const sectionSnapshotRef = useRef<{
     key: ResumeSectionPanelKey;
@@ -141,6 +145,8 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
     onImport: openImportPicker,
     onExport: handleExport,
     onExportPdf: handlePrint,
+    zoom,
+    onZoomChange: setZoom,
   };
 
   return (
@@ -183,126 +189,128 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
 
         {/* Body: preview + control panel */}
         <div className="flex flex-1">
-          <main className="flex flex-1 justify-center overflow-x-hidden px-3 py-6 sm:px-6 sm:py-10">
-            <PreviewDocumentRoot
-              context={context}
-              className="max-md:w-full! max-md:px-5! max-md:py-6!"
-            >
-              {/* Profile / header */}
-              <CanvasSectionShell
-                ariaLabel="Profile"
-                isEditing={editing === "profile"}
-                onEdit={startEditingProfile}
+          <main className="flex flex-1 justify-center overflow-x-auto px-3 py-6 sm:px-6 sm:py-10">
+            <div style={{ zoom }} className="origin-top print:[zoom:1]">
+              <PreviewDocumentRoot
+                context={context}
+                className="max-md:w-full! max-md:px-5! max-md:py-6!"
               >
-                {editing === "profile" ? (
-                  <CanvasProfileForm
-                    draft={draft}
-                    onSave={saveProfile}
-                    onCancel={cancelEditingProfile}
-                    onClose={() => setEditing(null)}
-                  />
-                ) : (
-                  <ProfileHeader context={context} />
-                )}
-              </CanvasSectionShell>
-
-              {/* Summary */}
-              {editing === "summary" || context.summaryContent ? (
+                {/* Profile / header */}
                 <CanvasSectionShell
-                  ariaLabel="Summary"
-                  isEditing={editing === "summary"}
-                  onEdit={() => startEditingSection("summary")}
+                  ariaLabel="Profile"
+                  isEditing={editing === "profile"}
+                  onEdit={startEditingProfile}
                 >
-                  {editing === "summary" ? (
-                    <CanvasSummaryForm
+                  {editing === "profile" ? (
+                    <CanvasProfileForm
                       draft={draft}
-                      onSave={(value) => saveSection("summary", value)}
-                      onCancel={cancelEditingSection}
+                      onSave={saveProfile}
+                      onCancel={cancelEditingProfile}
                       onClose={() => setEditing(null)}
                     />
                   ) : (
-                    layout.Summary({
-                      context,
-                      content: context.summaryContent ?? "",
-                    })
+                    <ProfileHeader context={context} />
                   )}
                 </CanvasSectionShell>
-              ) : null}
 
-              {/* Collection sections */}
-              {visibleSectionKeys
-                .filter(isCollectionSectionKey)
-                .map((sectionKey) => {
-                  const orderIndex = visibleSectionKeys.indexOf(sectionKey);
-                  const renderable = context.sections.find(
-                    (s) => s.key === sectionKey,
-                  );
-                  const isEditing = editing === sectionKey;
+                {/* Summary */}
+                {editing === "summary" || context.summaryContent ? (
+                  <CanvasSectionShell
+                    ariaLabel="Summary"
+                    isEditing={editing === "summary"}
+                    onEdit={() => startEditingSection("summary")}
+                  >
+                    {editing === "summary" ? (
+                      <CanvasSummaryForm
+                        draft={draft}
+                        onSave={(value) => saveSection("summary", value)}
+                        onCancel={cancelEditingSection}
+                        onClose={() => setEditing(null)}
+                      />
+                    ) : (
+                      layout.Summary({
+                        context,
+                        content: context.summaryContent ?? "",
+                      })
+                    )}
+                  </CanvasSectionShell>
+                ) : null}
 
-                  return (
-                    <CanvasSectionShell
-                      key={sectionKey}
-                      ariaLabel={sectionLabels[sectionKey]}
-                      isEditing={isEditing}
-                      onEdit={() => startEditingSection(sectionKey)}
-                      onMoveUp={() =>
-                        reorderSection(sectionKey, orderIndex - 1)
-                      }
-                      onMoveDown={() =>
-                        reorderSection(sectionKey, orderIndex + 1)
-                      }
-                      onDelete={() => confirmAndHide(sectionKey)}
-                      canMoveUp={orderIndex > 0}
-                      canMoveDown={orderIndex < visibleSectionKeys.length - 1}
-                    >
-                      {isEditing ? (
-                        <CanvasCollectionForm
-                          draft={draft}
-                          sectionKey={sectionKey}
-                          onSave={(value) =>
-                            saveSection(sectionKey, value as never)
-                          }
-                          onCancel={cancelEditingSection}
-                          onClose={() => setEditing(null)}
-                        />
-                      ) : renderable ? (
-                        layout.CollectionSection({
-                          context,
-                          section: renderable,
-                          itemRenderers,
-                        })
-                      ) : (
-                        <EmptySectionPlaceholder
-                          label={sectionLabels[sectionKey]}
-                          onEdit={() => startEditingSection(sectionKey)}
-                        />
-                      )}
-                    </CanvasSectionShell>
-                  );
-                })}
+                {/* Collection sections */}
+                {visibleSectionKeys
+                  .filter(isCollectionSectionKey)
+                  .map((sectionKey) => {
+                    const orderIndex = visibleSectionKeys.indexOf(sectionKey);
+                    const renderable = context.sections.find(
+                      (s) => s.key === sectionKey,
+                    );
+                    const isEditing = editing === sectionKey;
 
-              {/* Add-section pills */}
-              {hiddenSectionKeys.length > 0 ? (
-                <div className="mt-6 flex flex-wrap justify-center gap-2 print:hidden">
-                  {hiddenSectionKeys.map((key) => (
-                    <Button
-                      key={key}
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      className="rounded-full"
-                      onClick={() => {
-                        setSectionVisibility(key, true);
-                        startEditingSection(key);
-                      }}
-                    >
-                      <PlusIcon data-icon="inline-start" />
-                      Add {sectionLabels[key]}
-                    </Button>
-                  ))}
-                </div>
-              ) : null}
-            </PreviewDocumentRoot>
+                    return (
+                      <CanvasSectionShell
+                        key={sectionKey}
+                        ariaLabel={sectionLabels[sectionKey]}
+                        isEditing={isEditing}
+                        onEdit={() => startEditingSection(sectionKey)}
+                        onMoveUp={() =>
+                          reorderSection(sectionKey, orderIndex - 1)
+                        }
+                        onMoveDown={() =>
+                          reorderSection(sectionKey, orderIndex + 1)
+                        }
+                        onDelete={() => confirmAndHide(sectionKey)}
+                        canMoveUp={orderIndex > 0}
+                        canMoveDown={orderIndex < visibleSectionKeys.length - 1}
+                      >
+                        {isEditing ? (
+                          <CanvasCollectionForm
+                            draft={draft}
+                            sectionKey={sectionKey}
+                            onSave={(value) =>
+                              saveSection(sectionKey, value as never)
+                            }
+                            onCancel={cancelEditingSection}
+                            onClose={() => setEditing(null)}
+                          />
+                        ) : renderable ? (
+                          layout.CollectionSection({
+                            context,
+                            section: renderable,
+                            itemRenderers,
+                          })
+                        ) : (
+                          <EmptySectionPlaceholder
+                            label={sectionLabels[sectionKey]}
+                            onEdit={() => startEditingSection(sectionKey)}
+                          />
+                        )}
+                      </CanvasSectionShell>
+                    );
+                  })}
+
+                {/* Add-section pills */}
+                {hiddenSectionKeys.length > 0 ? (
+                  <div className="pt-6 flex flex-wrap justify-center gap-2 print:hidden border-t border-dashed">
+                    {hiddenSectionKeys.map((key) => (
+                      <Button
+                        key={key}
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="rounded-full"
+                        onClick={() => {
+                          setSectionVisibility(key, true);
+                          startEditingSection(key);
+                        }}
+                      >
+                        <PlusIcon data-icon="inline-start" />
+                        Add {sectionLabels[key]}
+                      </Button>
+                    ))}
+                  </div>
+                ) : null}
+              </PreviewDocumentRoot>
+            </div>
           </main>
 
           {/* Desktop side rail */}
