@@ -127,7 +127,7 @@ export const previewControlDefinitions = [
   {
     id: "type-scale",
     kind: "select",
-    label: "Type scale",
+    label: "Font size",
     value: (presentation) => presentation.overrides.typeScale,
     update: (nextValue, presentation) =>
       updateOverrides(presentation, {
