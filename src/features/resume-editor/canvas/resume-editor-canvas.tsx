@@ -1,25 +1,27 @@
 "use client";
 
-import { Loader, PlusIcon, SettingsIcon } from "lucide-react";
+import { Loader, PlusIcon, SlidersHorizontalIcon } from "lucide-react";
 import Link from "next/link";
 import { useRef, useState } from "react";
 
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useClientReady } from "@/hooks/use-client-ready";
 
 import { useResumeEditorController } from "@/features/resume-editor/editor/hooks/use-resume-editor-controller";
-import { ResumeEditorShellActions } from "@/features/resume-editor/editor/shell/resume-editor-shell-actions";
 import { CanvasSectionShell } from "@/features/resume-editor/canvas/canvas-section-shell";
+import { CanvasControlPanel } from "@/features/resume-editor/canvas/canvas-control-panel";
 import { CanvasCollectionForm } from "@/features/resume-editor/canvas/forms/canvas-collection-form";
 import { CanvasProfileForm } from "@/features/resume-editor/canvas/forms/canvas-profile-form";
 import { CanvasSummaryForm } from "@/features/resume-editor/canvas/forms/canvas-summary-form";
-import { PreviewToolbarContent } from "@/features/resume-editor/preview/components/preview-toolbar-content";
 import { createPreviewRenderContext } from "@/features/resume-editor/preview/engine";
 import { PreviewDocumentRoot } from "@/features/resume-editor/preview/kit/document-root";
 import { getPreviewLayoutDefinition } from "@/features/resume-editor/preview/layout-registry";
@@ -37,6 +39,8 @@ import type {
   Profile,
   ResumeDraft,
 } from "@/features/resume-editor/domain/schema";
+
+const GITHUB_URL = "https://github.com/angkasa27/resume-editor";
 
 type ResumeEditorCanvasProps = {
   initialDraft?: ResumeDraft;
@@ -61,6 +65,7 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
   } = useResumeEditorController({ initialDraft });
 
   const [editing, setEditing] = useState<EditingTarget>(null);
+  const [isMobilePanelOpen, setIsMobilePanelOpen] = useState(false);
   const profileSnapshotRef = useRef<Profile | null>(null);
   const sectionSnapshotRef = useRef<{
     key: ResumeSectionPanelKey;
@@ -130,6 +135,14 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
     }
   }
 
+  const controlPanelProps = {
+    presentation,
+    onPresentationChange: savePdfPresentation,
+    onImport: openImportPicker,
+    onExport: handleExport,
+    onExportPdf: handlePrint,
+  };
+
   return (
     <TooltipProvider>
       <div className="flex min-h-dvh flex-col bg-muted/40">
@@ -141,7 +154,8 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
           onChange={handleImport}
         />
 
-        <header className="sticky top-0 z-20 flex h-12 shrink-0 items-center gap-3 border-b bg-background px-4 print:hidden">
+        {/* Top navbar */}
+        <header className="sticky top-0 z-20 flex h-12 shrink-0 items-center gap-2 border-b bg-background px-3 sm:gap-3 sm:px-4 print:hidden">
           <h1 className="truncate text-sm font-semibold tracking-tight">
             Resume Editor
           </h1>
@@ -150,44 +164,30 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
           </span>
           <Link
             href="/legacy"
-            className="text-xs text-muted-foreground underline-offset-4 hover:underline"
+            className="hidden text-xs text-muted-foreground underline-offset-4 hover:underline sm:inline"
           >
             Legacy editor
           </Link>
 
-          <div className="ml-auto flex items-center gap-1.5">
-            <Popover>
-              <PopoverTrigger
-                render={
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    aria-label="Style settings"
-                  >
-                    <SettingsIcon data-icon="inline-start" />
-                    Style
-                  </Button>
-                }
-              />
-              <PopoverContent align="end" className="w-80">
-                <PreviewToolbarContent
-                  presentation={presentation}
-                  onChange={savePdfPresentation}
-                />
-              </PopoverContent>
-            </Popover>
-            <ResumeEditorShellActions
-              onImport={openImportPicker}
-              onExport={handleExport}
-              onExportPdf={handlePrint}
-            />
-          </div>
+          <a
+            href={GITHUB_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Open project on GitHub"
+            className={`${buttonVariants({ variant: "outline", size: "sm" })} ml-auto`}
+          >
+            <GithubMarkIcon data-icon="inline-start" />
+            <span className="hidden sm:inline">GitHub</span>
+          </a>
         </header>
 
-        <main className="flex flex-1 justify-center overflow-x-hidden px-4 py-8 sm:px-6 sm:py-10">
-          <div className="w-full max-w-[920px]">
-            <PreviewDocumentRoot context={context}>
+        {/* Body: preview + control panel */}
+        <div className="flex flex-1">
+          <main className="flex flex-1 justify-center overflow-x-hidden px-3 py-6 sm:px-6 sm:py-10">
+            <PreviewDocumentRoot
+              context={context}
+              className="max-md:w-full! max-md:px-5! max-md:py-6!"
+            >
               {/* Profile / header */}
               <CanvasSectionShell
                 ariaLabel="Profile"
@@ -303,10 +303,50 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
                 </div>
               ) : null}
             </PreviewDocumentRoot>
-          </div>
-        </main>
+          </main>
+
+          {/* Desktop side rail */}
+          <aside className="sticky top-12 hidden h-[calc(100dvh-3rem)] w-72 shrink-0 overflow-y-auto border-l bg-background px-4 py-5 lg:flex lg:flex-col print:hidden">
+            <CanvasControlPanel {...controlPanelProps} />
+          </aside>
+        </div>
+
+        {/* Mobile FAB → Sheet drawer */}
+        <Sheet open={isMobilePanelOpen} onOpenChange={setIsMobilePanelOpen}>
+          <SheetTrigger
+            render={
+              <Button
+                type="button"
+                size="icon"
+                aria-label="Open control panel"
+                className="fixed bottom-5 right-5 z-30 size-12 rounded-full shadow-lg lg:hidden print:hidden"
+              />
+            }
+          >
+            <SlidersHorizontalIcon className="size-5" />
+          </SheetTrigger>
+          <SheetContent side="right" className="w-[88%] max-w-sm p-0">
+            <SheetHeader className="border-b">
+              <SheetTitle>Controls</SheetTitle>
+              <SheetDescription>
+                Style your resume and import or export your draft.
+              </SheetDescription>
+            </SheetHeader>
+            <div className="overflow-y-auto px-4">
+              <CanvasControlPanel {...controlPanelProps} />
+            </div>
+          </SheetContent>
+        </Sheet>
       </div>
     </TooltipProvider>
+  );
+}
+
+function GithubMarkIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}>
+      <path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.52-1.32-1.27-1.67-1.27-1.67-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.02 1.75 2.68 1.24 3.34.95.1-.74.4-1.24.72-1.53-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.18-3.09-.12-.29-.51-1.46.11-3.04 0 0 .96-.31 3.15 1.18.91-.25 1.89-.38 2.86-.38.97 0 1.95.13 2.86.38 2.19-1.49 3.15-1.18 3.15-1.18.62 1.58.23 2.75.11 3.04.74.8 1.18 1.83 1.18 3.09 0 4.42-2.69 5.39-5.25 5.68.41.36.78 1.06.78 2.13v3.16c0 .31.21.67.8.55C20.21 21.39 23.5 17.08 23.5 12 23.5 5.65 18.35.5 12 .5z" />
+    </svg>
   );
 }
 

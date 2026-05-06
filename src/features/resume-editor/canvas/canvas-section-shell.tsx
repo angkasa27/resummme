@@ -46,7 +46,7 @@ export function CanvasSectionShell({
       aria-label={ariaLabel}
     >
       {!isEditing ? (
-        <ButtonGroup className="pointer-events-none absolute right-2 top-2 z-20 drop-shadow-sm opacity-0 transition-opacity group-hover/section:pointer-events-auto group-hover/section:opacity-100 print:hidden bg-white rounded-md">
+        <ButtonGroup className="pointer-events-none absolute right-2 top-2 z-20 drop-shadow-sm opacity-0 transition-opacity group-hover/section:pointer-events-auto group-hover/section:opacity-100 group-focus-within/section:pointer-events-auto group-focus-within/section:opacity-100 [@media(hover:none)]:pointer-events-auto [@media(hover:none)]:opacity-100 print:hidden bg-white rounded-md">
           {onEdit ? (
             <Button
               type="button"
