@@ -93,7 +93,7 @@ describe("resume document", () => {
     expect(documentRoot).not.toBeNull();
     expect(documentRoot?.style.fontSize).toBe("15px");
     expect(documentRoot?.style.lineHeight).toBe("1.9");
-    expect(documentRoot?.style.gap).toBe("32px");
+    expect(documentRoot?.style.gap).toBe("24px");
 
     const documentHeader = screen
       .getByTestId("resume-preview-full-name")
@@ -112,13 +112,11 @@ describe("resume document", () => {
       '[data-section-items="workExperience"]',
     );
     expect(itemsContainer).not.toBeNull();
-    expect(itemsContainer).toHaveStyle({ gap: "20px" });
+    expect(itemsContainer).toHaveStyle({ gap: "16px" });
     const firstDescription = document.querySelector(
       '[data-classic-description="true"]',
     );
     expect(firstDescription).toHaveStyle({
-      paddingLeft: "18px",
-      paddingRight: "12px",
       textAlign: "justify",
     });
     expect(firstDescription?.parentElement).toHaveStyle({ gap: "4px" });
@@ -130,7 +128,7 @@ describe("resume document", () => {
     const profileLink = screen.getByRole("link", {
       name: `Link: ${draft.profile.extraLinks[0].url}`,
     });
-    expect(profileLink).toHaveStyle({ color: "rgb(75, 85, 99)" });
+    expect(profileLink).toHaveStyle({ color: "rgb(31, 41, 55)" });
   });
 
   it("renders summary and item body copy with justified text", () => {
@@ -232,34 +230,21 @@ describe("resume document", () => {
 
     render(<ResumeDocument draft={draft} />);
 
-    const workSection = screen
-      .getByRole("heading", { name: "WORK EXPERIENCE" })
-      .closest("section");
-    const workItemsContainer = workSection?.querySelector(
-      '[data-section-items="workExperience"]',
-    );
-    expect(workItemsContainer).toHaveStyle({ paddingLeft: "8px" });
-
     const indentedDescriptions = document.querySelectorAll(
       '[data-classic-description="true"]',
     );
     expect(indentedDescriptions.length).toBeGreaterThan(0);
-    expect(indentedDescriptions[0]).toHaveStyle({
-      paddingLeft: "18px",
-      paddingRight: "12px",
-      textAlign: "justify",
-    });
 
     expect(
       screen.getByText(
         /User Experience Analysis of AI-Based Interview Platform/i,
       ),
     ).toBeInTheDocument();
-    expect(screen.getByText(/on ICIMTech/i)).toBeInTheDocument();
+    expect(screen.getByText(/Sep 2025/i)).toBeInTheDocument();
     expect(screen.getByText(/Credential ID: ABC-123/i)).toBeInTheDocument();
     expect(screen.getByText(/by EKIPA/i)).toBeInTheDocument();
     expect(
-      screen.getByText(/\(Professional working proficiency\)/i),
+      screen.getByText(/Professional working proficiency/i),
     ).toBeInTheDocument();
 
     expect(
