@@ -7,10 +7,12 @@ export function PreviewDocumentRoot({
   context,
   className,
   children,
+  editorMode,
 }: {
   context: PreviewRenderContext;
   className?: string;
   children: ReactNode;
+  editorMode?: "canvas" | "editor";
 }) {
   const { presentation, mode } = context;
 
@@ -21,7 +23,7 @@ export function PreviewDocumentRoot({
         fontSize: `${presentation.bodyFontSizePx}px`,
         lineHeight: String(presentation.bodyLineHeight),
         color: presentation.bodyTextColor,
-        gap: `${presentation.articleGapPx}px`,
+        gap: `${editorMode == "canvas" ? presentation.articleGapPx - 16 : presentation.articleGapPx}px`,
       }}
       className={cn(
         mode === "preview"

@@ -198,6 +198,7 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
               <PreviewDocumentRoot
                 context={context}
                 className="max-md:w-full! max-md:px-5! max-md:py-6!"
+                editorMode="canvas"
               >
                 {/* Profile / header */}
                 <CanvasSectionShell

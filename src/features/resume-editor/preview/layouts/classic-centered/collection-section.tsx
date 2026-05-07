@@ -14,7 +14,7 @@ export function classicCollectionSection(
   const { presentation } = context;
 
   return (
-    <section className="space-y-3" key={key}>
+    <section key={key}>
       <div
         className="border-b"
         style={{
