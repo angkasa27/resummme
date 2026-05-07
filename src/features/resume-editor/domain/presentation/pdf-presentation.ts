@@ -1,10 +1,16 @@
-export const pdfLayoutIds = ["sidebar-headings", "classic-centered"] as const;
+export const pdfLayoutIds = [
+  "sidebar-headings",
+  "classic-centered",
+  "modern-block",
+] as const;
 
 export type PdfLayoutId = (typeof pdfLayoutIds)[number];
 
 export const pdfProfileLayoutIds = [
   "sidebar-profile",
   "centered-portrait-profile",
+  "compact-inline-profile",
+  "banner-profile",
 ] as const;
 
 export type PdfProfileLayoutId = (typeof pdfProfileLayoutIds)[number];
@@ -110,11 +116,14 @@ export type ResolvedPdfPresentation = {
 export const pdfLayoutLabels: Record<PdfLayoutId, string> = {
   "sidebar-headings": "Sidebar Headings",
   "classic-centered": "Classic Centered",
+  "modern-block": "Modern Block",
 };
 
 export const pdfProfileLayoutLabels: Record<PdfProfileLayoutId, string> = {
   "sidebar-profile": "Sidebar Profile",
   "centered-portrait-profile": "Centered Portrait",
+  "compact-inline-profile": "Compact Inline",
+  "banner-profile": "Accent Banner",
 };
 
 export const pdfTypeScaleLabels: Record<PdfTypeScaleId, string> = {
@@ -246,6 +255,28 @@ export const pdfLayouts: Record<PdfLayoutId, PdfLayoutDefinition> = {
     sectionLabelLetterSpacingEm: 0,
     sectionLabelTransform: "uppercase",
     summaryLabelVisible: false,
+  },
+  "modern-block": {
+    id: "modern-block",
+    label: "Modern Block",
+    description:
+      "Single column with bold accent-marked block headings — ATS-friendly.",
+    bodyFontFamily: 'var(--font-sans), "Helvetica Neue", Arial, sans-serif',
+    headingFontFamily: 'var(--font-sans), "Helvetica Neue", Arial, sans-serif',
+    bodyTextColor: "#0f172a",
+    mutedTextColor: "#475569",
+    defaults: {
+      typeScale: "standard",
+      lineHeight: "standard",
+      spacing: "standard",
+      accentTone: "emerald",
+      accentStrength: "balanced",
+    },
+    headingWeight: 700,
+    sectionLabelWeight: 700,
+    sectionLabelLetterSpacingEm: 0.12,
+    sectionLabelTransform: "uppercase",
+    summaryLabelVisible: true,
   },
 };
 

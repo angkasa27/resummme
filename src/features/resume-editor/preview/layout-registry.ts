@@ -1,4 +1,5 @@
 import { classicCenteredLayout } from "@/features/resume-editor/preview/layouts/classic-centered/definition";
+import { modernBlockLayout } from "@/features/resume-editor/preview/layouts/modern-block/definition";
 import { sidebarHeadingsLayout } from "@/features/resume-editor/preview/layouts/sidebar-headings/definition";
 import type { PdfLayoutId } from "@/features/resume-editor/domain/presentation/pdf-presentation";
 
@@ -7,6 +8,7 @@ import type { PreviewDocumentLayoutDefinition } from "./types";
 export const previewLayoutDefinitions = [
   sidebarHeadingsLayout,
   classicCenteredLayout,
+  modernBlockLayout,
 ] as const satisfies ReadonlyArray<PreviewDocumentLayoutDefinition>;
 
 export function createPreviewLayoutRegistry(

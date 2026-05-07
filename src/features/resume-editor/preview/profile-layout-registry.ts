@@ -1,11 +1,15 @@
 import type { PdfProfileLayoutId } from "@/features/resume-editor/domain/presentation/pdf-presentation";
+import { bannerProfileLayout } from "@/features/resume-editor/preview/profile-layouts/banner-profile";
 import { centeredPortraitProfileLayout } from "@/features/resume-editor/preview/profile-layouts/centered-portrait-profile";
+import { compactInlineProfileLayout } from "@/features/resume-editor/preview/profile-layouts/compact-inline-profile";
 import { sidebarProfileLayout } from "@/features/resume-editor/preview/profile-layouts/sidebar-profile";
 import type { PreviewProfileLayoutDefinition } from "@/features/resume-editor/preview/types";
 
 export const previewProfileLayoutDefinitions = [
   sidebarProfileLayout,
   centeredPortraitProfileLayout,
+  compactInlineProfileLayout,
+  bannerProfileLayout,
 ] as const satisfies ReadonlyArray<PreviewProfileLayoutDefinition>;
 
 export function createPreviewProfileLayoutRegistry(
