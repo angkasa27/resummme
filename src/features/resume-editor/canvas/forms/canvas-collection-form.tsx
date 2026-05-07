@@ -121,24 +121,33 @@ export function CanvasCollectionForm({
     <CanvasFormShell
       title={config.title}
       meta={
-        <div className="flex items-center gap-2">
-          <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
-            {currentItems?.length ?? 0} item
-            {(currentItems?.length ?? 0) === 1 ? "" : "s"}
-          </span>
+        <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+          {currentItems?.length ?? 0} item
+          {(currentItems?.length ?? 0) === 1 ? "" : "s"}
+        </span>
+      }
+      headerActions={
+        <>
           {dateRangeField ? (
             <Button
               type="button"
               variant="outline"
               size="sm"
-              className="h-6 gap-1 px-2 text-[10px]"
               onClick={handleAutoSort}
             >
-              <HistoryIcon className="size-3" />
+              <HistoryIcon data-icon="inline-start" />
               Auto-sort
             </Button>
           ) : null}
-        </div>
+          <Button
+            type="button"
+            size="sm"
+            onClick={() => items.append(config.createItem() as never)}
+          >
+            <PlusIcon data-icon="inline-start" />
+            {config.addLabel}
+          </Button>
+        </>
       }
       onCancel={onCancel}
       onClose={onClose}
@@ -243,17 +252,6 @@ export function CanvasCollectionForm({
           })}
         </div>
       )}
-
-      <Button
-        type="button"
-        variant="outline"
-        size="sm"
-        className="w-fit"
-        onClick={() => items.append(config.createItem() as never)}
-      >
-        <PlusIcon data-icon="inline-start" />
-        {config.addLabel}
-      </Button>
     </CanvasFormShell>
   );
 }

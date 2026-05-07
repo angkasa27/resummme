@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/sheet";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useClientReady } from "@/hooks/use-client-ready";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 import { useResumeEditorController } from "@/features/resume-editor/editor/hooks/use-resume-editor-controller";
 import { CanvasSectionShell } from "@/features/resume-editor/canvas/canvas-section-shell";
@@ -70,6 +71,7 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
   const [editing, setEditing] = useState<EditingTarget>(null);
   const [isMobilePanelOpen, setIsMobilePanelOpen] = useState(false);
   const [zoom, setZoom] = useState<number>(ZOOM_DEFAULT);
+  const isMobile = useIsMobile();
   const profileSnapshotRef = useRef<Profile | null>(null);
   const sectionSnapshotRef = useRef<{
     key: ResumeSectionPanelKey;
@@ -161,7 +163,7 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
         />
 
         {/* Top navbar */}
-        <header className="sticky top-0 z-20 flex h-12 shrink-0 items-center gap-2 border-b bg-background px-3 sm:gap-3 sm:px-4 print:hidden">
+        <header className="sticky top-0 z-40 flex h-12 shrink-0 items-center gap-2 border-b bg-background px-3 sm:gap-3 sm:px-4 print:hidden">
           <h1 className="truncate text-sm font-semibold tracking-tight">
             Resume Editor
           </h1>
@@ -180,10 +182,10 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Open project on GitHub"
-            className={`${buttonVariants({ variant: "outline", size: "sm" })} ml-auto`}
+            className={`${buttonVariants({ variant: "outline", size: "sm" })} ml-auto bg-foreground text-background hover:bg-foreground/80! hover:text-background!`}
           >
             <GithubMarkIcon data-icon="inline-start" />
-            <span className="hidden sm:inline">GitHub</span>
+            <span className="inline">GitHub</span>
           </a>
         </header>
 
@@ -201,7 +203,7 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
                   isEditing={editing === "profile"}
                   onEdit={startEditingProfile}
                 >
-                  {editing === "profile" ? (
+                  {editing === "profile" && !isMobile ? (
                     <CanvasProfileForm
                       draft={draft}
                       onSave={saveProfile}
@@ -220,7 +222,7 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
                     isEditing={editing === "summary"}
                     onEdit={() => startEditingSection("summary")}
                   >
-                    {editing === "summary" ? (
+                    {editing === "summary" && !isMobile ? (
                       <CanvasSummaryForm
                         draft={draft}
                         onSave={(value) => saveSection("summary", value)}
@@ -262,7 +264,7 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
                         canMoveUp={orderIndex > 0}
                         canMoveDown={orderIndex < visibleSectionKeys.length - 1}
                       >
-                        {isEditing ? (
+                        {isEditing && !isMobile ? (
                           <CanvasCollectionForm
                             draft={draft}
                             sectionKey={sectionKey}
@@ -318,6 +320,49 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
             <CanvasControlPanel {...controlPanelProps} />
           </aside>
         </div>
+
+        {/* Mobile edit sheet — replaces inline editing on small screens to avoid font-size mismatch with the resume document. */}
+        <Sheet
+          open={isMobile && editing !== null}
+          onOpenChange={(open) => {
+            if (open) return;
+            if (editing === "profile") cancelEditingProfile();
+            else if (editing !== null) cancelEditingSection();
+          }}
+        >
+          <SheetContent
+            side="bottom"
+            showCloseButton={false}
+            className="flex h-[92dvh] max-h-[92dvh] flex-col rounded-t-xl p-4 pt-3"
+          >
+            <div className="mx-auto mb-2 h-1 w-10 shrink-0 rounded-full bg-border" />
+            <div className="flex min-h-0 flex-1 flex-col">
+              {editing === "profile" ? (
+                <CanvasProfileForm
+                  draft={draft}
+                  onSave={saveProfile}
+                  onCancel={cancelEditingProfile}
+                  onClose={() => setEditing(null)}
+                />
+              ) : editing === "summary" ? (
+                <CanvasSummaryForm
+                  draft={draft}
+                  onSave={(value) => saveSection("summary", value)}
+                  onCancel={cancelEditingSection}
+                  onClose={() => setEditing(null)}
+                />
+              ) : editing !== null && isCollectionSectionKey(editing) ? (
+                <CanvasCollectionForm
+                  draft={draft}
+                  sectionKey={editing}
+                  onSave={(value) => saveSection(editing, value as never)}
+                  onCancel={cancelEditingSection}
+                  onClose={() => setEditing(null)}
+                />
+              ) : null}
+            </div>
+          </SheetContent>
+        </Sheet>
 
         {/* Mobile FAB → Sheet drawer */}
         <Sheet open={isMobilePanelOpen} onOpenChange={setIsMobilePanelOpen}>
