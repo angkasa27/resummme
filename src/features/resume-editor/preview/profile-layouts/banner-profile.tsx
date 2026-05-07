@@ -6,13 +6,6 @@ export const bannerProfileLayout: PreviewProfileLayoutDefinition = {
   id: "banner-profile",
   Header: ({ context }) => {
     const { draft, presentation } = context;
-    const bannerContext = {
-      ...context,
-      presentation: {
-        ...presentation,
-        mutedTextColor: "rgba(255, 255, 255, 0.85)",
-      },
-    };
 
     return (
       <header
@@ -39,7 +32,7 @@ export const bannerProfileLayout: PreviewProfileLayoutDefinition = {
           >
             {draft.profile.fullName}
           </h1>
-          <PreviewContactLine context={bannerContext} />
+          <PreviewContactLine context={context} />
         </div>
         {draft.profile.photo ? (
           <PreviewHeaderPhoto

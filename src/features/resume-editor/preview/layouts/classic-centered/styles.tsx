@@ -38,7 +38,7 @@ export function createClassicItemStyles(
     itemMeta: {
       fontSize: `${presentation.metaFontSizePx}px`,
       lineHeight: String(presentation.bodyLineHeight),
-      color: presentation.mutedTextColor,
+      color: presentation.bodyTextColor,
     },
     itemDate: {
       textAlign: "right",

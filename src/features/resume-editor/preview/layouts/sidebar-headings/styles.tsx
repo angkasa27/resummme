@@ -39,14 +39,14 @@ export function createSidebarItemStyles(
     itemMeta: {
       fontSize: `${presentation.metaFontSizePx}px`,
       lineHeight: String(presentation.bodyLineHeight),
-      color: presentation.mutedTextColor,
+      color: presentation.bodyTextColor,
     },
     itemDate: {
       textAlign: "right",
       fontSize: `${presentation.dateFontSizePx}px`,
       fontWeight: 600,
       lineHeight: String(presentation.bodyLineHeight),
-      color: presentation.mutedTextColor,
+      color: presentation.bodyTextColor,
     },
     richText: {
       fontSize: `${presentation.metaFontSizePx}px`,

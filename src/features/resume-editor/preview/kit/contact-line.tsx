@@ -1,7 +1,5 @@
 import { cn } from "@/lib/utils";
-import {
-  shouldOpenHrefInNewTab,
-} from "@/features/resume-editor/domain/rich-text/sanitize-rich-text";
+import { shouldOpenHrefInNewTab } from "@/features/resume-editor/domain/rich-text/sanitize-rich-text";
 
 import type { PreviewContactItem } from "../types";
 import type { PreviewRenderContext } from "../types";
@@ -14,7 +12,7 @@ export function PreviewContactLine({
   centered?: boolean;
 }) {
   const { contactItems, presentation } = context;
-  const { mutedTextColor, contactFontSizePx, bodyLineHeight } = presentation;
+  const { contactFontSizePx, bodyLineHeight, bodyTextColor } = presentation;
 
   return (
     <p
@@ -25,7 +23,7 @@ export function PreviewContactLine({
       style={{
         fontSize: `${contactFontSizePx}px`,
         lineHeight: String(Math.max(1.45, bodyLineHeight - 0.1)),
-        color: mutedTextColor,
+        color: bodyTextColor,
       }}
     >
       {contactItems.map((item, index) => (
@@ -33,7 +31,7 @@ export function PreviewContactLine({
           key={`${item.kind}-${item.value}-${index}`}
           item={item}
           index={index}
-          mutedTextColor={mutedTextColor}
+          color={bodyTextColor}
         />
       ))}
     </p>
@@ -43,11 +41,11 @@ export function PreviewContactLine({
 function PreviewContactItemText({
   item,
   index,
-  mutedTextColor,
+  color,
 }: {
   item: PreviewContactItem;
   index: number;
-  mutedTextColor: string;
+  color: string;
 }) {
   const label =
     item.kind === "link"
@@ -72,7 +70,7 @@ function PreviewContactItemText({
               : undefined
           }
           className="underline"
-          style={{ color: mutedTextColor }}
+          style={{ color }}
         >
           {item.value}
         </a>

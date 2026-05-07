@@ -75,7 +75,6 @@ type PdfLayoutDefinition = {
   bodyFontFamily: string;
   headingFontFamily: string;
   bodyTextColor: string;
-  mutedTextColor: string;
   defaults: PdfPresentationOverrides;
   headingWeight: number;
   sectionLabelWeight: number;
@@ -91,7 +90,6 @@ export type ResolvedPdfPresentation = {
   bodyFontFamily: string;
   headingFontFamily: string;
   bodyTextColor: string;
-  mutedTextColor: string;
   accentColor: string;
   articleGapPx: number;
   itemGapPx: number;
@@ -221,7 +219,6 @@ export const pdfLayouts: Record<PdfLayoutId, PdfLayoutDefinition> = {
     bodyFontFamily: 'var(--font-sans), "Helvetica Neue", Arial, sans-serif',
     headingFontFamily: 'var(--font-sans), "Helvetica Neue", Arial, sans-serif',
     bodyTextColor: "#111827",
-    mutedTextColor: "#6b7280",
     defaults: {
       typeScale: "standard",
       lineHeight: "standard",
@@ -242,7 +239,6 @@ export const pdfLayouts: Record<PdfLayoutId, PdfLayoutDefinition> = {
     bodyFontFamily: 'var(--font-sans), "Helvetica Neue", Arial, sans-serif',
     headingFontFamily: 'var(--font-sans), "Helvetica Neue", Arial, sans-serif',
     bodyTextColor: "#1f2937",
-    mutedTextColor: "#4b5563",
     defaults: {
       typeScale: "standard",
       lineHeight: "standard",
@@ -264,7 +260,6 @@ export const pdfLayouts: Record<PdfLayoutId, PdfLayoutDefinition> = {
     bodyFontFamily: 'var(--font-sans), "Helvetica Neue", Arial, sans-serif',
     headingFontFamily: 'var(--font-sans), "Helvetica Neue", Arial, sans-serif',
     bodyTextColor: "#0f172a",
-    mutedTextColor: "#475569",
     defaults: {
       typeScale: "standard",
       lineHeight: "standard",
@@ -477,7 +472,6 @@ export function resolvePdfPresentation(
     bodyFontFamily: layout.bodyFontFamily,
     headingFontFamily: layout.headingFontFamily,
     bodyTextColor: layout.bodyTextColor,
-    mutedTextColor: layout.mutedTextColor,
     accentColor,
     articleGapPx,
     itemGapPx,
