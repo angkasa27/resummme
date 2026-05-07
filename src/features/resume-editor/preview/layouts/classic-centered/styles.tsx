@@ -6,13 +6,10 @@ export type ClassicItemStyles = {
   item: CSSProperties;
   header: CSSProperties;
   itemTitle: CSSProperties;
-  itemSubTitle: CSSProperties;
   itemMeta: CSSProperties;
   itemDate: CSSProperties;
-  itemDateMuted: CSSProperties;
   richText: CSSProperties;
   classicBody: CSSProperties;
-  classicSectionInset: CSSProperties;
   splitRow: CSSProperties;
 };
 
@@ -38,13 +35,6 @@ export function createClassicItemStyles(
       lineHeight: String(presentation.titleLineHeight),
       color: presentation.bodyTextColor,
     },
-    itemSubTitle: {
-      fontFamily: presentation.headingFontFamily,
-      fontSize: `${presentation.metaFontSizePx}px`,
-      fontWeight: 700,
-      lineHeight: String(presentation.bodyLineHeight),
-      color: presentation.bodyTextColor,
-    },
     itemMeta: {
       fontSize: `${presentation.metaFontSizePx}px`,
       lineHeight: String(presentation.bodyLineHeight),
@@ -57,13 +47,6 @@ export function createClassicItemStyles(
       lineHeight: String(presentation.bodyLineHeight),
       color: presentation.bodyTextColor,
     },
-    itemDateMuted: {
-      textAlign: "right",
-      fontSize: `${presentation.metaFontSizePx}px`,
-      fontWeight: 700,
-      lineHeight: String(presentation.bodyLineHeight),
-      color: presentation.bodyTextColor,
-    },
     richText: {
       fontSize: `${presentation.metaFontSizePx}px`,
       lineHeight: String(presentation.bodyLineHeight),
@@ -71,11 +54,7 @@ export function createClassicItemStyles(
       textAlign: "justify",
     },
     classicBody: {
-      paddingLeft: "18px",
-      paddingRight: "12px",
-    },
-    classicSectionInset: {
-      paddingLeft: "8px",
+      // paddingLeft: "16px",
     },
     splitRow: {
       display: "flex",

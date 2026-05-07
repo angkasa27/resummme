@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { type ReactNode } from "react";
 
 import type {
   PreviewRenderContext,
@@ -14,10 +14,13 @@ export function classicCollectionSection(
   const { presentation } = context;
 
   return (
-    <section className="space-y-4" key={key}>
+    <section className="space-y-3" key={key}>
       <div
-        className="border-b pb-1"
-        style={{ borderColor: presentation.accentColor }}
+        className="border-b"
+        style={{
+          borderColor: presentation.accentColor,
+          marginBottom: `${presentation.itemGapPx}px`,
+        }}
       >
         <h2
           data-testid="resume-preview-section-heading"
@@ -36,10 +39,7 @@ export function classicCollectionSection(
       <div
         data-section-items={section.key}
         className="flex flex-col"
-        style={{
-          gap: `${presentation.itemGapPx}px`,
-          paddingLeft: "8px",
-        }}
+        style={{ gap: `${presentation.itemGapPx}px` }}
       >
         {children}
       </div>
