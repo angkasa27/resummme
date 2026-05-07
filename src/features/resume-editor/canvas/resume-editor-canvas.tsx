@@ -57,6 +57,7 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
   const {
     fileInputRef,
     draft,
+    isExportingPdf,
     openImportPicker,
     handleImport,
     handleExport,
@@ -147,6 +148,7 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
     onImport: openImportPicker,
     onExport: handleExport,
     onExportPdf: handlePrint,
+    isExportingPdf,
     zoom,
     onZoomChange: setZoom,
   };

@@ -24,6 +24,7 @@ type CanvasControlPanelProps = {
   onImport: () => void;
   onExport: () => void;
   onExportPdf: () => void;
+  isExportingPdf?: boolean;
   zoom: number;
   onZoomChange: (next: number) => void;
 };
@@ -34,6 +35,7 @@ export function CanvasControlPanel({
   onImport,
   onExport,
   onExportPdf,
+  isExportingPdf = false,
   zoom,
   onZoomChange,
 }: CanvasControlPanelProps) {
@@ -102,9 +104,14 @@ export function CanvasControlPanel({
             Export
           </Button>
         </div>
-        <Button type="button" size="sm" onClick={onExportPdf}>
+        <Button
+          type="button"
+          size="sm"
+          disabled={isExportingPdf}
+          onClick={onExportPdf}
+        >
           <PrinterIcon data-icon="inline-start" />
-          Export PDF
+          {isExportingPdf ? "Exporting..." : "Export PDF"}
         </Button>
       </section>
     </div>

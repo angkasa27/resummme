@@ -22,8 +22,12 @@ function TestHarness() {
   });
 
   return (
-    <button type="button" onClick={controller.handlePrint}>
-      Export PDF
+    <button
+      type="button"
+      disabled={controller.isExportingPdf}
+      onClick={controller.handlePrint}
+    >
+      {controller.isExportingPdf ? "Exporting..." : "Export PDF"}
     </button>
   );
 }
@@ -68,7 +72,7 @@ describe("useResumeEditorController handlePrint", () => {
         headers: {
           "content-type": "application/pdf",
         },
-      })
+      }),
     );
 
     render(<TestHarness />);
@@ -83,12 +87,48 @@ describe("useResumeEditorController handlePrint", () => {
         headers: {
           "content-type": "application/json",
         },
-      })
+      }),
     );
     expect(URL.createObjectURL).toHaveBeenCalledTimes(1);
     expect(anchor.download).toBe("resume.pdf");
     expect(anchorClick).toHaveBeenCalledTimes(1);
     expect(toast.success).toHaveBeenCalled();
+  });
+
+  it("ignores repeated export clicks while a PDF request is already in flight", async () => {
+    let resolveFetch: ((value: Response) => void) | undefined;
+    vi.mocked(fetch).mockImplementation(
+      () =>
+        new Promise<Response>((resolve) => {
+          resolveFetch = resolve;
+        }),
+    );
+
+    render(<TestHarness />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Export PDF" }));
+
+    await waitFor(() =>
+      expect(
+        screen.getByRole("button", { name: "Exporting..." }),
+      ).toBeDisabled(),
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Exporting..." }));
+    expect(fetch).toHaveBeenCalledTimes(1);
+
+    resolveFetch?.(
+      new Response(new Uint8Array([1, 2, 3]), {
+        status: 200,
+        headers: {
+          "content-type": "application/pdf",
+        },
+      }),
+    );
+
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: "Export PDF" })).toBeEnabled(),
+    );
   });
 
   it("shows an error toast when the PDF export fails", async () => {
@@ -98,7 +138,7 @@ describe("useResumeEditorController handlePrint", () => {
         headers: {
           "content-type": "application/json",
         },
-      })
+      }),
     );
 
     render(<TestHarness />);

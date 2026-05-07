@@ -20,12 +20,14 @@ type ResumeEditorShellActionsProps = {
   onImport: () => void;
   onExport: () => void;
   onExportPdf: () => void;
+  isExportingPdf?: boolean;
 };
 
 export function ResumeEditorShellActions({
   onImport,
   onExport,
   onExportPdf,
+  isExportingPdf = false,
 }: ResumeEditorShellActionsProps) {
   return (
     <div className="ml-auto flex items-center gap-1.5">
@@ -38,9 +40,14 @@ export function ResumeEditorShellActions({
           <DownloadIcon data-icon="inline-start" />
           Export
         </Button>
-        <Button type="button" size="sm" onClick={onExportPdf}>
+        <Button
+          type="button"
+          size="sm"
+          disabled={isExportingPdf}
+          onClick={onExportPdf}
+        >
           <PrinterIcon data-icon="inline-start" />
-          Export PDF
+          {isExportingPdf ? "Exporting..." : "Export PDF"}
         </Button>
       </div>
 
@@ -48,7 +55,11 @@ export function ResumeEditorShellActions({
         <DropdownMenu>
           <DropdownMenuTrigger
             render={
-              <Button variant="ghost" size="icon-sm" aria-label="More actions" />
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                aria-label="More actions"
+              />
             }
           >
             <EllipsisVerticalIcon />
@@ -63,9 +74,9 @@ export function ResumeEditorShellActions({
                 <DownloadIcon />
                 Export
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={onExportPdf}>
+              <DropdownMenuItem disabled={isExportingPdf} onClick={onExportPdf}>
                 <PrinterIcon />
-                Export PDF
+                {isExportingPdf ? "Exporting..." : "Export PDF"}
               </DropdownMenuItem>
             </DropdownMenuGroup>
           </DropdownMenuContent>

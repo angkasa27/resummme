@@ -34,6 +34,7 @@ export function ResumeEditorShell({ initialDraft }: ResumeEditorShellProps) {
     fileInputRef,
     draft,
     activeSection,
+    isExportingPdf,
     openImportPicker,
     handleImport,
     handleExport,
@@ -109,6 +110,7 @@ export function ResumeEditorShell({ initialDraft }: ResumeEditorShellProps) {
               onImport={openImportPicker}
               onExport={handleExport}
               onExportPdf={handlePrint}
+              isExportingPdf={isExportingPdf}
             />
           </header>
 

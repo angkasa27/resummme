@@ -21,6 +21,7 @@ export type ResumeEditorController = {
   fileInputRef: RefObject<HTMLInputElement | null>;
   draft: ResumeDraft;
   activeSection: ResumeEditorPanelKey;
+  isExportingPdf: boolean;
   openImportPicker: () => void;
   handleImport: (event: ChangeEvent<HTMLInputElement>) => Promise<void>;
   handleExport: () => void;
@@ -43,8 +44,10 @@ export function useResumeEditorController({
     createResumeEditorStore(initialDraft ?? loadResumeDraft())
   );
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const isExportingPdfRef = useRef(false);
   const draft = useStore(store, (state) => state.draft);
   const activeSection = useStore(store, (state) => state.activeSection);
+  const [isExportingPdf, setIsExportingPdf] = useState(false);
 
   function openImportPicker() {
     fileInputRef.current?.click();
@@ -85,6 +88,12 @@ export function useResumeEditorController({
   }
 
   async function handlePrint() {
+    if (isExportingPdfRef.current) {
+      return;
+    }
+
+    isExportingPdfRef.current = true;
+    setIsExportingPdf(true);
     const loadingId = toast.loading("Generating PDF...");
 
     try {
@@ -116,6 +125,9 @@ export function useResumeEditorController({
         error instanceof Error ? error.message : "Unable to generate the PDF.",
         { id: loadingId }
       );
+    } finally {
+      isExportingPdfRef.current = false;
+      setIsExportingPdf(false);
     }
   }
 
@@ -123,6 +135,7 @@ export function useResumeEditorController({
     fileInputRef,
     draft,
     activeSection,
+    isExportingPdf,
     openImportPicker,
     handleImport,
     handleExport,
