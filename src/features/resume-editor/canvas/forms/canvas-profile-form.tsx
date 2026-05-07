@@ -1,11 +1,12 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form";
 import { ImageIcon, PlusIcon, Trash2Icon, UploadIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { ConfirmDeleteDialog } from "@/components/ui/confirm-delete-dialog";
 import { Field, FieldContent, FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 
@@ -67,6 +68,7 @@ export function CanvasProfileForm({
 
   useSyncedFormValues(form, draft.profile);
   useAutoSave(form, onSave);
+  const [pendingDeleteLinkIndex, setPendingDeleteLinkIndex] = useState<number | null>(null);
 
   const photoUrl = useWatch({ control, name: "photo" });
 
@@ -306,7 +308,7 @@ export function CanvasProfileForm({
                     variant="destructive"
                     size="icon-sm"
                     aria-label={`Remove link ${index + 1}`}
-                    onClick={() => extraLinks.remove(index)}
+                    onClick={() => setPendingDeleteLinkIndex(index)}
                   >
                     <Trash2Icon className="text-destructive" />
                   </Button>
@@ -316,6 +318,18 @@ export function CanvasProfileForm({
           </div>
         )}
       </div>
+      <ConfirmDeleteDialog
+        open={pendingDeleteLinkIndex !== null}
+        onOpenChange={(open) => {
+          if (!open) setPendingDeleteLinkIndex(null);
+        }}
+        onConfirm={() => {
+          if (pendingDeleteLinkIndex !== null)
+            extraLinks.remove(pendingDeleteLinkIndex);
+        }}
+        title="Remove link?"
+        description="This link will be removed from your profile."
+      />
     </CanvasFormShell>
   );
 }

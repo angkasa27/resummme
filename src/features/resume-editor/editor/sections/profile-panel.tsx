@@ -1,12 +1,13 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form";
 import { ImageIcon, PlusIcon, Trash2Icon, UploadIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { ConfirmDeleteDialog } from "@/components/ui/confirm-delete-dialog";
 import {
   Field,
   FieldContent,
@@ -68,6 +69,7 @@ export function ProfilePanel({ draft, onSave }: ProfilePanelProps) {
   });
 
   useSyncedFormValues(profileForm, draft.profile);
+  const [pendingDeleteLinkIndex, setPendingDeleteLinkIndex] = useState<number | null>(null);
   useAutoSave(profileForm, onSave);
 
   return (
@@ -305,7 +307,7 @@ export function ProfilePanel({ draft, onSave }: ProfilePanelProps) {
                       size="icon"
                       aria-label={`Remove link ${index + 1}`}
                       title={`Remove link ${index + 1}`}
-                      onClick={() => extraLinks.remove(index)}
+                      onClick={() => setPendingDeleteLinkIndex(index)}
                     >
                       <Trash2Icon />
                     </Button>
@@ -330,6 +332,18 @@ export function ProfilePanel({ draft, onSave }: ProfilePanelProps) {
           Add Link
         </Button>
       </div>
+      <ConfirmDeleteDialog
+        open={pendingDeleteLinkIndex !== null}
+        onOpenChange={(open) => {
+          if (!open) setPendingDeleteLinkIndex(null);
+        }}
+        onConfirm={() => {
+          if (pendingDeleteLinkIndex !== null)
+            extraLinks.remove(pendingDeleteLinkIndex);
+        }}
+        title="Remove link?"
+        description="This link will be removed from your profile."
+      />
     </EditorCard>
   );
 }

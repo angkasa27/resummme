@@ -15,6 +15,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
+import { ConfirmDeleteDialog } from "@/components/ui/confirm-delete-dialog";
 import { collectionSectionConfigs } from "@/features/resume-editor/editor/sections/config/collection-section-config";
 import type { CollectionSectionKey } from "@/features/resume-editor/domain/sections/section-metadata";
 import { normalizeCollectionItem } from "@/features/resume-editor/domain/sections/normalize-collection-item";
@@ -79,6 +80,7 @@ export function CollectionSectionPanel({
   const [shrunkIds, setShrunkIds] = useState<Set<string>>(
     () => new Set(items.fields.slice(1).map((f) => f.fieldKey)),
   );
+  const [pendingDeleteIndex, setPendingDeleteIndex] = useState<number | null>(null);
 
   useSyncedFormValues(form, formValues);
   useAutoSave(form, (values) => {
@@ -235,7 +237,7 @@ export function CollectionSectionPanel({
                     aria-label={`Remove ${config.itemTitle.toLowerCase()} ${index + 1}`}
                     title={`Remove ${config.itemTitle.toLowerCase()} ${index + 1}`}
                     onClick={() =>
-                      items.fields.length > 1 && items.remove(index)
+                      items.fields.length > 1 && setPendingDeleteIndex(index)
                     }
                     className="border! border-l-0! border-border!"
                   >
@@ -265,6 +267,17 @@ export function CollectionSectionPanel({
         <PlusIcon data-icon="inline-start" />
         {config.addLabel}
       </Button>
+      <ConfirmDeleteDialog
+        open={pendingDeleteIndex !== null}
+        onOpenChange={(open) => {
+          if (!open) setPendingDeleteIndex(null);
+        }}
+        onConfirm={() => {
+          if (pendingDeleteIndex !== null) items.remove(pendingDeleteIndex);
+        }}
+        title={`Remove ${config.itemTitle.toLowerCase()}?`}
+        description="This item will be permanently removed from the section."
+      />
     </EditorCard>
   );
 }

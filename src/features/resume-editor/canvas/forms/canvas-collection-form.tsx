@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { ConfirmDeleteDialog } from "@/components/ui/confirm-delete-dialog";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import {
   ArrowDownIcon,
@@ -80,6 +81,7 @@ export function CanvasCollectionForm({
   const [collapsedIds, setCollapsedIds] = useState<Set<string>>(
     () => new Set(items.fields.slice(1).map((f) => f.fieldKey)),
   );
+  const [pendingDeleteIndex, setPendingDeleteIndex] = useState<number | null>(null);
 
   useSyncedFormValues(form, formValues);
   useAutoSave(form, (values) => {
@@ -227,7 +229,7 @@ export function CanvasCollectionForm({
                       disabled={items.fields.length === 1}
                       className="border border-border! border-l-0"
                       onClick={() =>
-                        items.fields.length > 1 && items.remove(index)
+                        items.fields.length > 1 && setPendingDeleteIndex(index)
                       }
                     >
                       <Trash2Icon className="text-destructive" />
@@ -252,6 +254,17 @@ export function CanvasCollectionForm({
           })}
         </div>
       )}
+      <ConfirmDeleteDialog
+        open={pendingDeleteIndex !== null}
+        onOpenChange={(open) => {
+          if (!open) setPendingDeleteIndex(null);
+        }}
+        onConfirm={() => {
+          if (pendingDeleteIndex !== null) items.remove(pendingDeleteIndex);
+        }}
+        title={`Remove ${config.itemTitle.toLowerCase()}?`}
+        description="This item will be permanently removed from the section."
+      />
     </CanvasFormShell>
   );
 }
