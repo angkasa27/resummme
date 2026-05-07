@@ -41,7 +41,7 @@ describe("preview pane", () => {
       screen.getByRole("combobox", { name: /profile layout/i }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("combobox", { name: /type scale/i }),
+      screen.getByRole("combobox", { name: /font size/i }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: /line height standard/i }),
