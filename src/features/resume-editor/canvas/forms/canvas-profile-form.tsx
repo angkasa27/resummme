@@ -1,7 +1,9 @@
 "use client";
 
+import { useRef } from "react";
 import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form";
-import { ImageIcon, PlusIcon, Trash2Icon } from "lucide-react";
+import { ImageIcon, PlusIcon, Trash2Icon, UploadIcon } from "lucide-react";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Field, FieldContent, FieldError } from "@/components/ui/field";
@@ -13,6 +15,10 @@ import { createFormSchemaResolver } from "@/features/resume-editor/forms/schemas
 import { useAutoSave } from "@/features/resume-editor/forms/use-auto-save";
 import { useSyncedFormValues } from "@/features/resume-editor/forms/use-synced-form-values";
 import { CanvasFormShell } from "@/features/resume-editor/canvas/forms/canvas-form-shell";
+import {
+  ProfilePhotoError,
+  readProfilePhotoAsDataUrl,
+} from "@/lib/image-to-data-url";
 import type {
   Profile,
   ResumeDraft,
@@ -37,7 +43,22 @@ export function CanvasProfileForm({
     mode: "onBlur",
     reValidateMode: "onChange",
   });
-  const { control, register, formState, getFieldState } = form;
+  const { control, register, formState, getFieldState, setValue } = form;
+  const photoInputRef = useRef<HTMLInputElement | null>(null);
+
+  async function handlePhotoFile(file: File | null | undefined) {
+    if (!file) return;
+    try {
+      const dataUrl = await readProfilePhotoAsDataUrl(file);
+      setValue("photo", dataUrl, { shouldDirty: true, shouldValidate: true });
+    } catch (error) {
+      toast.error(
+        error instanceof ProfilePhotoError
+          ? error.message
+          : "Could not read that image.",
+      );
+    }
+  }
   const extraLinks = useFieldArray({
     control,
     name: "extraLinks",
@@ -58,7 +79,14 @@ export function CanvasProfileForm({
         >
           <FieldContent>
             <div className="flex flex-col items-start gap-2">
-              <div className="relative size-22 overflow-hidden rounded-full bg-muted ring-1 ring-border">
+              <button
+                type="button"
+                onClick={() => photoInputRef.current?.click()}
+                className="relative size-22 overflow-hidden rounded-md bg-muted ring-1 ring-border outline-none transition hover:ring-foreground/40 focus-visible:ring-2 focus-visible:ring-ring"
+                aria-label={
+                  photoUrl ? "Change profile photo" : "Upload profile photo"
+                }
+              >
                 {photoUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
@@ -71,22 +99,46 @@ export function CanvasProfileForm({
                     <ImageIcon className="size-6" />
                   </div>
                 )}
-              </div>
-              <Input
+              </button>
+              <input
+                ref={photoInputRef}
                 id="canvas-profile-photo"
-                type="url"
-                inputMode="url"
-                spellCheck={false}
-                autoCapitalize="none"
-                autoCorrect="off"
-                placeholder="Photo URL"
-                className="h-7 w-22 text-[11px]"
-                aria-label="Photo URL"
-                aria-invalid={
-                  getFieldState("photo", formState).invalid || undefined
-                }
-                {...register("photo")}
+                type="file"
+                accept="image/png,image/jpeg,image/webp,image/gif"
+                className="sr-only"
+                onChange={(event) => {
+                  void handlePhotoFile(event.target.files?.[0]);
+                  event.target.value = "";
+                }}
               />
+              <div className="flex w-22 flex-col gap-1">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="h-7 w-full text-[11px]"
+                  onClick={() => photoInputRef.current?.click()}
+                >
+                  <UploadIcon data-icon="inline-start" />
+                  {photoUrl ? "Change" : "Upload"}
+                </Button>
+                {photoUrl ? (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 w-full text-[11px] text-muted-foreground"
+                    onClick={() =>
+                      setValue("photo", "", {
+                        shouldDirty: true,
+                        shouldValidate: true,
+                      })
+                    }
+                  >
+                    Remove
+                  </Button>
+                ) : null}
+              </div>
               <FieldError errors={[getFieldState("photo", formState).error]} />
             </div>
           </FieldContent>

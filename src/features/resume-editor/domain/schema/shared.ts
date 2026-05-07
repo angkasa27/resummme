@@ -46,6 +46,23 @@ export function urlField(label: string) {
   return refineBlankableString(label, z.url(), "must be a valid URL.");
 }
 
+const dataImageUrlPattern = /^data:image\/(png|jpe?g|webp|gif);base64,[A-Za-z0-9+/=]+$/;
+
+export function photoField(label: string) {
+  return z
+    .string()
+    .trim()
+    .refine(
+      (value) =>
+        value === "" ||
+        dataImageUrlPattern.test(value) ||
+        z.url().safeParse(value).success,
+      {
+        message: `${label} must be an uploaded image or a valid URL.`,
+      },
+    );
+}
+
 export function richTextTextContent(value: string) {
   return value
     .replace(/<[^>]*>/g, " ")

@@ -2,6 +2,7 @@ import { z } from "zod";
 
 import {
   emailField,
+  photoField,
   requiredText,
   textField,
   urlField,
@@ -19,7 +20,7 @@ export const profileSchema = z.object({
   location: textField(),
   phone: textField(),
   email: emailField("Email address"),
-  photo: urlField("Photo URL"),
+  photo: photoField("Photo"),
   extraLinks: z.array(extraLinkSchema),
 });
 

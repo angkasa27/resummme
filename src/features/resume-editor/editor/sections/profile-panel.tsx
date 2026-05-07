@@ -1,7 +1,9 @@
 "use client";
 
-import { Controller, useFieldArray, useForm } from "react-hook-form";
-import { PlusIcon, Trash2Icon } from "lucide-react";
+import { useRef } from "react";
+import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form";
+import { ImageIcon, PlusIcon, Trash2Icon, UploadIcon } from "lucide-react";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -21,6 +23,10 @@ import { useAutoSave } from "@/features/resume-editor/forms/use-auto-save";
 import { useSyncedFormValues } from "@/features/resume-editor/forms/use-synced-form-values";
 import { EditorCard } from "@/features/resume-editor/editor/sections/editor-card";
 import { FieldLabelText } from "@/features/resume-editor/editor/sections/field-label-text";
+import {
+  ProfilePhotoError,
+  readProfilePhotoAsDataUrl,
+} from "@/lib/image-to-data-url";
 import type {
   Profile,
   ResumeDraft,
@@ -38,7 +44,23 @@ export function ProfilePanel({ draft, onSave }: ProfilePanelProps) {
     mode: "onBlur",
     reValidateMode: "onChange",
   });
-  const { control, register, formState, getFieldState } = profileForm;
+  const { control, register, formState, getFieldState, setValue } = profileForm;
+  const photoInputRef = useRef<HTMLInputElement | null>(null);
+  const photoUrl = useWatch({ control, name: "photo" });
+
+  async function handlePhotoFile(file: File | null | undefined) {
+    if (!file) return;
+    try {
+      const dataUrl = await readProfilePhotoAsDataUrl(file);
+      setValue("photo", dataUrl, { shouldDirty: true, shouldValidate: true });
+    } catch (error) {
+      toast.error(
+        error instanceof ProfilePhotoError
+          ? error.message
+          : "Could not read that image.",
+      );
+    }
+  }
   const extraLinks = useFieldArray({
     control,
     name: "extraLinks",
@@ -148,23 +170,69 @@ export function ProfilePanel({ draft, onSave }: ProfilePanelProps) {
           data-invalid={getFieldState("photo", formState).invalid || undefined}
         >
           <FieldLabel htmlFor="profile-photo">
-            <FieldLabelText label="Photo URL" />
+            <FieldLabelText label="Photo" />
           </FieldLabel>
           <FieldContent>
-            <Input
-              id="profile-photo"
-              type="url"
-              autoComplete="url"
-              inputMode="url"
-              spellCheck={false}
-              autoCapitalize="none"
-              autoCorrect="off"
-              placeholder="https://example.com/profile-photo.jpg"
-              aria-invalid={
-                getFieldState("photo", formState).invalid || undefined
-              }
-              {...register("photo")}
-            />
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => photoInputRef.current?.click()}
+                className="relative size-24 shrink-0 overflow-hidden rounded-md bg-muted ring-1 ring-border outline-none transition hover:ring-foreground/40 focus-visible:ring-2 focus-visible:ring-ring"
+                aria-label={
+                  photoUrl ? "Change profile photo" : "Upload profile photo"
+                }
+              >
+                {photoUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={photoUrl}
+                    alt="Profile preview"
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center text-muted-foreground">
+                    <ImageIcon className="size-5" />
+                  </div>
+                )}
+              </button>
+              <input
+                ref={photoInputRef}
+                id="profile-photo"
+                type="file"
+                accept="image/png,image/jpeg,image/webp,image/gif"
+                className="sr-only"
+                onChange={(event) => {
+                  void handlePhotoFile(event.target.files?.[0]);
+                  event.target.value = "";
+                }}
+              />
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => photoInputRef.current?.click()}
+                >
+                  <UploadIcon data-icon="inline-start" />
+                  {photoUrl ? "Change" : "Upload image"}
+                </Button>
+                {photoUrl ? (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() =>
+                      setValue("photo", "", {
+                        shouldDirty: true,
+                        shouldValidate: true,
+                      })
+                    }
+                  >
+                    Remove
+                  </Button>
+                ) : null}
+              </div>
+            </div>
             <FieldError errors={[getFieldState("photo", formState).error]} />
           </FieldContent>
         </Field>
