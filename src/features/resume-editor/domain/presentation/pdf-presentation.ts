@@ -200,15 +200,15 @@ const lineHeightValues: Record<PdfLineHeightId, number> = {
 };
 
 const sectionSpacingValues: Record<PdfSpacingId, number> = {
-  compact: 20,
-  standard: 24,
-  airy: 32,
+  compact: 16,
+  standard: 20,
+  airy: 24,
 };
 
 const itemSpacingValues: Record<PdfSpacingId, number> = {
-  compact: 12,
-  standard: 16,
-  airy: 20,
+  compact: 8,
+  standard: 12,
+  airy: 16,
 };
 
 export const pdfLayouts: Record<PdfLayoutId, PdfLayoutDefinition> = {
