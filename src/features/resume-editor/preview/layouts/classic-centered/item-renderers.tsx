@@ -273,7 +273,7 @@ export function createClassicItemRenderers(
               <div style={styles.itemTitle}>{entry.language}</div>
             </>,
             <>
-              <div style={regularWeightStyle}>{entry.proficiency}</div>
+              <div style={subtitleRegular}>{entry.proficiency}</div>
             </>,
           )}
         </>,
