@@ -102,6 +102,9 @@ export function RichTextEditor({
   }
 
   const activeEditor = editor;
+  const plainText = activeEditor.state.doc.textContent;
+  const wordCount = plainText.trim() ? plainText.trim().split(/\s+/).length : 0;
+  const charCount = plainText.length;
 
   function openLinkEditor() {
     setLinkError(null);
@@ -343,6 +346,9 @@ export function RichTextEditor({
         >
           <Link2OffIcon />
         </Button>
+        <span className="ml-auto text-[10px] tabular-nums text-muted-foreground select-none">
+          {wordCount}w · {charCount}c
+        </span>
       </div>
       <div className={cn("bg-background", heightClassName)}>
         <EditorContent
