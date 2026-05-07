@@ -105,6 +105,16 @@ describe("collection section panel", () => {
   it("still shows format errors for malformed project links", async () => {
     const user = userEvent.setup();
     const draft = createDefaultResumeDraft();
+    draft.sections.projects.items = [
+      {
+        id: "project-1",
+        projectName: "",
+        projectLink: "",
+        startDate: "",
+        endDate: "",
+        description: "",
+      },
+    ];
 
     render(
       <CollectionSectionPanel

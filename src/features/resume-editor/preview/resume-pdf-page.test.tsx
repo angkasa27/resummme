@@ -39,7 +39,7 @@ describe("resume pdf page", () => {
     await waitFor(() =>
       expect(screen.getByTestId("resume-preview-full-name")).toBeInTheDocument()
     );
-    expect(screen.getByText("Fulan bin Fulan")).toBeInTheDocument();
+    expect(screen.getByText(draft.profile.fullName)).toBeInTheDocument();
     expect(screen.queryByText("Resume Editor")).not.toBeInTheDocument();
     expect(screen.getAllByRole("list")).toHaveLength(2);
     expect(document.querySelector('[data-pdf-ready="true"]')).not.toBeNull();

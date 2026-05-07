@@ -5,108 +5,121 @@ function createTimestamp() {
   return new Date().toISOString();
 }
 
-function createEmptyWorkExperienceItem() {
+function createDefaultWorkExperienceItem() {
   return {
     id: "default-work-experience-1",
-    companyName: "",
-    position: "",
-    location: "",
-    startDate: "",
-    endDate: "",
-    description: "",
+    companyName: "Nusantara Digital Studio",
+    position: "Senior Frontend Engineer",
+    location: "Jakarta, Indonesia",
+    startDate: "Feb 2022",
+    endDate: "current",
+    description:
+      "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed posuere consectetur est at lobortis, aenean eu leo quam, pellentesque ornare sem lacinia quam venenatis vestibulum.</p>",
   };
 }
 
-function createEmptySkillCategoryItem() {
+function createDefaultSkillCategoryItem() {
   return {
     id: "default-skill-category-1",
-    categoryName: "",
-    skills: [],
+    categoryName: "Frontend Engineering",
+    skills: [
+      "React",
+      "Next.js",
+      "TypeScript",
+      "Tailwind CSS",
+      "Design Systems",
+    ],
   };
 }
 
-function createEmptyProjectItem() {
+function createDefaultProjectItem() {
   return {
     id: "default-project-1",
-    projectName: "",
-    projectLink: "",
-    startDate: "",
-    endDate: "",
-    description: "",
+    projectName: "Editorial Workflow Platform",
+    projectLink: "https://example.com/case-study/editorial-workflow-platform",
+    startDate: "May 2023",
+    endDate: "Dec 2023",
+    description:
+      "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras mattis consectetur purus sit amet fermentum, posuere erat a ante venenatis dapibus.</p>",
   };
 }
 
-function createEmptyEducationItem() {
+function createDefaultEducationItem() {
   return {
     id: "default-education-1",
-    name: "",
-    location: "",
-    startDate: "",
-    endDate: "",
-    degree: "",
-    gpa: "",
-    description: "",
+    name: "Institut Teknologi Bandung",
+    location: "Bandung, Indonesia",
+    startDate: "Aug 2015",
+    endDate: "May 2019",
+    degree: "B.S. in Informatics Engineering",
+    gpa: "3.78 / 4.00",
+    description:
+      "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor.</p>",
   };
 }
 
-function createEmptyPublicationItem() {
+function createDefaultPublicationItem() {
   return {
     id: "default-publication-1",
-    title: "",
-    publisher: "",
-    publicationUrl: "",
-    publicationDate: "",
-    description: "",
+    title: "Designing Faster Editorial Workflows",
+    publisher: "Product Engineering Notes",
+    publicationUrl: "https://example.com/writing/editorial-workflows",
+    publicationDate: "Aug 2023",
+    description:
+      "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante venenatis dapibus posuere velit aliquet.</p>",
   };
 }
 
-function createEmptyCertificationItem() {
+function createDefaultCertificationItem() {
   return {
     id: "default-certification-1",
-    certificationName: "",
-    issuingOrganization: "",
-    issuedDate: "",
-    certificationLink: "",
-    credentialId: "",
+    certificationName: "AWS Certified Developer - Associate",
+    issuingOrganization: "Amazon Web Services",
+    issuedDate: "Nov 2023",
+    certificationLink:
+      "https://example.com/certificates/aws-developer-associate",
+    credentialId: "AWS-DEV-2023-1184",
   };
 }
 
-function createEmptyAwardItem() {
+function createDefaultAwardItem() {
   return {
     id: "default-award-1",
-    title: "",
-    issuer: "",
-    issuedDate: "",
-    description: "",
+    title: "Engineering Excellence Award",
+    issuer: "Nusantara Digital Studio",
+    issuedDate: "Dec 2023",
+    description:
+      "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas faucibus mollis interdum.</p>",
   };
 }
 
-function createEmptyLanguageItem() {
+function createDefaultLanguageItem() {
   return {
     id: "default-language-1",
-    language: "",
-    proficiency: "",
+    language: "English",
+    proficiency: "Professional working proficiency",
   };
 }
 
-function createEmptyReferenceItem() {
+function createDefaultReferenceItem() {
   return {
     id: "default-reference-1",
-    name: "",
-    background: "",
-    contactDetails: "",
+    name: "Anindya Putri",
+    background: "Engineering Manager, Nusantara Digital Studio",
+    contactDetails: "anindya.putri@example.com · +62 812-4455-6677",
   };
 }
 
-function createEmptyOrganizationItem() {
+function createDefaultOrganizationItem() {
   return {
     id: "default-organization-1",
-    organizationName: "",
-    position: "",
-    location: "",
-    startDate: "",
-    endDate: "",
-    description: "",
+    organizationName: "Jakarta JavaScript Community",
+    position: "Volunteer Mentor",
+    location: "Jakarta, Indonesia",
+    startDate: "Jan 2021",
+    endDate: "current",
+    description:
+      "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur blandit tempus porttitor, nullam id dolor id nibh ultricies vehicula ut id elit.</p>",
   };
 }
 
@@ -117,23 +130,23 @@ export function createDefaultResumeDraft(): ResumeDraft {
     updatedAt: createTimestamp(),
     pdfPresentation: createDefaultPdfPresentation(),
     profile: {
-      fullName: "Fulan bin Fulan",
+      fullName: "Dimas Angkasa",
       location: "Jakarta, Indonesia",
-      phone: "+6280011112222",
-      email: "email.me@here.is",
-      photo: "",
+      phone: "+62 812-3344-5566",
+      email: "example@mail.com",
+      photo: "https://picsum.photos/200",
       extraLinks: [
         {
           id: "profile-link-linkedin",
-          url: "https://www.linkedin.com/in/your-profile",
+          url: "https://www.linkedin.com/in",
         },
         {
           id: "profile-link-github",
-          url: "https://github.com/your-username",
+          url: "https://github.com",
         },
         {
           id: "profile-link-portfolio",
-          url: "https://your-domain.com",
+          url: "https://asaa.dev",
         },
       ],
     },
@@ -141,57 +154,58 @@ export function createDefaultResumeDraft(): ResumeDraft {
       summary: {
         visible: true,
         order: 0,
-        content: "Start editing your resume!",
+        content:
+          "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante venenatis dapibus posuere velit aliquet. Praesent commodo cursus magna, vel scelerisque nisl consectetur et.</p><p>Donec ullamcorper nulla non metus auctor fringilla. Aenean lacinia bibendum nulla sed consectetur, sed posuere consectetur est at lobortis.</p>",
       },
       workExperience: {
         visible: true,
         order: 1,
-        items: [createEmptyWorkExperienceItem()],
+        items: [createDefaultWorkExperienceItem()],
       },
       skills: {
         visible: true,
         order: 2,
-        items: [createEmptySkillCategoryItem()],
+        items: [createDefaultSkillCategoryItem()],
       },
       projects: {
         visible: true,
         order: 3,
-        items: [createEmptyProjectItem()],
+        items: [createDefaultProjectItem()],
       },
       education: {
         visible: true,
         order: 4,
-        items: [createEmptyEducationItem()],
+        items: [createDefaultEducationItem()],
       },
       publications: {
         visible: false,
         order: 5,
-        items: [createEmptyPublicationItem()],
+        items: [createDefaultPublicationItem()],
       },
       certifications: {
         visible: false,
         order: 6,
-        items: [createEmptyCertificationItem()],
+        items: [createDefaultCertificationItem()],
       },
       awards: {
         visible: false,
         order: 7,
-        items: [createEmptyAwardItem()],
+        items: [createDefaultAwardItem()],
       },
       languages: {
         visible: false,
         order: 8,
-        items: [createEmptyLanguageItem()],
+        items: [createDefaultLanguageItem()],
       },
       references: {
         visible: false,
         order: 9,
-        items: [createEmptyReferenceItem()],
+        items: [createDefaultReferenceItem()],
       },
       organizationVolunteering: {
         visible: false,
         order: 10,
-        items: [createEmptyOrganizationItem()],
+        items: [createDefaultOrganizationItem()],
       },
     },
   };
