@@ -188,14 +188,14 @@ const accentPalette: Record<
 };
 
 const typeScaleValues: Record<PdfTypeScaleId, number> = {
-  small: 12,
-  standard: 13,
-  large: 15,
+  small: 11,
+  standard: 12,
+  large: 14,
 };
 
 const lineHeightValues: Record<PdfLineHeightId, number> = {
-  tight: 1.5,
-  standard: 1.7,
+  tight: 1.4,
+  standard: 1.6,
   relaxed: 1.9,
 };
 
