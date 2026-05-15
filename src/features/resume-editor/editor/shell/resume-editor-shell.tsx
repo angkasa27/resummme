@@ -31,12 +31,16 @@ type ResumeEditorShellProps = {
 export function ResumeEditorShell({ initialDraft }: ResumeEditorShellProps) {
   const isClientReady = useClientReady();
   const {
-    fileInputRef,
+    jsonFileInputRef,
+    pdfFileInputRef,
     draft,
     activeSection,
     isExportingPdf,
-    openImportPicker,
-    handleImport,
+    isImportingPdf,
+    openJsonImportPicker,
+    openPdfImportPicker,
+    handleJsonImport,
+    handlePdfImport,
     handleExport,
     handlePrint,
     requestSectionChange,
@@ -68,11 +72,18 @@ export function ResumeEditorShell({ initialDraft }: ResumeEditorShellProps) {
   return (
     <div className="h-dvh overflow-hidden">
       <input
-        ref={fileInputRef}
+        ref={jsonFileInputRef}
         type="file"
         accept="application/json"
         className="hidden"
-        onChange={handleImport}
+        onChange={handleJsonImport}
+      />
+      <input
+        ref={pdfFileInputRef}
+        type="file"
+        accept="application/pdf,.pdf"
+        className="hidden"
+        onChange={handlePdfImport}
       />
 
       <SidebarProvider
@@ -107,10 +118,12 @@ export function ResumeEditorShell({ initialDraft }: ResumeEditorShellProps) {
               Back to canvas
             </Link>
             <ResumeEditorShellActions
-              onImport={openImportPicker}
+              onImportJson={openJsonImportPicker}
+              onImportPdf={openPdfImportPicker}
               onExport={handleExport}
               onExportPdf={handlePrint}
               isExportingPdf={isExportingPdf}
+              isImportingPdf={isImportingPdf}
             />
           </header>
 

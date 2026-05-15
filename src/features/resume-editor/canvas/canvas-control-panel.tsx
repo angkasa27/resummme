@@ -5,13 +5,13 @@ import {
   MinusIcon,
   PlusIcon,
   PrinterIcon,
-  UploadIcon,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { PreviewToolbarContent } from "@/features/resume-editor/preview/components/preview-toolbar-content";
 import type { PdfPresentation } from "@/features/resume-editor/domain/presentation/pdf-presentation";
+import { ImportMenu } from "@/features/resume-editor/editor/import-menu";
 
 export const ZOOM_MIN = 0.5;
 export const ZOOM_MAX = 1.5;
@@ -21,10 +21,12 @@ export const ZOOM_DEFAULT = 1;
 type CanvasControlPanelProps = {
   presentation: PdfPresentation;
   onPresentationChange: (next: PdfPresentation) => void;
-  onImport: () => void;
+  onImportJson: () => void;
+  onImportPdf: () => void;
   onExport: () => void;
   onExportPdf: () => void;
   isExportingPdf?: boolean;
+  isImportingPdf?: boolean;
   zoom: number;
   onZoomChange: (next: number) => void;
 };
@@ -32,10 +34,12 @@ type CanvasControlPanelProps = {
 export function CanvasControlPanel({
   presentation,
   onPresentationChange,
-  onImport,
+  onImportJson,
+  onImportPdf,
   onExport,
   onExportPdf,
   isExportingPdf = false,
+  isImportingPdf = false,
   zoom,
   onZoomChange,
 }: CanvasControlPanelProps) {
@@ -95,10 +99,11 @@ export function CanvasControlPanel({
       <section className="flex flex-col gap-2">
         <h3 className="text-sm font-semibold">Document</h3>
         <div className="grid grid-cols-2 gap-2">
-          <Button type="button" size="sm" variant="outline" onClick={onImport}>
-            <UploadIcon data-icon="inline-start" />
-            Import
-          </Button>
+          <ImportMenu
+            onImportJson={onImportJson}
+            onImportPdf={onImportPdf}
+            disabled={isImportingPdf}
+          />
           <Button type="button" size="sm" variant="outline" onClick={onExport}>
             <DownloadIcon data-icon="inline-start" />
             Export

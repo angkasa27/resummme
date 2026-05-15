@@ -18,12 +18,16 @@ type UseResumeEditorControllerOptions = {
 };
 
 export type ResumeEditorController = {
-  fileInputRef: RefObject<HTMLInputElement | null>;
+  jsonFileInputRef: RefObject<HTMLInputElement | null>;
+  pdfFileInputRef: RefObject<HTMLInputElement | null>;
   draft: ResumeDraft;
   activeSection: ResumeEditorPanelKey;
   isExportingPdf: boolean;
-  openImportPicker: () => void;
-  handleImport: (event: ChangeEvent<HTMLInputElement>) => Promise<void>;
+  isImportingPdf: boolean;
+  openJsonImportPicker: () => void;
+  openPdfImportPicker: () => void;
+  handleJsonImport: (event: ChangeEvent<HTMLInputElement>) => Promise<void>;
+  handlePdfImport: (event: ChangeEvent<HTMLInputElement>) => Promise<void>;
   handleExport: () => void;
   handlePrint: () => Promise<void>;
   requestSectionChange: (sectionKey: ResumeEditorPanelKey) => void;
@@ -43,17 +47,24 @@ export function useResumeEditorController({
   const [store] = useState(() =>
     createResumeEditorStore(initialDraft ?? loadResumeDraft())
   );
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const jsonFileInputRef = useRef<HTMLInputElement>(null);
+  const pdfFileInputRef = useRef<HTMLInputElement>(null);
   const isExportingPdfRef = useRef(false);
+  const isImportingPdfRef = useRef(false);
   const draft = useStore(store, (state) => state.draft);
   const activeSection = useStore(store, (state) => state.activeSection);
   const [isExportingPdf, setIsExportingPdf] = useState(false);
+  const [isImportingPdf, setIsImportingPdf] = useState(false);
 
-  function openImportPicker() {
-    fileInputRef.current?.click();
+  function openJsonImportPicker() {
+    jsonFileInputRef.current?.click();
   }
 
-  async function handleImport(event: ChangeEvent<HTMLInputElement>) {
+  function openPdfImportPicker() {
+    pdfFileInputRef.current?.click();
+  }
+
+  async function handleJsonImport(event: ChangeEvent<HTMLInputElement>) {
     const selectedFile = event.target.files?.[0];
 
     if (!selectedFile) {
@@ -71,6 +82,60 @@ export function useResumeEditorController({
         error instanceof Error ? error.message : "Unable to import that draft."
       );
     } finally {
+      event.target.value = "";
+    }
+  }
+
+  async function handlePdfImport(event: ChangeEvent<HTMLInputElement>) {
+    if (isImportingPdfRef.current) {
+      event.target.value = "";
+      return;
+    }
+
+    const selectedFile = event.target.files?.[0];
+
+    if (!selectedFile) {
+      return;
+    }
+
+    isImportingPdfRef.current = true;
+    setIsImportingPdf(true);
+    const loadingId = toast.loading("Importing PDF...");
+
+    try {
+      const formData = new FormData();
+      formData.append("file", selectedFile);
+
+      const response = await fetch("/api/import-pdf", {
+        method: "POST",
+        body: formData,
+      });
+
+      const payload = (await response.json()) as {
+        draft?: ResumeDraft;
+        warnings?: string[];
+        message?: string;
+      };
+
+      if (!response.ok || !payload.draft) {
+        throw new Error(payload.message || "Unable to import that PDF.");
+      }
+
+      store.getState().replaceDraft(payload.draft);
+      const warningCount = payload.warnings?.length ?? 0;
+      const successMessage =
+        warningCount > 0
+          ? `PDF imported with ${warningCount} warning${warningCount === 1 ? "" : "s"}.`
+          : "PDF imported.";
+      toast.success(successMessage, { id: loadingId });
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Unable to import that PDF.",
+        { id: loadingId },
+      );
+    } finally {
+      isImportingPdfRef.current = false;
+      setIsImportingPdf(false);
       event.target.value = "";
     }
   }
@@ -132,12 +197,16 @@ export function useResumeEditorController({
   }
 
   return {
-    fileInputRef,
+    jsonFileInputRef,
+    pdfFileInputRef,
     draft,
     activeSection,
     isExportingPdf,
-    openImportPicker,
-    handleImport,
+    isImportingPdf,
+    openJsonImportPicker,
+    openPdfImportPicker,
+    handleJsonImport,
+    handlePdfImport,
     handleExport,
     handlePrint,
     requestSectionChange: (sectionKey) =>

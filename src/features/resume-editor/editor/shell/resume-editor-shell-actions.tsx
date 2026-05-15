@@ -4,7 +4,6 @@ import {
   DownloadIcon,
   EllipsisVerticalIcon,
   PrinterIcon,
-  UploadIcon,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -15,27 +14,34 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { ImportMenu } from "@/features/resume-editor/editor/import-menu";
 
 type ResumeEditorShellActionsProps = {
-  onImport: () => void;
+  onImportJson: () => void;
+  onImportPdf: () => void;
   onExport: () => void;
   onExportPdf: () => void;
   isExportingPdf?: boolean;
+  isImportingPdf?: boolean;
 };
 
 export function ResumeEditorShellActions({
-  onImport,
+  onImportJson,
+  onImportPdf,
   onExport,
   onExportPdf,
   isExportingPdf = false,
+  isImportingPdf = false,
 }: ResumeEditorShellActionsProps) {
   return (
     <div className="ml-auto flex items-center gap-1.5">
       <div className="hidden items-center gap-1.5 sm:flex">
-        <Button type="button" variant="outline" size="sm" onClick={onImport}>
-          <UploadIcon data-icon="inline-start" />
-          Import
-        </Button>
+        <ImportMenu
+          onImportJson={onImportJson}
+          onImportPdf={onImportPdf}
+          disabled={isImportingPdf}
+          align="end"
+        />
         <Button type="button" variant="outline" size="sm" onClick={onExport}>
           <DownloadIcon data-icon="inline-start" />
           Export
@@ -66,9 +72,11 @@ export function ResumeEditorShellActions({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" sideOffset={8}>
             <DropdownMenuGroup>
-              <DropdownMenuItem onClick={onImport}>
-                <UploadIcon />
-                Import
+              <DropdownMenuItem onClick={onImportJson}>
+                Import JSON
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={onImportPdf}>
+                Import PDF
               </DropdownMenuItem>
               <DropdownMenuItem onClick={onExport}>
                 <DownloadIcon />

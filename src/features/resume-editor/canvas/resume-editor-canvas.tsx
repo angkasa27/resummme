@@ -55,11 +55,15 @@ type EditingTarget = "profile" | "summary" | CollectionSectionKey | null;
 export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
   const isClientReady = useClientReady();
   const {
-    fileInputRef,
+    jsonFileInputRef,
+    pdfFileInputRef,
     draft,
     isExportingPdf,
-    openImportPicker,
-    handleImport,
+    isImportingPdf,
+    openJsonImportPicker,
+    openPdfImportPicker,
+    handleJsonImport,
+    handlePdfImport,
     handleExport,
     handlePrint,
     saveProfile,
@@ -145,10 +149,12 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
   const controlPanelProps = {
     presentation,
     onPresentationChange: savePdfPresentation,
-    onImport: openImportPicker,
+    onImportJson: openJsonImportPicker,
+    onImportPdf: openPdfImportPicker,
     onExport: handleExport,
     onExportPdf: handlePrint,
     isExportingPdf,
+    isImportingPdf,
     zoom,
     onZoomChange: setZoom,
   };
@@ -157,11 +163,18 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
     <TooltipProvider>
       <div className="flex min-h-dvh flex-col bg-muted/40">
         <input
-          ref={fileInputRef}
+          ref={jsonFileInputRef}
           type="file"
           accept="application/json"
           className="hidden"
-          onChange={handleImport}
+          onChange={handleJsonImport}
+        />
+        <input
+          ref={pdfFileInputRef}
+          type="file"
+          accept="application/pdf,.pdf"
+          className="hidden"
+          onChange={handlePdfImport}
         />
 
         {/* Top navbar */}
