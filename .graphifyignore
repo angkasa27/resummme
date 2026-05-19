@@ -1,0 +1,37 @@
+# Drizzle snapshot files — every column becomes a noise node and creates
+# dozens of tiny same-key communities that drown the real architecture.
+drizzle/meta/
+
+# Build & test artifacts
+.next/
+.next-test/
+out/
+build/
+coverage/
+
+# Dependencies & lockfiles
+node_modules/
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# Generated / vendored
+public/
+.vercel/
+.vscode/
+.idea/
+
+# Agent / IDE config
+.agents/
+.claude/
+.cursor/
+
+# graphify's own output
+graphify-out/
+
+# Env & secrets
+.env*
+*.pem
+
+# OS junk
+.DS_Store
