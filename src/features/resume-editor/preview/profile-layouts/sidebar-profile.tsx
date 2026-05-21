@@ -1,6 +1,4 @@
-import {
-  PreviewContactLine,
-} from "@/features/resume-editor/preview/kit/contact-line";
+import { PreviewContactLine } from "@/features/resume-editor/preview/kit/contact-line";
 import { PreviewHeaderPhoto } from "@/features/resume-editor/preview/kit/header-photo";
 import type { PreviewProfileLayoutDefinition } from "@/features/resume-editor/preview/types";
 
@@ -13,7 +11,7 @@ export const sidebarProfileLayout: PreviewProfileLayoutDefinition = {
       <header
         data-layout={presentation.layoutId}
         data-profile-layout="sidebar-profile"
-        className="flex items-start justify-between gap-6 border-b pb-5"
+        className="flex items-start justify-between gap-6"
       >
         <div className="flex flex-1 items-center gap-6">
           <PreviewHeaderPhoto
