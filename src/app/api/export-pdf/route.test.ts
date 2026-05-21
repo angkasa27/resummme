@@ -96,4 +96,76 @@ describe("POST /api/export-pdf", () => {
     expect(response.status).toBe(500);
     expect(response.headers.get("content-type")).toContain("application/json");
   });
+
+  it("accepts same-origin requests on a custom production domain", async () => {
+    generateResumePdf.mockResolvedValue(new Uint8Array([1, 2, 3]));
+
+    const draft = createDefaultResumeDraft();
+    const response = await POST(
+      new Request("https://resume.example.com/api/export-pdf", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          origin: "https://resume.example.com",
+        },
+        body: JSON.stringify({ draft }),
+      })
+    );
+
+    expect(response.status).toBe(200);
+    expect(generateResumePdf).toHaveBeenCalledWith({
+      draft,
+      origin: "https://resume.example.com",
+    });
+  });
+
+  it("rejects cross-origin requests unless the origin is trusted", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+
+    try {
+      const response = await POST(
+        new Request("https://resume.example.com/api/export-pdf", {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+            origin: "https://evil.example.com",
+          },
+          body: JSON.stringify({ draft: createDefaultResumeDraft() }),
+        })
+      );
+
+      expect(response.status).toBe(403);
+      expect(generateResumePdf).not.toHaveBeenCalled();
+    } finally {
+      vi.unstubAllEnvs();
+    }
+  });
+
+  it("accepts trusted cross-origin requests", async () => {
+    generateResumePdf.mockResolvedValue(new Uint8Array([1, 2, 3]));
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("PDF_EXPORT_TRUSTED_ORIGINS", "https://admin.example.com");
+
+    try {
+      const draft = createDefaultResumeDraft();
+      const response = await POST(
+        new Request("https://resume.example.com/api/export-pdf", {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+            origin: "https://admin.example.com",
+          },
+          body: JSON.stringify({ draft }),
+        })
+      );
+
+      expect(response.status).toBe(200);
+      expect(generateResumePdf).toHaveBeenCalledWith({
+        draft,
+        origin: "https://resume.example.com",
+      });
+    } finally {
+      vi.unstubAllEnvs();
+    }
+  });
 });

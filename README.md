@@ -8,7 +8,7 @@ A free, no-login resume editor built with Next.js. Write your resume as structur
 - Live preview with switchable layouts and presentation settings
 - JSON import/export for portable resume data
 - Client-side draft persistence with `localStorage`
-- Server-side PDF export powered by Playwright
+- Server-side PDF export powered by Puppeteer locally and Cloudflare Browser Run in production
 
 ## Tech Stack
 
@@ -54,10 +54,14 @@ pnpm typecheck
 Optional:
 
 ```bash
+PDF_EXPORT_PROVIDER=auto
+CLOUDFLARE_ACCOUNT_ID=
+CLOUDFLARE_BROWSER_RUN_API_TOKEN=
+CLOUDFLARE_BROWSER_RUN_KEEP_ALIVE_MS=60000
 PDF_EXPORT_TRUSTED_ORIGINS=https://example.com,https://admin.example.com
 ```
 
-In production, PDF export requests must come from localhost, the active Vercel URL, or one of the trusted origins above.
+PDF export uses local Puppeteer in development by default. In production, set `PDF_EXPORT_PROVIDER=cloudflare-browser-run` or leave `auto` and provide the Cloudflare Browser Run credentials above. Same-origin requests are allowed automatically; use `PDF_EXPORT_TRUSTED_ORIGINS` only for intentional cross-origin callers.
 
 ## Project Structure
 

@@ -2,6 +2,7 @@ import { generateResumePdf } from "@/features/resume-editor/server/generate-resu
 import { parseResumeDraft } from "@/features/resume-editor/domain/schema";
 
 export const runtime = "nodejs";
+export const maxDuration = 60;
 
 export async function POST(request: Request) {
   let body: unknown;
@@ -20,26 +21,18 @@ export async function POST(request: Request) {
   }
 
   const requestOrigin = new URL(request.url).origin;
+  const originHeader = request.headers.get("origin");
   const trustedOrigins = (
     process.env.PDF_EXPORT_TRUSTED_ORIGINS ?? ""
   )
     .split(",")
     .map((o) => o.trim())
     .filter(Boolean);
+  const isSameOrigin = originHeader === null || originHeader === requestOrigin;
+  const isTrustedOrigin =
+    originHeader !== null && trustedOrigins.includes(originHeader);
 
-  const isLocalhost = requestOrigin === "http://localhost:3000";
-  const isVercel =
-    process.env.VERCEL_URL
-      ? requestOrigin === `https://${process.env.VERCEL_URL}`
-      : false;
-  const isTrusted = trustedOrigins.includes(requestOrigin);
-
-  const isAllowed =
-    process.env.NODE_ENV === "development"
-      ? true
-      : isLocalhost || isVercel || isTrusted;
-
-  if (!isAllowed) {
+  if (process.env.NODE_ENV !== "development" && !isSameOrigin && !isTrustedOrigin) {
     return Response.json(
       {
         message: "Invalid origin.",
@@ -57,7 +50,7 @@ export async function POST(request: Request) {
       origin: requestOrigin,
     });
 
-    return new Response(pdf, {
+    return new Response(Buffer.from(pdf), {
       status: 200,
       headers: {
         "content-type": "application/pdf",
