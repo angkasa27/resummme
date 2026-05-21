@@ -93,6 +93,8 @@ describe("useResumeEditorController handlePrint", () => {
         status: 200,
         headers: {
           "content-type": "application/pdf",
+          "content-disposition":
+            'attachment; filename="resume-dimas-angkasa-20260521-142355.pdf"',
         },
       }),
     );
@@ -112,7 +114,7 @@ describe("useResumeEditorController handlePrint", () => {
       }),
     );
     expect(URL.createObjectURL).toHaveBeenCalledTimes(1);
-    expect(anchor.download).toBe("resume.pdf");
+    expect(anchor.download).toBe("resume-dimas-angkasa-20260521-142355.pdf");
     expect(anchorClick).toHaveBeenCalledTimes(1);
     expect(toast.success).toHaveBeenCalled();
   });
@@ -144,6 +146,8 @@ describe("useResumeEditorController handlePrint", () => {
         status: 200,
         headers: {
           "content-type": "application/pdf",
+          "content-disposition":
+            'attachment; filename="resume-dimas-angkasa-20260521-142355.pdf"',
         },
       }),
     );

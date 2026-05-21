@@ -1,4 +1,5 @@
 import { generateResumePdf } from "@/features/resume-editor/server/generate-resume-pdf";
+import { createResumePdfFilename } from "@/features/resume-editor/domain/draft/resume-pdf-filename";
 import { parseResumeDraft } from "@/features/resume-editor/domain/schema";
 
 export const runtime = "nodejs";
@@ -49,12 +50,13 @@ export async function POST(request: Request) {
       draft,
       origin: requestOrigin,
     });
+    const filename = createResumePdfFilename(draft);
 
     return new Response(Buffer.from(pdf), {
       status: 200,
       headers: {
         "content-type": "application/pdf",
-        "content-disposition": 'attachment; filename="resume.pdf"',
+        "content-disposition": `attachment; filename="${filename}"`,
       },
     });
   } catch (error) {

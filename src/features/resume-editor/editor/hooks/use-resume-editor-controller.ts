@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { useStore } from "zustand";
 
 import type { PdfPresentation, Profile, ResumeDraft } from "@/features/resume-editor/domain/schema";
+import { createResumePdfFilename } from "@/features/resume-editor/domain/draft/resume-pdf-filename";
 import { loadResumeDraft } from "@/features/resume-editor/domain/draft/resume-draft-storage";
 import {
   createResumeEditorStore,
@@ -178,10 +179,11 @@ export function useResumeEditorController({
       }
 
       const pdfBlob = await response.blob();
+      const contentDisposition = response.headers.get("content-disposition");
       const url = URL.createObjectURL(pdfBlob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = "resume.pdf";
+      a.download = getDownloadFilename(contentDisposition, draft);
       a.click();
       URL.revokeObjectURL(url);
       toast.success("PDF exported.", { id: loadingId });
@@ -221,4 +223,19 @@ export function useResumeEditorController({
     saveSection: (sectionKey, sectionValue) =>
       store.getState().saveSection(sectionKey, sectionValue),
   };
+}
+
+function getDownloadFilename(
+  contentDisposition: string | null,
+  draft: ResumeDraft,
+) {
+  if (contentDisposition) {
+    const match = contentDisposition.match(/filename="([^"]+)"/i);
+
+    if (match?.[1]) {
+      return match[1];
+    }
+  }
+
+  return createResumePdfFilename(draft);
 }
