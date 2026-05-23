@@ -51,7 +51,7 @@ function ToolbarSelect({
         {ariaLabel}
       </label>
       <Select value={value} onValueChange={onValueChange}>
-        <SelectTrigger size="sm" aria-label={ariaLabel}>
+        <SelectTrigger size="sm" aria-label={ariaLabel} className="w-[80%]">
           <SelectValue>
             {options.find((option) => option.value === value)?.label ?? value}
           </SelectValue>
