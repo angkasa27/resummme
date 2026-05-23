@@ -1,6 +1,13 @@
 "use client";
 
-import { DownloadIcon, MinusIcon, PlusIcon, SparklesIcon } from "lucide-react";
+import {
+  DownloadIcon,
+  MinusIcon,
+  PaletteIcon,
+  PlusIcon,
+  SparklesIcon,
+  TelescopeIcon,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -95,8 +102,13 @@ export function CanvasControlPanel({
       {/* Tabs */}
       <Tabs defaultValue="style" className="px-4 py-3 flex-1">
         <TabsList className="w-full ">
-          <TabsTrigger value="style">Style</TabsTrigger>
-          <TabsTrigger value="insights">Insights</TabsTrigger>
+          <TabsTrigger value="style">
+            <PaletteIcon />
+            Style
+          </TabsTrigger>
+          <TabsTrigger value="insights">
+            <TelescopeIcon /> Insights
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="style" className="flex flex-col gap-4 pb-2">
