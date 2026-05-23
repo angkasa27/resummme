@@ -24,66 +24,14 @@ describe("resume document", () => {
     expect(links[0]).toHaveAttribute("rel", "noopener noreferrer");
   });
 
-  it("uses the accent color for the name and renders a centered portrait in the classic-centered layout", () => {
+  it("applies the accent color and font scale as CSS variables on the root", () => {
     const draft = createDefaultResumeDraft();
-    draft.pdfPresentation.layoutId = "classic-centered";
-    draft.pdfPresentation.profileLayoutId = "centered-portrait-profile";
-    draft.pdfPresentation.overrides.accentTone = "emerald";
-    draft.profile.photo = "https://images.example.com/profile.jpg";
-
-    render(<ResumeDocument draft={draft} />);
-
-    const name = screen.getByTestId("resume-preview-full-name");
-    expect(name).toHaveStyle({ color: "rgb(5, 150, 105)" });
-
-    const header = name.closest("header");
-    const photoFrame = header?.querySelector('[data-slot="photo-frame"]');
-    expect(photoFrame).toHaveClass("h-24", "w-18", "rounded-md");
-
-    expect(header).toHaveClass("items-center", "text-center");
-  });
-
-  it("places the sidebar photo on the left as a portrait and keeps the name accented", () => {
-    const draft = createDefaultResumeDraft();
-    draft.pdfPresentation.layoutId = "sidebar-headings";
-    draft.pdfPresentation.profileLayoutId = "sidebar-profile";
-    draft.pdfPresentation.overrides.accentTone = "blue";
-    draft.profile.photo = "https://images.example.com/profile.jpg";
-
-    render(<ResumeDocument draft={draft} />);
-
-    const name = screen.getByTestId("resume-preview-full-name");
-    expect(name).toHaveStyle({ color: "rgb(37, 99, 235)" });
-
-    const header = name.closest("header");
-    const photoFrame = header?.querySelector('[data-slot="photo-frame"]');
-    expect(photoFrame).toHaveClass("h-24", "w-18", "rounded-md");
-
-    expect(header).toHaveClass("items-start");
-    expect(photoFrame).not.toBeNull();
-    expect(header?.querySelector(".flex.flex-1.items-center")).toContainElement(
-      photoFrame as HTMLElement,
-    );
-  });
-
-  it("applies saved pdf presentation styles to the preview document", () => {
-    const draft = createDefaultResumeDraft();
-    draft.pdfPresentation.layoutId = "classic-centered";
-    draft.pdfPresentation.overrides.typeScale = "large";
-    draft.pdfPresentation.overrides.lineHeight = "relaxed";
-    draft.pdfPresentation.overrides.spacing = "airy";
-    draft.pdfPresentation.overrides.accentTone = "emerald";
-    draft.sections.workExperience.items = [
-      {
-        id: "work-1",
-        companyName: "Example Co",
-        position: "Frontend Developer",
-        location: "Jakarta",
-        startDate: "Jan 2024",
-        endDate: "current",
-        description: "<p>Built the export stack.</p>",
-      },
-    ];
+    draft.pdfPresentation.layoutId = "single-column";
+    draft.pdfPresentation.accentTone = "emerald";
+    draft.pdfPresentation.accentStrength = "balanced";
+    draft.pdfPresentation.fontScale = "lg";
+    draft.pdfPresentation.lineHeight = "relaxed";
+    draft.pdfPresentation.spacing = "airy";
 
     render(<ResumeDocument draft={draft} />);
 
@@ -91,80 +39,19 @@ describe("resume document", () => {
       .getByTestId("resume-preview-full-name")
       .closest("article");
     expect(documentRoot).not.toBeNull();
-    expect(documentRoot?.style.fontSize).toBe("15px");
-    expect(documentRoot?.style.lineHeight).toBe("1.9");
-    expect(documentRoot?.style.gap).toBe("24px");
-
-    const documentHeader = screen
-      .getByTestId("resume-preview-full-name")
-      .closest("header");
-    expect(documentHeader).not.toBeNull();
-    expect(documentHeader).toHaveAttribute("data-layout", "classic-centered");
-
-    const workSection = screen
-      .getByRole("heading", { name: "WORK EXPERIENCE" })
-      .closest("section");
-    expect(workSection).not.toBeNull();
-    const workHeading = screen.getByRole("heading", {
-      name: "WORK EXPERIENCE",
-    });
-    const itemsContainer = workSection?.querySelector(
-      '[data-section-items="workExperience"]',
+    expect(documentRoot?.getAttribute("data-layout")).toBe("single-column");
+    expect(documentRoot?.style.getPropertyValue("--resume-accent")).toBe(
+      "#059669",
     );
-    expect(itemsContainer).not.toBeNull();
-    expect(itemsContainer).toHaveStyle({ gap: "16px" });
-    const firstDescription = document.querySelector(
-      '[data-classic-description="true"]',
+    expect(documentRoot?.style.getPropertyValue("--resume-body")).toBe("14px");
+    expect(documentRoot?.style.getPropertyValue("--resume-leading")).toBe("1.9");
+    expect(documentRoot?.style.getPropertyValue("--resume-gap-section")).toBe(
+      "24px",
     );
-    expect(firstDescription).toHaveStyle({
-      textAlign: "justify",
-    });
-    expect(firstDescription?.parentElement).toHaveStyle({ gap: "4px" });
-    expect(workHeading).toHaveStyle({ color: "rgb(5, 150, 105)" });
-    expect(workHeading?.parentElement).toHaveStyle({
-      borderColor: "rgb(5, 150, 105)",
-    });
-
-    const profileLink = screen.getByRole("link", {
-      name: `Link: ${draft.profile.extraLinks[0].url}`,
-    });
-    expect(profileLink).toHaveStyle({ color: "rgb(31, 41, 55)" });
   });
 
-  it("renders summary and item body copy with justified text", () => {
+  it("renders all visible collection sections via the section registry", () => {
     const draft = createDefaultResumeDraft();
-    draft.sections.summary.content =
-      "<p>Software engineer with experience building frontend-heavy systems for product teams.</p>";
-    draft.sections.projects.items = [
-      {
-        id: "project-1",
-        projectName: "Resume Export",
-        projectLink: "https://example.com/project",
-        startDate: "Jan 2026",
-        endDate: "current",
-        description:
-          "<p>Built a deterministic PDF export pipeline with cleaner document rendering.</p>",
-      },
-    ];
-
-    render(<ResumeDocument draft={draft} />);
-
-    const summaryText = screen
-      .getByText(
-        /Software engineer with experience building frontend-heavy systems/i,
-      )
-      .closest("div");
-    expect(summaryText).toHaveStyle({ textAlign: "justify" });
-
-    const projectDescription = screen
-      .getByText(/Built a deterministic PDF export pipeline/i)
-      .closest("div");
-    expect(projectDescription).toHaveStyle({ textAlign: "justify" });
-  });
-
-  it("adds clearer indentation and compact metadata rows in the classic-centered layout", () => {
-    const draft = createDefaultResumeDraft();
-    draft.pdfPresentation.layoutId = "classic-centered";
     draft.sections.workExperience.items = [
       {
         id: "work-1",
@@ -176,99 +63,55 @@ describe("resume document", () => {
         description: "<p>Built the export stack.</p>",
       },
     ];
-    draft.sections.publications.items = [
-      {
-        id: "publication-1",
-        title: "User Experience Analysis of AI-Based Interview Platform",
-        publisher: "ICIMTech",
-        publicationUrl: "https://example.com/paper",
-        publicationDate: "Sep 2025",
-        description: "<p>Co-authored a usability study.</p>",
-      },
-    ];
-    draft.sections.certifications.items = [
-      {
-        id: "certification-1",
-        certificationName: "Certified Indonesia Scrum Master",
-        issuingOrganization: "EKIPA",
-        issuedDate: "Dec 2020",
-        certificationLink: "https://example.com/cert",
-        credentialId: "ABC-123",
-      },
-    ];
-    draft.sections.awards.items = [
-      {
-        id: "award-1",
-        title: "1st Non-Academic Best Graduate",
-        issuer: "SMK Telkom Malang",
-        issuedDate: "Jun 2021",
-        description: "",
-      },
-    ];
-    draft.sections.languages.items = [
-      {
-        id: "language-1",
-        language: "English",
-        proficiency: "Professional working proficiency",
-      },
-    ];
-    draft.sections.projects.items = [
-      {
-        id: "project-1",
-        projectName: "Email Operations Dashboard",
-        projectLink: "https://example.com/project",
-        startDate: "Apr 2026",
-        endDate: "Apr 2026",
-        description: "<p>Built an internal operations dashboard.</p>",
-      },
-    ];
-    draft.sections.publications.visible = true;
-    draft.sections.certifications.visible = true;
-    draft.sections.awards.visible = true;
-    draft.sections.languages.visible = true;
-    draft.sections.projects.visible = true;
 
     render(<ResumeDocument draft={draft} />);
 
-    const indentedDescriptions = document.querySelectorAll(
-      '[data-classic-description="true"]',
-    );
-    expect(indentedDescriptions.length).toBeGreaterThan(0);
-
     expect(
-      screen.getByText(
-        /User Experience Analysis of AI-Based Interview Platform/i,
-      ),
+      screen.getByRole("heading", { name: /work experience/i }),
     ).toBeInTheDocument();
-    expect(screen.getByText(/Sep 2025/i)).toBeInTheDocument();
-    expect(screen.getByText(/Credential ID: ABC-123/i)).toBeInTheDocument();
-    expect(screen.getByText(/by EKIPA/i)).toBeInTheDocument();
-    expect(
-      screen.getByText(/Professional working proficiency/i),
-    ).toBeInTheDocument();
-
-    expect(
-      screen.getByRole("link", {
-        name: "User Experience Analysis of AI-Based Interview Platform",
-      }),
-    ).toHaveAttribute("href", "https://example.com/paper");
-    expect(
-      screen.getByRole("link", { name: "Certified Indonesia Scrum Master" }),
-    ).toHaveAttribute("href", "https://example.com/cert");
-    expect(
-      screen.getByRole("link", { name: "Email Operations Dashboard" }),
-    ).toHaveAttribute("href", "https://example.com/project");
-    expect(
-      screen.getByRole("link", { name: "Email Operations Dashboard" }),
-    ).toHaveStyle({
-      color: "rgb(31, 41, 55)",
-      textDecoration: "underline",
-    });
+    expect(screen.getByText(/Frontend Developer/)).toBeInTheDocument();
+    expect(screen.getByText(/Built the export stack/)).toBeInTheDocument();
   });
 
-  it("uses accent color on section labels instead of links in the sidebar layout", () => {
+  it("places side sections (skills, languages) in the side column in two-column layout", () => {
     const draft = createDefaultResumeDraft();
-    draft.pdfPresentation.overrides.accentTone = "rose";
+    draft.pdfPresentation.layoutId = "two-column";
+    draft.sections.languages.visible = true;
+
+    render(<ResumeDocument draft={draft} />);
+
+    const documentRoot = screen
+      .getByTestId("resume-preview-full-name")
+      .closest("article");
+    expect(documentRoot?.querySelector(".layout-side")).not.toBeNull();
+    expect(documentRoot?.querySelector(".layout-main")).not.toBeNull();
+
+    const skillsSection = documentRoot?.querySelector(
+      '[data-section="skills"]',
+    );
+    expect(
+      skillsSection?.closest(".layout-side"),
+    ).not.toBeNull();
+
+    const workSection = documentRoot?.querySelector(
+      '[data-section="workExperience"]',
+    );
+    expect(workSection?.closest(".layout-main")).not.toBeNull();
+  });
+
+  it("hides the summary block when content is empty", () => {
+    const draft = createDefaultResumeDraft();
+    draft.sections.summary.content = "<p></p>";
+
+    render(<ResumeDocument draft={draft} />);
+
+    expect(
+      screen.queryByRole("heading", { name: /^summary$/i }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("renders linked item titles (projects) as safe anchors", () => {
+    const draft = createDefaultResumeDraft();
     draft.sections.projects.items = [
       {
         id: "project-1",
@@ -276,53 +119,13 @@ describe("resume document", () => {
         projectLink: "https://example.com/project",
         startDate: "Jan 2026",
         endDate: "current",
-        description: "<p>Built a deterministic PDF export pipeline.</p>",
+        description: "<p>Pipeline.</p>",
       },
     ];
 
     render(<ResumeDocument draft={draft} />);
 
-    const sectionHeading = screen.getByRole("heading", { name: /projects/i });
-    expect(sectionHeading).toHaveStyle({ color: "rgb(225, 29, 72)" });
-
-    const projectLink = screen.getByRole("link", { name: "Resume Export" });
-    expect(projectLink).toHaveStyle({
-      color: "rgb(17, 24, 39)",
-      textDecoration: "underline",
-    });
-  });
-
-  it("keeps the date column fixed when a sidebar-layout item title is very long", () => {
-    const draft = createDefaultResumeDraft();
-    draft.sections.publications.items = [
-      {
-        id: "publication-1",
-        title:
-          "thIS IS LONG TITLE thIS IS LONG TITLE thIS IS LONG TITLE thIS IS LONG TITLE thIS IS LONG TITLE",
-        publisher:
-          "2025 International Conference on Information Management and Technology (ICIMTech)",
-        publicationUrl: "https://example.com/paper",
-        publicationDate: "Sep 2025",
-        description:
-          "<p>Co-authored a usability study evaluating an AI-based interview platform.</p>",
-      },
-    ];
-    draft.sections.publications.visible = true;
-
-    render(<ResumeDocument draft={draft} />);
-
-    const dateCell = screen.getByText("Sep 2025");
-    const headerRow = dateCell.parentElement;
-    expect(headerRow).toHaveStyle({
-      display: "grid",
-      gridTemplateColumns: "minmax(0, 1fr) auto",
-    });
-
-    const titleCell = screen
-      .getByRole("link", {
-        name: "thIS IS LONG TITLE thIS IS LONG TITLE thIS IS LONG TITLE thIS IS LONG TITLE thIS IS LONG TITLE",
-      })
-      .closest("div");
-    expect(titleCell?.parentElement).toHaveStyle({ minWidth: "0px" });
+    const link = screen.getByRole("link", { name: "Resume Export" });
+    expect(link).toHaveAttribute("href", "https://example.com/project");
   });
 });

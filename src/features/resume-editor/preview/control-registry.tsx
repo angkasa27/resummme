@@ -7,47 +7,37 @@ import {
 } from "lucide-react";
 
 import {
+  accentSwatchPreview,
   pdfAccentStrengthLabels,
   pdfAccentStrengths,
   pdfAccentToneLabels,
   pdfAccentTones,
+  pdfFontScaleIds,
+  pdfFontScaleLabels,
   pdfLayoutIds,
   pdfLayoutLabels,
-  pdfProfileLayoutIds,
-  pdfProfileLayoutLabels,
   pdfLineHeightIds,
   pdfLineHeightLabels,
   pdfSpacingIds,
   pdfSpacingLabels,
-  pdfTypeScaleIds,
-  pdfTypeScaleLabels,
   type PdfPresentation,
 } from "@/features/resume-editor/domain/presentation/pdf-presentation";
 import type { PreviewControlDefinition } from "@/features/resume-editor/preview/types";
 
-function spacingGlyph({
-  gapClassName,
-  topClassName = "w-4",
-  bottomClassName = "w-4",
-}: {
-  gapClassName: string;
-  topClassName?: string;
-  bottomClassName?: string;
-}) {
+function spacingGlyph({ gapClassName }: { gapClassName: string }) {
   return (
     <span
       aria-hidden="true"
       className={`flex flex-col items-center ${gapClassName}`}
     >
-      <span className={`h-0.5 rounded-full bg-current ${topClassName}`} />
-      <span className={`h-0.5 rounded-full bg-current ${bottomClassName}`} />
+      <span className="h-0.5 w-4 rounded-full bg-current" />
+      <span className="h-0.5 w-4 rounded-full bg-current" />
     </span>
   );
 }
 
 function listSpacingGlyph({ gapClassName }: { gapClassName: string }) {
   const rowKeys = ["first", "second", "third"] as const;
-
   return (
     <span aria-hidden="true" className={`flex flex-col ${gapClassName}`}>
       {rowKeys.map((rowKey) => (
@@ -82,17 +72,12 @@ function strengthGlyph({
   );
 }
 
-function updateOverrides(
+function set<K extends keyof PdfPresentation>(
   presentation: PdfPresentation,
-  nextOverrides: Partial<PdfPresentation["overrides"]>,
+  key: K,
+  value: PdfPresentation[K],
 ): PdfPresentation {
-  return {
-    ...presentation,
-    overrides: {
-      ...presentation.overrides,
-      ...nextOverrides,
-    },
-  };
+  return { ...presentation, [key]: value };
 }
 
 export const previewControlDefinitions = [
@@ -101,52 +86,36 @@ export const previewControlDefinitions = [
     kind: "select",
     label: "Layout",
     value: (presentation) => presentation.layoutId,
-    update: (nextValue, presentation) => ({
-      ...presentation,
-      layoutId: nextValue as PdfPresentation["layoutId"],
-    }),
+    update: (nextValue, presentation) =>
+      set(presentation, "layoutId", nextValue as PdfPresentation["layoutId"]),
     options: pdfLayoutIds.map((value) => ({
       value,
       label: pdfLayoutLabels[value],
     })),
   },
   {
-    id: "profile-layout",
-    kind: "select",
-    label: "Profile layout",
-    value: (presentation) => presentation.profileLayoutId,
-    update: (nextValue, presentation) => ({
-      ...presentation,
-      profileLayoutId: nextValue as PdfPresentation["profileLayoutId"],
-    }),
-    options: pdfProfileLayoutIds.map((value) => ({
-      value,
-      label: pdfProfileLayoutLabels[value],
-    })),
-  },
-  {
-    id: "type-scale",
+    id: "font-scale",
     kind: "select",
     label: "Font size",
-    value: (presentation) => presentation.overrides.typeScale,
+    value: (presentation) => presentation.fontScale,
     update: (nextValue, presentation) =>
-      updateOverrides(presentation, {
-        typeScale: nextValue as PdfPresentation["overrides"]["typeScale"],
-      }),
-    options: pdfTypeScaleIds.map((value) => ({
+      set(presentation, "fontScale", nextValue as PdfPresentation["fontScale"]),
+    options: pdfFontScaleIds.map((value) => ({
       value,
-      label: pdfTypeScaleLabels[value],
+      label: pdfFontScaleLabels[value],
     })),
   },
   {
     id: "line-height",
     kind: "toggle-group",
     label: "Line height",
-    value: (presentation) => presentation.overrides.lineHeight,
+    value: (presentation) => presentation.lineHeight,
     update: (nextValue, presentation) =>
-      updateOverrides(presentation, {
-        lineHeight: nextValue as PdfPresentation["overrides"]["lineHeight"],
-      }),
+      set(
+        presentation,
+        "lineHeight",
+        nextValue as PdfPresentation["lineHeight"],
+      ),
     options: pdfLineHeightIds.map((value) => ({
       value,
       label: pdfLineHeightLabels[value],
@@ -162,11 +131,9 @@ export const previewControlDefinitions = [
     id: "spacing",
     kind: "toggle-group",
     label: "Spacing",
-    value: (presentation) => presentation.overrides.spacing,
+    value: (presentation) => presentation.spacing,
     update: (nextValue, presentation) =>
-      updateOverrides(presentation, {
-        spacing: nextValue as PdfPresentation["overrides"]["spacing"],
-      }),
+      set(presentation, "spacing", nextValue as PdfPresentation["spacing"]),
     options: pdfSpacingIds.map((value) => ({
       value,
       label: pdfSpacingLabels[value],
@@ -188,11 +155,13 @@ export const previewControlDefinitions = [
     id: "accent-tone",
     kind: "toggle-group",
     label: "Accent tone",
-    value: (presentation) => presentation.overrides.accentTone,
+    value: (presentation) => presentation.accentTone,
     update: (nextValue, presentation) =>
-      updateOverrides(presentation, {
-        accentTone: nextValue as PdfPresentation["overrides"]["accentTone"],
-      }),
+      set(
+        presentation,
+        "accentTone",
+        nextValue as PdfPresentation["accentTone"],
+      ),
     options: pdfAccentTones.map((value) => ({
       value,
       label: pdfAccentToneLabels[value],
@@ -200,18 +169,7 @@ export const previewControlDefinitions = [
         <span
           aria-hidden="true"
           className="size-3 rounded-full border border-black/10"
-          style={{
-            backgroundColor:
-              value === "slate"
-                ? "#475569"
-                : value === "blue"
-                  ? "#2563eb"
-                  : value === "emerald"
-                    ? "#059669"
-                    : value === "rose"
-                      ? "#e11d48"
-                      : "#d97706",
-          }}
+          style={{ backgroundColor: accentSwatchPreview[value] }}
         />
       ),
       renderTooltip: () => (
@@ -226,12 +184,13 @@ export const previewControlDefinitions = [
     id: "accent-strength",
     kind: "toggle-group",
     label: "Accent strength",
-    value: (presentation) => presentation.overrides.accentStrength,
+    value: (presentation) => presentation.accentStrength,
     update: (nextValue, presentation) =>
-      updateOverrides(presentation, {
-        accentStrength:
-          nextValue as PdfPresentation["overrides"]["accentStrength"],
-      }),
+      set(
+        presentation,
+        "accentStrength",
+        nextValue as PdfPresentation["accentStrength"],
+      ),
     options: pdfAccentStrengths.map((value) => ({
       value,
       label: pdfAccentStrengthLabels[value],
@@ -262,6 +221,5 @@ export const previewControlDefinitions = [
 
 export const previewControlLabelIcons = {
   layout: LayoutTemplateIcon,
-  "profile-layout": LayoutTemplateIcon,
-  "type-scale": TypeIcon,
+  "font-scale": TypeIcon,
 };

@@ -11,9 +11,8 @@ describe("resume schema", () => {
 
     expect(parsed.schemaVersion).toBe(2);
     expect(parsed.templateId).toBe("recruiter-first-clean");
-    expect(parsed.pdfPresentation.layoutId).toBe("sidebar-headings");
-    expect(parsed.pdfPresentation.profileLayoutId).toBe("sidebar-profile");
-    expect(parsed.pdfPresentation.overrides.typeScale).toBe("standard");
+    expect(parsed.pdfPresentation.layoutId).toBe("single-column");
+    expect(parsed.pdfPresentation.fontScale).toBe("md");
     expect(parsed.profile.fullName).toBeTruthy();
   });
 
@@ -27,7 +26,7 @@ describe("resume schema", () => {
     expect(parsed.pdfPresentation).toEqual(draft.pdfPresentation);
   });
 
-  it("normalizes legacy numeric pdf presentation overrides to preset tokens", () => {
+  it("resets a legacy nested-overrides presentation to defaults", () => {
     const draft = createDefaultResumeDraft();
 
     const parsed = parseResumeDraft({
@@ -46,32 +45,13 @@ describe("resume schema", () => {
     });
 
     expect(parsed.pdfPresentation).toEqual({
-      layoutId: "sidebar-headings",
-      profileLayoutId: "sidebar-profile",
-      overrides: {
-        typeScale: "large",
-        lineHeight: "relaxed",
-        spacing: "airy",
-        accentTone: "emerald",
-        accentStrength: "strong",
-      },
+      layoutId: "single-column",
+      fontScale: "md",
+      spacing: "standard",
+      lineHeight: "standard",
+      accentTone: "blue",
+      accentStrength: "balanced",
     });
-  });
-
-  it("fills a profile layout default for legacy drafts that only saved document layout", () => {
-    const draft = createDefaultResumeDraft();
-
-    const parsed = parseResumeDraft({
-      ...draft,
-      pdfPresentation: {
-        layoutId: "classic-centered",
-        overrides: draft.pdfPresentation.overrides,
-      },
-    });
-
-    expect(parsed.pdfPresentation.profileLayoutId).toBe(
-      "centered-portrait-profile",
-    );
   });
 
   it("rejects unsupported schema versions", () => {

@@ -1,10 +1,7 @@
-import type {
-  CollectionSectionKey,
-} from "@/features/resume-editor/domain/sections/section-metadata";
+import type { CollectionSectionKey } from "@/features/resume-editor/domain/sections/section-metadata";
 import type {
   PdfPresentation,
   PdfLayoutId,
-  PdfProfileLayoutId,
   ResolvedPdfPresentation,
 } from "@/features/resume-editor/domain/presentation/pdf-presentation";
 import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
@@ -20,7 +17,9 @@ export type PreviewSectionItemMap = {
   [K in CollectionSectionKey]: ResumeDraft["sections"][K]["items"][number];
 };
 
-export type PreviewRenderableSection<K extends CollectionSectionKey = CollectionSectionKey> = {
+export type PreviewRenderableSection<
+  K extends CollectionSectionKey = CollectionSectionKey,
+> = {
   key: K;
   label: string;
   heading: string;
@@ -40,60 +39,23 @@ export type PreviewRenderContext = {
   sections: AnyPreviewRenderableSection[];
 };
 
-export type PreviewHeaderProps = {
+export type LayoutSlots = {
+  header: ReactNode;
+  summary: ReactNode | null;
+  sections: Array<{ key: CollectionSectionKey; node: ReactNode }>;
+};
+
+export type LayoutComponentProps = {
   context: PreviewRenderContext;
+  slots: LayoutSlots;
 };
 
-export type PreviewSummarySectionProps = {
-  context: PreviewRenderContext;
-  content: string;
-};
+export type LayoutColumn = "main" | "side";
 
-export type PreviewCollectionSectionProps = {
-  context: PreviewRenderContext;
-  section: AnyPreviewRenderableSection;
-  children: ReactNode;
-};
-
-export type PreviewSectionItemRenderer<K extends CollectionSectionKey = CollectionSectionKey> = (
-  item: PreviewSectionItemMap[K],
-) => ReactNode;
-
-export type PreviewSectionItemRendererMap = {
-  [K in CollectionSectionKey]: PreviewSectionItemRenderer<K>;
-};
-
-export type PreviewDocumentBodyProps = {
-  context: PreviewRenderContext;
-  summaryContent: string | null;
-  sections: AnyPreviewRenderableSection[];
-  itemRenderers: PreviewSectionItemRendererMap;
-};
-
-export type PreviewDocumentSummaryProps = {
-  context: PreviewRenderContext;
-  content: string;
-};
-
-export type PreviewDocumentCollectionSectionProps = {
-  context: PreviewRenderContext;
-  section: AnyPreviewRenderableSection;
-  itemRenderers: PreviewSectionItemRendererMap;
-};
-
-export type PreviewDocumentLayoutDefinition = {
+export type PreviewLayoutDefinition = {
   id: PdfLayoutId;
-  Body: (props: PreviewDocumentBodyProps) => ReactNode;
-  Summary: (props: PreviewDocumentSummaryProps) => ReactNode;
-  CollectionSection: (props: PreviewDocumentCollectionSectionProps) => ReactNode;
-  createSectionItemRenderers: (
-    context: PreviewRenderContext,
-  ) => PreviewSectionItemRendererMap;
-};
-
-export type PreviewProfileLayoutDefinition = {
-  id: PdfProfileLayoutId;
-  Header: (props: PreviewHeaderProps) => ReactNode;
+  Component: (props: LayoutComponentProps) => ReactNode;
+  getColumn?: (sectionKey: CollectionSectionKey) => LayoutColumn;
 };
 
 export type PreviewControlKind = "select" | "toggle-group";

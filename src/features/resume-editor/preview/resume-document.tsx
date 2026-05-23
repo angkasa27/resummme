@@ -1,11 +1,15 @@
 import { createPreviewRenderContext } from "@/features/resume-editor/preview/engine";
 import { PreviewDocumentRoot } from "@/features/resume-editor/preview/kit/document-root";
-import { getPreviewLayoutDefinition } from "@/features/resume-editor/preview/layout-registry";
-import { getPreviewProfileLayoutDefinition } from "@/features/resume-editor/preview/profile-layout-registry";
+import {
+  getPreviewLayoutDefinition,
+  renderLayoutHeader,
+} from "@/features/resume-editor/preview/layout-registry";
+import { renderSection } from "@/features/resume-editor/preview/sections";
+import { SummaryView } from "@/features/resume-editor/preview/sections/summary";
 import type {
+  LayoutSlots,
   PreviewRendererProps,
 } from "@/features/resume-editor/preview/types";
-import { cn } from "@/lib/utils";
 
 export function ResumeDocument({
   draft,
@@ -14,20 +18,21 @@ export function ResumeDocument({
 }: PreviewRendererProps) {
   const context = createPreviewRenderContext(draft, mode);
   const layout = getPreviewLayoutDefinition(context.presentation.layoutId);
-  const profileLayout = getPreviewProfileLayoutDefinition(
-    context.presentation.profileLayoutId,
-  );
-  const itemRenderers = layout.createSectionItemRenderers(context);
+
+  const slots: LayoutSlots = {
+    header: renderLayoutHeader(context),
+    summary: context.summaryContent ? (
+      <SummaryView content={context.summaryContent} />
+    ) : null,
+    sections: context.sections.map((section) => ({
+      key: section.key,
+      node: renderSection(section),
+    })),
+  };
 
   return (
-    <PreviewDocumentRoot context={context} className={cn(className)}>
-      <profileLayout.Header context={context} />
-      <layout.Body
-        context={context}
-        summaryContent={context.summaryContent}
-        sections={context.sections}
-        itemRenderers={itemRenderers}
-      />
+    <PreviewDocumentRoot context={context} className={className}>
+      <layout.Component context={context} slots={slots} />
     </PreviewDocumentRoot>
   );
 }

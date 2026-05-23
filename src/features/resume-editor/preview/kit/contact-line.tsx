@@ -1,37 +1,24 @@
 import { cn } from "@/lib/utils";
 import { shouldOpenHrefInNewTab } from "@/features/resume-editor/domain/rich-text/sanitize-rich-text";
 
-import type { PreviewContactItem } from "../types";
-import type { PreviewRenderContext } from "../types";
+import type { PreviewContactItem, PreviewRenderContext } from "../types";
 
 export function PreviewContactLine({
   context,
-  centered = false,
+  className,
 }: {
   context: PreviewRenderContext;
-  centered?: boolean;
+  className?: string;
 }) {
-  const { contactItems, presentation } = context;
-  const { contactFontSizePx, bodyLineHeight, bodyTextColor } = presentation;
+  const { contactItems } = context;
 
   return (
-    <p
-      className={cn(
-        "wrap-break-word",
-        centered ? "mx-auto mt-2 max-w-full text-center" : "mt-2 max-w-152",
-      )}
-      style={{
-        fontSize: `${contactFontSizePx}px`,
-        lineHeight: String(Math.max(1.45, bodyLineHeight - 0.1)),
-        color: bodyTextColor,
-      }}
-    >
+    <p className={cn("contact-line wrap-break-word", className)}>
       {contactItems.map((item, index) => (
         <PreviewContactItemText
           key={`${item.kind}-${item.value}-${index}`}
           item={item}
           index={index}
-          color={bodyTextColor}
         />
       ))}
     </p>
@@ -41,11 +28,9 @@ export function PreviewContactLine({
 function PreviewContactItemText({
   item,
   index,
-  color,
 }: {
   item: PreviewContactItem;
   index: number;
-  color: string;
 }) {
   const label =
     item.kind === "link"
@@ -69,8 +54,6 @@ function PreviewContactItemText({
               ? "noopener noreferrer"
               : undefined
           }
-          className="underline"
-          style={{ color }}
         >
           {item.value}
         </a>

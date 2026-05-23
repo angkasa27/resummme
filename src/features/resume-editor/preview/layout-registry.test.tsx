@@ -1,64 +1,52 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  createPreviewLayoutRegistry,
   getPreviewLayoutDefinition,
   previewLayoutDefinitions,
+  renderLayoutHeader,
 } from "@/features/resume-editor/preview/layout-registry";
-import {
-  createPreviewProfileLayoutRegistry,
-  getPreviewProfileLayoutDefinition,
-  previewProfileLayoutDefinitions,
-} from "@/features/resume-editor/preview/profile-layout-registry";
+import { createPreviewRenderContext } from "@/features/resume-editor/preview/engine";
+import { createDefaultResumeDraft } from "@/features/resume-editor/domain/draft/create-default-resume-draft";
 
 describe("preview layout registry", () => {
-  it("resolves the current built-in layouts", () => {
-    const registry = createPreviewLayoutRegistry();
-
-    expect(registry.get("sidebar-headings")?.id).toBe("sidebar-headings");
-    expect(registry.get("classic-centered")?.id).toBe("classic-centered");
-    expect(getPreviewLayoutDefinition("classic-centered").id).toBe(
-      "classic-centered",
-    );
+  it("exposes the built-in layouts", () => {
+    const ids = previewLayoutDefinitions.map((layout) => layout.id);
+    expect(ids).toEqual(["single-column", "two-column"]);
   });
 
-  it("allows an extra layout to be registered without editing the resolver", () => {
-    const fakeLayout = {
-      ...previewLayoutDefinitions[0],
-      id: "magazine-grid" as never,
-    };
-
-    const registry = createPreviewLayoutRegistry([
-      previewLayoutDefinitions[0],
-      fakeLayout,
-    ]);
-
-    expect([...registry.values()]).toContain(fakeLayout);
+  it("resolves layouts by id", () => {
+    expect(getPreviewLayoutDefinition("single-column").id).toBe("single-column");
+    expect(getPreviewLayoutDefinition("two-column").id).toBe("two-column");
   });
 
-  it("resolves the built-in profile layouts independently from document layouts", () => {
-    const registry = createPreviewProfileLayoutRegistry();
-
-    expect(registry.get("sidebar-profile")?.id).toBe("sidebar-profile");
-    expect(registry.get("centered-portrait-profile")?.id).toBe(
-      "centered-portrait-profile",
-    );
+  it("falls back to single-column when an unknown layout id is requested", () => {
     expect(
-      getPreviewProfileLayoutDefinition("centered-portrait-profile").id,
-    ).toBe("centered-portrait-profile");
+      getPreviewLayoutDefinition("missing" as never).id,
+    ).toBe("single-column");
   });
 
-  it("allows an extra profile layout to be registered without editing the resolver", () => {
-    const fakeProfileLayout = {
-      ...previewProfileLayoutDefinitions[0],
-      id: "magazine-hero-profile" as never,
-    };
+  it("renders the matching header element for each layout", () => {
+    const draft = createDefaultResumeDraft();
+    draft.pdfPresentation.layoutId = "single-column";
+    const singleContext = createPreviewRenderContext(draft, "preview");
+    const single = renderLayoutHeader(singleContext);
+    expect((single as { props: { context: unknown } }).props.context).toBe(
+      singleContext,
+    );
 
-    const registry = createPreviewProfileLayoutRegistry([
-      previewProfileLayoutDefinitions[0],
-      fakeProfileLayout,
-    ]);
+    draft.pdfPresentation.layoutId = "two-column";
+    const twoContext = createPreviewRenderContext(draft, "preview");
+    const two = renderLayoutHeader(twoContext);
+    expect((two as { props: { context: unknown } }).props.context).toBe(
+      twoContext,
+    );
+  });
 
-    expect([...registry.values()]).toContain(fakeProfileLayout);
+  it("partitions sections into side and main columns in two-column layout", () => {
+    const twoColumn = getPreviewLayoutDefinition("two-column");
+    expect(twoColumn.getColumn?.("skills")).toBe("side");
+    expect(twoColumn.getColumn?.("languages")).toBe("side");
+    expect(twoColumn.getColumn?.("workExperience")).toBe("main");
+    expect(twoColumn.getColumn?.("education")).toBe("main");
   });
 });

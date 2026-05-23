@@ -13,6 +13,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useClientReady } from "@/hooks/use-client-ready";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -28,9 +29,14 @@ import { CanvasProfileForm } from "@/features/resume-editor/canvas/forms/canvas-
 import { CanvasSummaryForm } from "@/features/resume-editor/canvas/forms/canvas-summary-form";
 import { createPreviewRenderContext } from "@/features/resume-editor/preview/engine";
 import { PreviewDocumentRoot } from "@/features/resume-editor/preview/kit/document-root";
-import { getPreviewLayoutDefinition } from "@/features/resume-editor/preview/layout-registry";
-import { getPreviewProfileLayoutDefinition } from "@/features/resume-editor/preview/profile-layout-registry";
+import {
+  getPreviewLayoutDefinition,
+  renderLayoutHeader,
+} from "@/features/resume-editor/preview/layout-registry";
+import { renderSection } from "@/features/resume-editor/preview/sections";
+import { SummaryView } from "@/features/resume-editor/preview/sections/summary";
 import { normalizePdfPresentation } from "@/features/resume-editor/domain/presentation/pdf-presentation";
+import type { LayoutSlots } from "@/features/resume-editor/preview/types";
 import {
   getOrderedVisibleSectionKeys,
   isCollectionSectionKey,
@@ -97,12 +103,7 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
   const presentation = normalizePdfPresentation(draft.pdfPresentation);
   const context = createPreviewRenderContext(draft, "preview");
   const layout = getPreviewLayoutDefinition(context.presentation.layoutId);
-  const itemRenderers = layout.createSectionItemRenderers(context);
   const visibleSectionKeys = getOrderedVisibleSectionKeys(draft.sections);
-  const profileLayout = getPreviewProfileLayoutDefinition(
-    context.presentation.profileLayoutId,
-  );
-  const ProfileHeader = profileLayout.Header;
 
   const hiddenSectionKeys = resumeSectionKeys.filter(
     (key) => !draft.sections[key].visible,
@@ -208,126 +209,98 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
         <div className="flex flex-1">
           <main className="flex flex-1 justify-center overflow-x-auto px-3 py-6 sm:px-6 sm:py-10">
             <div style={{ zoom }} className="origin-top print:[zoom:1]">
-              <PreviewDocumentRoot
-                context={context}
-                className="max-md:w-full! max-md:px-5! max-md:py-6!"
-                editorMode="canvas"
-              >
-                {/* Profile / header */}
-                <CanvasSectionShell
-                  ariaLabel="Profile"
-                  isEditing={editing === "profile"}
-                  onEdit={startEditingProfile}
-                >
-                  {editing === "profile" && !isMobile ? (
-                    <CanvasProfileForm
-                      draft={draft}
-                      onSave={saveProfile}
-                      onCancel={cancelEditingProfile}
-                      onClose={() => setEditing(null)}
-                    />
-                  ) : (
-                    <ProfileHeader context={context} />
-                  )}
-                </CanvasSectionShell>
-
-                {/* Summary */}
-                {editing === "summary" || context.summaryContent ? (
-                  <CanvasSectionShell
-                    ariaLabel="Summary"
-                    isEditing={editing === "summary"}
-                    onEdit={() => startEditingSection("summary")}
-                  >
-                    {editing === "summary" && !isMobile ? (
-                      <CanvasSummaryForm
-                        draft={draft}
-                        onSave={(value) => saveSection("summary", value)}
-                        onCancel={cancelEditingSection}
-                        onClose={() => setEditing(null)}
-                      />
-                    ) : (
-                      layout.Summary({
-                        context,
-                        content: context.summaryContent ?? "",
-                      })
-                    )}
-                  </CanvasSectionShell>
-                ) : null}
-
-                {/* Collection sections */}
-                {visibleSectionKeys
-                  .filter(isCollectionSectionKey)
-                  .map((sectionKey) => {
-                    const orderIndex = visibleSectionKeys.indexOf(sectionKey);
+              {(() => {
+                const collectionKeys = visibleSectionKeys.filter(
+                  isCollectionSectionKey,
+                );
+                const slots: LayoutSlots = {
+                  header: (
+                    <CanvasSectionShell
+                      ariaLabel="Profile"
+                      isEditing={editing === "profile"}
+                      onEdit={startEditingProfile}
+                    >
+                      {renderLayoutHeader(context)}
+                    </CanvasSectionShell>
+                  ),
+                  summary:
+                    editing === "summary" || context.summaryContent ? (
+                      <CanvasSectionShell
+                        ariaLabel="Summary"
+                        isEditing={editing === "summary"}
+                        onEdit={() => startEditingSection("summary")}
+                      >
+                        <SummaryView content={context.summaryContent ?? ""} />
+                      </CanvasSectionShell>
+                    ) : null,
+                  sections: collectionKeys.map((sectionKey) => {
+                    const orderIndex = collectionKeys.indexOf(sectionKey);
                     const renderable = context.sections.find(
                       (s) => s.key === sectionKey,
                     );
                     const isEditing = editing === sectionKey;
+                    return {
+                      key: sectionKey,
+                      node: (
+                        <CanvasSectionShell
+                          ariaLabel={sectionLabels[sectionKey]}
+                          isEditing={isEditing}
+                          onEdit={() => startEditingSection(sectionKey)}
+                          onMoveUp={() =>
+                            reorderSection(sectionKey, orderIndex - 1)
+                          }
+                          onMoveDown={() =>
+                            reorderSection(sectionKey, orderIndex + 1)
+                          }
+                          onDelete={() => confirmAndHide(sectionKey)}
+                          canMoveUp={orderIndex > 0}
+                          canMoveDown={orderIndex < collectionKeys.length - 1}
+                        >
+                          {renderable ? (
+                            renderSection(renderable)
+                          ) : (
+                            <EmptySectionPlaceholder
+                              label={sectionLabels[sectionKey]}
+                              onEdit={() => startEditingSection(sectionKey)}
+                            />
+                          )}
+                        </CanvasSectionShell>
+                      ),
+                    };
+                  }),
+                };
 
-                    return (
-                      <CanvasSectionShell
-                        key={sectionKey}
-                        ariaLabel={sectionLabels[sectionKey]}
-                        isEditing={isEditing}
-                        onEdit={() => startEditingSection(sectionKey)}
-                        onMoveUp={() =>
-                          reorderSection(sectionKey, orderIndex - 1)
-                        }
-                        onMoveDown={() =>
-                          reorderSection(sectionKey, orderIndex + 1)
-                        }
-                        onDelete={() => confirmAndHide(sectionKey)}
-                        canMoveUp={orderIndex > 0}
-                        canMoveDown={orderIndex < visibleSectionKeys.length - 1}
-                      >
-                        {isEditing && !isMobile ? (
-                          <CanvasCollectionForm
-                            draft={draft}
-                            sectionKey={sectionKey}
-                            onSave={(value) =>
-                              saveSection(sectionKey, value as never)
-                            }
-                            onCancel={cancelEditingSection}
-                            onClose={() => setEditing(null)}
-                          />
-                        ) : renderable ? (
-                          layout.CollectionSection({
-                            context,
-                            section: renderable,
-                            itemRenderers,
-                          })
-                        ) : (
-                          <EmptySectionPlaceholder
-                            label={sectionLabels[sectionKey]}
-                            onEdit={() => startEditingSection(sectionKey)}
-                          />
-                        )}
-                      </CanvasSectionShell>
-                    );
-                  })}
+                return (
+                  <PreviewDocumentRoot
+                    context={context}
+                    className="max-md:w-full! max-md:px-5! max-md:py-6!"
+                    editorMode="canvas"
+                  >
+                    <layout.Component context={context} slots={slots} />
 
-                {/* Add-section pills */}
-                {hiddenSectionKeys.length > 0 ? (
-                  <div className="pt-6 flex flex-wrap justify-center gap-2 print:hidden border-t border-dashed">
-                    {hiddenSectionKeys.map((key) => (
-                      <Button
-                        key={key}
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        className="rounded-full"
-                        onClick={() => {
-                          setSectionVisibility(key, true);
-                          startEditingSection(key);
-                        }}
-                      >
-                        <PlusIcon data-icon="inline-start" />
-                        Add {sectionLabels[key]}
-                      </Button>
-                    ))}
-                  </div>
-                ) : null}
-              </PreviewDocumentRoot>
+                    {hiddenSectionKeys.length > 0 ? (
+                      <div className="pt-6 flex flex-wrap justify-center gap-2 print:hidden border-t border-dashed">
+                        {hiddenSectionKeys.map((key) => (
+                          <Button
+                            key={key}
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="rounded-full"
+                            onClick={() => {
+                              setSectionVisibility(key, true);
+                              startEditingSection(key);
+                            }}
+                          >
+                            <PlusIcon data-icon="inline-start" />
+                            Add {sectionLabels[key]}
+                          </Button>
+                        ))}
+                      </div>
+                    ) : null}
+                  </PreviewDocumentRoot>
+                );
+              })()}
             </div>
           </main>
 
@@ -337,48 +310,72 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
           </aside>
         </div>
 
-        {/* Mobile edit sheet — replaces inline editing on small screens to avoid font-size mismatch with the resume document. */}
-        <Sheet
-          open={isMobile && editing !== null}
-          onOpenChange={(open) => {
+        {/* Editor surface — bottom drawer on mobile, centered dialog on desktop. */}
+        {(() => {
+          const handleOpenChange = (open: boolean) => {
             if (open) return;
             if (editing === "profile") cancelEditingProfile();
             else if (editing !== null) cancelEditingSection();
-          }}
-        >
-          <SheetContent
-            side="bottom"
-            showCloseButton={false}
-            className="flex h-[92dvh] max-h-[92dvh] flex-col rounded-t-xl p-4 pt-3"
-          >
-            <div className="mx-auto mb-2 h-1 w-10 shrink-0 rounded-full bg-border" />
-            <div className="flex min-h-0 flex-1 flex-col">
-              {editing === "profile" ? (
-                <CanvasProfileForm
-                  draft={draft}
-                  onSave={saveProfile}
-                  onCancel={cancelEditingProfile}
-                  onClose={() => setEditing(null)}
-                />
-              ) : editing === "summary" ? (
-                <CanvasSummaryForm
-                  draft={draft}
-                  onSave={(value) => saveSection("summary", value)}
-                  onCancel={cancelEditingSection}
-                  onClose={() => setEditing(null)}
-                />
-              ) : editing !== null && isCollectionSectionKey(editing) ? (
-                <CanvasCollectionForm
-                  draft={draft}
-                  sectionKey={editing}
-                  onSave={(value) => saveSection(editing, value as never)}
-                  onCancel={cancelEditingSection}
-                  onClose={() => setEditing(null)}
-                />
-              ) : null}
-            </div>
-          </SheetContent>
-        </Sheet>
+          };
+
+          const formContent =
+            editing === "profile" ? (
+              <CanvasProfileForm
+                draft={draft}
+                onSave={saveProfile}
+                onCancel={cancelEditingProfile}
+                onClose={() => setEditing(null)}
+              />
+            ) : editing === "summary" ? (
+              <CanvasSummaryForm
+                draft={draft}
+                onSave={(value) => saveSection("summary", value)}
+                onCancel={cancelEditingSection}
+                onClose={() => setEditing(null)}
+              />
+            ) : editing !== null && isCollectionSectionKey(editing) ? (
+              <CanvasCollectionForm
+                draft={draft}
+                sectionKey={editing}
+                onSave={(value) => saveSection(editing, value as never)}
+                onCancel={cancelEditingSection}
+                onClose={() => setEditing(null)}
+              />
+            ) : null;
+
+          if (isMobile) {
+            return (
+              <Sheet
+                open={editing !== null}
+                onOpenChange={handleOpenChange}
+              >
+                <SheetContent
+                  side="bottom"
+                  showCloseButton={false}
+                  className="flex h-[92dvh] max-h-[92dvh] flex-col rounded-t-xl p-4 pt-3"
+                >
+                  <div className="mx-auto mb-2 h-1 w-10 shrink-0 rounded-full bg-border" />
+                  <div className="flex min-h-0 flex-1 flex-col">
+                    {formContent}
+                  </div>
+                </SheetContent>
+              </Sheet>
+            );
+          }
+
+          return (
+            <Dialog open={editing !== null} onOpenChange={handleOpenChange}>
+              <DialogContent
+                showCloseButton={false}
+                className="flex max-h-[92dvh] w-full flex-col gap-0 p-0 sm:max-w-2xl"
+              >
+                <div className="flex min-h-0 flex-1 flex-col overflow-hidden p-5">
+                  {formContent}
+                </div>
+              </DialogContent>
+            </Dialog>
+          );
+        })()}
 
         {/* Mobile FAB → Sheet drawer */}
         <Sheet open={isMobilePanelOpen} onOpenChange={setIsMobilePanelOpen}>

@@ -16,14 +16,14 @@ describe("preview control registry", () => {
 
     expect(screen.getByRole("combobox", { name: /^layout$/i })).toBeInTheDocument();
     expect(
-      screen.getByRole("combobox", { name: /profile layout/i })
-    ).toBeInTheDocument();
-    expect(
       screen.getByRole("combobox", { name: /font size/i })
     ).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: /line height standard/i })
     ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("combobox", { name: /profile layout/i })
+    ).not.toBeInTheDocument();
   });
 
   it("accepts a fake control definition without changing the toolbar component", async () => {

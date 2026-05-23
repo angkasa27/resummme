@@ -38,9 +38,6 @@ describe("preview pane", () => {
       await screen.findByRole("combobox", { name: /^layout$/i }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("combobox", { name: /profile layout/i }),
-    ).toBeInTheDocument();
-    expect(
       screen.getByRole("combobox", { name: /font size/i }),
     ).toBeInTheDocument();
     expect(
@@ -49,6 +46,9 @@ describe("preview pane", () => {
     expect(
       screen.getByRole("button", { name: /accent tone blue/i }),
     ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("combobox", { name: /profile layout/i }),
+    ).not.toBeInTheDocument();
   });
 
   it("saves style changes from the settings popover", async () => {
@@ -62,27 +62,25 @@ describe("preview pane", () => {
       />,
     );
 
-    // Open settings popover
     await user.click(screen.getByText(/style settings/i));
 
-    // Change layout
     await user.click(
       await screen.findByRole("combobox", { name: /^layout$/i }),
     );
     await user.click(
-      await screen.findByRole("option", { name: /classic centered/i }),
+      await screen.findByRole("option", { name: /two column/i }),
     );
 
     await waitFor(() =>
       expect(savePdfPresentation).toHaveBeenLastCalledWith(
         expect.objectContaining({
-          layoutId: "classic-centered",
+          layoutId: "two-column",
         }),
       ),
     );
   });
 
-  it("saves profile layout changes from the settings popover", async () => {
+  it("saves accent tone changes from the settings popover", async () => {
     const user = userEvent.setup();
     const savePdfPresentation = vi.fn();
 
@@ -95,16 +93,13 @@ describe("preview pane", () => {
 
     await user.click(screen.getByText(/style settings/i));
     await user.click(
-      await screen.findByRole("combobox", { name: /profile layout/i }),
-    );
-    await user.click(
-      await screen.findByRole("option", { name: /sidebar profile/i }),
+      await screen.findByRole("button", { name: /accent tone emerald/i }),
     );
 
     await waitFor(() =>
       expect(savePdfPresentation).toHaveBeenLastCalledWith(
         expect.objectContaining({
-          profileLayoutId: "sidebar-profile",
+          accentTone: "emerald",
         }),
       ),
     );

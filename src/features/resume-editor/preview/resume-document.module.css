@@ -1,0 +1,233 @@
+.root {
+  font-family: var(--resume-font);
+  color: var(--resume-text);
+  font-size: var(--resume-body);
+  line-height: var(--resume-leading);
+}
+
+.root :global(a) {
+  color: inherit;
+  text-decoration: underline;
+  overflow-wrap: anywhere;
+}
+
+.root :global(.name) {
+  font-size: var(--resume-h1);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--resume-accent);
+  margin: 0;
+}
+
+.root :global(.section-heading) {
+  font-size: var(--resume-h2);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--resume-accent);
+  margin: 0;
+}
+
+.root :global(.item-title) {
+  font-size: var(--resume-h3);
+  font-weight: 600;
+  margin: 0;
+  line-height: 1.25;
+}
+
+.root :global(.meta) {
+  color: var(--resume-muted);
+}
+
+.root :global(.contact-line) {
+  margin: 0;
+  color: var(--resume-muted);
+}
+
+.root :global(.item-list) {
+  display: flex;
+  flex-direction: column;
+  gap: var(--resume-gap-item);
+}
+
+.root :global(.section) {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.root :global(.item) {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.root :global(.item-row) {
+  flex-direction: row;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.root :global(.item-header) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 12px;
+}
+
+.root :global(.item-header-main) {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.root :global(.item-header-side) {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.root :global(.item-date) {
+  color: var(--resume-muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.root :global(.rich-text) {
+  text-align: justify;
+}
+
+.root :global(.rich-text p) {
+  margin: 0;
+}
+
+.root :global(.rich-text p + p) {
+  margin-top: 6px;
+}
+
+.root :global(.rich-text ul),
+.root :global(.rich-text ol) {
+  margin: 0;
+  padding-left: 1.25em;
+}
+
+.root :global(.rich-text:empty) {
+  display: none;
+}
+
+/* Layouts */
+
+.layoutSingleColumn {
+  display: flex;
+  flex-direction: column;
+  gap: var(--resume-gap-section);
+}
+
+.layoutSingleColumn :global(.layout-body) {
+  display: flex;
+  flex-direction: column;
+  gap: var(--resume-gap-section);
+}
+
+.layoutTwoColumn {
+  display: flex;
+  flex-direction: column;
+  gap: var(--resume-gap-section);
+}
+
+.layoutTwoColumn :global(.layout-body) {
+  display: grid;
+  grid-template-columns: minmax(0, 0.42fr) minmax(0, 1fr);
+  gap: 24px;
+}
+
+.layoutTwoColumn :global(.layout-side),
+.layoutTwoColumn :global(.layout-main) {
+  display: flex;
+  flex-direction: column;
+  gap: var(--resume-gap-section);
+  min-width: 0;
+}
+
+.layoutTwoColumn :global(.layout-side) {
+  border-right: 1px solid var(--resume-border);
+  padding-right: 18px;
+}
+
+/* In the narrow side column: stack everything vertically, align left. */
+.layoutTwoColumn :global(.layout-side .item-header) {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 2px;
+}
+
+.layoutTwoColumn :global(.layout-side .item-header-side) {
+  text-align: left;
+  align-items: flex-start;
+}
+
+.layoutTwoColumn :global(.layout-side .item-date) {
+  text-align: left;
+  white-space: normal;
+}
+
+.layoutTwoColumn :global(.layout-side .item-row) {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+/* Headers */
+
+.headerSingleColumn {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.headerSingleColumn :global(.header-photo) {
+  width: 72px;
+  height: 96px;
+  border-radius: 6px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.headerSingleColumn :global(.header-photo img) {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.headerSingleColumn :global(.header-body) {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.headerTwoColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.headerTwoColumn :global(.header-photo) {
+  width: 96px;
+  height: 96px;
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.headerTwoColumn :global(.header-photo img) {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
