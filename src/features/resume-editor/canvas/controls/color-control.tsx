@@ -56,7 +56,7 @@ export function ColorControl({ value, onChange }: ColorControlProps) {
   return (
     <div className="flex flex-col gap-2">
       <span className="text-xs font-medium text-muted-foreground">Color</span>
-      <div className="grid grid-cols-6 gap-1.5">
+      <div className="flex gap-1.5 flex-wrap">
         {ACCENT_SWATCHES.map((swatch) => {
           const isActive = matchedSwatch?.hex === swatch.hex;
           return (
@@ -67,7 +67,7 @@ export function ColorControl({ value, onChange }: ColorControlProps) {
               aria-pressed={isActive}
               onClick={() => onChange(swatch.hex)}
               className={cn(
-                "size-7 rounded-full border border-black/10 transition-transform hover:scale-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
+                "size-7 rounded-md border border-black/10 transition-transform hover:scale-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
                 isActive && "ring-2 ring-offset-2 ring-foreground/60",
               )}
               style={{ backgroundColor: swatch.hex }}
@@ -88,7 +88,7 @@ export function ColorControl({ value, onChange }: ColorControlProps) {
                 aria-label="Custom color"
                 aria-pressed={!matchedSwatch}
                 className={cn(
-                  "relative size-7 rounded-full transition-transform hover:scale-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
+                  "relative size-7 rounded-md transition-transform hover:scale-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
                   !matchedSwatch && "ring-2 ring-offset-2 ring-foreground/60",
                 )}
                 style={{

@@ -5,8 +5,8 @@ import { DownloadIcon, MinusIcon, PlusIcon, SparklesIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { PreviewToolbarContent } from "@/features/resume-editor/preview/components/preview-toolbar-content";
 import { InsightsTab } from "@/features/resume-editor/canvas/controls/insights-tab";
+import { StyleTab } from "@/features/resume-editor/canvas/controls/style-tab";
 import type { PdfPresentation } from "@/features/resume-editor/domain/presentation/pdf-presentation";
 import { ButtonGroup } from "@/components/ui/button-group";
 
@@ -100,10 +100,9 @@ export function CanvasControlPanel({
         </TabsList>
 
         <TabsContent value="style" className="flex flex-col gap-4 pb-2">
-          <PreviewToolbarContent
+          <StyleTab
             presentation={presentation}
             onChange={onPresentationChange}
-            showHeading={false}
           />
         </TabsContent>
         <TabsContent value="insights" className="pb-2">
