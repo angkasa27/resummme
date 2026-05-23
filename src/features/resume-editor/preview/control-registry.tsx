@@ -17,11 +17,12 @@ import {
 } from "@/features/resume-editor/domain/presentation/pdf-presentation";
 import type { PreviewControlDefinition } from "@/features/resume-editor/preview/types";
 
-function spacingGlyph({ gapClassName }: { gapClassName: string }) {
+function spacingGlyph({ gap }: { gap: number }) {
   return (
     <span
       aria-hidden="true"
-      className={`flex flex-col items-center ${gapClassName}`}
+      className="flex flex-col items-center"
+      style={{ gap: `${gap}px` }}
     >
       <span className="h-0.5 w-4 rounded-full bg-current" />
       <span className="h-0.5 w-4 rounded-full bg-current" />
@@ -29,10 +30,14 @@ function spacingGlyph({ gapClassName }: { gapClassName: string }) {
   );
 }
 
-function listSpacingGlyph({ gapClassName }: { gapClassName: string }) {
+function listSpacingGlyph({ gap }: { gap: number }) {
   const rowKeys = ["first", "second", "third"] as const;
   return (
-    <span aria-hidden="true" className={`flex flex-col ${gapClassName}`}>
+    <span
+      aria-hidden="true"
+      className="flex flex-col"
+      style={{ gap: `${gap}px` }}
+    >
       {rowKeys.map((rowKey) => (
         <span key={rowKey} className="flex items-center gap-1">
           <span className="size-1 rounded-full bg-current" />
@@ -96,10 +101,10 @@ export const previewControlDefinitions = [
       label: pdfLineHeightLabels[value],
       renderOption: () =>
         value === "tight"
-          ? spacingGlyph({ gapClassName: "gap-0.5" })
+          ? spacingGlyph({ gap: 2 })
           : value === "relaxed"
-            ? spacingGlyph({ gapClassName: "gap-1.5" })
-            : spacingGlyph({ gapClassName: "gap-1" }),
+            ? spacingGlyph({ gap: 6 })
+            : spacingGlyph({ gap: 4 }),
     })),
   },
   {
@@ -114,10 +119,10 @@ export const previewControlDefinitions = [
       label: pdfSpacingLabels[value],
       renderOption: () =>
         value === "compact"
-          ? listSpacingGlyph({ gapClassName: "gap-0.2" })
+          ? listSpacingGlyph({ gap: 2 })
           : value === "airy"
-            ? listSpacingGlyph({ gapClassName: "gap-1" })
-            : listSpacingGlyph({ gapClassName: "gap-0.5" }),
+            ? listSpacingGlyph({ gap: 4 })
+            : listSpacingGlyph({ gap: 3 }),
       renderTooltip: () => (
         <span className="inline-flex items-center gap-1.5">
           <BetweenVerticalStartIcon className="size-3" />

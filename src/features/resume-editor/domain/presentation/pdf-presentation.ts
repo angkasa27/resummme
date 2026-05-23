@@ -68,15 +68,15 @@ const lineHeightValues: Record<PdfLineHeightId, number> = {
 };
 
 const sectionGapPx: Record<PdfSpacingId, number> = {
-  compact: 16,
-  standard: 20,
-  airy: 24,
+  compact: 12,
+  standard: 16,
+  airy: 20,
 };
 
 const itemGapPx: Record<PdfSpacingId, number> = {
-  compact: 8,
-  standard: 12,
-  airy: 16,
+  compact: 6,
+  standard: 10,
+  airy: 14,
 };
 
 export const DEFAULT_ACCENT = "#2563eb";

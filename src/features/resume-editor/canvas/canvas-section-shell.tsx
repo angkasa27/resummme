@@ -97,7 +97,7 @@ export function CanvasSectionShell({
         </ButtonGroup>
       ) : null}
 
-      <div className="px-3 py-2">{children}</div>
+      <div className="-my-2 px-3 py-2">{children}</div>
     </div>
   );
 }

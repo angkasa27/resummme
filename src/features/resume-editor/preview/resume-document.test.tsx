@@ -45,7 +45,7 @@ describe("resume document", () => {
     expect(documentRoot?.style.getPropertyValue("--resume-body")).toBe("14px");
     expect(documentRoot?.style.getPropertyValue("--resume-leading")).toBe("1.9");
     expect(documentRoot?.style.getPropertyValue("--resume-gap-section")).toBe(
-      "24px",
+      "20px",
     );
   });
 
