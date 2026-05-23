@@ -1,17 +1,14 @@
 "use client";
 
-import {
-  DownloadIcon,
-  MinusIcon,
-  PlusIcon,
-  PrinterIcon,
-} from "lucide-react";
+import { DownloadIcon, MinusIcon, PlusIcon, SparklesIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PreviewToolbarContent } from "@/features/resume-editor/preview/components/preview-toolbar-content";
+import { InsightsTab } from "@/features/resume-editor/canvas/controls/insights-tab";
 import type { PdfPresentation } from "@/features/resume-editor/domain/presentation/pdf-presentation";
-import { ImportMenu } from "@/features/resume-editor/editor/import-menu";
+import { ButtonGroup } from "@/components/ui/button-group";
 
 export const ZOOM_MIN = 0.5;
 export const ZOOM_MAX = 1.5;
@@ -22,7 +19,7 @@ type CanvasControlPanelProps = {
   presentation: PdfPresentation;
   onPresentationChange: (next: PdfPresentation) => void;
   onImportJson: () => void;
-  onImportPdf: () => void;
+  onExtractCv: () => void;
   onExport: () => void;
   onExportPdf: () => void;
   isExportingPdf?: boolean;
@@ -35,7 +32,7 @@ export function CanvasControlPanel({
   presentation,
   onPresentationChange,
   onImportJson,
-  onImportPdf,
+  onExtractCv,
   onExport,
   onExportPdf,
   isExportingPdf = false,
@@ -43,80 +40,110 @@ export function CanvasControlPanel({
   zoom,
   onZoomChange,
 }: CanvasControlPanelProps) {
-  function clamp(value: number) {
+  function clampZoom(value: number) {
     return Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, value));
   }
 
   return (
-    <div className="flex h-full flex-col gap-5">
-      <section className="hidden lg:flex flex-col gap-2">
-        <h3 className="text-sm font-semibold">Zoom</h3>
-        <div className="flex items-center gap-1">
+    <div className="flex h-full min-h-0 flex-col">
+      {/* Document section (fixed top) */}
+      <section className="flex shrink-0 flex-col gap-2 px-4 py-4">
+        <Button
+          type="button"
+          size="lg"
+          className="w-full justify-center font-medium"
+          disabled={isImportingPdf}
+          onClick={onExtractCv}
+        >
+          <SparklesIcon data-icon="inline-start" />
+          Extract CV from PDF
+        </Button>
+        <ButtonGroup className="w-full">
           <Button
             type="button"
-            variant="outline"
-            size="icon-sm"
-            aria-label="Zoom out"
-            disabled={zoom <= ZOOM_MIN + 1e-6}
-            onClick={() => onZoomChange(clamp(zoom - ZOOM_STEP))}
-          >
-            <MinusIcon />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
             size="sm"
-            className="flex-1 tabular-nums"
-            aria-label={`Reset zoom to ${ZOOM_DEFAULT * 100}%`}
-            onClick={() => onZoomChange(ZOOM_DEFAULT)}
+            variant="outline"
+            onClick={onImportJson}
+            className="flex-1"
           >
-            {Math.round(zoom * 100)}%
+            Import JSON
           </Button>
           <Button
             type="button"
+            size="sm"
             variant="outline"
-            size="icon-sm"
-            aria-label="Zoom in"
-            disabled={zoom >= ZOOM_MAX - 1e-6}
-            onClick={() => onZoomChange(clamp(zoom + ZOOM_STEP))}
+            onClick={onExport}
+            className="flex-1"
           >
-            <PlusIcon />
+            Export JSON
           </Button>
-        </div>
-      </section>
-
-      <Separator className="hidden lg:block" />
-
-      <section className="flex flex-col gap-3">
-        <PreviewToolbarContent
-          presentation={presentation}
-          onChange={onPresentationChange}
-        />
+        </ButtonGroup>
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          disabled={isExportingPdf}
+          onClick={onExportPdf}
+        >
+          <DownloadIcon data-icon="inline-start" />
+          {isExportingPdf ? "Generating PDF…" : "Download PDF"}
+        </Button>
       </section>
 
       <Separator />
 
-      <section className="flex flex-col gap-2">
-        <h3 className="text-sm font-semibold">Document</h3>
-        <div className="grid grid-cols-2 gap-2">
-          <ImportMenu
-            onImportJson={onImportJson}
-            onImportPdf={onImportPdf}
-            disabled={isImportingPdf}
+      {/* Tabs */}
+      <Tabs defaultValue="style" className="px-4 py-3 flex-1">
+        <TabsList className="w-full ">
+          <TabsTrigger value="style">Style</TabsTrigger>
+          <TabsTrigger value="insights">Insights</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="style" className="flex flex-col gap-4 pb-2">
+          <PreviewToolbarContent
+            presentation={presentation}
+            onChange={onPresentationChange}
+            showHeading={false}
           />
-          <Button type="button" size="sm" variant="outline" onClick={onExport}>
-            <DownloadIcon data-icon="inline-start" />
-            Export
-          </Button>
-        </div>
+        </TabsContent>
+        <TabsContent value="insights" className="pb-2">
+          <InsightsTab />
+        </TabsContent>
+      </Tabs>
+
+      <Separator />
+
+      {/* Zoom (fixed bottom) */}
+      <section className="flex shrink-0 items-center gap-1 px-4 py-3">
         <Button
           type="button"
-          size="sm"
-          disabled={isExportingPdf}
-          onClick={onExportPdf}
+          variant="outline"
+          size="icon-sm"
+          aria-label="Zoom out"
+          disabled={zoom <= ZOOM_MIN + 1e-6}
+          onClick={() => onZoomChange(clampZoom(zoom - ZOOM_STEP))}
         >
-          <PrinterIcon data-icon="inline-start" />
-          {isExportingPdf ? "Exporting..." : "Export PDF"}
+          <MinusIcon />
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          className="flex-1 tabular-nums"
+          aria-label={`Reset zoom to ${ZOOM_DEFAULT * 100}%`}
+          onClick={() => onZoomChange(ZOOM_DEFAULT)}
+        >
+          {Math.round(zoom * 100)}%
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          size="icon-sm"
+          aria-label="Zoom in"
+          disabled={zoom >= ZOOM_MAX - 1e-6}
+          onClick={() => onZoomChange(clampZoom(zoom + ZOOM_STEP))}
+        >
+          <PlusIcon />
         </Button>
       </section>
     </div>

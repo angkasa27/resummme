@@ -44,10 +44,10 @@ describe("preview pane", () => {
       screen.getByRole("button", { name: /line height standard/i }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: /accent tone blue/i }),
-    ).toBeInTheDocument();
-    expect(
       screen.queryByRole("combobox", { name: /profile layout/i }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /accent tone/i }),
     ).not.toBeInTheDocument();
   });
 
@@ -80,7 +80,7 @@ describe("preview pane", () => {
     );
   });
 
-  it("saves accent tone changes from the settings popover", async () => {
+  it("saves spacing changes from the settings popover", async () => {
     const user = userEvent.setup();
     const savePdfPresentation = vi.fn();
 
@@ -93,13 +93,13 @@ describe("preview pane", () => {
 
     await user.click(screen.getByText(/style settings/i));
     await user.click(
-      await screen.findByRole("button", { name: /accent tone emerald/i }),
+      await screen.findByRole("button", { name: /spacing airy/i }),
     );
 
     await waitFor(() =>
       expect(savePdfPresentation).toHaveBeenLastCalledWith(
         expect.objectContaining({
-          accentTone: "emerald",
+          spacing: "airy",
         }),
       ),
     );

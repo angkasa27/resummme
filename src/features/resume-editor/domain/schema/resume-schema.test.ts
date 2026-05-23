@@ -49,8 +49,7 @@ describe("resume schema", () => {
       fontScale: "md",
       spacing: "standard",
       lineHeight: "standard",
-      accentTone: "blue",
-      accentStrength: "balanced",
+      accent: "#2563eb",
     });
   });
 

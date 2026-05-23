@@ -2,8 +2,6 @@ import { z } from "zod";
 
 import {
   normalizePdfPresentation,
-  pdfAccentStrengths,
-  pdfAccentTones,
   pdfFontScaleIds,
   pdfLayoutIds,
   pdfLineHeightIds,
@@ -17,7 +15,6 @@ export const pdfPresentationSchema = z.preprocess(
     fontScale: z.enum(pdfFontScaleIds),
     spacing: z.enum(pdfSpacingIds),
     lineHeight: z.enum(pdfLineHeightIds),
-    accentTone: z.enum(pdfAccentTones),
-    accentStrength: z.enum(pdfAccentStrengths),
+    accent: z.string().regex(/^#[0-9a-fA-F]{6}$/),
   }),
 );

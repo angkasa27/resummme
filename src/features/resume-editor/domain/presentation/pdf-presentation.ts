@@ -10,25 +10,12 @@ export type PdfLineHeightId = (typeof pdfLineHeightIds)[number];
 export const pdfSpacingIds = ["compact", "standard", "airy"] as const;
 export type PdfSpacingId = (typeof pdfSpacingIds)[number];
 
-export const pdfAccentTones = [
-  "slate",
-  "blue",
-  "emerald",
-  "rose",
-  "amber",
-] as const;
-export type PdfAccentTone = (typeof pdfAccentTones)[number];
-
-export const pdfAccentStrengths = ["soft", "balanced", "strong"] as const;
-export type PdfAccentStrength = (typeof pdfAccentStrengths)[number];
-
 export type PdfPresentation = {
   layoutId: PdfLayoutId;
   fontScale: PdfFontScaleId;
   spacing: PdfSpacingId;
   lineHeight: PdfLineHeightId;
-  accentTone: PdfAccentTone;
-  accentStrength: PdfAccentStrength;
+  accent: string;
 };
 
 export type ResolvedPdfPresentation = {
@@ -59,20 +46,6 @@ export const pdfSpacingLabels: Record<PdfSpacingId, string> = {
   airy: "Airy",
 };
 
-export const pdfAccentToneLabels: Record<PdfAccentTone, string> = {
-  slate: "Slate",
-  blue: "Blue",
-  emerald: "Emerald",
-  rose: "Rose",
-  amber: "Amber",
-};
-
-export const pdfAccentStrengthLabels: Record<PdfAccentStrength, string> = {
-  soft: "Soft",
-  balanced: "Balanced",
-  strong: "Strong",
-};
-
 const fontBasePx: Record<PdfFontScaleId, number> = {
   sm: 11,
   md: 12,
@@ -97,21 +70,13 @@ const itemGapPx: Record<PdfSpacingId, number> = {
   airy: 16,
 };
 
-const accentPalette: Record<
-  PdfAccentTone,
-  Record<PdfAccentStrength, string>
-> = {
-  slate: { soft: "#64748b", balanced: "#475569", strong: "#334155" },
-  blue: { soft: "#3b82f6", balanced: "#2563eb", strong: "#1d4ed8" },
-  emerald: { soft: "#10b981", balanced: "#059669", strong: "#047857" },
-  rose: { soft: "#f43f5e", balanced: "#e11d48", strong: "#be123c" },
-  amber: { soft: "#f59e0b", balanced: "#d97706", strong: "#b45309" },
-};
+export const DEFAULT_ACCENT = "#2563eb";
 
-export const accentSwatchPreview: Record<PdfAccentTone, string> =
-  Object.fromEntries(
-    pdfAccentTones.map((tone) => [tone, accentPalette[tone].balanced]),
-  ) as Record<PdfAccentTone, string>;
+const hexColorPattern = /^#[0-9a-fA-F]{6}$/;
+
+export function isValidAccentHex(value: unknown): value is string {
+  return typeof value === "string" && hexColorPattern.test(value);
+}
 
 export function createDefaultPdfPresentation(): PdfPresentation {
   return {
@@ -119,8 +84,7 @@ export function createDefaultPdfPresentation(): PdfPresentation {
     fontScale: "md",
     spacing: "standard",
     lineHeight: "standard",
-    accentTone: "blue",
-    accentStrength: "balanced",
+    accent: DEFAULT_ACCENT,
   };
 }
 
@@ -150,12 +114,7 @@ export function normalizePdfPresentation(input: unknown): PdfPresentation {
     lineHeight: isMember(pdfLineHeightIds, source.lineHeight)
       ? source.lineHeight
       : defaults.lineHeight,
-    accentTone: isMember(pdfAccentTones, source.accentTone)
-      ? source.accentTone
-      : defaults.accentTone,
-    accentStrength: isMember(pdfAccentStrengths, source.accentStrength)
-      ? source.accentStrength
-      : defaults.accentStrength,
+    accent: isValidAccentHex(source.accent) ? source.accent : defaults.accent,
   };
 }
 
@@ -165,14 +124,13 @@ export function resolvePdfPresentation(
   const p = normalizePdfPresentation(presentation);
   const base = fontBasePx[p.fontScale];
   const leading = lineHeightValues[p.lineHeight];
-  const accent = accentPalette[p.accentTone][p.accentStrength];
 
   const vars: Record<string, string> = {
     "--resume-font": 'var(--font-sans), "Helvetica Neue", Arial, sans-serif',
     "--resume-text": "#111827",
     "--resume-muted": "#4b5563",
     "--resume-border": "#cbd5e1",
-    "--resume-accent": accent,
+    "--resume-accent": p.accent,
     "--resume-h1": `${Number((base * 2.4).toFixed(2))}px`,
     "--resume-h2": `${Number((base * 0.92).toFixed(2))}px`,
     "--resume-h3": `${Number((base * 1.08).toFixed(2))}px`,

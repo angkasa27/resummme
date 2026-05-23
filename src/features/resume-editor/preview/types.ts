@@ -72,17 +72,13 @@ export type PreviewControlDefinition = {
   kind: PreviewControlKind;
   label: string;
   value: (presentation: PdfPresentation) => string;
-  update: (
-    nextValue: string,
-    presentation: PdfPresentation,
-  ) => PdfPresentation;
+  update: (nextValue: string, presentation: PdfPresentation) => PdfPresentation;
   options: ReadonlyArray<PreviewControlOption>;
 };
 
 export type PreviewToolbarContentProps = {
   presentation: PdfPresentation;
   onChange: (nextPresentation: PdfPresentation) => void;
-  definitions?: ReadonlyArray<PreviewControlDefinition>;
 };
 
 export type PreviewPaneProps = {

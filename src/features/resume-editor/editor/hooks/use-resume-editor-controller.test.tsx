@@ -221,7 +221,6 @@ describe("useResumeEditorController handlePrint", () => {
     );
     expect(toast.success).toHaveBeenCalledWith(
       "PDF imported with 1 warning.",
-      { id: "loading-toast" },
     );
   });
 
@@ -303,9 +302,7 @@ describe("useResumeEditorController handlePrint", () => {
     });
 
     await waitFor(() =>
-      expect(toast.error).toHaveBeenCalledWith("bad import", {
-        id: "loading-toast",
-      }),
+      expect(toast.error).toHaveBeenCalledWith("bad import"),
     );
   });
 });

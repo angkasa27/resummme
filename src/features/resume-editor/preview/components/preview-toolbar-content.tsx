@@ -22,6 +22,7 @@ import type {
   PreviewControlDefinition,
   PreviewToolbarContentProps,
 } from "@/features/resume-editor/preview/types";
+import { ColorControl } from "../../canvas/controls/color-control";
 
 type ToolbarSelectProps = {
   ariaLabel: string;
@@ -39,7 +40,9 @@ function ToolbarSelect({
   value,
 }: ToolbarSelectProps) {
   const Icon =
-    previewControlLabelIcons[controlId as keyof typeof previewControlLabelIcons];
+    previewControlLabelIcons[
+      controlId as keyof typeof previewControlLabelIcons
+    ];
 
   return (
     <div className="flex flex-col gap-1.5">
@@ -125,76 +128,59 @@ function ToolbarToggleGroup({
 export function PreviewToolbarContent({
   presentation,
   onChange,
-  definitions = previewControlDefinitions,
-}: PreviewToolbarContentProps) {
+  showHeading = true,
+}: PreviewToolbarContentProps & { showHeading?: boolean }) {
+  const definitions = previewControlDefinitions;
+
+  const selects = definitions.filter(
+    (definition) => definition.kind === "select",
+  );
+  const toggles = definitions.filter(
+    (definition) => definition.kind === "toggle-group",
+  );
+
   return (
     <div className="flex flex-col gap-4">
-      <h3 className="text-sm font-semibold">Style Settings</h3>
+      {showHeading ? (
+        <h3 className="text-sm font-semibold">Style Settings</h3>
+      ) : null}
 
       <div className="flex flex-col gap-3">
-        {definitions
-          .filter((definition) => definition.kind === "select")
-          .map((definition) => (
-            <ToolbarSelect
-              key={definition.id}
-              ariaLabel={definition.label}
-              controlId={definition.id}
-              value={definition.value(presentation)}
-              options={definition.options}
-              onValueChange={(value) => {
-                if (!value) {
-                  return;
-                }
-
-                onChange(definition.update(value, presentation));
-              }}
-            />
-          ))}
+        {selects.map((definition) => (
+          <ToolbarSelect
+            key={definition.id}
+            ariaLabel={definition.label}
+            controlId={definition.id}
+            value={definition.value(presentation)}
+            options={definition.options}
+            onValueChange={(value) => {
+              if (!value) return;
+              onChange(definition.update(value, presentation));
+            }}
+          />
+        ))}
       </div>
 
+      {selects.length > 0 && toggles.length > 0 ? <Separator /> : null}
+
+      <div className="flex flex-col gap-3">
+        {toggles.map((definition) => (
+          <ToolbarToggleGroup
+            key={definition.id}
+            ariaLabel={definition.label}
+            value={definition.value(presentation)}
+            options={definition.options}
+            onValueChange={(value) =>
+              onChange(definition.update(value, presentation))
+            }
+          />
+        ))}
+      </div>
       <Separator />
-
-      <div className="flex flex-col gap-3">
-        {definitions
-          .filter(
-            (definition) =>
-              definition.kind === "toggle-group" &&
-              !definition.id.startsWith("accent-"),
-          )
-          .map((definition) => (
-            <ToolbarToggleGroup
-              key={definition.id}
-              ariaLabel={definition.label}
-              value={definition.value(presentation)}
-              options={definition.options}
-              onValueChange={(value) =>
-                onChange(definition.update(value, presentation))
-              }
-            />
-          ))}
-      </div>
-
-      <Separator />
-
-      <div className="flex flex-col gap-3">
-        {definitions
-          .filter(
-            (definition) =>
-              definition.kind === "toggle-group" &&
-              definition.id.startsWith("accent-"),
-          )
-          .map((definition) => (
-            <ToolbarToggleGroup
-              key={definition.id}
-              ariaLabel={definition.label}
-              value={definition.value(presentation)}
-              options={definition.options}
-              onValueChange={(value) =>
-                onChange(definition.update(value, presentation))
-              }
-            />
-          ))}
-      </div>
+      <ColorControl
+        value={presentation.accent}
+        onChange={(accent) => onChange({ ...presentation, accent })}
+      />
     </div>
   );
 }

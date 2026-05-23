@@ -29,6 +29,7 @@ export type ResumeEditorController = {
   openPdfImportPicker: () => void;
   handleJsonImport: (event: ChangeEvent<HTMLInputElement>) => Promise<void>;
   handlePdfImport: (event: ChangeEvent<HTMLInputElement>) => Promise<void>;
+  submitPdfFile: (file: File) => Promise<void>;
   handleExport: () => void;
   handlePrint: () => Promise<void>;
   requestSectionChange: (sectionKey: ResumeEditorPanelKey) => void;
@@ -87,25 +88,15 @@ export function useResumeEditorController({
     }
   }
 
-  async function handlePdfImport(event: ChangeEvent<HTMLInputElement>) {
-    if (isImportingPdfRef.current) {
-      event.target.value = "";
-      return;
-    }
-
-    const selectedFile = event.target.files?.[0];
-
-    if (!selectedFile) {
-      return;
-    }
+  async function submitPdfFile(file: File) {
+    if (isImportingPdfRef.current) return;
 
     isImportingPdfRef.current = true;
     setIsImportingPdf(true);
-    const loadingId = toast.loading("Importing PDF...");
 
     try {
       const formData = new FormData();
-      formData.append("file", selectedFile);
+      formData.append("file", file);
 
       const response = await fetch("/api/import-pdf", {
         method: "POST",
@@ -128,15 +119,23 @@ export function useResumeEditorController({
         warningCount > 0
           ? `PDF imported with ${warningCount} warning${warningCount === 1 ? "" : "s"}.`
           : "PDF imported.";
-      toast.success(successMessage, { id: loadingId });
+      toast.success(successMessage);
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Unable to import that PDF.",
-        { id: loadingId },
       );
     } finally {
       isImportingPdfRef.current = false;
       setIsImportingPdf(false);
+    }
+  }
+
+  async function handlePdfImport(event: ChangeEvent<HTMLInputElement>) {
+    const selectedFile = event.target.files?.[0];
+    if (!selectedFile) return;
+    try {
+      await submitPdfFile(selectedFile);
+    } finally {
       event.target.value = "";
     }
   }
@@ -209,6 +208,7 @@ export function useResumeEditorController({
     openPdfImportPicker,
     handleJsonImport,
     handlePdfImport,
+    submitPdfFile,
     handleExport,
     handlePrint,
     requestSectionChange: (sectionKey) =>

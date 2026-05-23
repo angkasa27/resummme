@@ -19,6 +19,8 @@ import { useClientReady } from "@/hooks/use-client-ready";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 import { useResumeEditorController } from "@/features/resume-editor/editor/hooks/use-resume-editor-controller";
+import { ExtractCvDialog } from "@/features/resume-editor/canvas/controls/extract-cv-dialog";
+import { PdfImportProgress } from "@/features/resume-editor/canvas/controls/pdf-import-progress";
 import { CanvasSectionShell } from "@/features/resume-editor/canvas/canvas-section-shell";
 import {
   CanvasControlPanel,
@@ -62,14 +64,12 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
   const isClientReady = useClientReady();
   const {
     jsonFileInputRef,
-    pdfFileInputRef,
     draft,
     isExportingPdf,
     isImportingPdf,
     openJsonImportPicker,
-    openPdfImportPicker,
     handleJsonImport,
-    handlePdfImport,
+    submitPdfFile,
     handleExport,
     handlePrint,
     saveProfile,
@@ -81,6 +81,7 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
 
   const [editing, setEditing] = useState<EditingTarget>(null);
   const [isMobilePanelOpen, setIsMobilePanelOpen] = useState(false);
+  const [isExtractCvOpen, setIsExtractCvOpen] = useState(false);
   const [zoom, setZoom] = useState<number>(ZOOM_DEFAULT);
   const isMobile = useIsMobile();
   const profileSnapshotRef = useRef<Profile | null>(null);
@@ -151,7 +152,7 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
     presentation,
     onPresentationChange: savePdfPresentation,
     onImportJson: openJsonImportPicker,
-    onImportPdf: openPdfImportPicker,
+    onExtractCv: () => setIsExtractCvOpen(true),
     onExport: handleExport,
     onExportPdf: handlePrint,
     isExportingPdf,
@@ -170,13 +171,16 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
           className="hidden"
           onChange={handleJsonImport}
         />
-        <input
-          ref={pdfFileInputRef}
-          type="file"
-          accept="application/pdf,.pdf"
-          className="hidden"
-          onChange={handlePdfImport}
+
+        <ExtractCvDialog
+          open={isExtractCvOpen}
+          onOpenChange={setIsExtractCvOpen}
+          onSubmit={(file) => {
+            void submitPdfFile(file);
+          }}
+          isMobile={isMobile}
         />
+        <PdfImportProgress open={isImportingPdf} />
 
         {/* Top navbar */}
         <header className="sticky top-0 z-40 flex h-12 shrink-0 items-center gap-2 border-b bg-background px-3 sm:gap-3 sm:px-4 print:hidden">
@@ -305,7 +309,7 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
           </main>
 
           {/* Desktop side rail */}
-          <aside className="sticky top-12 hidden h-[calc(100dvh-3rem)] w-72 shrink-0 overflow-y-auto border-l bg-background px-4 py-5 lg:flex lg:flex-col print:hidden">
+          <aside className="sticky top-12 hidden h-[calc(100dvh-3rem)] w-72 shrink-0 overflow-y-auto border-l bg-background lg:flex lg:flex-col print:hidden">
             <CanvasControlPanel {...controlPanelProps} />
           </aside>
         </div>
@@ -345,10 +349,7 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
 
           if (isMobile) {
             return (
-              <Sheet
-                open={editing !== null}
-                onOpenChange={handleOpenChange}
-              >
+              <Sheet open={editing !== null} onOpenChange={handleOpenChange}>
                 <SheetContent
                   side="bottom"
                   showCloseButton={false}
@@ -398,9 +399,7 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
                 Style your resume and import or export your draft.
               </SheetDescription>
             </SheetHeader>
-            <div className="overflow-y-auto px-4">
-              <CanvasControlPanel {...controlPanelProps} />
-            </div>
+            <CanvasControlPanel {...controlPanelProps} />
           </SheetContent>
         </Sheet>
       </div>
