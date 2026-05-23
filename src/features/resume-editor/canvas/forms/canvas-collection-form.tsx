@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useState } from "react";
 import { ConfirmDeleteDialog } from "@/components/ui/confirm-delete-dialog";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import {
@@ -20,7 +20,6 @@ import { CanvasFormShell } from "@/features/resume-editor/canvas/forms/canvas-fo
 import { collectionSectionConfigs } from "@/features/resume-editor/editor/sections/config/collection-section-config";
 import { collectionSectionFormSchemaMap } from "@/features/resume-editor/forms/collection-section-form-schema-map";
 import { createFormSchemaResolver } from "@/features/resume-editor/forms/schemas/create-form-schema-resolver";
-import { useAutoSave } from "@/features/resume-editor/forms/use-auto-save";
 import { useSyncedFormValues } from "@/features/resume-editor/forms/use-synced-form-values";
 import { CollectionItemFields } from "@/features/resume-editor/editor/sections/collection-item-fields";
 import { sortResumeItems } from "@/features/resume-editor/editor/sections/sort-resume-items";
@@ -38,6 +37,7 @@ type CanvasCollectionFormProps = {
   onSave: (value: ResumeDraft["sections"][CollectionSectionKey]) => void;
   onCancel: () => void;
   onClose: () => void;
+  onDirtyChange?: (dirty: boolean) => void;
 };
 
 export function CanvasCollectionForm({
@@ -46,6 +46,7 @@ export function CanvasCollectionForm({
   onSave,
   onCancel,
   onClose,
+  onDirtyChange,
 }: CanvasCollectionFormProps) {
   const config = collectionSectionConfigs[sectionKey];
   const sectionValue = draft.sections[sectionKey];
@@ -84,14 +85,23 @@ export function CanvasCollectionForm({
   const [pendingDeleteIndex, setPendingDeleteIndex] = useState<number | null>(null);
 
   useSyncedFormValues(form, formValues);
-  useAutoSave(form, (values) => {
+
+  const formId = useId();
+  const { formState, handleSubmit } = form;
+
+  useEffect(() => {
+    onDirtyChange?.(formState.isDirty);
+  }, [formState.isDirty, onDirtyChange]);
+
+  function handleSave(values: CollectionFormValues) {
     onSave({
       ...sectionValue,
       items: values.items.map((item) =>
         normalizeCollectionItem(item, config.createItem()),
       ),
     } as ResumeDraft["sections"][CollectionSectionKey]);
-  });
+    onClose();
+  }
 
   function toggleCollapsed(id: string) {
     setCollapsedIds((prev) => {
@@ -120,8 +130,16 @@ export function CanvasCollectionForm({
   }
 
   return (
-    <CanvasFormShell
+    <form
+      id={formId}
+      onSubmit={handleSubmit(handleSave)}
+      className="flex h-full min-h-0 flex-col"
+    >
+      <CanvasFormShell
       title={config.title}
+      formId={formId}
+      isDirty={formState.isDirty}
+      isSaving={formState.isSubmitting}
       meta={
         <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
           {currentItems?.length ?? 0} item
@@ -152,7 +170,6 @@ export function CanvasCollectionForm({
         </>
       }
       onCancel={onCancel}
-      onClose={onClose}
     >
       {items.fields.length === 0 ? (
         <div className="rounded-md border border-dashed px-4 py-6 text-center text-sm text-muted-foreground">
@@ -266,5 +283,6 @@ export function CanvasCollectionForm({
         description="This item will be permanently removed from the section."
       />
     </CanvasFormShell>
+    </form>
   );
 }

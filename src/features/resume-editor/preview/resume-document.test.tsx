@@ -26,7 +26,7 @@ describe("resume document", () => {
 
   it("applies the accent color and font scale as CSS variables on the root", () => {
     const draft = createDefaultResumeDraft();
-    draft.pdfPresentation.layoutId = "single-column";
+    draft.pdfPresentation.templateId = "classic";
     draft.pdfPresentation.accent = "#059669";
     draft.pdfPresentation.fontScale = "lg";
     draft.pdfPresentation.lineHeight = "relaxed";
@@ -38,7 +38,7 @@ describe("resume document", () => {
       .getByTestId("resume-preview-full-name")
       .closest("article");
     expect(documentRoot).not.toBeNull();
-    expect(documentRoot?.getAttribute("data-layout")).toBe("single-column");
+    expect(documentRoot?.getAttribute("data-template")).toBe("classic");
     expect(documentRoot?.style.getPropertyValue("--resume-accent")).toBe(
       "#059669",
     );
@@ -72,9 +72,9 @@ describe("resume document", () => {
     expect(screen.getByText(/Built the export stack/)).toBeInTheDocument();
   });
 
-  it("places side sections (skills, languages) in the side column in two-column layout", () => {
+  it("places side sections (skills, languages) in the side column in sidebar template", () => {
     const draft = createDefaultResumeDraft();
-    draft.pdfPresentation.layoutId = "two-column";
+    draft.pdfPresentation.templateId = "sidebar";
     draft.sections.languages.visible = true;
 
     render(<ResumeDocument draft={draft} />);

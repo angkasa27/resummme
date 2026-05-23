@@ -35,7 +35,7 @@ describe("preview pane", () => {
     await user.click(screen.getByText(/style settings/i));
 
     expect(
-      await screen.findByRole("combobox", { name: /^layout$/i }),
+      await screen.findByRole("combobox", { name: /^template$/i }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole("combobox", { name: /font size/i }),
@@ -65,16 +65,16 @@ describe("preview pane", () => {
     await user.click(screen.getByText(/style settings/i));
 
     await user.click(
-      await screen.findByRole("combobox", { name: /^layout$/i }),
+      await screen.findByRole("combobox", { name: /^template$/i }),
     );
     await user.click(
-      await screen.findByRole("option", { name: /two column/i }),
+      await screen.findByRole("option", { name: /sidebar/i }),
     );
 
     await waitFor(() =>
       expect(savePdfPresentation).toHaveBeenLastCalledWith(
         expect.objectContaining({
-          layoutId: "two-column",
+          templateId: "sidebar",
         }),
       ),
     );

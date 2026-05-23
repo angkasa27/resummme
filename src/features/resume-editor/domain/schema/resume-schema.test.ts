@@ -11,7 +11,7 @@ describe("resume schema", () => {
 
     expect(parsed.schemaVersion).toBe(2);
     expect(parsed.templateId).toBe("recruiter-first-clean");
-    expect(parsed.pdfPresentation.layoutId).toBe("single-column");
+    expect(parsed.pdfPresentation.templateId).toBe("classic");
     expect(parsed.pdfPresentation.fontScale).toBe("md");
     expect(parsed.profile.fullName).toBeTruthy();
   });
@@ -45,7 +45,7 @@ describe("resume schema", () => {
     });
 
     expect(parsed.pdfPresentation).toEqual({
-      layoutId: "single-column",
+      templateId: "classic",
       fontScale: "md",
       spacing: "standard",
       lineHeight: "standard",

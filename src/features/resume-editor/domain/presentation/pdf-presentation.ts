@@ -1,5 +1,11 @@
-export const pdfLayoutIds = ["single-column", "two-column"] as const;
-export type PdfLayoutId = (typeof pdfLayoutIds)[number];
+export const pdfTemplateIds = [
+  "classic",
+  "sidebar",
+  "modern-centered",
+  "compact",
+  "academic",
+] as const;
+export type PdfTemplateId = (typeof pdfTemplateIds)[number];
 
 export const pdfFontScaleIds = ["sm", "md", "lg"] as const;
 export type PdfFontScaleId = (typeof pdfFontScaleIds)[number];
@@ -11,7 +17,7 @@ export const pdfSpacingIds = ["compact", "standard", "airy"] as const;
 export type PdfSpacingId = (typeof pdfSpacingIds)[number];
 
 export type PdfPresentation = {
-  layoutId: PdfLayoutId;
+  templateId: PdfTemplateId;
   fontScale: PdfFontScaleId;
   spacing: PdfSpacingId;
   lineHeight: PdfLineHeightId;
@@ -19,13 +25,16 @@ export type PdfPresentation = {
 };
 
 export type ResolvedPdfPresentation = {
-  layoutId: PdfLayoutId;
+  templateId: PdfTemplateId;
   vars: Record<string, string>;
 };
 
-export const pdfLayoutLabels: Record<PdfLayoutId, string> = {
-  "single-column": "Single Column",
-  "two-column": "Two Column",
+export const pdfTemplateLabels: Record<PdfTemplateId, string> = {
+  classic: "Classic",
+  sidebar: "Sidebar",
+  "modern-centered": "Modern Centered",
+  compact: "Compact",
+  academic: "Academic",
 };
 
 export const pdfFontScaleLabels: Record<PdfFontScaleId, string> = {
@@ -80,7 +89,7 @@ export function isValidAccentHex(value: unknown): value is string {
 
 export function createDefaultPdfPresentation(): PdfPresentation {
   return {
-    layoutId: "single-column",
+    templateId: "classic",
     fontScale: "md",
     spacing: "standard",
     lineHeight: "standard",
@@ -102,9 +111,9 @@ export function normalizePdfPresentation(input: unknown): PdfPresentation {
   const source = input as Record<string, unknown>;
 
   return {
-    layoutId: isMember(pdfLayoutIds, source.layoutId)
-      ? source.layoutId
-      : defaults.layoutId,
+    templateId: isMember(pdfTemplateIds, source.templateId)
+      ? source.templateId
+      : defaults.templateId,
     fontScale: isMember(pdfFontScaleIds, source.fontScale)
       ? source.fontScale
       : defaults.fontScale,
@@ -141,5 +150,5 @@ export function resolvePdfPresentation(
     "--resume-page-padding": "36px",
   };
 
-  return { layoutId: p.layoutId, vars };
+  return { templateId: p.templateId, vars };
 }

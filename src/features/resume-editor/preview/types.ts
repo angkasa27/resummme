@@ -1,7 +1,6 @@
 import type { CollectionSectionKey } from "@/features/resume-editor/domain/sections/section-metadata";
 import type {
   PdfPresentation,
-  PdfLayoutId,
   ResolvedPdfPresentation,
 } from "@/features/resume-editor/domain/presentation/pdf-presentation";
 import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
@@ -37,25 +36,6 @@ export type PreviewRenderContext = {
   contactItems: PreviewContactItem[];
   summaryContent: string | null;
   sections: AnyPreviewRenderableSection[];
-};
-
-export type LayoutSlots = {
-  header: ReactNode;
-  summary: ReactNode | null;
-  sections: Array<{ key: CollectionSectionKey; node: ReactNode }>;
-};
-
-export type LayoutComponentProps = {
-  context: PreviewRenderContext;
-  slots: LayoutSlots;
-};
-
-export type LayoutColumn = "main" | "side";
-
-export type PreviewLayoutDefinition = {
-  id: PdfLayoutId;
-  Component: (props: LayoutComponentProps) => ReactNode;
-  getColumn?: (sectionKey: CollectionSectionKey) => LayoutColumn;
 };
 
 export type PreviewControlKind = "select" | "toggle-group";

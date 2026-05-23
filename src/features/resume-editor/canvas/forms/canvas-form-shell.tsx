@@ -10,7 +10,9 @@ type CanvasFormShellProps = {
   description?: string;
   headerActions?: ReactNode;
   onCancel: () => void;
-  onClose: () => void;
+  formId?: string;
+  isDirty?: boolean;
+  isSaving?: boolean;
   children: ReactNode;
 };
 
@@ -26,7 +28,9 @@ export function CanvasFormShell({
   description,
   headerActions,
   onCancel,
-  onClose,
+  formId,
+  isDirty = false,
+  isSaving = false,
   children,
 }: CanvasFormShellProps) {
   return (
@@ -54,7 +58,12 @@ export function CanvasFormShell({
         <Button type="button" variant="ghost" size="sm" onClick={onCancel}>
           Cancel
         </Button>
-        <Button type="button" size="sm" onClick={onClose}>
+        <Button
+          type="submit"
+          size="sm"
+          form={formId}
+          disabled={!isDirty || isSaving}
+        >
           Save
         </Button>
       </div>

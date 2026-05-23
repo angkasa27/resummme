@@ -6,58 +6,51 @@ import { PreviewToolbarContent } from "@/features/resume-editor/preview/componen
 import { createDefaultResumeDraft } from "@/features/resume-editor/domain/draft/create-default-resume-draft";
 
 describe("preview control registry", () => {
-  it("renders the default toolbar controls from the registry", async () => {
+  it("renders the default toolbar controls from the registry", () => {
     render(
       <PreviewToolbarContent
         presentation={createDefaultResumeDraft().pdfPresentation}
         onChange={vi.fn()}
-      />
+      />,
     );
 
-    expect(screen.getByRole("combobox", { name: /^layout$/i })).toBeInTheDocument();
     expect(
-      screen.getByRole("combobox", { name: /font size/i })
+      screen.getByRole("combobox", { name: /^template$/i }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: /line height standard/i })
+      screen.getByRole("combobox", { name: /font size/i }),
     ).toBeInTheDocument();
     expect(
-      screen.queryByRole("combobox", { name: /profile layout/i })
+      screen.getByRole("button", { name: /line height standard/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("combobox", { name: /^layout$/i }),
     ).not.toBeInTheDocument();
   });
 
-  it("accepts a fake control definition without changing the toolbar component", async () => {
+  it("offers all five template options in the Template select", async () => {
     const user = userEvent.setup();
     const updatePresentation = vi.fn();
-    const presentation = createDefaultResumeDraft().pdfPresentation;
 
     render(
       <PreviewToolbarContent
-        presentation={presentation}
+        presentation={createDefaultResumeDraft().pdfPresentation}
         onChange={updatePresentation}
-        definitions={[
-          {
-            id: "fake-spacing",
-            kind: "toggle-group",
-            label: "Fake spacing",
-            value: () => "near",
-            update: () => presentation,
-            options: [
-              {
-                value: "near",
-                label: "Near",
-              },
-              {
-                value: "far",
-                label: "Far",
-              },
-            ],
-          },
-        ]}
-      />
+      />,
     );
 
-    await user.click(screen.getByRole("button", { name: /fake spacing far/i }));
-    expect(updatePresentation).toHaveBeenCalledWith(presentation);
+    await user.click(screen.getByRole("combobox", { name: /^template$/i }));
+
+    for (const label of [
+      /^classic$/i,
+      /^sidebar$/i,
+      /^modern centered$/i,
+      /^compact$/i,
+      /^academic$/i,
+    ]) {
+      expect(
+        await screen.findByRole("option", { name: label }),
+      ).toBeInTheDocument();
+    }
   });
 });

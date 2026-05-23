@@ -1,0 +1,91 @@
+.template {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--resume-gap-section) * 0.7);
+}
+
+.template :global(.layout-body) {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--resume-gap-section) * 0.7);
+}
+
+.template :global(.section) {
+  gap: 4px;
+}
+
+.template :global(.item-list) {
+  gap: calc(var(--resume-gap-item) * 0.55);
+}
+
+.template :global(.item) {
+  gap: 2px;
+}
+
+.template :global(.item-header) {
+  gap: 8px;
+}
+
+.template :global(.item-header-main) {
+  flex-direction: row;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.template :global(.item-header-main .meta::before) {
+  content: "·";
+  margin-right: 6px;
+  color: var(--resume-muted);
+}
+
+.template :global(.item-date) {
+  font-weight: 500;
+}
+
+.template :global(.rich-text p + p) {
+  margin-top: 2px;
+}
+
+.template :global(.section-heading) {
+  font-size: calc(var(--resume-h2) * 0.95);
+  letter-spacing: 0.06em;
+}
+
+/* Header — name + photo on one row, contact line compact. */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-bottom: 6px;
+}
+
+.header :global(.header-photo) {
+  width: 72px;
+  height: 96px;
+  border-radius: 6px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.header :global(.header-photo img) {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.header :global(.header-body) {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.header :global(.name) {
+  font-size: calc(var(--resume-h1) * 0.85);
+}
+
+.header :global(.contact-line) {
+  font-size: calc(var(--resume-body) * 0.95);
+}

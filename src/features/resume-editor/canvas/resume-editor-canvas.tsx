@@ -1,8 +1,13 @@
 "use client";
 
-import { Loader, PlusIcon, SlidersHorizontalIcon } from "lucide-react";
+import {
+  Loader,
+  PlusIcon,
+  SlidersHorizontalIcon,
+  TriangleAlert,
+} from "lucide-react";
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useState } from "react";
 
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
@@ -13,6 +18,17 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogMedia,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useClientReady } from "@/hooks/use-client-ready";
@@ -32,13 +48,13 @@ import { CanvasSummaryForm } from "@/features/resume-editor/canvas/forms/canvas-
 import { createPreviewRenderContext } from "@/features/resume-editor/preview/engine";
 import { PreviewDocumentRoot } from "@/features/resume-editor/preview/kit/document-root";
 import {
-  getPreviewLayoutDefinition,
-  renderLayoutHeader,
-} from "@/features/resume-editor/preview/layout-registry";
-import { renderSection } from "@/features/resume-editor/preview/sections";
+  getTemplate,
+  renderTemplateHeader,
+} from "@/features/resume-editor/preview/template-registry";
+import { TemplateSection } from "@/features/resume-editor/preview/template-section";
 import { SummaryView } from "@/features/resume-editor/preview/sections/summary";
 import { normalizePdfPresentation } from "@/features/resume-editor/domain/presentation/pdf-presentation";
-import type { LayoutSlots } from "@/features/resume-editor/preview/types";
+import type { TemplateSlots } from "@/features/resume-editor/preview/template-types";
 import {
   getOrderedVisibleSectionKeys,
   isCollectionSectionKey,
@@ -47,10 +63,7 @@ import {
   type CollectionSectionKey,
   type ResumeSectionPanelKey,
 } from "@/features/resume-editor/domain/sections/section-metadata";
-import type {
-  Profile,
-  ResumeDraft,
-} from "@/features/resume-editor/domain/schema";
+import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
 
 const GITHUB_URL = "https://github.com/angkasa27/resume-editor";
 
@@ -80,15 +93,12 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
   } = useResumeEditorController({ initialDraft });
 
   const [editing, setEditing] = useState<EditingTarget>(null);
+  const [isFormDirty, setIsFormDirty] = useState(false);
+  const [isDiscardConfirmOpen, setIsDiscardConfirmOpen] = useState(false);
   const [isMobilePanelOpen, setIsMobilePanelOpen] = useState(false);
   const [isExtractCvOpen, setIsExtractCvOpen] = useState(false);
   const [zoom, setZoom] = useState<number>(ZOOM_DEFAULT);
   const isMobile = useIsMobile();
-  const profileSnapshotRef = useRef<Profile | null>(null);
-  const sectionSnapshotRef = useRef<{
-    key: ResumeSectionPanelKey;
-    value: ResumeDraft["sections"][ResumeSectionPanelKey];
-  } | null>(null);
 
   if (!isClientReady) {
     return (
@@ -103,7 +113,7 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
 
   const presentation = normalizePdfPresentation(draft.pdfPresentation);
   const context = createPreviewRenderContext(draft, "preview");
-  const layout = getPreviewLayoutDefinition(context.presentation.layoutId);
+  const template = getTemplate(context.presentation.templateId);
   const visibleSectionKeys = getOrderedVisibleSectionKeys(draft.sections);
 
   const hiddenSectionKeys = resumeSectionKeys.filter(
@@ -111,26 +121,27 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
   );
 
   function startEditingProfile() {
-    profileSnapshotRef.current = draft.profile;
+    setIsFormDirty(false);
     setEditing("profile");
-  }
-  function cancelEditingProfile() {
-    if (profileSnapshotRef.current) {
-      saveProfile(profileSnapshotRef.current);
-    }
-    setEditing(null);
   }
 
   function startEditingSection<K extends ResumeSectionPanelKey>(key: K) {
-    sectionSnapshotRef.current = { key, value: draft.sections[key] };
+    setIsFormDirty(false);
     setEditing(key);
   }
-  function cancelEditingSection() {
-    const snap = sectionSnapshotRef.current;
-    if (snap) {
-      saveSection(snap.key, snap.value);
-    }
+
+  function closeEditor() {
     setEditing(null);
+    setIsFormDirty(false);
+    setIsDiscardConfirmOpen(false);
+  }
+
+  function requestCloseEditor() {
+    if (isFormDirty) {
+      setIsDiscardConfirmOpen(true);
+      return;
+    }
+    closeEditor();
   }
 
   function confirmAndHide(key: CollectionSectionKey) {
@@ -217,14 +228,14 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
                 const collectionKeys = visibleSectionKeys.filter(
                   isCollectionSectionKey,
                 );
-                const slots: LayoutSlots = {
+                const slots: TemplateSlots = {
                   header: (
                     <CanvasSectionShell
                       ariaLabel="Profile"
                       isEditing={editing === "profile"}
                       onEdit={startEditingProfile}
                     >
-                      {renderLayoutHeader(context)}
+                      {renderTemplateHeader(context)}
                     </CanvasSectionShell>
                   ),
                   summary:
@@ -261,7 +272,10 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
                           canMoveDown={orderIndex < collectionKeys.length - 1}
                         >
                           {renderable ? (
-                            renderSection(renderable)
+                            <TemplateSection
+                              template={template}
+                              section={renderable}
+                            />
                           ) : (
                             <EmptySectionPlaceholder
                               label={sectionLabels[sectionKey]}
@@ -280,7 +294,7 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
                     className="max-md:w-full! max-md:px-5! max-md:py-6!"
                     editorMode="canvas"
                   >
-                    <layout.Component context={context} slots={slots} />
+                    <template.Component context={context} slots={slots} />
 
                     {hiddenSectionKeys.length > 0 ? (
                       <div className="pt-6 flex flex-wrap justify-center gap-2 print:hidden border-t border-dashed">
@@ -318,8 +332,7 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
         {(() => {
           const handleOpenChange = (open: boolean) => {
             if (open) return;
-            if (editing === "profile") cancelEditingProfile();
-            else if (editing !== null) cancelEditingSection();
+            requestCloseEditor();
           };
 
           const formContent =
@@ -327,23 +340,26 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
               <CanvasProfileForm
                 draft={draft}
                 onSave={saveProfile}
-                onCancel={cancelEditingProfile}
-                onClose={() => setEditing(null)}
+                onCancel={requestCloseEditor}
+                onClose={closeEditor}
+                onDirtyChange={setIsFormDirty}
               />
             ) : editing === "summary" ? (
               <CanvasSummaryForm
                 draft={draft}
                 onSave={(value) => saveSection("summary", value)}
-                onCancel={cancelEditingSection}
-                onClose={() => setEditing(null)}
+                onCancel={requestCloseEditor}
+                onClose={closeEditor}
+                onDirtyChange={setIsFormDirty}
               />
             ) : editing !== null && isCollectionSectionKey(editing) ? (
               <CanvasCollectionForm
                 draft={draft}
                 sectionKey={editing}
                 onSave={(value) => saveSection(editing, value as never)}
-                onCancel={cancelEditingSection}
-                onClose={() => setEditing(null)}
+                onCancel={requestCloseEditor}
+                onClose={closeEditor}
+                onDirtyChange={setIsFormDirty}
               />
             ) : null;
 
@@ -402,6 +418,30 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
             <CanvasControlPanel {...controlPanelProps} />
           </SheetContent>
         </Sheet>
+
+        {/* Discard-changes confirmation. */}
+        <AlertDialog
+          open={isDiscardConfirmOpen}
+          onOpenChange={setIsDiscardConfirmOpen}
+        >
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogMedia className="text-destructive bg-destructive/10">
+                <TriangleAlert />
+              </AlertDialogMedia>
+              <AlertDialogTitle>Discard unsaved changes?</AlertDialogTitle>
+              <AlertDialogDescription>
+                You have unsaved edits. Closing now will lose them.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Keep editing</AlertDialogCancel>
+              <AlertDialogAction variant="destructive" onClick={closeEditor}>
+                Discard
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </TooltipProvider>
   );

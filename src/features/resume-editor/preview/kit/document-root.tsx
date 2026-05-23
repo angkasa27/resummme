@@ -21,7 +21,7 @@ export function PreviewDocumentRoot({
 
   return (
     <article
-      data-layout={presentation.layoutId}
+      data-template={presentation.templateId}
       style={rootStyle}
       className={cn(
         styles.root,

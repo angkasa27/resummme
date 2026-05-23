@@ -1,15 +1,15 @@
 import { createPreviewRenderContext } from "@/features/resume-editor/preview/engine";
 import { PreviewDocumentRoot } from "@/features/resume-editor/preview/kit/document-root";
 import {
-  getPreviewLayoutDefinition,
-  renderLayoutHeader,
-} from "@/features/resume-editor/preview/layout-registry";
-import { renderSection } from "@/features/resume-editor/preview/sections";
+  getTemplate,
+  renderTemplateHeader,
+} from "@/features/resume-editor/preview/template-registry";
+import { TemplateSection } from "@/features/resume-editor/preview/template-section";
 import { SummaryView } from "@/features/resume-editor/preview/sections/summary";
 import type {
-  LayoutSlots,
   PreviewRendererProps,
 } from "@/features/resume-editor/preview/types";
+import type { TemplateSlots } from "@/features/resume-editor/preview/template-types";
 
 export function ResumeDocument({
   draft,
@@ -17,22 +17,22 @@ export function ResumeDocument({
   mode = "preview",
 }: PreviewRendererProps) {
   const context = createPreviewRenderContext(draft, mode);
-  const layout = getPreviewLayoutDefinition(context.presentation.layoutId);
+  const template = getTemplate(context.presentation.templateId);
 
-  const slots: LayoutSlots = {
-    header: renderLayoutHeader(context),
+  const slots: TemplateSlots = {
+    header: renderTemplateHeader(context),
     summary: context.summaryContent ? (
       <SummaryView content={context.summaryContent} />
     ) : null,
     sections: context.sections.map((section) => ({
       key: section.key,
-      node: renderSection(section),
+      node: <TemplateSection template={template} section={section} />,
     })),
   };
 
   return (
     <PreviewDocumentRoot context={context} className={className}>
-      <layout.Component context={context} slots={slots} />
+      <template.Component context={context} slots={slots} />
     </PreviewDocumentRoot>
   );
 }

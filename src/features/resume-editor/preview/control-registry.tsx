@@ -7,12 +7,12 @@ import {
 import {
   pdfFontScaleIds,
   pdfFontScaleLabels,
-  pdfLayoutIds,
-  pdfLayoutLabels,
   pdfLineHeightIds,
   pdfLineHeightLabels,
   pdfSpacingIds,
   pdfSpacingLabels,
+  pdfTemplateIds,
+  pdfTemplateLabels,
   type PdfPresentation,
 } from "@/features/resume-editor/domain/presentation/pdf-presentation";
 import type { PreviewControlDefinition } from "@/features/resume-editor/preview/types";
@@ -53,15 +53,19 @@ function set<K extends keyof PdfPresentation>(
 
 export const previewControlDefinitions = [
   {
-    id: "layout",
+    id: "template",
     kind: "select",
-    label: "Layout",
-    value: (presentation) => presentation.layoutId,
+    label: "Template",
+    value: (presentation) => presentation.templateId,
     update: (nextValue, presentation) =>
-      set(presentation, "layoutId", nextValue as PdfPresentation["layoutId"]),
-    options: pdfLayoutIds.map((value) => ({
+      set(
+        presentation,
+        "templateId",
+        nextValue as PdfPresentation["templateId"],
+      ),
+    options: pdfTemplateIds.map((value) => ({
       value,
-      label: pdfLayoutLabels[value],
+      label: pdfTemplateLabels[value],
     })),
   },
   {
@@ -125,6 +129,6 @@ export const previewControlDefinitions = [
 ] as const satisfies ReadonlyArray<PreviewControlDefinition>;
 
 export const previewControlLabelIcons = {
-  layout: LayoutTemplateIcon,
+  template: LayoutTemplateIcon,
   "font-scale": TypeIcon,
 };

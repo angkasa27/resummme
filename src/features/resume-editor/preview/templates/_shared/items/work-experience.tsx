@@ -1,0 +1,27 @@
+import { PreviewRichTextBlock } from "@/features/resume-editor/preview/kit/rich-text-block";
+import { renderDateRange } from "@/features/resume-editor/preview/helpers/date";
+import type { SectionItem } from "@/features/resume-editor/preview/sections/types";
+
+export function WorkExperienceItem({
+  item,
+}: {
+  item: SectionItem<"workExperience">;
+}) {
+  return (
+    <div className="item">
+      <div className="item-header">
+        <div className="item-header-main">
+          <h3 className="item-title">{item.position}</h3>
+          <div className="meta">{item.companyName}</div>
+        </div>
+        <div className="item-header-side">
+          <div className="item-date">
+            {renderDateRange(item.startDate, item.endDate)}
+          </div>
+          {item.location ? <div className="meta">{item.location}</div> : null}
+        </div>
+      </div>
+      <PreviewRichTextBlock content={item.description} />
+    </div>
+  );
+}

@@ -47,7 +47,7 @@ describe("resume storage", () => {
 
   it("exports and re-imports a draft as the same contract", () => {
     const draft = createDefaultResumeDraft();
-    draft.pdfPresentation.layoutId = "two-column";
+    draft.pdfPresentation.templateId = "sidebar";
     draft.pdfPresentation.fontScale = "lg";
     draft.pdfPresentation.lineHeight = "relaxed";
     draft.pdfPresentation.spacing = "airy";

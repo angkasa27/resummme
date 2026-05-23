@@ -1,0 +1,10 @@
+export { WorkExperienceItem } from "./work-experience";
+export { SkillsItem } from "./skills";
+export { ProjectsItem } from "./projects";
+export { EducationItem } from "./education";
+export { PublicationsItem } from "./publications";
+export { CertificationsItem } from "./certifications";
+export { AwardsItem } from "./awards";
+export { LanguagesItem } from "./languages";
+export { ReferencesItem } from "./references";
+export { OrganizationVolunteeringItem } from "./organization-volunteering";

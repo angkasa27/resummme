@@ -1,0 +1,68 @@
+.template {
+  display: flex;
+  flex-direction: column;
+  gap: var(--resume-gap-section);
+}
+
+.template :global(.layout-body) {
+  display: grid;
+  grid-template-columns: minmax(0, 0.42fr) minmax(0, 1fr);
+  gap: 24px;
+}
+
+.template :global(.layout-side),
+.template :global(.layout-main) {
+  display: flex;
+  flex-direction: column;
+  gap: var(--resume-gap-section);
+  min-width: 0;
+}
+
+.template :global(.layout-side) {
+  border-right: 1px solid var(--resume-border);
+  padding-right: 18px;
+}
+
+/* Stack item-header vertically inside the narrow side column. */
+.template :global(.layout-side .item-header) {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 2px;
+}
+
+.template :global(.layout-side .item-header-side) {
+  text-align: left;
+  align-items: flex-start;
+}
+
+.template :global(.layout-side .item-date) {
+  text-align: left;
+  white-space: normal;
+}
+
+.template :global(.layout-side .item-row) {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.header :global(.header-photo) {
+  width: 72px;
+  height: 96px;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.header :global(.header-photo img) {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}

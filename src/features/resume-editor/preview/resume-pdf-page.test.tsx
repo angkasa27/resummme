@@ -13,7 +13,7 @@ describe("resume pdf page", () => {
 
   it("renders the resume document from session storage without editor chrome", async () => {
     const draft = createDefaultResumeDraft();
-    draft.pdfPresentation.layoutId = "two-column";
+    draft.pdfPresentation.templateId = "sidebar";
     draft.pdfPresentation.fontScale = "lg";
     draft.pdfPresentation.lineHeight = "relaxed";
     draft.sections.workExperience.items = [
@@ -47,7 +47,7 @@ describe("resume pdf page", () => {
     const documentRoot = screen
       .getByTestId("resume-preview-full-name")
       .closest("article");
-    expect(documentRoot?.getAttribute("data-layout")).toBe("two-column");
+    expect(documentRoot?.getAttribute("data-template")).toBe("sidebar");
     expect(documentRoot?.style.getPropertyValue("--resume-body")).toBe("14px");
     expect(documentRoot?.style.getPropertyValue("--resume-leading")).toBe("1.9");
     expect(
