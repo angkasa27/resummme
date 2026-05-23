@@ -155,12 +155,6 @@ export const previewControlDefinitions = [
           : value === "airy"
             ? listSpacingGlyph({ gap: 4 })
             : listSpacingGlyph({ gap: 3 }),
-      renderTooltip: () => (
-        <span className="inline-flex items-center gap-1.5">
-          <BetweenVerticalStartIcon className="size-3" />
-          Spacing: {pdfSpacingLabels[value]}
-        </span>
-      ),
     })),
   },
 ] as const satisfies ReadonlyArray<PreviewControlDefinition>;
