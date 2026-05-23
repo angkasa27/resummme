@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import {
   ArrowDownIcon,
+  ArrowDownNarrowWide,
   ArrowUpIcon,
   ChevronDownIcon,
   ChevronRightIcon,
@@ -27,6 +28,11 @@ import { CollectionItemFields } from "@/features/resume-editor/editor/sections/c
 import { EditorCard } from "@/features/resume-editor/editor/sections/editor-card";
 import { sortResumeItems } from "@/features/resume-editor/editor/sections/sort-resume-items";
 import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 type CollectionSectionFormValues = {
   items: ResumeDraft["sections"][CollectionSectionKey]["items"];
@@ -80,7 +86,9 @@ export function CollectionSectionPanel({
   const [shrunkIds, setShrunkIds] = useState<Set<string>>(
     () => new Set(items.fields.slice(1).map((f) => f.fieldKey)),
   );
-  const [pendingDeleteIndex, setPendingDeleteIndex] = useState<number | null>(null);
+  const [pendingDeleteIndex, setPendingDeleteIndex] = useState<number | null>(
+    null,
+  );
 
   useSyncedFormValues(form, formValues);
   useAutoSave(form, (values) => {
@@ -108,42 +116,52 @@ export function CollectionSectionPanel({
     <EditorCard
       title={config.title}
       meta={
-        <div className="flex items-center gap-2">
-          {config.fields.some((f) => f.kind === "dateRange") && (
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="h-6 px-2 text-[10px]"
-              onClick={() => {
-                const dateRangeField = config.fields.find(
-                  (f) => f.kind === "dateRange",
-                );
-                if (dateRangeField && dateRangeField.kind === "dateRange") {
-                  const sorted = sortResumeItems(
-                    form.getValues().items as unknown as Record<
-                      string,
-                      unknown
-                    >[],
-                    dateRangeField.startName,
-                    dateRangeField.endName,
-                  );
-                  form.setValue(
-                    "items",
-                    sorted as unknown as CollectionSectionFormValues["items"],
-                    { shouldDirty: true },
-                  );
-                }
-              }}
-            >
-              <HistoryIcon className="mr-1 size-3" />
-              Auto-sort
-            </Button>
-          )}
+        <div className="flex items-center gap-2 flex-1 justify-between">
           <Badge variant="secondary">
             {currentItems?.length ?? 0} item
             {(currentItems?.length ?? 0) === 1 ? "" : "s"}
           </Badge>
+          {config.fields.some((f) => f.kind === "dateRange") && (
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      const dateRangeField = config.fields.find(
+                        (f) => f.kind === "dateRange",
+                      );
+                      if (
+                        dateRangeField &&
+                        dateRangeField.kind === "dateRange"
+                      ) {
+                        const sorted = sortResumeItems(
+                          form.getValues().items as unknown as Record<
+                            string,
+                            unknown
+                          >[],
+                          dateRangeField.startName,
+                          dateRangeField.endName,
+                        );
+                        form.setValue(
+                          "items",
+                          sorted as unknown as CollectionSectionFormValues["items"],
+                          { shouldDirty: true },
+                        );
+                      }
+                    }}
+                    aria-label="Auto-sort items by date range"
+                  >
+                    <ArrowDownNarrowWide />
+                    Auto-sort
+                  </Button>
+                }
+              />
+              <TooltipContent>Sort items by date range</TooltipContent>
+            </Tooltip>
+          )}
         </div>
       }
     >
