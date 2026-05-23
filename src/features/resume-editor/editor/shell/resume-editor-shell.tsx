@@ -23,6 +23,7 @@ import { ResumeEditorShellActions } from "@/features/resume-editor/editor/shell/
 import { PreviewPane } from "@/features/resume-editor/preview/components/preview-pane";
 import { useClientReady } from "@/hooks/use-client-ready";
 import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 type ResumeEditorShellProps = {
   initialDraft?: ResumeDraft;
@@ -108,15 +109,24 @@ export function ResumeEditorShell({ initialDraft }: ResumeEditorShellProps) {
             <h1 className="truncate text-sm font-semibold tracking-tight">
               Resume Editor
             </h1>
-            <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
-              Legacy
-            </span>
-            <Link
-              href="/"
-              className="text-xs text-muted-foreground underline-offset-4 hover:underline"
-            >
-              Back to canvas
-            </Link>
+            <Tabs value="legacy" className="h-8">
+              <TabsList className="rounded-md border">
+                <TabsTrigger
+                  value="canvas"
+                  nativeButton={false}
+                  render={<Link href="/" />}
+                  className="px-2 py-0 leading-none! text-xs!"
+                >
+                  Canvas
+                </TabsTrigger>
+                <TabsTrigger
+                  value="legacy"
+                  className="px-2 py-0 leading-none! rounded text-xs! data-active:bg-primary/12 data-active:text-primary hover:text-primary cursor-default"
+                >
+                  Legacy
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
             <ResumeEditorShellActions
               onImportJson={openJsonImportPicker}
               onImportPdf={openPdfImportPicker}

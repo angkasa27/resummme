@@ -64,6 +64,7 @@ import {
   type ResumeSectionPanelKey,
 } from "@/features/resume-editor/domain/sections/section-metadata";
 import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const GITHUB_URL = "https://github.com/angkasa27/resume-editor";
 
@@ -198,15 +199,24 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
           <h1 className="truncate text-sm font-semibold tracking-tight">
             Resume Editor
           </h1>
-          <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-primary">
-            Canvas
-          </span>
-          <Link
-            href="/legacy"
-            className="hidden text-xs text-muted-foreground underline-offset-4 hover:underline sm:inline"
-          >
-            Legacy editor
-          </Link>
+          <Tabs value="canvas" className="h-8">
+            <TabsList className="rounded-md border">
+              <TabsTrigger
+                value="canvas"
+                className="px-2 py-0 leading-none! rounded text-xs! data-active:bg-primary/12 data-active:text-primary hover:text-primary cursor-default"
+              >
+                Canvas
+              </TabsTrigger>
+              <TabsTrigger
+                value="legacy"
+                nativeButton={false}
+                render={<Link href="/legacy" />}
+                className="px-2 py-0 leading-none! text-xs!"
+              >
+                Legacy
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
 
           <a
             href={GITHUB_URL}
