@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { TagInput } from "@/components/ui/tag-input";
 import { type CollectionSectionConfigMap } from "@/features/resume-editor/editor/sections/config/collection-section-config";
 import {
   languageProficiencyOptions,
@@ -236,31 +237,19 @@ export function CollectionItemFields({
                   control={control}
                   name={fieldName as never}
                   render={({ field }) => (
-                    <Textarea
+                    <TagInput
                       id={fieldName}
-                      name={field.name}
-                      rows={3}
+                      value={Array.isArray(field.value) ? (field.value as string[]) : []}
+                      onChange={(next) => field.onChange(next)}
                       placeholder={fieldConfig.placeholder}
-                      aria-invalid={fieldState.invalid || undefined}
-                      value={
-                        Array.isArray(field.value)
-                          ? (field.value as string[]).join(", ")
-                          : ""
-                      }
-                      spellCheck={false}
-                      onChange={(event) =>
-                        field.onChange(
-                          event.target.value.split(",").flatMap((value) => {
-                            const trimmedValue = value.trim();
-                            return trimmedValue ? [trimmedValue] : [];
-                          }),
-                        )
-                      }
+                      ariaInvalid={fieldState.invalid}
+                      ariaLabel={fieldConfig.label}
                     />
                   )}
                 />
                 <FieldDescription>
-                  Separate each skill with a comma.
+                  Press Enter or comma to add a skill. Backspace removes the
+                  last one.
                 </FieldDescription>
                 <FieldError errors={[fieldState.error]} />
               </FieldContent>
