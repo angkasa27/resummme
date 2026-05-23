@@ -37,16 +37,13 @@ export function CanvasSectionShell({
 }: CanvasSectionShellProps) {
   return (
     <div
-      className={cn(
-        "group/section relative rounded-md transition-colors",
-        !isEditing && "hover:bg-muted/40 hover:ring-1 hover:ring-border",
-        isEditing && "ring-2 ring-primary/40",
-      )}
+      className="group/section relative"
       data-editing={isEditing || undefined}
       aria-label={ariaLabel}
     >
+      <div className="absolute transform -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2 rounded-md bg-muted/60 opacity-0 transition-opacity group-hover/section:opacity-100 group-focus-within/section:opacity-100 [@media(hover:none)]:opacity-100 border border-border w-[calc(100%+1.5rem)] h-[calc(100%+1.5rem)]" />
       {!isEditing ? (
-        <ButtonGroup className="pointer-events-none absolute right-2 top-2 z-20 drop-shadow-sm opacity-0 transition-opacity group-hover/section:pointer-events-auto group-hover/section:opacity-100 group-focus-within/section:pointer-events-auto group-focus-within/section:opacity-100 [@media(hover:none)]:pointer-events-auto [@media(hover:none)]:opacity-100 print:hidden bg-white rounded-md">
+        <ButtonGroup className="pointer-events-none absolute right-0 top-0 z-20 drop-shadow-sm opacity-0 transition-opacity group-hover/section:pointer-events-auto group-hover/section:opacity-100 group-focus-within/section:pointer-events-auto group-focus-within/section:opacity-100 [@media(hover:none)]:pointer-events-auto [@media(hover:none)]:opacity-100 print:hidden bg-white rounded-md">
           {onEdit ? (
             <Button
               type="button"
@@ -96,8 +93,7 @@ export function CanvasSectionShell({
           ) : null}
         </ButtonGroup>
       ) : null}
-
-      <div className="-my-2 px-3 py-2">{children}</div>
+      <div className="relative z-10">{children}</div>
     </div>
   );
 }

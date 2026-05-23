@@ -179,9 +179,43 @@ describe("generateResumePdf", () => {
       expect.objectContaining({
         format: "a4",
         printBackground: true,
+        margin: {
+          top: "12.7mm",
+          right: "12.7mm",
+          bottom: "12.7mm",
+          left: "12.7mm",
+        },
       })
     );
     expect(mockLocalPuppeteerPage.close).toHaveBeenCalled();
+  });
+
+  it("passes the draft's paperSize and pageMargin into the PDF call", async () => {
+    vi.stubEnv("PDF_EXPORT_PROVIDER", "local-puppeteer");
+
+    const { generateResumePdf } = await import(
+      "@/features/resume-editor/server/generate-resume-pdf"
+    );
+    const draft = createDefaultResumeDraft();
+    draft.pdfPresentation.paperSize = "letter";
+    draft.pdfPresentation.pageMargin = "moderate";
+
+    await generateResumePdf({
+      draft,
+      origin: "https://resume.example.com",
+    });
+
+    expect(mockLocalPuppeteerPage.pdf).toHaveBeenCalledWith(
+      expect.objectContaining({
+        format: "letter",
+        margin: {
+          top: "19.05mm",
+          right: "19.05mm",
+          bottom: "19.05mm",
+          left: "19.05mm",
+        },
+      })
+    );
   });
 
   it("connects to Cloudflare Browser Run and preserves PDF rendering behavior", async () => {

@@ -291,8 +291,7 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
                 return (
                   <PreviewDocumentRoot
                     context={context}
-                    className="max-md:w-full! max-md:px-5! max-md:py-6!"
-                    editorMode="canvas"
+                    className="max-md:w-full!"
                   >
                     <template.Component context={context} slots={slots} />
 

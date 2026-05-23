@@ -9,6 +9,10 @@ import {
   pdfFontScaleLabels,
   pdfLineHeightIds,
   pdfLineHeightLabels,
+  pdfPageMargins,
+  pdfPageMarginLabels,
+  pdfPaperSizes,
+  pdfPaperSizeLabels,
   pdfSpacingIds,
   pdfSpacingLabels,
   pdfTemplateIds,
@@ -83,6 +87,34 @@ export const previewControlDefinitions = [
     options: pdfFontScaleIds.map((value) => ({
       value,
       label: pdfFontScaleLabels[value],
+    })),
+  },
+  {
+    id: "paper-size",
+    kind: "select",
+    label: "Paper size",
+    value: (presentation) => presentation.paperSize,
+    update: (nextValue, presentation) =>
+      set(presentation, "paperSize", nextValue as PdfPresentation["paperSize"]),
+    options: pdfPaperSizes.map((value) => ({
+      value,
+      label: pdfPaperSizeLabels[value],
+    })),
+  },
+  {
+    id: "page-margin",
+    kind: "select",
+    label: "Page margin",
+    value: (presentation) => presentation.pageMargin,
+    update: (nextValue, presentation) =>
+      set(
+        presentation,
+        "pageMargin",
+        nextValue as PdfPresentation["pageMargin"],
+      ),
+    options: pdfPageMargins.map((value) => ({
+      value,
+      label: pdfPageMarginLabels[value],
     })),
   },
   {

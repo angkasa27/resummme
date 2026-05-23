@@ -9,27 +9,37 @@ export function PreviewDocumentRoot({
   context,
   className,
   children,
-  editorMode,
 }: {
   context: PreviewRenderContext;
   className?: string;
   children: ReactNode;
-  editorMode?: "canvas" | "editor";
+  style?: CSSProperties;
 }) {
   const { presentation, mode } = context;
-  const rootStyle = presentation.vars as CSSProperties;
+  const rootStyle: CSSProperties =
+    mode === "pdf"
+      ? {
+          width: "var(--resume-print-content-width)",
+          padding: "0",
+        }
+      : {
+          width: "var(--resume-paper-width)",
+          padding: "var(--resume-page-margin)",
+        };
 
   return (
     <article
       data-template={presentation.templateId}
-      style={rootStyle}
+      style={{
+        ...(presentation.vars as CSSProperties),
+        ...rootStyle,
+      }}
       className={cn(
         styles.root,
         "resume-document",
         mode === "preview"
-          ? "mx-0 w-[210mm] max-w-none bg-white px-9 py-10 ring-1 ring-border print:min-h-0 print:max-w-none print:bg-white print:ring-0"
-          : "mx-0 w-[186mm] max-w-none bg-white px-0 py-0 ring-0",
-        editorMode === "canvas" && "px-9 py-10",
+          ? "mx-0 max-w-none bg-white ring-1 ring-border print:min-h-0 print:max-w-none print:bg-white print:ring-0"
+          : "mx-0 max-w-none bg-white ring-0",
         className,
       )}
     >

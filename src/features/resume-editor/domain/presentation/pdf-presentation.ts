@@ -16,12 +16,20 @@ export type PdfLineHeightId = (typeof pdfLineHeightIds)[number];
 export const pdfSpacingIds = ["compact", "standard", "airy"] as const;
 export type PdfSpacingId = (typeof pdfSpacingIds)[number];
 
+export const pdfPaperSizes = ["a4", "letter"] as const;
+export type PdfPaperSize = (typeof pdfPaperSizes)[number];
+
+export const pdfPageMargins = ["narrow", "normal", "moderate"] as const;
+export type PdfPageMargin = (typeof pdfPageMargins)[number];
+
 export type PdfPresentation = {
   templateId: PdfTemplateId;
   fontScale: PdfFontScaleId;
   spacing: PdfSpacingId;
   lineHeight: PdfLineHeightId;
   accent: string;
+  paperSize: PdfPaperSize;
+  pageMargin: PdfPageMargin;
 };
 
 export type ResolvedPdfPresentation = {
@@ -55,6 +63,17 @@ export const pdfSpacingLabels: Record<PdfSpacingId, string> = {
   airy: "Airy",
 };
 
+export const pdfPaperSizeLabels: Record<PdfPaperSize, string> = {
+  a4: "A4",
+  letter: "Letter",
+};
+
+export const pdfPageMarginLabels: Record<PdfPageMargin, string> = {
+  narrow: "Narrow",
+  normal: "Normal",
+  moderate: "Moderate",
+};
+
 const fontBasePx: Record<PdfFontScaleId, number> = {
   sm: 11,
   md: 12,
@@ -79,12 +98,34 @@ const itemGapPx: Record<PdfSpacingId, number> = {
   airy: 14,
 };
 
+const paperDimensions: Record<
+  PdfPaperSize,
+  { widthMm: number; heightMm: number }
+> = {
+  a4: { widthMm: 210, heightMm: 297 },
+  letter: { widthMm: 215.9, heightMm: 279.4 },
+};
+
+const pageMarginMm: Record<PdfPageMargin, number> = {
+  narrow: 12.7, // 0.5"
+  normal: 25.4, // 1"
+  moderate: 19.05, // 0.75"
+};
+
 export const DEFAULT_ACCENT = "#2563eb";
 
 const hexColorPattern = /^#[0-9a-fA-F]{6}$/;
 
 export function isValidAccentHex(value: unknown): value is string {
   return typeof value === "string" && hexColorPattern.test(value);
+}
+
+export function getPaperDimensionsMm(paperSize: PdfPaperSize) {
+  return paperDimensions[paperSize];
+}
+
+export function getPageMarginMm(pageMargin: PdfPageMargin) {
+  return pageMarginMm[pageMargin];
 }
 
 export function createDefaultPdfPresentation(): PdfPresentation {
@@ -94,6 +135,8 @@ export function createDefaultPdfPresentation(): PdfPresentation {
     spacing: "standard",
     lineHeight: "standard",
     accent: DEFAULT_ACCENT,
+    paperSize: "a4",
+    pageMargin: "narrow",
   };
 }
 
@@ -124,6 +167,12 @@ export function normalizePdfPresentation(input: unknown): PdfPresentation {
       ? source.lineHeight
       : defaults.lineHeight,
     accent: isValidAccentHex(source.accent) ? source.accent : defaults.accent,
+    paperSize: isMember(pdfPaperSizes, source.paperSize)
+      ? source.paperSize
+      : defaults.paperSize,
+    pageMargin: isMember(pdfPageMargins, source.pageMargin)
+      ? source.pageMargin
+      : defaults.pageMargin,
   };
 }
 
@@ -133,6 +182,9 @@ export function resolvePdfPresentation(
   const p = normalizePdfPresentation(presentation);
   const base = fontBasePx[p.fontScale];
   const leading = lineHeightValues[p.lineHeight];
+  const paper = paperDimensions[p.paperSize];
+  const margin = pageMarginMm[p.pageMargin];
+  const printContentWidth = Number((paper.widthMm - margin * 2).toFixed(3));
 
   const vars: Record<string, string> = {
     "--resume-font": 'var(--font-sans), "Helvetica Neue", Arial, sans-serif',
@@ -147,7 +199,9 @@ export function resolvePdfPresentation(
     "--resume-leading": String(leading),
     "--resume-gap-section": `${sectionGapPx[p.spacing]}px`,
     "--resume-gap-item": `${itemGapPx[p.spacing]}px`,
-    "--resume-page-padding": "36px",
+    "--resume-paper-width": `${paper.widthMm}mm`,
+    "--resume-page-margin": `${margin}mm`,
+    "--resume-print-content-width": `${printContentWidth}mm`,
   };
 
   return { templateId: p.templateId, vars };

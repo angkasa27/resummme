@@ -1,8 +1,18 @@
 import type { Browser, Page } from "puppeteer-core";
 
 import { exportResumeDraft } from "@/features/resume-editor/domain/draft/resume-draft-storage";
+import {
+  getPageMarginMm,
+  normalizePdfPresentation,
+  type PdfPaperSize,
+} from "@/features/resume-editor/domain/presentation/pdf-presentation";
 import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
 import { RESUME_PDF_SESSION_STORAGE_KEY } from "@/features/resume-editor/server/resume-pdf-session";
+
+type PdfRenderOptions = {
+  format: PdfPaperSize;
+  marginMm: number;
+};
 
 export type PdfExportProvider =
   | "auto"
@@ -20,7 +30,7 @@ type PdfPageAdapter = {
   goto: (url: string, timeoutMs: number) => Promise<void>;
   emulateScreenMedia: () => Promise<void>;
   waitForReady: (timeoutMs: number) => Promise<void>;
-  pdf: () => Promise<Uint8Array>;
+  pdf: (options: PdfRenderOptions) => Promise<Uint8Array>;
   close: () => Promise<void>;
 };
 
@@ -149,15 +159,16 @@ function createPuppeteerPageAdapter(page: Page): PdfPageAdapter {
         timeout: timeoutMs,
       });
     },
-    async pdf() {
+    async pdf({ format, marginMm }) {
+      const margin = `${marginMm}mm`;
       return new Uint8Array(
         await page.pdf({
-          format: "a4",
+          format,
           margin: {
-            top: "12mm",
-            right: "12mm",
-            bottom: "12mm",
-            left: "12mm",
+            top: margin,
+            right: margin,
+            bottom: margin,
+            left: margin,
           },
           printBackground: true,
         }),
@@ -243,6 +254,11 @@ export async function generateResumePdf({
   timeoutMs = 20_000,
 }: GenerateResumePdfOptions) {
   const serializedDraft = exportResumeDraft(draft);
+  const presentation = normalizePdfPresentation(draft.pdfPresentation);
+  const renderOptions: PdfRenderOptions = {
+    format: presentation.paperSize,
+    marginMm: getPageMarginMm(presentation.pageMargin),
+  };
   const session = await createPdfBrowserSession();
 
   let page: PdfPageAdapter | null = null;
@@ -254,7 +270,7 @@ export async function generateResumePdf({
     await page.emulateScreenMedia();
     await page.waitForReady(timeoutMs);
 
-    return await page.pdf();
+    return await page.pdf(renderOptions);
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Unknown PDF generation error";

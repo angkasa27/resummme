@@ -47,6 +47,33 @@ describe("resume document", () => {
     expect(documentRoot?.style.getPropertyValue("--resume-gap-section")).toBe(
       "20px",
     );
+    expect(documentRoot?.style.getPropertyValue("--resume-paper-width")).toBe(
+      "210mm",
+    );
+    expect(documentRoot?.style.getPropertyValue("--resume-page-margin")).toBe(
+      "12.7mm",
+    );
+  });
+
+  it("reflects paperSize and pageMargin via CSS vars", () => {
+    const draft = createDefaultResumeDraft();
+    draft.pdfPresentation.paperSize = "letter";
+    draft.pdfPresentation.pageMargin = "moderate";
+
+    render(<ResumeDocument draft={draft} />);
+
+    const documentRoot = screen
+      .getByTestId("resume-preview-full-name")
+      .closest("article");
+    expect(documentRoot?.style.getPropertyValue("--resume-paper-width")).toBe(
+      "215.9mm",
+    );
+    expect(documentRoot?.style.getPropertyValue("--resume-page-margin")).toBe(
+      "19.05mm",
+    );
+    expect(
+      documentRoot?.style.getPropertyValue("--resume-print-content-width"),
+    ).toBe("177.8mm");
   });
 
   it("renders all visible collection sections via the section registry", () => {

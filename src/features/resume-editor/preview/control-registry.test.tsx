@@ -21,6 +21,12 @@ describe("preview control registry", () => {
       screen.getByRole("combobox", { name: /font size/i }),
     ).toBeInTheDocument();
     expect(
+      screen.getByRole("combobox", { name: /paper size/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("combobox", { name: /page margin/i }),
+    ).toBeInTheDocument();
+    expect(
       screen.getByRole("button", { name: /line height standard/i }),
     ).toBeInTheDocument();
     expect(
