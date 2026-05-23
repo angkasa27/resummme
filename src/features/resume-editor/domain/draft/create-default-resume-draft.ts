@@ -8,13 +8,13 @@ function createTimestamp() {
 function createDefaultWorkExperienceItem() {
   return {
     id: "default-work-experience-1",
-    companyName: "Nusantara Digital Studio",
-    position: "Senior Frontend Engineer",
+    companyName: "Nusantara Commerce",
+    position: "Lead Frontend Engineer",
     location: "Jakarta, Indonesia",
-    startDate: "Feb 2022",
+    startDate: "Mar 2022",
     endDate: "current",
     description:
-      "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed posuere consectetur est at lobortis, aenean eu leo quam, pellentesque ornare sem lacinia quam venenatis vestibulum.</p>",
+      "<ul><li>Led the migration of the customer storefront from legacy React pages to Next.js App Router, improving Core Web Vitals and reducing average page load time by 38%.</li><li>Partnered with product and design teams to launch a reusable component library used by 6 squads, cutting feature delivery time by 25%.</li><li>Mentored 4 engineers through architecture reviews, testing standards, and rollout plans for high-traffic releases.</li></ul>",
   };
 }
 
@@ -28,6 +28,8 @@ function createDefaultSkillCategoryItem() {
       "TypeScript",
       "Tailwind CSS",
       "Design Systems",
+      "Vitest",
+      "Playwright",
     ],
   };
 }
@@ -35,12 +37,13 @@ function createDefaultSkillCategoryItem() {
 function createDefaultProjectItem() {
   return {
     id: "default-project-1",
-    projectName: "Editorial Workflow Platform",
-    projectLink: "https://example.com/case-study/editorial-workflow-platform",
-    startDate: "May 2023",
-    endDate: "Dec 2023",
+    projectName: "Seller Analytics Dashboard",
+    projectLink:
+      "https://portfolio.example.dev/projects/seller-analytics-dashboard",
+    startDate: "Jan 2024",
+    endDate: "Oct 2024",
     description:
-      "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras mattis consectetur purus sit amet fermentum, posuere erat a ante venenatis dapibus.</p>",
+      "<ul><li>Built a role-based analytics dashboard for marketplace sellers with interactive charts, exports, and saved filters.</li><li>Implemented data fetching and cache strategies that reduced dashboard query time from 5.2s to 1.9s on high-volume accounts.</li><li>Delivered an accessible UI and keyboard-first navigation, passing internal accessibility QA for core flows.</li></ul>",
   };
 }
 
@@ -51,22 +54,23 @@ function createDefaultEducationItem() {
     location: "Bandung, Indonesia",
     startDate: "Aug 2015",
     endDate: "May 2019",
-    degree: "B.S. in Informatics Engineering",
+    degree: "B.S. in Informatics",
     gpa: "3.78 / 4.00",
     description:
-      "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor.</p>",
+      "<ul><li>Focused on software engineering, human-computer interaction, and distributed systems.</li><li>Capstone project: designed a web-based scheduling platform used by 3 departments during pilot adoption.</li></ul>",
   };
 }
 
 function createDefaultPublicationItem() {
   return {
     id: "default-publication-1",
-    title: "Designing Faster Editorial Workflows",
-    publisher: "Product Engineering Notes",
-    publicationUrl: "https://example.com/writing/editorial-workflows",
-    publicationDate: "Aug 2023",
+    title: "Practical Frontend Performance for Indonesian E-Commerce",
+    publisher: "Tech in Asia Community",
+    publicationUrl:
+      "https://medium.com/@dimasangkasa/frontend-performance-ecommerce",
+    publicationDate: "Sep 2024",
     description:
-      "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante venenatis dapibus posuere velit aliquet.</p>",
+      "<ul><li>Wrote a practical guide on bundle optimization, image strategy, and rendering patterns based on production incidents and measurable outcomes.</li></ul>",
   };
 }
 
@@ -75,21 +79,21 @@ function createDefaultCertificationItem() {
     id: "default-certification-1",
     certificationName: "AWS Certified Developer - Associate",
     issuingOrganization: "Amazon Web Services",
-    issuedDate: "Nov 2023",
+    issuedDate: "Jul 2024",
     certificationLink:
-      "https://example.com/certificates/aws-developer-associate",
-    credentialId: "AWS-DEV-2023-1184",
+      "https://www.credly.com/badges/12345678-90ab-cdef-1234-567890abcdef",
+    credentialId: "AWS-DEV-2024-5521",
   };
 }
 
 function createDefaultAwardItem() {
   return {
     id: "default-award-1",
-    title: "Engineering Excellence Award",
-    issuer: "Nusantara Digital Studio",
-    issuedDate: "Dec 2023",
+    title: "Product Impact Award",
+    issuer: "Nusantara Commerce",
+    issuedDate: "Dec 2024",
     description:
-      "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas faucibus mollis interdum.</p>",
+      "<ul><li>Recognized for leading checkout performance improvements that increased conversion by 6.4% during the year-end campaign period.</li></ul>",
   };
 }
 
@@ -105,21 +109,21 @@ function createDefaultReferenceItem() {
   return {
     id: "default-reference-1",
     name: "Anindya Putri",
-    background: "Engineering Manager, Nusantara Digital Studio",
-    contactDetails: "anindya.putri@example.com · +62 812-4455-6677",
+    background: "Engineering Director, Nusantara Commerce",
+    contactDetails: "anindya.putri@nusantaracommerce.co.id · +62 812-4455-6677",
   };
 }
 
 function createDefaultOrganizationItem() {
   return {
     id: "default-organization-1",
-    organizationName: "Jakarta JavaScript Community",
+    organizationName: "Indonesia React Community",
     position: "Volunteer Mentor",
     location: "Jakarta, Indonesia",
-    startDate: "Jan 2021",
+    startDate: "Feb 2021",
     endDate: "current",
     description:
-      "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur blandit tempus porttitor, nullam id dolor id nibh ultricies vehicula ut id elit.</p>",
+      "<ul><li>Mentor junior developers through monthly frontend clinics covering React fundamentals, testing, and portfolio reviews.</li><li>Co-organized 8 meetups with hands-on workshops attended by more than 400 participants.</li></ul>",
   };
 }
 
@@ -133,16 +137,16 @@ export function createDefaultResumeDraft(): ResumeDraft {
       fullName: "Dimas Angkasa",
       location: "Jakarta, Indonesia",
       phone: "+62 812-3344-5566",
-      email: "example@mail.com",
+      email: "dimas.angkasa@proton.me",
       photo: "https://picsum.photos/200",
       extraLinks: [
         {
           id: "profile-link-linkedin",
-          url: "https://www.linkedin.com/in",
+          url: "https://www.linkedin.com/in/dimasangkasa",
         },
         {
           id: "profile-link-github",
-          url: "https://github.com",
+          url: "https://github.com/angkasa27",
         },
         {
           id: "profile-link-portfolio",
@@ -155,7 +159,7 @@ export function createDefaultResumeDraft(): ResumeDraft {
         visible: true,
         order: 0,
         content:
-          "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante venenatis dapibus posuere velit aliquet. Praesent commodo cursus magna, vel scelerisque nisl consectetur et.</p><p>Donec ullamcorper nulla non metus auctor fringilla. Aenean lacinia bibendum nulla sed consectetur, sed posuere consectetur est at lobortis.</p>",
+          "<p>Frontend engineer with 6+ years of experience building performant and accessible web products in e-commerce and SaaS environments. Strong track record leading migrations to modern React and Next.js architectures, improving developer velocity, and shipping user-facing features with measurable business impact.</p>",
       },
       workExperience: {
         visible: true,
