@@ -12,9 +12,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { InsightsTab } from "@/features/resume-editor/canvas/controls/insights-tab";
+import { InsightsTab } from "@/features/resume-editor/canvas/controls/insights/insights-tab";
 import { StyleTab } from "@/features/resume-editor/canvas/controls/style-tab";
 import type { PdfPresentation } from "@/features/resume-editor/domain/presentation/pdf-presentation";
+import type { EditorPanelKey } from "@/features/resume-editor/domain/sections/section-metadata";
+import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
 import { ButtonGroup } from "@/components/ui/button-group";
 
 export const ZOOM_MIN = 0.5;
@@ -24,11 +26,13 @@ export const ZOOM_DEFAULT = 1;
 
 type CanvasControlPanelProps = {
   presentation: PdfPresentation;
+  draft: ResumeDraft;
   onPresentationChange: (next: PdfPresentation) => void;
   onImportJson: () => void;
   onExtractCv: () => void;
   onExport: () => void;
   onExportPdf: () => void;
+  onOpenSection?: (panel: EditorPanelKey) => void;
   isExportingPdf?: boolean;
   isImportingPdf?: boolean;
   zoom: number;
@@ -37,11 +41,13 @@ type CanvasControlPanelProps = {
 
 export function CanvasControlPanel({
   presentation,
+  draft,
   onPresentationChange,
   onImportJson,
   onExtractCv,
   onExport,
   onExportPdf,
+  onOpenSection,
   isExportingPdf = false,
   isImportingPdf = false,
   zoom,
@@ -118,7 +124,7 @@ export function CanvasControlPanel({
           />
         </TabsContent>
         <TabsContent value="insights" className="pb-2">
-          <InsightsTab />
+          <InsightsTab draft={draft} onOpenSection={onOpenSection} />
         </TabsContent>
       </Tabs>
 

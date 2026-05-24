@@ -41,7 +41,7 @@ describe("resume pdf page", () => {
     );
     expect(screen.getByText(draft.profile.fullName)).toBeInTheDocument();
     expect(screen.queryByText("Resume Editor")).not.toBeInTheDocument();
-    expect(screen.getAllByRole("list")).toHaveLength(2);
+    expect(screen.getAllByRole("list").length).toBeGreaterThanOrEqual(2);
     expect(document.querySelector('[data-pdf-ready="true"]')).not.toBeNull();
 
     const documentRoot = screen

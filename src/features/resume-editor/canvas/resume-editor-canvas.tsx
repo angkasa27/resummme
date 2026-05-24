@@ -61,6 +61,7 @@ import {
   resumeSectionKeys,
   sectionLabels,
   type CollectionSectionKey,
+  type EditorPanelKey,
   type ResumeSectionPanelKey,
 } from "@/features/resume-editor/domain/sections/section-metadata";
 import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
@@ -160,13 +161,31 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
     }
   }
 
+  function openEditorSection(panel: EditorPanelKey) {
+    if (panel === "profile") {
+      startEditingProfile();
+      return;
+    }
+    if (
+      panel === "summary" ||
+      isCollectionSectionKey(panel as ResumeSectionPanelKey)
+    ) {
+      startEditingSection(panel as ResumeSectionPanelKey);
+      if (!draft.sections[panel as ResumeSectionPanelKey].visible) {
+        setSectionVisibility(panel as ResumeSectionPanelKey, true);
+      }
+    }
+  }
+
   const controlPanelProps = {
     presentation,
+    draft,
     onPresentationChange: savePdfPresentation,
     onImportJson: openJsonImportPicker,
     onExtractCv: () => setIsExtractCvOpen(true),
     onExport: handleExport,
     onExportPdf: handlePrint,
+    onOpenSection: openEditorSection,
     isExportingPdf,
     isImportingPdf,
     zoom,
