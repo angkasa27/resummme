@@ -67,11 +67,11 @@ export function ExtractCvDialog({
           <div className="flex flex-col gap-1">
             <DialogTitle className="flex items-center gap-2">
               <SparklesIcon className="size-4 text-primary" />
-              Extract CV from PDF
+              Extract from PDF
             </DialogTitle>
             <DialogDescription>
-              Upload an existing resume. We&apos;ll parse the content and populate
-              the editor.
+              Upload an existing resume. We&apos;ll parse the content and
+              populate the editor.
             </DialogDescription>
           </div>
           <Button
@@ -96,7 +96,7 @@ function ExtractCvHeader({ onClose }: { onClose: () => void }) {
       <div className="flex flex-col gap-0.5">
         <h2 className="flex items-center gap-2 text-base font-medium">
           <SparklesIcon className="size-4 text-primary" />
-          Extract CV from PDF
+          Extract from PDF
         </h2>
         <p className="text-xs text-muted-foreground">
           Upload an existing resume. We&apos;ll parse the content.
@@ -128,7 +128,10 @@ function ExtractCvBody({ onSubmit, onClose }: ExtractCvBodyProps) {
 
   function pickFile(candidate: File | undefined | null) {
     if (!candidate) return;
-    if (candidate.type !== "application/pdf" && !candidate.name.toLowerCase().endsWith(".pdf")) {
+    if (
+      candidate.type !== "application/pdf" &&
+      !candidate.name.toLowerCase().endsWith(".pdf")
+    ) {
       toast.error("Please select a PDF file.");
       return;
     }
@@ -180,7 +183,9 @@ function ExtractCvBody({ onSubmit, onClose }: ExtractCvBodyProps) {
         />
       </label>
 
-      {file ? <SelectedFileRow file={file} onClear={() => setFile(null)} /> : null}
+      {file ? (
+        <SelectedFileRow file={file} onClear={() => setFile(null)} />
+      ) : null}
 
       <div className="flex justify-end gap-2 pt-1">
         <Button type="button" variant="outline" size="sm" onClick={onClose}>

@@ -63,7 +63,7 @@ export function CanvasControlPanel({
           onClick={onExtractCv}
         >
           <SparklesIcon data-icon="inline-start" />
-          Extract CV from PDF
+          Extract from PDF
         </Button>
         <ButtonGroup className="w-full">
           <Button
