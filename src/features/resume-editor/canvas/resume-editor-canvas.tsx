@@ -331,8 +331,8 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
                             key={key}
                             type="button"
                             variant="outline"
-                            size="sm"
-                            className="rounded-full"
+                            // size="sm"
+                            className="rounded-full font-sans!"
                             onClick={() => {
                               setSectionVisibility(key, true);
                               startEditingSection(key);
