@@ -144,7 +144,7 @@ function JdAnalyzeBody({
         // Disable the textarea's intrinsic auto-grow (`field-sizing-content`)
         // so a long JD scrolls inside the dialog instead of pushing it past
         // the viewport.
-        className="min-h-0 flex-1 resize-none overflow-y-auto text-sm [field-sizing:fixed]"
+        className="min-h-0 flex-1 resize-none overflow-y-auto text-sm field-sizing-fixed"
         autoFocus
       />
       <div className="flex items-center justify-between text-[11px] text-muted-foreground">

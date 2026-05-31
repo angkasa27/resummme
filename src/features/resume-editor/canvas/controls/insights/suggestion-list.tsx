@@ -37,11 +37,7 @@ const SEVERITY_TONES = {
 
 export function SuggestionList({ suggestions, onFix }: SuggestionListProps) {
   if (suggestions.length === 0) {
-    return (
-      <div className="rounded-md border border-dashed bg-muted/30 px-3 py-3 text-center text-xs text-muted-foreground">
-        Looking good — no suggestions right now.
-      </div>
-    );
+    return null;
   }
 
   const grouped = ATS_CATEGORIES.map((category) => ({
