@@ -46,6 +46,7 @@ describe("resume schema", () => {
 
     expect(parsed.pdfPresentation).toEqual({
       templateId: "classic",
+      fontFamilyId: "inter",
       fontScale: "md",
       spacing: "standard",
       lineHeight: "standard",

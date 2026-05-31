@@ -1,3 +1,12 @@
+import {
+  DEFAULT_FONT_ID,
+  getFont,
+  resumeFontIds,
+  type ResumeFontId,
+} from "@/features/resume-editor/domain/presentation/font-collection";
+
+export { resumeFontIds, type ResumeFontId };
+
 export const pdfTemplateIds = [
   "classic",
   "sidebar",
@@ -24,6 +33,7 @@ export type PdfPageMargin = (typeof pdfPageMargins)[number];
 
 export type PdfPresentation = {
   templateId: PdfTemplateId;
+  fontFamilyId: ResumeFontId;
   fontScale: PdfFontScaleId;
   spacing: PdfSpacingId;
   lineHeight: PdfLineHeightId;
@@ -131,6 +141,7 @@ export function getPageMarginMm(pageMargin: PdfPageMargin) {
 export function createDefaultPdfPresentation(): PdfPresentation {
   return {
     templateId: "classic",
+    fontFamilyId: DEFAULT_FONT_ID,
     fontScale: "md",
     spacing: "standard",
     lineHeight: "standard",
@@ -157,6 +168,9 @@ export function normalizePdfPresentation(input: unknown): PdfPresentation {
     templateId: isMember(pdfTemplateIds, source.templateId)
       ? source.templateId
       : defaults.templateId,
+    fontFamilyId: isMember(resumeFontIds, source.fontFamilyId)
+      ? source.fontFamilyId
+      : defaults.fontFamilyId,
     fontScale: isMember(pdfFontScaleIds, source.fontScale)
       ? source.fontScale
       : defaults.fontScale,
@@ -187,7 +201,7 @@ export function resolvePdfPresentation(
   const printContentWidth = Number((paper.widthMm - margin * 2).toFixed(3));
 
   const vars: Record<string, string> = {
-    "--resume-font": 'var(--font-sans), "Helvetica Neue", Arial, sans-serif',
+    "--resume-font": getFont(p.fontFamilyId).stack,
     "--resume-text": "#111827",
     "--resume-muted": "#4b5563",
     "--resume-border": "#cbd5e1",

@@ -1,10 +1,11 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -20,6 +21,11 @@ import type {
   PreviewControlDefinition,
   PreviewControlOption,
 } from "@/features/resume-editor/preview/types";
+import {
+  RESUME_FONTS,
+  getFont,
+  type ResumeFontId,
+} from "@/features/resume-editor/domain/presentation/font-collection";
 import type { PdfPresentation } from "@/features/resume-editor/domain/presentation/pdf-presentation";
 
 type StyleTabProps = {
@@ -62,11 +68,7 @@ function SelectField({
           onChange(control.update(value, presentation));
         }}
       >
-        <SelectTrigger
-          size="sm"
-          aria-label={control.label}
-          className="w-full"
-        >
+        <SelectTrigger size="sm" aria-label={control.label} className="w-full">
           <SelectValue>
             {control.options.find(
               (option) => option.value === control.value(presentation),
@@ -152,27 +154,52 @@ function ToggleFieldItem({
   );
 }
 
-function FontFamilyField() {
+const sansOptions = RESUME_FONTS.filter((f) => f.category === "sans");
+const serifOptions = RESUME_FONTS.filter((f) => f.category === "serif");
+
+function FontFamilyField({
+  presentation,
+  onChange,
+}: {
+  presentation: PdfPresentation;
+  onChange: (next: PdfPresentation) => void;
+}) {
+  const selectedFont = getFont(presentation.fontFamilyId);
+
   return (
     <div>
-      <FieldLabel>
-        Font family
-        <Badge
-          variant="secondary"
-          className="h-3.5 px-1 text-[9px] font-medium uppercase tracking-wide"
-        >
-          Soon
-        </Badge>
-      </FieldLabel>
-      <Select disabled value="sans">
-        <SelectTrigger
-          size="sm"
-          aria-label="Font family"
-          className="w-full"
-        >
-          <SelectValue>Sans</SelectValue>
+      <FieldLabel>Font family</FieldLabel>
+      <Select
+        value={presentation.fontFamilyId}
+        onValueChange={(id) =>
+          onChange({ ...presentation, fontFamilyId: id as ResumeFontId })
+        }
+      >
+        <SelectTrigger size="sm" aria-label="Font family" className="w-full">
+          <SelectValue>
+            <span style={{ fontFamily: selectedFont.stack }}>
+              {selectedFont.name}
+            </span>
+          </SelectValue>
         </SelectTrigger>
-        <SelectContent />
+        <SelectContent>
+          <SelectGroup>
+            <SelectLabel>Sans-serif</SelectLabel>
+            {sansOptions.map((font) => (
+              <SelectItem key={font.id} value={font.id}>
+                <span style={{ fontFamily: font.stack }}>{font.name}</span>
+              </SelectItem>
+            ))}
+          </SelectGroup>
+          <SelectGroup>
+            <SelectLabel>Serif</SelectLabel>
+            {serifOptions.map((font) => (
+              <SelectItem key={font.id} value={font.id}>
+                <span style={{ fontFamily: font.stack }}>{font.name}</span>
+              </SelectItem>
+            ))}
+          </SelectGroup>
+        </SelectContent>
       </Select>
     </div>
   );
@@ -206,7 +233,7 @@ export function StyleTab({ presentation, onChange }: StyleTabProps) {
         onChange={onChange}
       />
 
-      <FontFamilyField />
+      <FontFamilyField presentation={presentation} onChange={onChange} />
       <SelectField
         control={fontScale}
         presentation={presentation}
