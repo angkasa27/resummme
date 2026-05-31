@@ -6,7 +6,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ResumeEditorShell } from "@/features/resume-editor/editor/shell/resume-editor-shell";
 import { createDefaultResumeDraft } from "@/features/resume-editor/domain/draft/create-default-resume-draft";
-import { exportResumeDraft, RESUME_STORAGE_KEY } from "@/features/resume-editor/domain/draft/resume-draft-storage";
+import {
+  exportResumeDraft,
+  RESUME_STORAGE_KEY,
+} from "@/features/resume-editor/domain/draft/resume-draft-storage";
 
 const originalMatchMedia = window.matchMedia;
 
@@ -49,7 +52,9 @@ describe("resume editor shell", () => {
     render(<ResumeEditorShell initialDraft={draft} />);
 
     await waitFor(() =>
-      expect(screen.getByRole("heading", { name: "Resume Editor" })).toBeInTheDocument()
+      expect(
+        screen.getByRole("heading", { name: "Resummme" }),
+      ).toBeInTheDocument(),
     );
   });
 
@@ -62,11 +67,14 @@ describe("resume editor shell", () => {
       },
     ];
 
-    window.localStorage.setItem(RESUME_STORAGE_KEY, exportResumeDraft(storedDraft));
+    window.localStorage.setItem(
+      RESUME_STORAGE_KEY,
+      exportResumeDraft(storedDraft),
+    );
 
     const originalWindowDescriptor = Object.getOwnPropertyDescriptor(
       globalThis,
-      "window"
+      "window",
     );
 
     Object.defineProperty(globalThis, "window", {
@@ -107,7 +115,7 @@ describe("resume editor shell", () => {
     const draft = createDefaultResumeDraft();
     const originalWindowDescriptor = Object.getOwnPropertyDescriptor(
       globalThis,
-      "window"
+      "window",
     );
 
     Object.defineProperty(globalThis, "window", {
@@ -116,7 +124,7 @@ describe("resume editor shell", () => {
     });
 
     const serverHtml = renderToString(
-      <ResumeEditorShell initialDraft={draft} />
+      <ResumeEditorShell initialDraft={draft} />,
     );
 
     if (originalWindowDescriptor) {
@@ -137,13 +145,13 @@ describe("resume editor shell", () => {
       await act(async () => {
         root = hydrateRoot(
           container,
-          <ResumeEditorShell initialDraft={draft} />
+          <ResumeEditorShell initialDraft={draft} />,
         );
         await Promise.resolve();
       });
 
       hydrationErrors = consoleErrorSpy.mock.calls.filter((call) =>
-        String(call[0]).toLowerCase().includes("hydrat")
+        String(call[0]).toLowerCase().includes("hydrat"),
       );
     } finally {
       consoleErrorSpy.mockRestore();
@@ -162,7 +170,9 @@ describe("resume editor shell", () => {
     render(<ResumeEditorShell initialDraft={draft} />);
 
     await waitFor(() =>
-      expect(screen.getByRole("heading", { name: "Resume Editor" })).toBeInTheDocument()
+      expect(
+        screen.getByRole("heading", { name: "Resummme" }),
+      ).toBeInTheDocument(),
     );
     expect(screen.queryByText(/live preview/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/recruiter-ready page/i)).not.toBeInTheDocument();
@@ -177,14 +187,14 @@ describe("resume editor shell", () => {
     render(<ResumeEditorShell initialDraft={draft} />);
 
     await waitFor(() =>
-      expect(screen.getByText(/style settings/i)).toBeInTheDocument()
+      expect(screen.getByText(/style settings/i)).toBeInTheDocument(),
     );
   });
 
   it("renders the loading screen in the initial server html", () => {
     const originalWindowDescriptor = Object.getOwnPropertyDescriptor(
       globalThis,
-      "window"
+      "window",
     );
 
     Object.defineProperty(globalThis, "window", {

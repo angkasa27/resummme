@@ -37,10 +37,12 @@ describe("resume pdf page", () => {
     render(<ResumePdfPage />);
 
     await waitFor(() =>
-      expect(screen.getByTestId("resume-preview-full-name")).toBeInTheDocument(),
+      expect(
+        screen.getByTestId("resume-preview-full-name"),
+      ).toBeInTheDocument(),
     );
     expect(screen.getByText(draft.profile.fullName)).toBeInTheDocument();
-    expect(screen.queryByText("Resume Editor")).not.toBeInTheDocument();
+    expect(screen.queryByText("Resummme")).not.toBeInTheDocument();
     expect(screen.getAllByRole("list").length).toBeGreaterThanOrEqual(2);
     expect(document.querySelector('[data-pdf-ready="true"]')).not.toBeNull();
 
@@ -49,7 +51,9 @@ describe("resume pdf page", () => {
       .closest("article");
     expect(documentRoot?.getAttribute("data-template")).toBe("sidebar");
     expect(documentRoot?.style.getPropertyValue("--resume-body")).toBe("14px");
-    expect(documentRoot?.style.getPropertyValue("--resume-leading")).toBe("1.9");
+    expect(documentRoot?.style.getPropertyValue("--resume-leading")).toBe(
+      "1.9",
+    );
     expect(
       screen.getByRole("heading", { name: /work experience/i }),
     ).toBeInTheDocument();

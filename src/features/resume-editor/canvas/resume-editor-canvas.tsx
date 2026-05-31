@@ -215,8 +215,8 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
 
         {/* Top navbar */}
         <header className="sticky top-0 z-40 flex h-12 shrink-0 items-center gap-2 border-b bg-background px-3 sm:gap-3 sm:px-4 print:hidden">
-          <h1 className="truncate text-sm font-semibold tracking-tight">
-            Resume Editor
+          <h1 className="font-bold italic pr-1 bg-clip-text text-transparent bg-linear-to-r from-violet-500 to-indigo-600">
+            Resummme
           </h1>
           <Tabs value="canvas" className="h-8">
             <TabsList className="rounded-md border">

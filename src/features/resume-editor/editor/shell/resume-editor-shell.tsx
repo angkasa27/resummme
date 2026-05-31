@@ -106,9 +106,7 @@ export function ResumeEditorShell({ initialDraft }: ResumeEditorShellProps) {
           {/* Top navbar — h-12 to match sidebar header */}
           <header className="flex h-12 shrink-0 items-center gap-2 border-b bg-background px-3 print:hidden">
             <SidebarTrigger className="-ml-1" />
-            <h1 className="truncate text-sm font-semibold tracking-tight">
-              Resume Editor
-            </h1>
+            {/* <h1 className="font-semibold italic pr-1">Resummme</h1> */}
             <Tabs value="legacy" className="h-8">
               <TabsList className="rounded-md border">
                 <TabsTrigger

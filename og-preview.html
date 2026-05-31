@@ -1,0 +1,820 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1200" />
+    <title>Resummme — OG Preview</title>
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      :root {
+        --bg: #f4f4f5;
+        --surface: #ffffff;
+        --border: #e4e4e7;
+        --muted: #f4f4f5;
+        --muted-fg: #a1a1aa;
+        --fg: #09090b;
+        --fg-2: #52525b;
+        --accent: #6366f1;
+        --accent-soft: #eef2ff;
+        --skeleton: #e4e4e7;
+        --skeleton-2: #d4d4d8;
+        --radius: 6px;
+      }
+
+      body {
+        width: 1200px;
+        height: 630px;
+        overflow: hidden;
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif;
+        background: var(--bg);
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* ── Navbar ── */
+      header {
+        height: 48px;
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 0 16px;
+        flex-shrink: 0;
+      }
+
+      /* Title skeleton in navbar */
+      .nav-title-skel {
+        width: 100px;
+        height: 12px;
+        border-radius: 3px;
+        background: var(--skeleton-2);
+      }
+
+      .tab-group {
+        display: flex;
+        align-items: center;
+        gap: 1px;
+        background: var(--muted);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 3px;
+        height: 30px;
+      }
+
+      .tab {
+        height: 24px;
+        padding: 0 10px;
+        border-radius: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .tab.active {
+        background: var(--accent-soft);
+      }
+
+      /* Skeleton bar inside tab */
+      .tab-skel {
+        height: 8px;
+        border-radius: 3px;
+        width: 40px;
+        background: var(--accent);
+        opacity: 0.5;
+      }
+
+      .tab:not(.active) .tab-skel {
+        background: var(--skeleton-2);
+        opacity: 1;
+      }
+
+      .spacer {
+        flex: 1;
+      }
+
+      .gh-btn {
+        height: 28px;
+        width: 80px;
+        background: var(--skeleton-2);
+        border-radius: var(--radius);
+      }
+
+      /* ── Body ── */
+      .body {
+        display: flex;
+        flex: 1;
+        overflow: hidden;
+      }
+
+      /* ── Main canvas area ── */
+      main {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 32px 28px;
+        overflow: hidden;
+        background: #f1f1f3;
+      }
+
+      .resume-paper {
+        background: var(--surface);
+        width: 430px;
+        height: 560px;
+        border-radius: 4px;
+        box-shadow:
+          0 2px 16px rgba(0, 0, 0, 0.1),
+          0 0 0 1px rgba(0, 0, 0, 0.04);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+
+      /* Section shells */
+      .resume-section {
+        padding: 16px 20px;
+      }
+
+      .resume-section + .resume-section {
+        border-top: 1px solid var(--border);
+      }
+
+      /* Profile header area */
+      .profile-header {
+        display: flex;
+        align-items: flex-start;
+        gap: 14px;
+        padding: 20px 20px 16px;
+      }
+
+      .avatar-skel {
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        background: var(--skeleton-2);
+        flex-shrink: 0;
+      }
+
+      .profile-text {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        flex: 1;
+      }
+
+      .skel {
+        background: var(--skeleton);
+        border-radius: 3px;
+        height: 10px;
+      }
+
+      .skel.lg {
+        height: 16px;
+        width: 60%;
+      }
+      .skel.md {
+        height: 10px;
+      }
+      .skel.sm {
+        height: 8px;
+      }
+      .skel.w-full {
+        width: 100%;
+      }
+      .skel.w-3-4 {
+        width: 75%;
+      }
+      .skel.w-2-3 {
+        width: 66%;
+      }
+      .skel.w-1-2 {
+        width: 50%;
+      }
+      .skel.w-1-3 {
+        width: 33%;
+      }
+      .skel.w-1-4 {
+        width: 25%;
+      }
+      .skel.dark {
+        background: var(--skeleton-2);
+      }
+
+      .skel-row {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+      }
+      .skel-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+
+      /* Section label — now a skeleton bar */
+      .section-label-skel {
+        width: 60px;
+        height: 7px;
+        border-radius: 3px;
+        background: #c7d2fe;
+        margin-bottom: 10px;
+      }
+
+      .entry {
+        margin-bottom: 10px;
+      }
+      .entry:last-child {
+        margin-bottom: 0;
+      }
+
+      /* ── Sidebar ── */
+      aside {
+        width: 288px;
+        flex-shrink: 0;
+        background: var(--surface);
+        border-left: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        overflow: hidden;
+      }
+
+      .panel-section {
+        padding: 14px 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        flex-shrink: 0;
+      }
+
+      /* AI button — gradient but no text, just sparkle icon + skel bar */
+      .btn-ai {
+        height: 38px;
+        background: linear-gradient(135deg, #8b5cf6, #6366f1);
+        border-radius: var(--radius);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+
+      .btn-ai-skel {
+        width: 90px;
+        height: 10px;
+        border-radius: 3px;
+        background: rgba(255, 255, 255, 0.35);
+      }
+
+      .sparkle-icon {
+        width: 14px;
+        height: 14px;
+        fill: none;
+        stroke: rgba(255, 255, 255, 0.8);
+        stroke-width: 1.8;
+      }
+
+      .btn-row {
+        display: flex;
+        gap: 6px;
+      }
+
+      .btn-outline {
+        flex: 1;
+        height: 30px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .btn-outline.full {
+        flex: none;
+        width: 100%;
+      }
+
+      /* Skeleton bar inside outline buttons */
+      .btn-skel {
+        height: 8px;
+        border-radius: 3px;
+        background: var(--skeleton);
+        width: 60px;
+      }
+
+      .btn-skel.w-icon {
+        width: 80px;
+      }
+
+      .separator {
+        height: 1px;
+        background: var(--border);
+        flex-shrink: 0;
+      }
+
+      /* Tabs inside panel */
+      .panel-tabs {
+        padding: 12px 16px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        overflow: hidden;
+      }
+
+      .tab-list-inner {
+        display: flex;
+        gap: 2px;
+        background: var(--muted);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 3px;
+        height: 34px;
+        flex-shrink: 0;
+      }
+
+      .tab-inner {
+        flex: 1;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+      }
+
+      .tab-inner.active {
+        background: var(--surface);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.07);
+      }
+
+      .tab-inner-skel {
+        height: 8px;
+        border-radius: 3px;
+        width: 36px;
+        background: var(--skeleton-2);
+      }
+
+      .tab-inner.active .tab-inner-skel {
+        background: var(--skeleton-2);
+      }
+
+      .tab-icon {
+        width: 13px;
+        height: 13px;
+        fill: none;
+        stroke: var(--skeleton-2);
+        stroke-width: 1.8;
+      }
+
+      .tab-inner.active .tab-icon {
+        stroke: var(--fg-2);
+      }
+
+      /* Style tab content */
+      .style-content {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        overflow: hidden;
+      }
+
+      .control-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      /* Control label — skeleton bar */
+      .control-label-skel {
+        height: 8px;
+        width: 50px;
+        border-radius: 3px;
+        background: var(--skeleton);
+      }
+
+      .color-swatches {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+
+      .swatch {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        border: 2px solid transparent;
+      }
+
+      .swatch.selected {
+        border-color: var(--fg);
+      }
+
+      .template-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+      }
+
+      .template-thumb {
+        aspect-ratio: 3/4;
+        border-radius: 4px;
+        border: 1.5px solid var(--border);
+        background: var(--muted);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        padding: 5px;
+      }
+
+      .template-thumb.active {
+        border-color: var(--accent);
+        background: var(--accent-soft);
+      }
+
+      .tt-line {
+        height: 3px;
+        border-radius: 2px;
+        background: var(--skeleton-2);
+      }
+
+      .template-thumb.active .tt-line {
+        background: #818cf8;
+      }
+      .tt-line.lg {
+        height: 5px;
+        width: 60%;
+      }
+
+      /* Select skeleton */
+      .select-skel {
+        height: 28px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        background: var(--muted);
+        display: flex;
+        align-items: center;
+        padding: 0 8px;
+        gap: 6px;
+      }
+
+      .select-skel-bar {
+        flex: 1;
+        height: 8px;
+        border-radius: 3px;
+        background: var(--skeleton);
+      }
+
+      .select-chevron {
+        width: 10px;
+        height: 10px;
+        stroke: var(--skeleton-2);
+        fill: none;
+        stroke-width: 2;
+      }
+
+      /* Zoom bar */
+      .zoom-bar {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 10px 16px;
+        border-top: 1px solid var(--border);
+        flex-shrink: 0;
+      }
+
+      .zoom-btn {
+        width: 26px;
+        height: 26px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      /* Zoom value — skeleton bar */
+      .zoom-skel {
+        flex: 1;
+        height: 10px;
+        border-radius: 3px;
+        background: var(--skeleton);
+        margin: 0 4px;
+      }
+
+      .icon-sm {
+        width: 12px;
+        height: 12px;
+        stroke: var(--skeleton-2);
+        fill: none;
+        stroke-width: 2;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navbar -->
+    <header>
+      <div class="nav-title-skel"></div>
+
+      <div class="tab-group">
+        <div class="tab active"><div class="tab-skel"></div></div>
+        <div class="tab"><div class="tab-skel"></div></div>
+      </div>
+
+      <div class="spacer"></div>
+
+      <div class="gh-btn"></div>
+    </header>
+
+    <!-- Body -->
+    <div class="body">
+      <!-- Main canvas -->
+      <main>
+        <div class="resume-paper">
+          <!-- Profile section -->
+          <div class="profile-header">
+            <div class="avatar-skel"></div>
+            <div class="profile-text">
+              <div class="skel lg dark"></div>
+              <div class="skel md w-2-3"></div>
+              <div style="margin-top: 4px" class="skel-row">
+                <div class="skel sm w-1-3"></div>
+                <div class="skel sm w-1-4"></div>
+                <div class="skel sm w-1-4"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Summary -->
+          <div class="resume-section">
+            <div class="section-label-skel"></div>
+            <div class="skel-stack">
+              <div class="skel w-full"></div>
+              <div class="skel w-full"></div>
+              <div class="skel w-3-4"></div>
+            </div>
+          </div>
+
+          <!-- Experience -->
+          <div class="resume-section">
+            <div class="section-label-skel"></div>
+            <div class="entry">
+              <div class="skel-row" style="margin-bottom: 5px">
+                <div class="skel md w-2-3 dark"></div>
+                <div class="skel sm w-1-4" style="margin-left: auto"></div>
+              </div>
+              <div class="skel sm w-1-2" style="margin-bottom: 6px"></div>
+              <div class="skel-stack">
+                <div class="skel w-full"></div>
+                <div class="skel w-3-4"></div>
+              </div>
+            </div>
+            <div class="entry">
+              <div class="skel-row" style="margin-bottom: 5px">
+                <div class="skel md w-1-2 dark"></div>
+                <div class="skel sm w-1-4" style="margin-left: auto"></div>
+              </div>
+              <div class="skel sm w-2-3" style="margin-bottom: 6px"></div>
+              <div class="skel-stack">
+                <div class="skel w-full"></div>
+                <div class="skel w-2-3"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Skills -->
+          <div class="resume-section">
+            <div class="section-label-skel"></div>
+            <div class="skel-row" style="flex-wrap: wrap; gap: 6px">
+              <div
+                style="
+                  width: 52px;
+                  height: 20px;
+                  border-radius: 999px;
+                  background: var(--skeleton);
+                "
+              ></div>
+              <div
+                style="
+                  width: 64px;
+                  height: 20px;
+                  border-radius: 999px;
+                  background: var(--skeleton);
+                "
+              ></div>
+              <div
+                style="
+                  width: 44px;
+                  height: 20px;
+                  border-radius: 999px;
+                  background: var(--skeleton);
+                "
+              ></div>
+              <div
+                style="
+                  width: 70px;
+                  height: 20px;
+                  border-radius: 999px;
+                  background: var(--skeleton);
+                "
+              ></div>
+              <div
+                style="
+                  width: 56px;
+                  height: 20px;
+                  border-radius: 999px;
+                  background: var(--skeleton);
+                "
+              ></div>
+              <div
+                style="
+                  width: 48px;
+                  height: 20px;
+                  border-radius: 999px;
+                  background: var(--skeleton);
+                "
+              ></div>
+            </div>
+          </div>
+
+          <!-- Education -->
+          <div class="resume-section">
+            <div class="section-label-skel"></div>
+            <div class="skel-row" style="margin-bottom: 5px">
+              <div class="skel md w-2-3 dark"></div>
+              <div class="skel sm w-1-4" style="margin-left: auto"></div>
+            </div>
+            <div class="skel sm w-1-2"></div>
+          </div>
+        </div>
+      </main>
+
+      <!-- Sidebar -->
+      <aside>
+        <!-- Actions -->
+        <div class="panel-section">
+          <div class="btn-ai">
+            <svg class="sparkle-icon" viewBox="0 0 24 24">
+              <path
+                d="M12 3L13.5 8.5L19 10L13.5 11.5L12 17L10.5 11.5L5 10L10.5 8.5L12 3Z"
+                stroke-linejoin="round"
+              />
+              <path
+                d="M19 3L19.75 5.25L22 6L19.75 6.75L19 9L18.25 6.75L16 6L18.25 5.25L19 3Z"
+                stroke-linejoin="round"
+              />
+            </svg>
+            <div class="btn-ai-skel"></div>
+          </div>
+          <div class="btn-row">
+            <div class="btn-outline"><div class="btn-skel"></div></div>
+            <div class="btn-outline"><div class="btn-skel"></div></div>
+          </div>
+          <div class="btn-outline full">
+            <div class="btn-skel w-icon"></div>
+          </div>
+        </div>
+
+        <div class="separator"></div>
+
+        <!-- Tabs -->
+        <div class="panel-tabs">
+          <div class="tab-list-inner">
+            <div class="tab-inner active">
+              <svg
+                class="tab-icon"
+                viewBox="0 0 24 24"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="13.5" cy="6.5" r="3.5" />
+                <circle cx="10" cy="14" r="4" />
+                <circle cx="18" cy="15" r="3" />
+              </svg>
+              <div class="tab-inner-skel"></div>
+            </div>
+            <div class="tab-inner">
+              <svg
+                class="tab-icon"
+                viewBox="0 0 24 24"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="12" cy="12" r="2" />
+                <path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7z" />
+              </svg>
+              <div class="tab-inner-skel"></div>
+            </div>
+          </div>
+
+          <!-- Style tab content -->
+          <div class="style-content">
+            <div class="control-group">
+              <div class="control-label-skel"></div>
+              <div class="template-grid">
+                <div class="template-thumb active">
+                  <div class="tt-line lg"></div>
+                  <div class="tt-line" style="width: 80%"></div>
+                  <div style="height: 2px"></div>
+                  <div class="tt-line"></div>
+                  <div class="tt-line" style="width: 90%"></div>
+                  <div class="tt-line" style="width: 70%"></div>
+                </div>
+                <div class="template-thumb">
+                  <div class="tt-line lg"></div>
+                  <div class="tt-line" style="width: 80%"></div>
+                  <div style="height: 2px"></div>
+                  <div class="tt-line"></div>
+                  <div class="tt-line" style="width: 90%"></div>
+                  <div class="tt-line" style="width: 70%"></div>
+                </div>
+                <div class="template-thumb">
+                  <div class="tt-line lg"></div>
+                  <div class="tt-line" style="width: 80%"></div>
+                  <div style="height: 2px"></div>
+                  <div class="tt-line"></div>
+                  <div class="tt-line" style="width: 90%"></div>
+                  <div class="tt-line" style="width: 70%"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="control-group">
+              <div class="control-label-skel"></div>
+              <div class="color-swatches">
+                <div class="swatch selected" style="background: #6366f1"></div>
+                <div class="swatch" style="background: #ec4899"></div>
+                <div class="swatch" style="background: #f59e0b"></div>
+                <div class="swatch" style="background: #10b981"></div>
+                <div class="swatch" style="background: #3b82f6"></div>
+                <div class="swatch" style="background: #64748b"></div>
+                <div class="swatch" style="background: #ef4444"></div>
+                <div class="swatch" style="background: #06b6d4"></div>
+              </div>
+            </div>
+
+            <div class="control-group">
+              <div class="control-label-skel"></div>
+              <div class="select-skel">
+                <div class="select-skel-bar"></div>
+                <svg
+                  class="select-chevron"
+                  viewBox="0 0 24 24"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <polyline points="6 9 12 15 18 9" />
+                </svg>
+              </div>
+            </div>
+
+            <div class="control-group">
+              <div class="control-label-skel"></div>
+              <div
+                style="
+                  position: relative;
+                  height: 6px;
+                  border-radius: 999px;
+                  background: var(--border);
+                "
+              >
+                <div
+                  style="
+                    width: 55%;
+                    height: 6px;
+                    border-radius: 999px;
+                    background: var(--accent);
+                  "
+                ></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Zoom bar -->
+        <div class="zoom-bar">
+          <div class="zoom-btn">
+            <svg class="icon-sm" viewBox="0 0 24 24" stroke-linecap="round">
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+          </div>
+          <div class="zoom-skel"></div>
+          <div class="zoom-btn">
+            <svg class="icon-sm" viewBox="0 0 24 24" stroke-linecap="round">
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </body>
+</html>

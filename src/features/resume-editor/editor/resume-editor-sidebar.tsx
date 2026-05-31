@@ -132,8 +132,8 @@ export function ResumeEditorSidebar({
   return (
     <Sidebar collapsible="offcanvas" className="border-r">
       <SidebarHeader className="h-12 flex-row shrink-0 items-center border-b px-4 m-0">
-        <span className="text-sm font-semibold tracking-tight">
-          Resume Editor
+        <span className="font-bold italic pr-1 bg-clip-text text-transparent bg-linear-to-r from-violet-500 to-indigo-600">
+          Resummme
         </span>
       </SidebarHeader>
       <SidebarContent>
