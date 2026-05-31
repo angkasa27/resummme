@@ -138,7 +138,7 @@ export function createDefaultResumeDraft(): ResumeDraft {
       location: "Jakarta, Indonesia",
       phone: "+62 812-3344-5566",
       email: "dimas.angkasa@proton.me",
-      photo: "https://picsum.photos/200",
+      photo: "https://asaa.dev/avatar.jpeg",
       extraLinks: [
         {
           id: "profile-link-linkedin",

@@ -1,0 +1,36 @@
+name: Feature request
+description: Suggest an improvement or new feature
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please search [open issues](../issues) first — your idea may already be tracked.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve?
+      description: Describe the situation where you hit a limitation or friction.
+      placeholder: When I try to do X, I can't because...
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: What would you like to see? Sketches or examples are welcome.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives you've considered
+      description: Any workarounds you use today, or other approaches you thought of.
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: Additional context
