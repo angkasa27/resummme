@@ -39,7 +39,7 @@ body:
     attributes:
       label: URL
       description: Are you using the live demo or a self-hosted instance?
-      placeholder: https://resume-editor.asaa.dev/ or localhost:3000
+      placeholder: https://resummme.asaa.dev/ or localhost:3000
 
   - type: dropdown
     id: browser

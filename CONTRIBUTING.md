@@ -5,8 +5,8 @@ Thank you for considering a contribution! Here's what you need to know.
 ## Development Setup
 
 ```bash
-git clone https://github.com/angkasa27/resume-editor.git
-cd resume-editor
+git clone https://github.com/angkasa27/resummme.git
+cd resummme
 pnpm install
 cp .env.example .env.local   # fill in any keys you need
 pnpm dev

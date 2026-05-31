@@ -2,7 +2,7 @@
 
 > A free, open-source resume editor. Write once, preview instantly, export to PDF — no account required.
 
-**[Live Demo → resume-editor.asaa.dev](https://resume-editor.asaa.dev/)**
+**[Live Demo → resummme.asaa.dev](https://resummme.asaa.dev/)**
 
 ---
 
@@ -42,8 +42,8 @@
 ### Installation
 
 ```bash
-git clone https://github.com/angkasa27/resume-editor.git
-cd resume-editor
+git clone https://github.com/angkasa27/resummme.git
+cd resummme
 pnpm install
 ```
 

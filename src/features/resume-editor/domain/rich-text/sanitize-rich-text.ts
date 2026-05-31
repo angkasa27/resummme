@@ -42,7 +42,7 @@ function escapeHtmlAttribute(value: string) {
 
 function getAttributeValue(attributes: string, name: string) {
   const match = attributes.match(
-    new RegExp(`${name}\\s*=\\s*("([^"]*)"|'([^']*)'|([^\\s"'>]+))`, "i")
+    new RegExp(`${name}\\s*=\\s*("([^"]*)"|'([^']*)'|([^\\s"'>]+))`, "i"),
   );
 
   if (!match) {
@@ -58,13 +58,13 @@ export function sanitizeRichTextHref(href: string | null | undefined) {
   }
 
   try {
-    const parsedUrl = new URL(href, "https://resume-editor.local");
+    const parsedUrl = new URL(href, "https://resummme.local");
     const isRelative = !/^[a-z][a-z0-9+.-]*:/i.test(href);
 
     if (
       isRelative ||
       SAFE_URL_PROTOCOLS.includes(
-        parsedUrl.protocol as (typeof SAFE_URL_PROTOCOLS)[number]
+        parsedUrl.protocol as (typeof SAFE_URL_PROTOCOLS)[number],
       )
     ) {
       return href;
@@ -89,7 +89,7 @@ export function sanitizeRichTextHtml(value: string) {
     .replace(/<!--[\s\S]*?-->/g, "")
     .replace(
       /<(script|style|iframe|object|embed|template|svg|math)\b[^>]*>[\s\S]*?<\/\1>/gi,
-      ""
+      "",
     );
 
   return strippedBlockedTags.replace(
@@ -134,6 +134,6 @@ export function sanitizeRichTextHtml(value: string) {
       return nextAttributes.length > 0
         ? `<a ${nextAttributes.join(" ")}>`
         : "<a>";
-    }
+    },
   );
 }
