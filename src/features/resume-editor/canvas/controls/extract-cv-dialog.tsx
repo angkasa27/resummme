@@ -193,6 +193,7 @@ function ExtractCvBody({ onSubmit, onClose }: ExtractCvBodyProps) {
         </Button>
         <Button
           type="button"
+          variant="ai"
           size="sm"
           disabled={!file}
           onClick={() => file && onSubmit(file)}

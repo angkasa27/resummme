@@ -5,6 +5,7 @@ import { Loader2Icon, SparklesIcon, XIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { RichTextEditor } from "@/features/resume-editor/editor/rich-text/rich-text-editor";
 import {
   Dialog,
   DialogContent,
@@ -241,7 +242,7 @@ function ImproveWithAiBody({
                 className={cn(
                   "rounded-full border px-3 py-1 text-xs font-medium transition-colors cursor-pointer",
                   selected
-                    ? "border-primary bg-primary text-primary-foreground"
+                    ? "border-violet-500 bg-gradient-to-br from-violet-500 to-indigo-600 text-white"
                     : "border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground",
                 )}
               >
@@ -272,6 +273,7 @@ function ImproveWithAiBody({
         </Button>
         <Button
           type="button"
+          variant="ai"
           size="sm"
           disabled={!canSubmit}
           onClick={handleImprove}
@@ -289,9 +291,9 @@ function LoadingPhase() {
 
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-4 py-8 text-center">
-      <div className="relative grid size-12 place-items-center rounded-full bg-primary/10 text-primary">
+      <div className="relative grid size-12 place-items-center rounded-full bg-violet-500/10 text-violet-500">
         <SparklesIcon className="size-5" />
-        <Loader2Icon className="absolute inset-0 size-12 animate-spin text-primary/40" />
+        <Loader2Icon className="absolute inset-0 size-12 animate-spin text-violet-400/50" />
       </div>
       <div className="flex flex-col gap-1">
         <p className="text-sm font-medium text-foreground">{message}</p>
@@ -329,11 +331,11 @@ function ResultPhase({
           />
         </div>
         <div className="flex flex-col gap-1">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-primary">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-violet-500">
             After
           </p>
           <div
-            className="prose prose-sm max-w-none rounded-md border border-primary/20 bg-primary/5 px-3 py-2 text-sm [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5"
+            className="prose prose-sm max-w-none rounded-md border border-violet-500/20 bg-violet-500/5 px-3 py-2 text-sm [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5"
             dangerouslySetInnerHTML={{ __html: afterHtml }}
           />
         </div>
@@ -346,10 +348,49 @@ function ResultPhase({
         <Button type="button" variant="outline" size="sm" onClick={onTryAgain}>
           Try again
         </Button>
-        <Button type="button" size="sm" onClick={onAccept}>
+        <Button type="button" variant="ai" size="sm" onClick={onAccept}>
           Use this
         </Button>
       </div>
     </div>
+  );
+}
+
+// ─── Convenience wrapper ──────────────────────────────────────────────────────
+// Bundles RichTextEditor + ImproveWithAiDialog into a single drop-in component
+// so any form that has a richText field can opt-in to AI improvement without
+// duplicating the open-state boilerplate.
+
+type RichTextEditorWithImproveProps = {
+  value: string;
+  ariaLabel?: string;
+  invalid?: boolean;
+  onChange: (value: string) => void;
+};
+
+export function RichTextEditorWithImprove({
+  value,
+  ariaLabel,
+  invalid = false,
+  onChange,
+}: RichTextEditorWithImproveProps) {
+  const [improveOpen, setImproveOpen] = useState(false);
+
+  return (
+    <>
+      <RichTextEditor
+        value={value}
+        ariaLabel={ariaLabel}
+        invalid={invalid}
+        onChange={onChange}
+        onImproveWithAi={() => setImproveOpen(true)}
+      />
+      <ImproveWithAiDialog
+        open={improveOpen}
+        onOpenChange={setImproveOpen}
+        currentHtml={value}
+        onAccept={onChange}
+      />
+    </>
   );
 }

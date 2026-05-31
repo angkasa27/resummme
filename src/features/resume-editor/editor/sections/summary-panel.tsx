@@ -16,7 +16,7 @@ import { summaryContentSchema } from "@/features/resume-editor/domain/schema";
 import { createFormSchemaResolver } from "@/features/resume-editor/forms/schemas/create-form-schema-resolver";
 import { useAutoSave } from "@/features/resume-editor/forms/use-auto-save";
 import { useSyncedFormValues } from "@/features/resume-editor/forms/use-synced-form-values";
-import { RichTextEditor } from "@/features/resume-editor/editor/rich-text/rich-text-editor";
+import { RichTextEditorWithImprove } from "@/features/resume-editor/editor/rich-text/improve-with-ai-dialog";
 import { EditorCard } from "@/features/resume-editor/editor/sections/editor-card";
 import { FieldLabelText } from "@/features/resume-editor/editor/sections/field-label-text";
 import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
@@ -66,15 +66,16 @@ export function SummaryPanel({ draft, onSave }: SummaryPanelProps) {
               control={control}
               name="content"
               render={({ field }) => (
-                <RichTextEditor
+                <RichTextEditorWithImprove
                   value={field.value}
+                  ariaLabel="Summary content"
+                  invalid={getFieldState("content", formState).invalid}
                   onChange={(value) =>
                     summaryForm.setValue("content", value, {
                       shouldDirty: true,
                       shouldValidate: formState.isSubmitted,
                     })
                   }
-                  invalid={getFieldState("content", formState).invalid}
                 />
               )}
             />

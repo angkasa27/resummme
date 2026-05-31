@@ -162,6 +162,7 @@ function JdAnalyzeBody({
         </Button>
         <Button
           type="button"
+          variant="ai"
           size="sm"
           disabled={trimmed.length === 0 || overLimit}
           onClick={() => onSubmit(trimmed)}

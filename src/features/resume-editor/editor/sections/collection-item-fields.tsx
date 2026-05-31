@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { Controller, type UseFormReturn } from "react-hook-form";
 
 import {
@@ -28,8 +27,7 @@ import {
   languageProficiencyOptions,
   type CollectionSectionKey,
 } from "@/features/resume-editor/domain/sections/section-metadata";
-import { ImproveWithAiDialog } from "@/features/resume-editor/editor/rich-text/improve-with-ai-dialog";
-import { RichTextEditor } from "@/features/resume-editor/editor/rich-text/rich-text-editor";
+import { RichTextEditorWithImprove } from "@/features/resume-editor/editor/rich-text/improve-with-ai-dialog";
 import { FieldLabelText } from "@/features/resume-editor/editor/sections/field-label-text";
 import { MonthYearPicker } from "@/features/resume-editor/editor/sections/month-year-picker";
 import { parseMonthYear } from "@/features/resume-editor/domain/month-year";
@@ -413,38 +411,3 @@ export function CollectionItemFields({
   );
 }
 
-type RichTextEditorWithImproveProps = {
-  value: string;
-  ariaLabel: string;
-  invalid: boolean;
-  onChange: (value: string) => void;
-};
-
-function RichTextEditorWithImprove({
-  value,
-  ariaLabel,
-  invalid,
-  onChange,
-}: RichTextEditorWithImproveProps) {
-  const [improveOpen, setImproveOpen] = useState(false);
-
-  return (
-    <>
-      <RichTextEditor
-        value={value}
-        ariaLabel={ariaLabel}
-        invalid={invalid}
-        onChange={onChange}
-        onImproveWithAi={() => setImproveOpen(true)}
-      />
-      <ImproveWithAiDialog
-        open={improveOpen}
-        onOpenChange={setImproveOpen}
-        currentHtml={value}
-        onAccept={(improved) => {
-          onChange(improved);
-        }}
-      />
-    </>
-  );
-}

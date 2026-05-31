@@ -63,6 +63,7 @@ export function CanvasControlPanel({
       <section className="flex shrink-0 flex-col gap-2 px-4 py-4">
         <Button
           type="button"
+          variant="ai"
           size="lg"
           className="w-full justify-center font-medium"
           disabled={isImportingPdf}

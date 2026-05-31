@@ -354,7 +354,7 @@ export function RichTextEditor({
             <Separator orientation="vertical" />
             <Button
               type="button"
-              variant="outline"
+              variant="ai"
               size="icon"
               title="Improve with AI"
               aria-label="Improve with AI"

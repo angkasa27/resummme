@@ -47,6 +47,7 @@ export function JobDescriptionPanel({
         </div>
         <Button
           type="button"
+          variant="ai"
           size="sm"
           className="w-full"
           onClick={onAnalyzeClick}
