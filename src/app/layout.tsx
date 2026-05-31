@@ -27,7 +27,7 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://resummme.asaa.dev"),
-  title: "Resummme | asaa.dev",
+  title: "Resummme | Resume Editor",
   description:
     "A free, open-source resume editor. Write once, preview instantly, export to PDF — no account required",
   icons: {
@@ -37,24 +37,24 @@ export const metadata: Metadata = {
     canonical: "/",
   },
   openGraph: {
-    title: "Resummme | asaa.dev",
+    title: "Resummme | Resume Editor",
     description:
       "A free, open-source resume editor. Write once, preview instantly, export to PDF — no account required",
     url: "/",
-    siteName: "Resummme | asaa.dev",
+    siteName: "Resummme | Resume Editor",
     type: "website",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Resummme | asaa.dev",
+        alt: "Resummme | Resume Editor",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Resummme | asaa.dev",
+    title: "Resummme | Resume Editor",
     description:
       "A free, open-source resume editor. Write once, preview instantly, export to PDF — no account required",
     images: ["/og-image.png"],
