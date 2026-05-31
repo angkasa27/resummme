@@ -10,6 +10,7 @@ import {
   LinkIcon,
   ListIcon,
   ListOrderedIcon,
+  SparklesIcon,
   UnderlineIcon,
 } from "lucide-react";
 
@@ -39,6 +40,7 @@ type RichTextEditorProps = {
   heightClassName?: string;
   invalid?: boolean;
   ariaLabel?: string;
+  onImproveWithAi?: () => void;
 };
 
 export function RichTextEditor({
@@ -48,6 +50,7 @@ export function RichTextEditor({
   heightClassName = "h-48",
   invalid = false,
   ariaLabel,
+  onImproveWithAi,
 }: RichTextEditorProps) {
   const linkInputId = useId();
   const [isLinkEditorOpen, setIsLinkEditorOpen] = useState(false);
@@ -305,7 +308,7 @@ export function RichTextEditor({
                 inputMode="url"
                 autoCapitalize="none"
                 autoCorrect="off"
-                spellCheck={false}
+                spellCheck={true}
                 aria-invalid={linkError ? true : undefined}
                 value={linkDraft}
                 onChange={(event) => {
@@ -346,6 +349,21 @@ export function RichTextEditor({
         >
           <Link2OffIcon />
         </Button>
+        {onImproveWithAi ? (
+          <>
+            <Separator orientation="vertical" />
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              title="Improve with AI"
+              aria-label="Improve with AI"
+              onClick={onImproveWithAi}
+            >
+              <SparklesIcon />
+            </Button>
+          </>
+        ) : null}
         <span className="ml-auto text-[10px] tabular-nums text-muted-foreground select-none">
           {wordCount}w · {charCount}c
         </span>

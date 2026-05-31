@@ -20,7 +20,8 @@ type InsightsTabProps = {
 };
 
 export function InsightsTab({ draft, onOpenSection }: InsightsTabProps) {
-  const { jobMatch, jobDescription, submitState, analyze, reset } = useJobMatch(draft);
+  const { jobMatch, jobDescription, submitState, analyze, reset } =
+    useJobMatch(draft);
   const score = useAtsScore(draft, jobMatch ?? undefined);
   const [isAnalyzeOpen, setIsAnalyzeOpen] = useState(false);
 
@@ -28,11 +29,14 @@ export function InsightsTab({ draft, onOpenSection }: InsightsTabProps) {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-col items-center gap-2 py-1">
-        <ScoreRing score={score.score} />
-      </div>
+      <section className="rounded-md border bg-background p-3">
+        <div className="flex flex-col items-center gap-2 py-1 mb-3">
+          <ScoreRing score={score.score} />
+        </div>
 
-      <CategoryBreakdown breakdown={score.breakdown} />
+        <CategoryBreakdown breakdown={score.breakdown} />
+      </section>
+
       <SuggestionList suggestions={score.suggestions} onFix={onOpenSection} />
       <JobDescriptionPanel
         jobMatch={jobMatch}

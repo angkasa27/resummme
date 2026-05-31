@@ -1,5 +1,22 @@
 import "@testing-library/jest-dom/vitest";
 
+// JSDOM does not implement matchMedia; provide a minimal stub so hooks that
+// call window.matchMedia (e.g. useIsMobile) don't throw in unit tests.
+Object.defineProperty(globalThis, "matchMedia", {
+  writable: true,
+  configurable: true,
+  value: (query: string) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: () => {},
+    removeListener: () => {},
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    dispatchEvent: () => false,
+  }),
+});
+
 class ResizeObserverMock {
   observe() {}
 
