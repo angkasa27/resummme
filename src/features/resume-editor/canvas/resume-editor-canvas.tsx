@@ -109,6 +109,8 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
   const [isDiscardConfirmOpen, setIsDiscardConfirmOpen] = useState(false);
   const [isMobilePanelOpen, setIsMobilePanelOpen] = useState(false);
   const [isExtractCvOpen, setIsExtractCvOpen] = useState(false);
+  const [pendingHideKey, setPendingHideKey] =
+    useState<CollectionSectionKey | null>(null);
   const [zoom, setZoom] = useState<number>(ZOOM_DEFAULT);
   const isMobile = useIsMobile();
   const [dismissedMobileAlert, setDismissedMobileAlert] = useState(
@@ -171,19 +173,21 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
     closeEditor();
   }
 
-  function confirmAndHide(key: CollectionSectionKey) {
-    if (
-      typeof window !== "undefined" &&
-      !window.confirm(
-        `Hide the ${sectionLabels[key]} section? You can add it back from below the resume.`,
-      )
-    ) {
-      return;
-    }
-    setSectionVisibility(key, false);
-    if (editing === key) {
+  function requestHideSection(key: CollectionSectionKey) {
+    setPendingHideKey(key);
+  }
+
+  function confirmHideSection() {
+    if (!pendingHideKey) return;
+    setSectionVisibility(pendingHideKey, false);
+    if (editing === pendingHideKey) {
       setEditing(null);
     }
+    setPendingHideKey(null);
+  }
+
+  function cancelHideSection() {
+    setPendingHideKey(null);
   }
 
   function openEditorSection(panel: EditorPanelKey) {
@@ -376,7 +380,7 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
                           onMoveDown={() =>
                             reorderSection(sectionKey, orderIndex + 1)
                           }
-                          onDelete={() => confirmAndHide(sectionKey)}
+                          onDelete={() => requestHideSection(sectionKey)}
                           canMoveUp={orderIndex > 0}
                           canMoveDown={orderIndex < collectionKeys.length - 1}
                         >
@@ -546,6 +550,37 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
               <AlertDialogCancel>Keep editing</AlertDialogCancel>
               <AlertDialogAction variant="destructive" onClick={closeEditor}>
                 Discard
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        <AlertDialog
+          open={pendingHideKey !== null}
+          onOpenChange={(open) => {
+            if (!open) setPendingHideKey(null);
+          }}
+        >
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogMedia className="text-destructive bg-destructive/10">
+                <TriangleAlert />
+              </AlertDialogMedia>
+              <AlertDialogTitle>
+                Hide {pendingHideKey ? sectionLabels[pendingHideKey] : ""}{" "}
+                section?
+              </AlertDialogTitle>
+              <AlertDialogDescription>
+                You can add it back from below the resume at any time.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={confirmHideSection}
+                variant="destructive"
+              >
+                Hide
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
