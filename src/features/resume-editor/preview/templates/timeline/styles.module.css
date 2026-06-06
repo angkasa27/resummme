@@ -22,8 +22,8 @@
 .template :global(.timeline-item) {
   display: flex;
   flex-direction: row;
-  gap: 12px;
-  padding-left: 12px;
+  gap: var(--resume-gap-section);
+  padding-left: var(--resume-gap-section);
   border-left: 2px solid var(--resume-accent);
   padding-bottom: var(--resume-gap-item);
 }
@@ -60,7 +60,7 @@
 .header {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: var(--resume-gap-section);
 }
 
 .header :global(.header-photo) {
@@ -82,5 +82,5 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--resume-gap-item);
 }

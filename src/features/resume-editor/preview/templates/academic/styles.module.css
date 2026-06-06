@@ -21,7 +21,7 @@
 }
 
 .template :global(.section) {
-  gap: 8px;
+  gap: var(--resume-gap-item);
 }
 
 .template :global(.item-title) {
@@ -54,9 +54,9 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: var(--resume-gap-item);
   text-align: center;
-  padding-bottom: 8px;
+  padding-bottom: var(--resume-gap-section);
 }
 
 .header :global(.header-photo) {
@@ -64,7 +64,7 @@
   height: 96px;
   border-radius: 6px;
   overflow: hidden;
-  margin-bottom: 4px;
+  margin-bottom: var(--resume-gap-item);
 }
 
 .header :global(.header-photo img) {

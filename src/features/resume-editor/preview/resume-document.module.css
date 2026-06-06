@@ -53,20 +53,20 @@
 .root :global(.section) {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--resume-gap-item);
 }
 
 .root :global(.item) {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--resume-gap-item);
 }
 
 .root :global(.item-row) {
   flex-direction: row;
   align-items: baseline;
   justify-content: space-between;
-  gap: 12px;
+  gap: var(--resume-gap-section);
 }
 
 .root :global(.item-row .item-title) {
@@ -81,7 +81,7 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: start;
-  gap: 12px;
+  gap: var(--resume-gap-section);
 }
 
 .root :global(.item-header-main) {

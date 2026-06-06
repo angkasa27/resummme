@@ -13,7 +13,7 @@
 .header {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: var(--resume-gap-section);
 }
 
 .header :global(.header-photo) {
@@ -35,5 +35,5 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--resume-gap-item);
 }

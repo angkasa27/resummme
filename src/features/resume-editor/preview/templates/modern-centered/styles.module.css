@@ -19,7 +19,7 @@
 }
 
 .template :global(.section) {
-  gap: 10px;
+  gap: var(--resume-gap-item);
 }
 
 /* Stacked item header (no L/R grid) — date drops below the title row. */
@@ -34,7 +34,7 @@
   text-align: left;
   align-items: flex-start;
   flex-direction: row;
-  gap: 8px;
+  gap: calc(var(--resume-gap-item) * 0.8);
 }
 
 .template :global(.item-date) {
@@ -51,7 +51,7 @@
 .header {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: var(--resume-gap-section);
 }
 
 .header :global(.header-photo) {
@@ -73,7 +73,7 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--resume-gap-item);
 }
 
 .header :global(.name) {
