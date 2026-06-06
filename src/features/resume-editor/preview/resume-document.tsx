@@ -19,10 +19,17 @@ export function ResumeDocument({
   const context = createPreviewRenderContext(draft, mode);
   const template = getTemplate(context.presentation.templateId);
 
+  const hideSummaryHeading =
+    context.presentation.templateId === "classic" ||
+    context.presentation.templateId === "timeline";
+
   const slots: TemplateSlots = {
     header: renderTemplateHeader(context),
     summary: context.summaryContent ? (
-      <SummaryView content={context.summaryContent} />
+      <SummaryView
+        content={context.summaryContent}
+        showHeading={!hideSummaryHeading}
+      />
     ) : null,
     sections: context.sections.map((section) => ({
       key: section.key,

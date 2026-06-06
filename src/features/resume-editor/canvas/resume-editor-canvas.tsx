@@ -274,7 +274,13 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
                         isEditing={editing === "summary"}
                         onEdit={() => startEditingSection("summary")}
                       >
-                        <SummaryView content={context.summaryContent ?? ""} />
+                        <SummaryView
+                          content={context.summaryContent ?? ""}
+                          showHeading={
+                            context.presentation.templateId !== "classic" &&
+                            context.presentation.templateId !== "timeline"
+                          }
+                        />
                       </CanvasSectionShell>
                     ) : null,
                   sections: collectionKeys.map((sectionKey) => {
