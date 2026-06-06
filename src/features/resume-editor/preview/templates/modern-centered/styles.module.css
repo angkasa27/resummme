@@ -47,13 +47,11 @@
   margin-right: 4px;
 }
 
-/* Header — centered name + contact, hairline accent rule under name. */
+/* Header — photo on the side, name with hairline accent rule underneath. */
 .header {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 8px;
-  text-align: center;
+  gap: 20px;
 }
 
 .header :global(.header-photo) {
@@ -61,6 +59,7 @@
   height: 96px;
   border-radius: 6px;
   overflow: hidden;
+  flex-shrink: 0;
 }
 
 .header :global(.header-photo img) {
@@ -69,24 +68,25 @@
   object-fit: cover;
 }
 
+.header :global(.header-body) {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
 .header :global(.name) {
   position: relative;
-  text-align: center;
   padding-bottom: 8px;
 }
 
 .header :global(.name)::after {
   content: "";
   position: absolute;
-  left: 50%;
+  left: 0;
   bottom: 0;
-  transform: translateX(-50%);
   width: 100%;
   height: 2px;
   background: var(--resume-accent);
-}
-
-.header :global(.contact-line) {
-  text-align: center;
-  max-width: 80%;
 }

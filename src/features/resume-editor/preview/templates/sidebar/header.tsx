@@ -13,10 +13,12 @@ export function SidebarHeader({ context }: TemplateHeaderProps) {
           <img src={draft.profile.photo} alt={draft.profile.fullName} />
         </div>
       ) : null}
-      <h1 className="name" data-testid="resume-preview-full-name">
-        {draft.profile.fullName}
-      </h1>
-      <PreviewContactLine context={context} />
+      <div className="header-body">
+        <h1 className="name" data-testid="resume-preview-full-name">
+          {draft.profile.fullName}
+        </h1>
+        <PreviewContactLine context={context} />
+      </div>
     </header>
   );
 }
