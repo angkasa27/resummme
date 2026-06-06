@@ -3,11 +3,11 @@ import type {
   TemplateComponentProps,
 } from "@/features/resume-editor/preview/template-types";
 
-import { CompactHeader } from "./header";
-import { compactItemViews } from "./items";
+import { TimelineHeader } from "./header";
+import { timelineItemViews } from "./items";
 import styles from "./styles.module.css";
 
-function CompactTemplate({ slots }: TemplateComponentProps) {
+function TimelineTemplate({ slots }: TemplateComponentProps) {
   return (
     <div className={styles.template}>
       {slots.header}
@@ -21,12 +21,12 @@ function CompactTemplate({ slots }: TemplateComponentProps) {
   );
 }
 
-export const compactTemplate: PreviewTemplateDefinition = {
-  id: "compact",
-  label: "Compact",
+export const timelineTemplate: PreviewTemplateDefinition = {
+  id: "timeline",
+  label: "Timeline",
   description:
-    "Dense single-column layout with inline meta and tighter spacing. Good for one-page resumes.",
-  Component: CompactTemplate,
-  Header: CompactHeader,
-  itemViews: compactItemViews,
+    "Single-column layout with a subtle accent bar beside each item, emphasizing dates and chronology.",
+  Component: TimelineTemplate,
+  Header: TimelineHeader,
+  itemViews: timelineItemViews,
 };

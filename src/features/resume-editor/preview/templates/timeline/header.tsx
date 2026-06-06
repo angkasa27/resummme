@@ -3,10 +3,10 @@ import type { TemplateHeaderProps } from "@/features/resume-editor/preview/templ
 
 import styles from "./styles.module.css";
 
-export function CompactHeader({ context }: TemplateHeaderProps) {
+export function TimelineHeader({ context }: TemplateHeaderProps) {
   const { draft } = context;
   return (
-    <header className={`${styles.header} layout-header`} data-template="compact">
+    <header className={`${styles.header} layout-header`} data-template="timeline">
       {draft.profile.photo ? (
         <div className="header-photo" data-slot="photo-frame">
           {/* eslint-disable-next-line @next/next/no-img-element */}

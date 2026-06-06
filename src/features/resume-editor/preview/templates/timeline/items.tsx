@@ -5,37 +5,37 @@ import { joinParts } from "@/features/resume-editor/preview/helpers/string";
 import type { SectionItem } from "@/features/resume-editor/preview/sections/types";
 import type { TemplateSectionItemMap } from "@/features/resume-editor/preview/template-types";
 
-function CompactRow({
+function TimelineItem({
   title,
-  trailing,
   meta,
+  date,
   description,
 }: {
   title: React.ReactNode;
-  trailing?: string;
   meta?: string;
+  date?: string;
   description?: string;
 }) {
   return (
-    <div className="item">
-      <div className="item-header">
-        <div className="item-header-main">
+    <div className="item timeline-item">
+      <div className="item-content">
+        <div className="item-header">
           <h3 className="item-title">{title}</h3>
-          {meta ? <span className="meta">{meta}</span> : null}
+          {date ? <span className="item-date">{date}</span> : null}
         </div>
-        {trailing ? <span className="item-date">{trailing}</span> : null}
+        {meta ? <div className="meta">{meta}</div> : null}
+        {description ? <PreviewRichTextBlock content={description} /> : null}
       </div>
-      {description ? <PreviewRichTextBlock content={description} /> : null}
     </div>
   );
 }
 
 function WorkExperienceItem({ item }: { item: SectionItem<"workExperience"> }) {
   return (
-    <CompactRow
+    <TimelineItem
       title={item.position}
       meta={joinParts([item.companyName, item.location])}
-      trailing={renderDateRange(item.startDate, item.endDate)}
+      date={renderDateRange(item.startDate, item.endDate)}
       description={item.description}
     />
   );
@@ -43,20 +43,22 @@ function WorkExperienceItem({ item }: { item: SectionItem<"workExperience"> }) {
 
 function SkillsItem({ item }: { item: SectionItem<"skills"> }) {
   return (
-    <div className="item item-row">
-      <h3 className="item-title">{item.categoryName}</h3>
-      <span className="meta">{item.skills.filter(Boolean).join(", ")}</span>
+    <div className="item timeline-item">
+      <div className="item-content">
+        <h3 className="item-title">{item.categoryName}</h3>
+        <div className="meta">{item.skills.filter(Boolean).join(", ")}</div>
+      </div>
     </div>
   );
 }
 
 function ProjectsItem({ item }: { item: SectionItem<"projects"> }) {
   return (
-    <CompactRow
+    <TimelineItem
       title={
         <PreviewLinkedTitle title={item.projectName} link={item.projectLink} />
       }
-      trailing={renderDateRange(item.startDate, item.endDate)}
+      date={renderDateRange(item.startDate, item.endDate)}
       description={item.description}
     />
   );
@@ -64,14 +66,14 @@ function ProjectsItem({ item }: { item: SectionItem<"projects"> }) {
 
 function EducationItem({ item }: { item: SectionItem<"education"> }) {
   return (
-    <CompactRow
+    <TimelineItem
       title={item.degree || item.name}
       meta={joinParts([
         item.degree && item.name ? item.name : undefined,
         item.location,
         item.gpa ? `GPA ${item.gpa}` : undefined,
       ])}
-      trailing={renderDateRange(item.startDate, item.endDate)}
+      date={renderDateRange(item.startDate, item.endDate)}
       description={item.description}
     />
   );
@@ -79,10 +81,12 @@ function EducationItem({ item }: { item: SectionItem<"education"> }) {
 
 function PublicationsItem({ item }: { item: SectionItem<"publications"> }) {
   return (
-    <CompactRow
-      title={<PreviewLinkedTitle title={item.title} link={item.publicationUrl} />}
+    <TimelineItem
+      title={
+        <PreviewLinkedTitle title={item.title} link={item.publicationUrl} />
+      }
       meta={item.publisher || undefined}
-      trailing={item.publicationDate}
+      date={item.publicationDate}
       description={item.description}
     />
   );
@@ -94,7 +98,7 @@ function CertificationsItem({
   item: SectionItem<"certifications">;
 }) {
   return (
-    <CompactRow
+    <TimelineItem
       title={
         <PreviewLinkedTitle
           title={item.certificationName}
@@ -105,17 +109,17 @@ function CertificationsItem({
         item.issuingOrganization,
         item.credentialId ? `ID ${item.credentialId}` : undefined,
       ])}
-      trailing={item.issuedDate}
+      date={item.issuedDate}
     />
   );
 }
 
 function AwardsItem({ item }: { item: SectionItem<"awards"> }) {
   return (
-    <CompactRow
+    <TimelineItem
       title={item.title}
       meta={item.issuer || undefined}
-      trailing={item.issuedDate}
+      date={item.issuedDate}
       description={item.description}
     />
   );
@@ -123,20 +127,24 @@ function AwardsItem({ item }: { item: SectionItem<"awards"> }) {
 
 function LanguagesItem({ item }: { item: SectionItem<"languages"> }) {
   return (
-    <div className="item item-row">
-      <h3 className="item-title">{item.language}</h3>
-      <span className="meta">{item.proficiency}</span>
+    <div className="item timeline-item">
+      <div className="item-content">
+        <h3 className="item-title">{item.language}</h3>
+        <span className="meta">{item.proficiency}</span>
+      </div>
     </div>
   );
 }
 
 function ReferencesItem({ item }: { item: SectionItem<"references"> }) {
   return (
-    <div className="item">
-      <h3 className="item-title">{item.name}</h3>
-      <span className="meta">
-        {joinParts([item.background, item.contactDetails])}
-      </span>
+    <div className="item timeline-item">
+      <div className="item-content">
+        <h3 className="item-title">{item.name}</h3>
+        <div className="meta">
+          {joinParts([item.background, item.contactDetails])}
+        </div>
+      </div>
     </div>
   );
 }
@@ -147,16 +155,16 @@ function OrganizationVolunteeringItem({
   item: SectionItem<"organizationVolunteering">;
 }) {
   return (
-    <CompactRow
+    <TimelineItem
       title={item.position}
       meta={joinParts([item.organizationName, item.location])}
-      trailing={renderDateRange(item.startDate, item.endDate)}
+      date={renderDateRange(item.startDate, item.endDate)}
       description={item.description}
     />
   );
 }
 
-export const compactItemViews: TemplateSectionItemMap = {
+export const timelineItemViews: TemplateSectionItemMap = {
   workExperience: WorkExperienceItem,
   skills: SkillsItem,
   projects: ProjectsItem,

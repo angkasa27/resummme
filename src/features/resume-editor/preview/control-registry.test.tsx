@@ -50,8 +50,8 @@ describe("preview control registry", () => {
     for (const label of [
       /^classic$/i,
       /^sidebar$/i,
-      /^modern centered$/i,
-      /^compact$/i,
+      /^modern$/i,
+      /^timeline$/i,
       /^academic$/i,
     ]) {
       expect(

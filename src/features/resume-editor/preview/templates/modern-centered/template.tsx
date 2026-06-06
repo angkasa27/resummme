@@ -23,9 +23,9 @@ function ModernCenteredTemplate({ slots }: TemplateComponentProps) {
 
 export const modernCenteredTemplate: PreviewTemplateDefinition = {
   id: "modern-centered",
-  label: "Modern Centered",
+  label: "Modern",
   description:
-    "Centered name with a hairline accent rule. Section headings are underlined; item headers stack vertically.",
+    "Hairline accent rule under section headings; item headers stack vertically.",
   Component: ModernCenteredTemplate,
   Header: ModernCenteredHeader,
   itemViews: modernCenteredItemViews,

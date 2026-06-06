@@ -15,7 +15,7 @@ describe("preview template registry", () => {
       "classic",
       "sidebar",
       "modern-centered",
-      "compact",
+      "timeline",
       "academic",
     ]);
   });
@@ -25,7 +25,7 @@ describe("preview template registry", () => {
       "classic",
       "sidebar",
       "modern-centered",
-      "compact",
+      "timeline",
       "academic",
     ] as const) {
       expect(getTemplate(id).id).toBe(id);
@@ -42,7 +42,7 @@ describe("preview template registry", () => {
       "classic",
       "sidebar",
       "modern-centered",
-      "compact",
+      "timeline",
       "academic",
     ] as const) {
       draft.pdfPresentation.templateId = id;
@@ -64,10 +64,10 @@ describe("preview template registry", () => {
     expect(sidebar.getColumn?.("education")).toBe("main");
   });
 
-  it("classic / modern-centered / compact / academic have no column partitioning", () => {
+  it("classic / modern-centered / timeline / academic have no column partitioning", () => {
     expect(getTemplate("classic").getColumn).toBeUndefined();
     expect(getTemplate("modern-centered").getColumn).toBeUndefined();
-    expect(getTemplate("compact").getColumn).toBeUndefined();
+    expect(getTemplate("timeline").getColumn).toBeUndefined();
     expect(getTemplate("academic").getColumn).toBeUndefined();
   });
 });

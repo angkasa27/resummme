@@ -11,7 +11,7 @@ export const pdfTemplateIds = [
   "classic",
   "sidebar",
   "modern-centered",
-  "compact",
+  "timeline",
   "academic",
 ] as const;
 export type PdfTemplateId = (typeof pdfTemplateIds)[number];
@@ -50,8 +50,8 @@ export type ResolvedPdfPresentation = {
 export const pdfTemplateLabels: Record<PdfTemplateId, string> = {
   classic: "Classic",
   sidebar: "Sidebar",
-  "modern-centered": "Modern Centered",
-  compact: "Compact",
+  "modern-centered": "Modern",
+  timeline: "Timeline",
   academic: "Academic",
 };
 

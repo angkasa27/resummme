@@ -69,8 +69,8 @@ const BASE_WEIGHTS_NO_JD: Record<AtsCategory, number> = {
 
 const PARSEABILITY_BY_TEMPLATE: Record<PdfTemplateId, number> = {
   classic: 100,
-  compact: 100,
   "modern-centered": 80,
+  timeline: 100,
   academic: 80,
   sidebar: 55,
 };
@@ -215,7 +215,7 @@ function scoreParseability(
       category: "parseability",
       severity: "ok",
       message:
-        "Most ATS parsers handle this template; classic / compact score slightly higher.",
+        "Most ATS parsers handle this template; classic / timeline score slightly higher.",
     });
   }
 
