@@ -3,12 +3,15 @@
 import {
   Loader,
   PlusIcon,
+  Redo2Icon,
   SlidersHorizontalIcon,
   TriangleAlert,
+  Undo2Icon,
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
+import { toast } from "sonner";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Sheet,
@@ -33,6 +36,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useClientReady } from "@/hooks/use-client-ready";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 
 import { useResumeEditorController } from "@/features/resume-editor/editor/hooks/use-resume-editor-controller";
 import { ExtractCvDialog } from "@/features/resume-editor/canvas/controls/extract-cv-dialog";
@@ -66,6 +70,8 @@ import {
 } from "@/features/resume-editor/domain/sections/section-metadata";
 import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ButtonGroup } from "@/components/ui/button-group";
+import { cn } from "@/lib/utils";
 
 const GITHUB_URL = "https://github.com/angkasa27/resume-editor";
 
@@ -92,6 +98,10 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
     savePdfPresentation,
     reorderSection,
     setSectionVisibility,
+    undo,
+    redo,
+    canUndo,
+    canRedo,
   } = useResumeEditorController({ initialDraft });
 
   const [editing, setEditing] = useState<EditingTarget>(null);
@@ -106,6 +116,16 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
       typeof window !== "undefined" &&
       localStorage.getItem("resume-editor:mobile-alert-dismissed") === "true",
   );
+
+  useKeyboardShortcuts({
+    "mod+z": undo,
+    "mod+shift+z": redo,
+    "mod+s": {
+      handler: () => toast.success("Auto-saved"),
+      ignoreInputFocus: false,
+    },
+    escape: { handler: requestCloseEditor, ignoreInputFocus: true },
+  });
 
   if (!isClientReady) {
     return (
@@ -241,16 +261,49 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
               </TabsTrigger>
             </TabsList>
           </Tabs>
+          <div className="flex-1" />
+
+          <ButtonGroup>
+            <Button
+              type="button"
+              onClick={undo}
+              disabled={!canUndo}
+              aria-label="Undo"
+              variant="outline"
+              size={isMobile ? "icon-sm" : "sm"}
+            >
+              <Undo2Icon className="size-4" />
+              <span className="hidden md:flex">Undo</span>
+            </Button>
+            <Button
+              type="button"
+              onClick={redo}
+              disabled={!canRedo}
+              aria-label="Redo"
+              variant="outline"
+              size={isMobile ? "icon-sm" : "sm"}
+            >
+              <Redo2Icon className="size-4" />
+              <span className="hidden md:flex">Redo</span>
+            </Button>
+          </ButtonGroup>
 
           <a
             href={GITHUB_URL}
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Open project on GitHub"
-            className={`${buttonVariants({ variant: "outline", size: "sm" })} ml-auto bg-foreground text-background hover:bg-foreground/80! hover:text-background!`}
+            // className={`${buttonVariants({ variant: "outline", size: "icon-sm" })} ml-auto bg-foreground text-background hover:bg-foreground/80! hover:text-background!`}
+            className={cn(
+              buttonVariants({
+                variant: "outline",
+                size: isMobile ? "icon-sm" : "sm",
+              }),
+              "ml-auto bg-foreground text-background hover:bg-foreground/80! hover:text-background!",
+            )}
           >
             <GithubMarkIcon data-icon="inline-start" />
-            <span className="inline">GitHub</span>
+            <span className="hidden md:flex">GitHub</span>
           </a>
         </header>
 

@@ -18,6 +18,8 @@ export type ResumeEditorPanelKey = "profile" | ResumeSectionKey;
 export type ResumeEditorStoreState = {
   draft: ResumeDraft;
   activeSection: ResumeEditorPanelKey;
+  undoStack: ResumeDraft[];
+  redoStack: ResumeDraft[];
   saveProfile: (profile: Profile) => void;
   savePdfPresentation: (pdfPresentation: PdfPresentation) => void;
   saveSection: <K extends ResumeSectionKey>(
@@ -28,6 +30,8 @@ export type ResumeEditorStoreState = {
   setSectionVisibility: (sectionKey: ResumeSectionKey, visible: boolean) => void;
   requestSectionChange: (sectionKey: ResumeEditorPanelKey) => void;
   replaceDraft: (draft: ResumeDraft) => void;
+  undo: () => void;
+  redo: () => void;
 };
 
 function createNextDraft(
@@ -62,56 +66,94 @@ function normalizeSectionValue<K extends ResumeSectionKey>(
   } as ResumeDraft["sections"][K];
 }
 
+const MAX_HISTORY = 50;
+
+function pushUndoStack(
+  stack: ResumeDraft[],
+  draft: ResumeDraft
+): ResumeDraft[] {
+  const next = [...stack, structuredClone(draft)];
+  if (next.length > MAX_HISTORY) next.shift();
+  return next;
+}
+
 export function createResumeEditorStore(initialDraft = createDefaultResumeDraft()) {
   return createStore<ResumeEditorStoreState>()((set, get) => ({
     draft: initialDraft,
     activeSection: "profile",
+    undoStack: [],
+    redoStack: [],
     saveProfile: (profile) => {
-      const nextDraft = saveResumeDraft(createNextDraft(get().draft, { profile }));
-      set({ draft: nextDraft });
+      const state = get();
+      const nextDraft = saveResumeDraft(createNextDraft(state.draft, { profile }));
+      set({
+        draft: nextDraft,
+        undoStack: pushUndoStack(state.undoStack, state.draft),
+        redoStack: [],
+      });
     },
     savePdfPresentation: (pdfPresentation) => {
+      const state = get();
       const nextDraft = saveResumeDraft(
-        createNextDraft(get().draft, { pdfPresentation })
+        createNextDraft(state.draft, { pdfPresentation })
       );
-      set({ draft: nextDraft });
+      set({
+        draft: nextDraft,
+        undoStack: pushUndoStack(state.undoStack, state.draft),
+        redoStack: [],
+      });
     },
     saveSection: (sectionKey, sectionValue) => {
+      const state = get();
       const normalizedSectionValue = normalizeSectionValue(sectionKey, sectionValue);
       const nextDraft = saveResumeDraft(
-        createNextDraft(get().draft, {
+        createNextDraft(state.draft, {
           sections: reorderSections(
-            get().draft.sections,
+            state.draft.sections,
             sectionKey,
             normalizedSectionValue
           ),
         })
       );
-      set({ draft: nextDraft });
+      set({
+        draft: nextDraft,
+        undoStack: pushUndoStack(state.undoStack, state.draft),
+        redoStack: [],
+      });
     },
     reorderSection: (sectionKey, targetIndex) => {
+      const state = get();
       const nextDraft = saveResumeDraft(
-        createNextDraft(get().draft, {
+        createNextDraft(state.draft, {
           sections: reorderSectionToIndex(
-            get().draft.sections,
+            state.draft.sections,
             sectionKey,
             targetIndex
           ),
         })
       );
-      set({ draft: nextDraft });
+      set({
+        draft: nextDraft,
+        undoStack: pushUndoStack(state.undoStack, state.draft),
+        redoStack: [],
+      });
     },
     setSectionVisibility: (sectionKey, visible) => {
+      const state = get();
       const nextDraft = saveResumeDraft(
-        createNextDraft(get().draft, {
+        createNextDraft(state.draft, {
           sections: setSectionVisibilityWithOrder(
-            get().draft.sections,
+            state.draft.sections,
             sectionKey,
             visible
           ),
         })
       );
-      set({ draft: nextDraft });
+      set({
+        draft: nextDraft,
+        undoStack: pushUndoStack(state.undoStack, state.draft),
+        redoStack: [],
+      });
     },
     requestSectionChange: (sectionKey) => {
       set({
@@ -123,6 +165,30 @@ export function createResumeEditorStore(initialDraft = createDefaultResumeDraft(
       set({
         draft: nextDraft,
         activeSection: "profile",
+        undoStack: [],
+        redoStack: [],
+      });
+    },
+    undo: () => {
+      const state = get();
+      const previousDraft = state.undoStack.at(-1);
+      if (!previousDraft) return;
+      const nextDraft = saveResumeDraft(previousDraft);
+      set({
+        draft: nextDraft,
+        undoStack: state.undoStack.slice(0, -1),
+        redoStack: [...state.redoStack, structuredClone(state.draft)],
+      });
+    },
+    redo: () => {
+      const state = get();
+      const nextDraft = state.redoStack.at(-1);
+      if (!nextDraft) return;
+      const persistedDraft = saveResumeDraft(nextDraft);
+      set({
+        draft: persistedDraft,
+        redoStack: state.redoStack.slice(0, -1),
+        undoStack: [...state.undoStack, structuredClone(state.draft)],
       });
     },
   }));

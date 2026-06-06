@@ -41,6 +41,10 @@ export type ResumeEditorController = {
     sectionKey: K,
     sectionValue: ResumeDraft["sections"][K]
   ) => void;
+  undo: () => void;
+  redo: () => void;
+  canUndo: boolean;
+  canRedo: boolean;
 };
 
 export function useResumeEditorController({
@@ -55,6 +59,8 @@ export function useResumeEditorController({
   const isImportingPdfRef = useRef(false);
   const draft = useStore(store, (state) => state.draft);
   const activeSection = useStore(store, (state) => state.activeSection);
+  const canUndo = useStore(store, (state) => state.undoStack.length > 0);
+  const canRedo = useStore(store, (state) => state.redoStack.length > 0);
   const [isExportingPdf, setIsExportingPdf] = useState(false);
   const [isImportingPdf, setIsImportingPdf] = useState(false);
 
@@ -222,6 +228,20 @@ export function useResumeEditorController({
     saveProfile: (profile) => store.getState().saveProfile(profile),
     saveSection: (sectionKey, sectionValue) =>
       store.getState().saveSection(sectionKey, sectionValue),
+    undo: () => {
+      const state = store.getState();
+      if (state.undoStack.length === 0) return;
+      state.undo();
+      toast.success("Undone");
+    },
+    redo: () => {
+      const state = store.getState();
+      if (state.redoStack.length === 0) return;
+      state.redo();
+      toast.success("Redone");
+    },
+    canUndo,
+    canRedo,
   };
 }
 
