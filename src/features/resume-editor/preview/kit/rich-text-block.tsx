@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 
-import { renderHtml } from "../engine";
+import { renderHtml, richTextHasContent } from "../engine";
 
 export function PreviewRichTextBlock({
   content,
@@ -9,6 +9,8 @@ export function PreviewRichTextBlock({
   content: string;
   className?: string;
 }) {
+  if (!richTextHasContent(content)) return null;
+
   return (
     <div
       className={cn("rich-text", className)}

@@ -92,7 +92,7 @@ export function sanitizeRichTextHtml(value: string) {
       "",
     );
 
-  return strippedBlockedTags.replace(
+  const sanitized = strippedBlockedTags.replace(
     /<\/?([a-z0-9-]+)([^>]*)>/gi,
     (match, rawTagName: string, rawAttributes: string) => {
       const tagName = rawTagName.toLowerCase();
@@ -136,4 +136,6 @@ export function sanitizeRichTextHtml(value: string) {
         : "<a>";
     },
   );
+
+  return sanitized.replace(/<p>(?:\s|<br\s*\/?>)*<\/p>/gi, "");
 }
