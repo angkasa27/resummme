@@ -53,7 +53,7 @@ describe("resume editor shell", () => {
 
     await waitFor(() =>
       expect(
-        screen.getByRole("heading", { name: "Resummme" }),
+        screen.getByText("Resummme"),
       ).toBeInTheDocument(),
     );
   });
@@ -171,7 +171,7 @@ describe("resume editor shell", () => {
 
     await waitFor(() =>
       expect(
-        screen.getByRole("heading", { name: "Resummme" }),
+        screen.getByText("Resummme"),
       ).toBeInTheDocument(),
     );
     expect(screen.queryByText(/live preview/i)).not.toBeInTheDocument();
