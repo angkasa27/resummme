@@ -9,7 +9,7 @@ import { createPreviewRenderContext } from "@/features/resume-editor/preview/eng
 import { createDefaultResumeDraft } from "@/features/resume-editor/domain/draft/create-default-resume-draft";
 
 describe("preview template registry", () => {
-  it("exposes all five built-in templates", () => {
+  it("exposes all seven built-in templates", () => {
     const ids = previewTemplateDefinitions.map((template) => template.id);
     expect(ids).toEqual([
       "classic",
@@ -17,6 +17,8 @@ describe("preview template registry", () => {
       "modern-centered",
       "timeline",
       "academic",
+      "minimal",
+      "divided",
     ]);
   });
 
@@ -27,6 +29,8 @@ describe("preview template registry", () => {
       "modern-centered",
       "timeline",
       "academic",
+      "minimal",
+      "divided",
     ] as const) {
       expect(getTemplate(id).id).toBe(id);
     }
@@ -44,6 +48,8 @@ describe("preview template registry", () => {
       "modern-centered",
       "timeline",
       "academic",
+      "minimal",
+      "divided",
     ] as const) {
       draft.pdfPresentation.templateId = id;
       const context = createPreviewRenderContext(draft, "preview");
@@ -64,10 +70,12 @@ describe("preview template registry", () => {
     expect(sidebar.getColumn?.("education")).toBe("main");
   });
 
-  it("classic / modern-centered / timeline / academic have no column partitioning", () => {
+  it("classic / modern-centered / timeline / academic / minimal / divided have no column partitioning", () => {
     expect(getTemplate("classic").getColumn).toBeUndefined();
     expect(getTemplate("modern-centered").getColumn).toBeUndefined();
     expect(getTemplate("timeline").getColumn).toBeUndefined();
     expect(getTemplate("academic").getColumn).toBeUndefined();
+    expect(getTemplate("minimal").getColumn).toBeUndefined();
+    expect(getTemplate("divided").getColumn).toBeUndefined();
   });
 });

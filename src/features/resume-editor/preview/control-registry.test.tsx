@@ -34,7 +34,7 @@ describe("preview control registry", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("offers all five template options in the Template select", async () => {
+  it("offers all seven template options in the Template select", async () => {
     const user = userEvent.setup();
     const updatePresentation = vi.fn();
 
@@ -53,6 +53,8 @@ describe("preview control registry", () => {
       /^modern$/i,
       /^timeline$/i,
       /^academic$/i,
+      /^minimal$/i,
+      /^divided$/i,
     ]) {
       expect(
         await screen.findByRole("option", { name: label }),

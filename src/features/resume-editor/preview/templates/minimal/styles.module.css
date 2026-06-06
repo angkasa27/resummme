@@ -10,11 +10,6 @@
   gap: var(--resume-gap-section);
 }
 
-.template :global(.section-heading) {
-  border-bottom: 1px solid var(--resume-border);
-  padding-bottom: 3px;
-}
-
 .header {
   display: flex;
   align-items: center;

@@ -6,6 +6,10 @@ import { academicTemplate } from "./templates/academic/template";
 import { AcademicHeader } from "./templates/academic/header";
 import { classicTemplate } from "./templates/classic/template";
 import { ClassicHeader } from "./templates/classic/header";
+import { dividedTemplate } from "./templates/divided/template";
+import { DividedHeader } from "./templates/divided/header";
+import { minimalTemplate } from "./templates/minimal/template";
+import { MinimalHeader } from "./templates/minimal/header";
 import { modernCenteredTemplate } from "./templates/modern-centered/template";
 import { ModernCenteredHeader } from "./templates/modern-centered/header";
 import { sidebarTemplate } from "./templates/sidebar/template";
@@ -21,6 +25,8 @@ export const previewTemplateDefinitions = [
   modernCenteredTemplate,
   timelineTemplate,
   academicTemplate,
+  minimalTemplate,
+  dividedTemplate,
 ] as const satisfies ReadonlyArray<PreviewTemplateDefinition>;
 
 export function getTemplate(
@@ -42,6 +48,10 @@ export function renderTemplateHeader(context: PreviewRenderContext): ReactNode {
       return <TimelineHeader context={context} />;
     case "academic":
       return <AcademicHeader context={context} />;
+    case "minimal":
+      return <MinimalHeader context={context} />;
+    case "divided":
+      return <DividedHeader context={context} />;
     case "classic":
     default:
       return <ClassicHeader context={context} />;

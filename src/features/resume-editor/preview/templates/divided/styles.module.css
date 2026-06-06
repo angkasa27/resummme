@@ -7,12 +7,11 @@
 .template :global(.layout-body) {
   display: flex;
   flex-direction: column;
-  gap: var(--resume-gap-section);
 }
 
-.template :global(.section-heading) {
-  border-bottom: 1px solid var(--resume-border);
-  padding-bottom: 3px;
+.template :global(.layout-body > * + *) {
+  border-top: 1px solid var(--resume-border);
+  padding-top: var(--resume-gap-section);
 }
 
 .header {

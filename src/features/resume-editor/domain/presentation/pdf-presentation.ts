@@ -13,6 +13,8 @@ export const pdfTemplateIds = [
   "modern-centered",
   "timeline",
   "academic",
+  "minimal",
+  "divided",
 ] as const;
 export type PdfTemplateId = (typeof pdfTemplateIds)[number];
 
@@ -53,6 +55,8 @@ export const pdfTemplateLabels: Record<PdfTemplateId, string> = {
   "modern-centered": "Modern",
   timeline: "Timeline",
   academic: "Academic",
+  minimal: "Minimal",
+  divided: "Divided",
 };
 
 export const pdfFontScaleLabels: Record<PdfFontScaleId, string> = {

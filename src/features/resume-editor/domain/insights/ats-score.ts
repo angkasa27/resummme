@@ -73,6 +73,8 @@ const PARSEABILITY_BY_TEMPLATE: Record<PdfTemplateId, number> = {
   timeline: 100,
   academic: 80,
   sidebar: 55,
+  minimal: 100,
+  divided: 100,
 };
 
 const ACTION_VERBS = new Set(
