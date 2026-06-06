@@ -18,7 +18,7 @@ describe("preview template registry", () => {
       "timeline",
       "academic",
       "minimal",
-      "divided",
+      "inset",
     ]);
   });
 
@@ -30,7 +30,7 @@ describe("preview template registry", () => {
       "timeline",
       "academic",
       "minimal",
-      "divided",
+      "inset",
     ] as const) {
       expect(getTemplate(id).id).toBe(id);
     }
@@ -49,7 +49,7 @@ describe("preview template registry", () => {
       "timeline",
       "academic",
       "minimal",
-      "divided",
+      "inset",
     ] as const) {
       draft.pdfPresentation.templateId = id;
       const context = createPreviewRenderContext(draft, "preview");
@@ -70,12 +70,12 @@ describe("preview template registry", () => {
     expect(sidebar.getColumn?.("education")).toBe("main");
   });
 
-  it("classic / modern-centered / timeline / academic / minimal / divided have no column partitioning", () => {
+  it("classic / modern-centered / timeline / academic / minimal / inset have no column partitioning", () => {
     expect(getTemplate("classic").getColumn).toBeUndefined();
     expect(getTemplate("modern-centered").getColumn).toBeUndefined();
     expect(getTemplate("timeline").getColumn).toBeUndefined();
     expect(getTemplate("academic").getColumn).toBeUndefined();
     expect(getTemplate("minimal").getColumn).toBeUndefined();
-    expect(getTemplate("divided").getColumn).toBeUndefined();
+    expect(getTemplate("inset").getColumn).toBeUndefined();
   });
 });

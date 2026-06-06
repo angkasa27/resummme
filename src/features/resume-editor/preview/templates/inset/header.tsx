@@ -3,10 +3,10 @@ import type { TemplateHeaderProps } from "@/features/resume-editor/preview/templ
 
 import styles from "./styles.module.css";
 
-export function DividedHeader({ context }: TemplateHeaderProps) {
+export function InsetHeader({ context }: TemplateHeaderProps) {
   const { draft } = context;
   return (
-    <header className={`${styles.header} layout-header`} data-template="divided">
+    <header className={`${styles.header} layout-header`} data-template="inset">
       {draft.profile.photo ? (
         <div className="header-photo" data-slot="photo-frame">
           {/* eslint-disable-next-line @next/next/no-img-element */}

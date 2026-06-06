@@ -7,11 +7,39 @@
 .template :global(.layout-body) {
   display: flex;
   flex-direction: column;
+  gap: var(--resume-gap-section);
 }
 
-.template :global(.layout-body > * + *) {
-  border-top: 1px solid var(--resume-border);
-  padding-top: var(--resume-gap-section);
+.insetItem {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.itemRow1 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.itemRow2 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px;
+  font-size: 0.9em;
+  color: var(--resume-muted);
+}
+
+.separator {
+  color: var(--resume-border);
+}
+
+.skillsLine {
+  padding: var(--resume-gap-item) 0;
+  color: var(--resume-muted);
+  line-height: var(--resume-leading);
 }
 
 .header {

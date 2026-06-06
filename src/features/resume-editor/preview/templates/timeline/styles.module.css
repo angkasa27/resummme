@@ -23,9 +23,12 @@
   display: flex;
   flex-direction: row;
   gap: var(--resume-gap-section);
-  padding-left: var(--resume-gap-section);
-  border-left: 2px solid var(--resume-accent);
+  padding-left: var(--resume-gap-item);
+  border-left: 1.5px solid var(--resume-accent);
   padding-bottom: var(--resume-gap-item);
+}
+.template :global(.item-list) {
+  padding-left: var(--resume-gap-item);
 }
 
 .template :global(.item-content) {

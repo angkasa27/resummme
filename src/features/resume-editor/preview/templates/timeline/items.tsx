@@ -20,8 +20,8 @@ function TimelineItem({
     <div className="item timeline-item">
       <div className="item-content">
         <div className="item-header">
-          <h3 className="item-title">{title}</h3>
           {date ? <span className="item-date">{date}</span> : null}
+          <h3 className="item-title">{title}</h3>
         </div>
         {meta ? <div className="meta">{meta}</div> : null}
         {description ? <PreviewRichTextBlock content={description} /> : null}

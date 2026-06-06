@@ -33,6 +33,7 @@ export function ResumeDocument({
     ) : null,
     sections: context.sections.map((section) => ({
       key: section.key,
+      section,
       node: <TemplateSection template={template} section={section} />,
     })),
   };

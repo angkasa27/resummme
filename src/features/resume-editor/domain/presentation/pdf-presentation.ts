@@ -14,7 +14,7 @@ export const pdfTemplateIds = [
   "timeline",
   "academic",
   "minimal",
-  "divided",
+  "inset",
 ] as const;
 export type PdfTemplateId = (typeof pdfTemplateIds)[number];
 
@@ -56,7 +56,7 @@ export const pdfTemplateLabels: Record<PdfTemplateId, string> = {
   timeline: "Timeline",
   academic: "Academic",
   minimal: "Minimal",
-  divided: "Divided",
+  inset: "Inset",
 };
 
 export const pdfFontScaleLabels: Record<PdfFontScaleId, string> = {

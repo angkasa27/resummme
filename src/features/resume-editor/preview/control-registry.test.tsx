@@ -54,7 +54,7 @@ describe("preview control registry", () => {
       /^timeline$/i,
       /^academic$/i,
       /^minimal$/i,
-      /^divided$/i,
+      /^inset$/i,
     ]) {
       expect(
         await screen.findByRole("option", { name: label }),

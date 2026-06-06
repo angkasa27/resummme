@@ -10,6 +10,11 @@
   gap: var(--resume-gap-section);
 }
 
+.template :global(.item-list),
+.template :global([data-section="summary"] .rich-text) {
+  padding-left: var(--resume-gap-section);
+}
+
 .header {
   display: flex;
   align-items: center;

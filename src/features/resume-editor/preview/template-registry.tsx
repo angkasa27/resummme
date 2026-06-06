@@ -6,8 +6,8 @@ import { academicTemplate } from "./templates/academic/template";
 import { AcademicHeader } from "./templates/academic/header";
 import { classicTemplate } from "./templates/classic/template";
 import { ClassicHeader } from "./templates/classic/header";
-import { dividedTemplate } from "./templates/divided/template";
-import { DividedHeader } from "./templates/divided/header";
+import { insetTemplate } from "./templates/inset/template";
+import { InsetHeader } from "./templates/inset/header";
 import { minimalTemplate } from "./templates/minimal/template";
 import { MinimalHeader } from "./templates/minimal/header";
 import { modernCenteredTemplate } from "./templates/modern-centered/template";
@@ -26,7 +26,7 @@ export const previewTemplateDefinitions = [
   timelineTemplate,
   academicTemplate,
   minimalTemplate,
-  dividedTemplate,
+  insetTemplate,
 ] as const satisfies ReadonlyArray<PreviewTemplateDefinition>;
 
 export function getTemplate(
@@ -50,8 +50,8 @@ export function renderTemplateHeader(context: PreviewRenderContext): ReactNode {
       return <AcademicHeader context={context} />;
     case "minimal":
       return <MinimalHeader context={context} />;
-    case "divided":
-      return <DividedHeader context={context} />;
+    case "inset":
+      return <InsetHeader context={context} />;
     case "classic":
     default:
       return <ClassicHeader context={context} />;
