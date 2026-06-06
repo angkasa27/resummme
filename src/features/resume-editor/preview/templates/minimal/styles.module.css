@@ -12,7 +12,7 @@
 
 .template :global(.item-list),
 .template :global([data-section="summary"] .rich-text) {
-  padding-left: var(--resume-gap-section);
+  padding-left: var(--resume-gap-item);
 }
 
 .header {

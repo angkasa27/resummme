@@ -13,7 +13,7 @@
 /* Section headings get a hairline accent rule underneath. */
 .template :global(.section-heading) {
   border-bottom: 2px solid var(--resume-accent);
-  padding-bottom: 4px;
+  padding-bottom: var(--resume-gap-inner);
   letter-spacing: 0.12em;
   text-align: left;
 }

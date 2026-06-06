@@ -16,7 +16,7 @@
   letter-spacing: 0.16em;
   text-transform: none;
   border-bottom: 1px solid var(--resume-border);
-  padding-bottom: 4px;
+  padding-bottom: var(--resume-gap-inner);
   font-weight: 600;
 }
 

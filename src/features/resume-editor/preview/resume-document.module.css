@@ -59,14 +59,14 @@
 .root :global(.item) {
   display: flex;
   flex-direction: column;
-  gap: var(--resume-gap-item);
+  gap: var(--resume-gap-inner);
 }
 
 .root :global(.item-row) {
   flex-direction: row;
   align-items: baseline;
   justify-content: space-between;
-  gap: var(--resume-gap-section);
+  gap: var(--resume-gap-item);
 }
 
 .root :global(.item-row .item-title) {
@@ -81,7 +81,7 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: start;
-  gap: var(--resume-gap-section);
+  gap: var(--resume-gap-item);
 }
 
 .root :global(.item-header-main) {

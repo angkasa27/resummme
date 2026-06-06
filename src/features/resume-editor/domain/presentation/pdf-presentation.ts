@@ -112,6 +112,12 @@ const itemGapPx: Record<PdfSpacingId, number> = {
   airy: 14,
 };
 
+const innerGapPx: Record<PdfSpacingId, number> = {
+  compact: 4,
+  standard: 6,
+  airy: 8,
+};
+
 const paperDimensions: Record<
   PdfPaperSize,
   { widthMm: number; heightMm: number }
@@ -217,6 +223,7 @@ export function resolvePdfPresentation(
     "--resume-leading": String(leading),
     "--resume-gap-section": `${sectionGapPx[p.spacing]}px`,
     "--resume-gap-item": `${itemGapPx[p.spacing]}px`,
+    "--resume-gap-inner": `${innerGapPx[p.spacing]}px`,
     "--resume-paper-width": `${paper.widthMm}mm`,
     "--resume-page-margin": `${margin}mm`,
     "--resume-print-content-width": `${printContentWidth}mm`,

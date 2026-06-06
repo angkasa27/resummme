@@ -42,7 +42,7 @@
 }
 
 .template :global(.layout-side .item) {
-  gap: 4px;
+  gap: var(--resume-gap-inner);
 }
 
 .template :global(.layout-side .item-row) {

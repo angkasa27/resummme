@@ -4,7 +4,6 @@ import {
   AwardsItem,
   CertificationsItem,
   EducationItem,
-  LanguagesItem,
   OrganizationVolunteeringItem,
   ProjectsItem,
   PublicationsItem,
@@ -17,6 +16,15 @@ function SkillsItem({ item }: { item: SectionItem<"skills"> }) {
     <div className="item">
       <h3 className="item-title">{item.categoryName}</h3>
       <div>{item.skills.filter(Boolean).join(", ")}</div>
+    </div>
+  );
+}
+
+function LanguagesItem({ item }: { item: SectionItem<"languages"> }) {
+  return (
+    <div className="item">
+      <h3 className="item-title">{item.language}</h3>
+      {item.proficiency ? <div className="meta">{item.proficiency}</div> : null}
     </div>
   );
 }
