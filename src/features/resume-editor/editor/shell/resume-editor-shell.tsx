@@ -156,6 +156,14 @@ export function ResumeEditorShell({ initialDraft }: ResumeEditorShellProps) {
                     <PreviewPane
                       draft={draft}
                       onSavePdfPresentation={savePdfPresentation}
+                      onOpenSection={(panel) => {
+                        if (
+                          panel !== "profile" &&
+                          panel !== "summary"
+                        ) {
+                          requestSectionChange(panel);
+                        }
+                      }}
                     />
                   </div>
                 </ResizablePanel>
@@ -169,6 +177,14 @@ export function ResumeEditorShell({ initialDraft }: ResumeEditorShellProps) {
               onSaveProfile={saveProfile}
               onSaveSection={saveSection}
               onSavePdfPresentation={savePdfPresentation}
+              onOpenSection={(panel) => {
+                if (
+                  panel !== "profile" &&
+                  panel !== "summary"
+                ) {
+                  requestSectionChange(panel);
+                }
+              }}
             />
           </div>
         </SidebarInset>

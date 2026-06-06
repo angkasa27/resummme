@@ -15,7 +15,7 @@ describe("preview pane", () => {
     );
 
     expect(screen.getByText(/preview/i)).toBeInTheDocument();
-    expect(screen.getByText(/style settings/i)).toBeInTheDocument();
+    expect(screen.getByText("Style")).toBeInTheDocument();
     expect(screen.getByTestId("resume-preview-full-name")).toBeInTheDocument();
     expect(
       screen.queryByTestId("resume-preview-pages"),
@@ -32,7 +32,7 @@ describe("preview pane", () => {
       />,
     );
 
-    await user.click(screen.getByText(/style settings/i));
+    await user.click(screen.getByText("Style"));
 
     expect(
       await screen.findByRole("combobox", { name: /^template$/i }),
@@ -62,7 +62,7 @@ describe("preview pane", () => {
       />,
     );
 
-    await user.click(screen.getByText(/style settings/i));
+    await user.click(screen.getByText("Style"));
 
     await user.click(
       await screen.findByRole("combobox", { name: /^template$/i }),
@@ -91,7 +91,7 @@ describe("preview pane", () => {
       />,
     );
 
-    await user.click(screen.getByText(/style settings/i));
+    await user.click(screen.getByText("Style"));
     await user.click(
       await screen.findByRole("button", { name: /spacing airy/i }),
     );

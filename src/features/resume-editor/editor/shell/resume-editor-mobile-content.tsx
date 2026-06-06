@@ -4,6 +4,7 @@ import { useState } from "react";
 import { EyeIcon, PenLineIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import type { EditorPanelKey } from "@/features/resume-editor/domain/sections/section-metadata";
 import { ActiveSectionEditor } from "@/features/resume-editor/editor/active-section-editor";
 import { PreviewPane } from "@/features/resume-editor/preview/components/preview-pane";
 import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
@@ -19,6 +20,7 @@ type ResumeEditorMobileContentProps = {
     sectionKey: K,
     sectionValue: ResumeDraft["sections"][K],
   ) => void;
+  onOpenSection?: (panel: EditorPanelKey) => void;
 };
 
 export function ResumeEditorMobileContent({
@@ -27,6 +29,7 @@ export function ResumeEditorMobileContent({
   onSavePdfPresentation,
   onSaveProfile,
   onSaveSection,
+  onOpenSection,
 }: ResumeEditorMobileContentProps) {
   const [showPreview, setShowPreview] = useState(false);
 
@@ -37,6 +40,7 @@ export function ResumeEditorMobileContent({
           <PreviewPane
             draft={draft}
             onSavePdfPresentation={onSavePdfPresentation}
+            onOpenSection={onOpenSection}
           />
         </div>
       ) : (
@@ -52,20 +56,18 @@ export function ResumeEditorMobileContent({
 
       <Button
         type="button"
-        size="sm"
+        size="icon-lg"
         variant={showPreview ? "default" : "outline"}
-        className="fixed bottom-4 right-4 z-50 shadow-lg"
+        className="fixed bottom-4 right-4 z-50 shadow-2xl!"
         onClick={() => setShowPreview((current) => !current)}
       >
         {showPreview ? (
           <>
             <PenLineIcon data-icon="inline-start" />
-            Editor
           </>
         ) : (
           <>
             <EyeIcon data-icon="inline-start" />
-            Preview
           </>
         )}
       </Button>

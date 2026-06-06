@@ -101,6 +101,11 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
   const [isExtractCvOpen, setIsExtractCvOpen] = useState(false);
   const [zoom, setZoom] = useState<number>(ZOOM_DEFAULT);
   const isMobile = useIsMobile();
+  const [dismissedMobileAlert, setDismissedMobileAlert] = useState(
+    () =>
+      typeof window !== "undefined" &&
+      localStorage.getItem("resume-editor:mobile-alert-dismissed") === "true",
+  );
 
   if (!isClientReady) {
     return (
@@ -248,6 +253,22 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
             <span className="inline">GitHub</span>
           </a>
         </header>
+
+        {isMobile ? (
+          <div className="flex justify-center gap-1.5 border-b bg-amber-50 px-3 py-1 text-xs text-amber-800">
+            <TriangleAlert className="size-4 shrink-0" />
+            <span>
+              Canvas isn&apos;t optimized for mobile.{" "}
+              <Link
+                href="/legacy"
+                className="font-medium underline underline-offset-2 hover:text-amber-900"
+              >
+                Try Legacy mode
+              </Link>{" "}
+              for a better experience.
+            </span>
+          </div>
+        ) : null}
 
         {/* Body: preview + control panel */}
         <div className="flex flex-1">
@@ -476,6 +497,46 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+
+        {isMobile && !dismissedMobileAlert ? (
+          <AlertDialog
+            defaultOpen
+            onOpenChange={(open) => {
+              if (!open) {
+                localStorage.setItem(
+                  "resume-editor:mobile-alert-dismissed",
+                  "true",
+                );
+                setDismissedMobileAlert(true);
+              }
+            }}
+          >
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogMedia className="text-amber-500 bg-amber-50">
+                  <TriangleAlert />
+                </AlertDialogMedia>
+                <AlertDialogTitle>
+                  Canvas isn&apos;t optimized for mobile
+                </AlertDialogTitle>
+                <AlertDialogDescription>
+                  The Legacy editor offers a better experience on mobile devices
+                  — try switching for easier editing and navigation.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Continue Anyway</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={() => {
+                    window.location.href = "/legacy";
+                  }}
+                >
+                  Switch to Legacy
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        ) : null}
       </div>
     </TooltipProvider>
   );

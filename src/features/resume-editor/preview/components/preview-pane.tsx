@@ -10,6 +10,7 @@ import type { PreviewPaneProps } from "@/features/resume-editor/preview/types";
 export function PreviewPane({
   draft,
   onSavePdfPresentation,
+  onOpenSection,
 }: PreviewPaneProps) {
   const presentation = useMemo(
     () => normalizePdfPresentation(draft.pdfPresentation),
@@ -19,8 +20,10 @@ export function PreviewPane({
   return (
     <div className="h-full w-full">
       <PreviewToolbar
+        draft={draft}
         presentation={presentation}
         onChange={onSavePdfPresentation}
+        onOpenSection={onOpenSection}
       />
       <PreviewSheet draft={draft} presentation={presentation} />
     </div>

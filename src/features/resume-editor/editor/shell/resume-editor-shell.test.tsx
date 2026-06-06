@@ -187,7 +187,7 @@ describe("resume editor shell", () => {
     render(<ResumeEditorShell initialDraft={draft} />);
 
     await waitFor(() =>
-      expect(screen.getByText(/style settings/i)).toBeInTheDocument(),
+      expect(screen.getAllByText("Style").length).toBeGreaterThanOrEqual(1),
     );
   });
 

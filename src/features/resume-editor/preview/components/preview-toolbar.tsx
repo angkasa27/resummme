@@ -1,6 +1,7 @@
 "use client";
 
-import { SettingsIcon } from "lucide-react";
+import { PaletteIcon, TelescopeIcon } from "lucide-react";
+import React from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -8,34 +9,98 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { useIsMobile } from "@/hooks/use-mobile";
+import type { EditorPanelKey } from "@/features/resume-editor/domain/sections/section-metadata";
 import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
+import { InsightsTab } from "@/features/resume-editor/canvas/controls/insights/insights-tab";
 import { StyleTab } from "../../canvas/controls/style-tab";
+import type { PdfPresentation } from "../../domain/presentation/pdf-presentation";
 
 type PreviewToolbarProps = {
-  onChange: (nextPresentation: ResumeDraft["pdfPresentation"]) => void;
-  presentation: ResumeDraft["pdfPresentation"];
+  draft: ResumeDraft;
+  presentation: PdfPresentation;
+  onChange: (nextPresentation: PdfPresentation) => void;
+  onOpenSection?: (panel: EditorPanelKey) => void;
 };
 
+function AdaptivePanel({
+  label,
+  icon,
+  children,
+}: {
+  label: string;
+  icon: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  const isMobile = useIsMobile();
+
+  const trigger = (
+    <Button type="button" variant="outline" size="sm">
+      {icon}
+      {label}
+    </Button>
+  );
+
+  if (isMobile) {
+    return (
+      <Sheet>
+        <SheetTrigger render={trigger} />
+        <SheetContent
+          side="bottom"
+          className="flex max-h-[85dvh] flex-col p-0 pt-3"
+        >
+          <SheetHeader className="px-4 pb-2">
+            <SheetTitle>{label}</SheetTitle>
+          </SheetHeader>
+          <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-4">
+            {children}
+          </div>
+        </SheetContent>
+      </Sheet>
+    );
+  }
+
+  return (
+    <Popover>
+      <PopoverTrigger render={trigger} />
+      <PopoverContent align="end" className="w-80">
+        {children}
+      </PopoverContent>
+    </Popover>
+  );
+}
+
 export function PreviewToolbar({
+  draft,
   onChange,
   presentation,
+  onOpenSection,
 }: PreviewToolbarProps) {
   return (
     <div className="flex h-12 shrink-0 items-center justify-between gap-2 border-b bg-background px-4">
       <span className="text-xs font-medium text-muted-foreground">Preview</span>
-      <Popover>
-        <PopoverTrigger
-          render={
-            <Button type="button" variant="outline" size="sm">
-              <SettingsIcon data-icon="inline-start" />
-              Style Settings
-            </Button>
-          }
-        />
-        <PopoverContent align="end" className="w-80">
+      <div className="flex items-center gap-1.5">
+        <AdaptivePanel
+          label="Style"
+          icon={<PaletteIcon data-icon="inline-start" />}
+        >
           <StyleTab presentation={presentation} onChange={onChange} />
-        </PopoverContent>
-      </Popover>
+        </AdaptivePanel>
+
+        <AdaptivePanel
+          label="Insights"
+          icon={<TelescopeIcon data-icon="inline-start" />}
+        >
+          <InsightsTab draft={draft} onOpenSection={onOpenSection} />
+        </AdaptivePanel>
+      </div>
     </div>
   );
 }
