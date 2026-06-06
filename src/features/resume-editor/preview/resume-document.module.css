@@ -42,7 +42,6 @@
 
 .root :global(.contact-line) {
   margin: 0;
-  color: var(--resume-muted);
 }
 
 .root :global(.item-list) {

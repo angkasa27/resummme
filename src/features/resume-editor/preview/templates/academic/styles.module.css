@@ -81,5 +81,4 @@
 .header :global(.contact-line) {
   font-variant: small-caps;
   letter-spacing: 0.04em;
-  color: var(--resume-text);
 }

@@ -85,7 +85,3 @@
 .header :global(.name) {
   font-size: calc(var(--resume-h1) * 0.85);
 }
-
-.header :global(.contact-line) {
-  font-size: calc(var(--resume-body) * 0.95);
-}

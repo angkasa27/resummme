@@ -41,11 +41,17 @@
   white-space: normal;
 }
 
+.template :global(.layout-side .item) {
+  gap: 4px;
+}
+
 .template :global(.layout-side .item-row) {
   flex-direction: column;
   align-items: flex-start;
   gap: 2px;
 }
+
+
 
 .header {
   display: flex;
