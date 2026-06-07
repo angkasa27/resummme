@@ -1,5 +1,4 @@
 import {
-  BetweenVerticalStartIcon,
   LayoutTemplateIcon,
   TypeIcon,
 } from "lucide-react";

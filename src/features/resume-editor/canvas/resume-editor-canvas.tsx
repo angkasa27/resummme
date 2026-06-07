@@ -186,10 +186,6 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
     setPendingHideKey(null);
   }
 
-  function cancelHideSection() {
-    setPendingHideKey(null);
-  }
-
   function openEditorSection(panel: EditorPanelKey) {
     if (panel === "profile") {
       startEditingProfile();

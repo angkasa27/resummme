@@ -1,0 +1,144 @@
+import { describe, expect, it } from "vitest";
+
+import {
+  createDefaultPdfPresentation,
+  DEFAULT_ACCENT,
+  getPageMarginMm,
+  getPaperDimensionsMm,
+  isValidAccentHex,
+  normalizePdfPresentation,
+  resolvePdfPresentation,
+} from "@/features/resume-editor/domain/presentation/pdf-presentation";
+
+describe("createDefaultPdfPresentation", () => {
+  it("returns classic template with standard sizing", () => {
+    const result = createDefaultPdfPresentation();
+
+    expect(result.templateId).toBe("classic");
+    expect(result.fontScale).toBe("md");
+    expect(result.spacing).toBe("standard");
+    expect(result.lineHeight).toBe("standard");
+    expect(result.accent).toBe(DEFAULT_ACCENT);
+    expect(result.paperSize).toBe("a4");
+    expect(result.pageMargin).toBe("narrow");
+  });
+});
+
+describe("isValidAccentHex", () => {
+  it("accepts 6-digit hex colors", () => {
+    expect(isValidAccentHex("#2563eb")).toBe(true);
+    expect(isValidAccentHex("#ff0000")).toBe(true);
+    expect(isValidAccentHex("#aBcDeF")).toBe(true);
+  });
+
+  it("rejects non-hex values", () => {
+    expect(isValidAccentHex("red")).toBe(false);
+    expect(isValidAccentHex("#fff")).toBe(false);
+    expect(isValidAccentHex("#12345")).toBe(false);
+    expect(isValidAccentHex("#1234567")).toBe(false);
+    expect(isValidAccentHex(123)).toBe(false);
+    expect(isValidAccentHex(null)).toBe(false);
+    expect(isValidAccentHex(undefined)).toBe(false);
+  });
+});
+
+describe("getPaperDimensionsMm", () => {
+  it("returns A4 dimensions", () => {
+    expect(getPaperDimensionsMm("a4")).toEqual({
+      widthMm: 210,
+      heightMm: 297,
+    });
+  });
+
+  it("returns Letter dimensions", () => {
+    expect(getPaperDimensionsMm("letter")).toEqual({
+      widthMm: 215.9,
+      heightMm: 279.4,
+    });
+  });
+});
+
+describe("getPageMarginMm", () => {
+  it("returns narrow margin", () => {
+    expect(getPageMarginMm("narrow")).toBe(12.7);
+  });
+
+  it("returns normal margin", () => {
+    expect(getPageMarginMm("normal")).toBe(25.4);
+  });
+
+  it("returns moderate margin", () => {
+    expect(getPageMarginMm("moderate")).toBe(19.05);
+  });
+});
+
+describe("normalizePdfPresentation", () => {
+  it("returns defaults for null/undefined input", () => {
+    expect(normalizePdfPresentation(null).templateId).toBe("classic");
+    expect(normalizePdfPresentation(undefined).templateId).toBe("classic");
+  });
+
+  it("returns defaults for non-object input", () => {
+    expect(normalizePdfPresentation("bad").templateId).toBe("classic");
+  });
+
+  it("passes through valid values", () => {
+    const result = normalizePdfPresentation({ templateId: "sidebar" });
+    expect(result.templateId).toBe("sidebar");
+  });
+
+  it("falls back to defaults for invalid values", () => {
+    const result = normalizePdfPresentation({
+      templateId: "nonexistent",
+      fontScale: "xxl",
+      paperSize: "tabloid",
+    });
+    expect(result.templateId).toBe("classic");
+    expect(result.fontScale).toBe("md");
+    expect(result.paperSize).toBe("a4");
+  });
+
+  it("validates accent hex", () => {
+    expect(
+      normalizePdfPresentation({ accent: "red" }).accent,
+    ).toBe(DEFAULT_ACCENT);
+    expect(
+      normalizePdfPresentation({ accent: "#ff0000" }).accent,
+    ).toBe("#ff0000");
+  });
+});
+
+describe("resolvePdfPresentation", () => {
+  it("returns a template ID and CSS variables", () => {
+    const result = resolvePdfPresentation();
+
+    expect(result.templateId).toBe("classic");
+    expect(result.vars).toBeDefined();
+    expect(result.vars["--resume-font"]).toBeDefined();
+    expect(result.vars["--resume-body"]).toBeDefined();
+    expect(result.vars["--resume-leading"]).toBeDefined();
+    expect(result.vars["--resume-accent"]).toBe(DEFAULT_ACCENT);
+    expect(result.vars["--resume-paper-width"]).toBe("210mm");
+    expect(result.vars["--resume-page-margin"]).toBe("12.7mm");
+  });
+
+  it("computes print content width", () => {
+    const result = resolvePdfPresentation({
+      ...createDefaultPdfPresentation(),
+      paperSize: "letter",
+    });
+
+    expect(result.vars["--resume-print-content-width"]).toBe("190.5mm");
+  });
+
+  it("sets font-size based on fontScale", () => {
+    const base = createDefaultPdfPresentation();
+    const sm = resolvePdfPresentation({ ...base, fontScale: "sm" });
+    const md = resolvePdfPresentation({ ...base, fontScale: "md" });
+    const lg = resolvePdfPresentation({ ...base, fontScale: "lg" });
+
+    expect(sm.vars["--resume-body"]).toBe("11px");
+    expect(md.vars["--resume-body"]).toBe("12px");
+    expect(lg.vars["--resume-body"]).toBe("14px");
+  });
+});

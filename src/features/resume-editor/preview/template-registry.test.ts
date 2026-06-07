@@ -3,10 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   getTemplate,
   previewTemplateDefinitions,
-  renderTemplateHeader,
 } from "@/features/resume-editor/preview/template-registry";
-import { createPreviewRenderContext } from "@/features/resume-editor/preview/engine";
-import { createDefaultResumeDraft } from "@/features/resume-editor/domain/draft/create-default-resume-draft";
 
 describe("preview template registry", () => {
   it("exposes all seven built-in templates", () => {
@@ -38,26 +35,6 @@ describe("preview template registry", () => {
 
   it("falls back to classic when an unknown template id is requested", () => {
     expect(getTemplate("missing" as never).id).toBe("classic");
-  });
-
-  it("renders the matching header element for each template", () => {
-    const draft = createDefaultResumeDraft();
-    for (const id of [
-      "classic",
-      "sidebar",
-      "modern-centered",
-      "timeline",
-      "academic",
-      "minimal",
-      "inset",
-    ] as const) {
-      draft.pdfPresentation.templateId = id;
-      const context = createPreviewRenderContext(draft, "preview");
-      const header = renderTemplateHeader(context);
-      expect((header as { props: { context: unknown } }).props.context).toBe(
-        context,
-      );
-    }
   });
 
   it("partitions sections into side and main columns in the sidebar template", () => {

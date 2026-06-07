@@ -8,7 +8,6 @@ import {
   ArrowUpIcon,
   ChevronDownIcon,
   ChevronRightIcon,
-  HistoryIcon,
   PlusIcon,
   Trash2Icon,
 } from "lucide-react";

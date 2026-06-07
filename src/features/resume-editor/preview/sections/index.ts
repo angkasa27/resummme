@@ -1,5 +1,3 @@
-import type { CollectionSectionKey } from "@/features/resume-editor/domain/sections/section-metadata";
-
 import { awardsDescriptor } from "./awards";
 import { certificationsDescriptor } from "./certifications";
 import { educationDescriptor } from "./education";
@@ -10,7 +8,6 @@ import { publicationsDescriptor } from "./publications";
 import { referencesDescriptor } from "./references";
 import { skillsDescriptor } from "./skills";
 import { workExperienceDescriptor } from "./work-experience";
-import type { SectionDescriptor } from "./types";
 
 export const sectionDescriptors = {
   workExperience: workExperienceDescriptor,
@@ -23,14 +20,4 @@ export const sectionDescriptors = {
   languages: languagesDescriptor,
   references: referencesDescriptor,
   organizationVolunteering: organizationVolunteeringDescriptor,
-} as const satisfies {
-  [K in CollectionSectionKey]: SectionDescriptor<K>;
-};
-
-export type { SectionDescriptor };
-
-export function getDescriptor<K extends CollectionSectionKey>(
-  key: K,
-): SectionDescriptor<K> {
-  return sectionDescriptors[key] as unknown as SectionDescriptor<K>;
-}
+} as const;

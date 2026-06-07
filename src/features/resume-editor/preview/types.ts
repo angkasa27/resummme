@@ -59,11 +59,6 @@ export type PreviewControlDefinition = {
   options: ReadonlyArray<PreviewControlOption>;
 };
 
-export type PreviewToolbarContentProps = {
-  presentation: PdfPresentation;
-  onChange: (nextPresentation: PdfPresentation) => void;
-};
-
 export type PreviewPaneProps = {
   draft: ResumeDraft;
   onSavePdfPresentation: (pdfPresentation: PdfPresentation) => void;
