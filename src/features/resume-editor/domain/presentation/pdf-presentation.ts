@@ -84,8 +84,8 @@ export const pdfPaperSizeLabels: Record<PdfPaperSize, string> = {
 
 export const pdfPageMarginLabels: Record<PdfPageMargin, string> = {
   narrow: "Narrow",
-  normal: "Normal",
   moderate: "Moderate",
+  normal: "Normal",
 };
 
 const fontBasePx: Record<PdfFontScaleId, number> = {
