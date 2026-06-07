@@ -22,7 +22,7 @@ import type {
   PreviewControlDefinition,
   PreviewToolbarContentProps,
 } from "@/features/resume-editor/preview/types";
-import { ColorControl } from "../../canvas/controls/color-control";
+import { ColorControl } from "@/features/resume-editor/shared/color-control";
 
 type ToolbarSelectProps = {
   ariaLabel: string;

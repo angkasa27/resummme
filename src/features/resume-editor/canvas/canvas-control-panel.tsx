@@ -12,8 +12,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { InsightsTab } from "@/features/resume-editor/canvas/controls/insights/insights-tab";
-import { StyleTab } from "@/features/resume-editor/canvas/controls/style-tab";
+import { InsightsTab } from "@/features/resume-editor/shared/insights/insights-tab";
+import { StyleTab } from "@/features/resume-editor/shared/style-tab";
 import type { PdfPresentation } from "@/features/resume-editor/domain/presentation/pdf-presentation";
 import type { EditorPanelKey } from "@/features/resume-editor/domain/sections/section-metadata";
 import type { ResumeDraft } from "@/features/resume-editor/domain/schema";

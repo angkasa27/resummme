@@ -19,9 +19,9 @@ import {
 import { useIsMobile } from "@/hooks/use-mobile";
 import type { EditorPanelKey } from "@/features/resume-editor/domain/sections/section-metadata";
 import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
-import { InsightsTab } from "@/features/resume-editor/canvas/controls/insights/insights-tab";
-import { StyleTab } from "../../canvas/controls/style-tab";
-import type { PdfPresentation } from "../../domain/presentation/pdf-presentation";
+import { InsightsTab } from "@/features/resume-editor/shared/insights/insights-tab";
+import { StyleTab } from "@/features/resume-editor/shared/style-tab";
+import type { PdfPresentation } from "@/features/resume-editor/domain/presentation/pdf-presentation";
 
 type PreviewToolbarProps = {
   draft: ResumeDraft;

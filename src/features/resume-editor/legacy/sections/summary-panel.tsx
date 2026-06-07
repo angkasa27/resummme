@@ -1,81 +1,66 @@
 "use client";
 
-import { useEffect, useId, useMemo } from "react";
+import { useMemo } from "react";
 import { Controller, useForm } from "react-hook-form";
 
+import { Badge } from "@/components/ui/badge";
 import {
   Field,
   FieldContent,
   FieldError,
+  FieldGroup,
+  FieldLabel,
 } from "@/components/ui/field";
 
 import { summaryContentSchema } from "@/features/resume-editor/domain/schema";
 import { createFormSchemaResolver } from "@/features/resume-editor/forms/schemas/create-form-schema-resolver";
+import { useAutoSave } from "@/features/resume-editor/forms/use-auto-save";
 import { useSyncedFormValues } from "@/features/resume-editor/forms/use-synced-form-values";
 import { RichTextEditorWithImprove } from "@/features/resume-editor/shared/rich-text/improve-with-ai-dialog";
-import { CanvasFormShell } from "@/features/resume-editor/canvas/forms/canvas-form-shell";
+import { EditorCard } from "@/features/resume-editor/legacy/sections/editor-card";
+import { FieldLabelText } from "@/features/resume-editor/shared/fields/field-label-text";
 import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
 
 type SummaryFormValues = {
   content: ResumeDraft["sections"]["summary"]["content"];
 };
 
-type CanvasSummaryFormProps = {
+type SummaryPanelProps = {
   draft: ResumeDraft;
   onSave: (summary: ResumeDraft["sections"]["summary"]) => void;
-  onCancel: () => void;
-  onClose: () => void;
-  onDirtyChange?: (dirty: boolean) => void;
 };
 
-export function CanvasSummaryForm({
-  draft,
-  onSave,
-  onCancel,
-  onClose,
-  onDirtyChange,
-}: CanvasSummaryFormProps) {
+export function SummaryPanel({ draft, onSave }: SummaryPanelProps) {
   const sectionValue = draft.sections.summary;
   const formValues = useMemo(
-    () => ({ content: sectionValue.content }),
-    [sectionValue.content],
+    () => ({
+      content: sectionValue.content,
+    }),
+    [sectionValue.content]
   );
-  const form = useForm<SummaryFormValues>({
+  const summaryForm = useForm<SummaryFormValues>({
     resolver: createFormSchemaResolver<SummaryFormValues>(summaryContentSchema),
     defaultValues: formValues,
     mode: "onBlur",
     reValidateMode: "onChange",
   });
-  const { control, formState, getFieldState, handleSubmit } = form;
-  const formId = useId();
+  const { control, formState, getFieldState } = summaryForm;
 
-  useSyncedFormValues(form, formValues);
-
-  useEffect(() => {
-    onDirtyChange?.(formState.isDirty);
-  }, [formState.isDirty, onDirtyChange]);
-
-  function handleSave(values: SummaryFormValues) {
-    onSave({ ...sectionValue, content: values.content });
-    onClose();
-  }
+  useSyncedFormValues(summaryForm, formValues);
+  useAutoSave(summaryForm, (values) => {
+    onSave({
+      ...sectionValue,
+      content: values.content,
+    });
+  });
 
   return (
-    <form
-      id={formId}
-      onSubmit={handleSubmit(handleSave)}
-      className="flex h-full min-h-0 flex-col"
-    >
-      <CanvasFormShell
-        title="Summary"
-        onCancel={onCancel}
-        formId={formId}
-        isDirty={formState.isDirty}
-        isSaving={formState.isSubmitting}
-      >
-        <Field
-          data-invalid={getFieldState("content", formState).invalid || undefined}
-        >
+    <EditorCard title="Summary" meta={<Badge variant="secondary">Intro</Badge>}>
+      <FieldGroup>
+        <Field data-invalid={getFieldState("content", formState).invalid || undefined}>
+          <FieldLabel>
+            <FieldLabelText label="Summary content" />
+          </FieldLabel>
           <FieldContent>
             <Controller
               control={control}
@@ -83,10 +68,10 @@ export function CanvasSummaryForm({
               render={({ field }) => (
                 <RichTextEditorWithImprove
                   value={field.value}
-                  ariaLabel="Summary"
+                  ariaLabel="Summary content"
                   invalid={getFieldState("content", formState).invalid}
                   onChange={(value) =>
-                    form.setValue("content", value, {
+                    summaryForm.setValue("content", value, {
                       shouldDirty: true,
                       shouldValidate: formState.isSubmitted,
                     })
@@ -97,7 +82,7 @@ export function CanvasSummaryForm({
             <FieldError errors={[getFieldState("content", formState).error]} />
           </FieldContent>
         </Field>
-      </CanvasFormShell>
-    </form>
+      </FieldGroup>
+    </EditorCard>
   );
 }

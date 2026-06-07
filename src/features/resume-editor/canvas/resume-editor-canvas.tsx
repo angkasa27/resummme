@@ -38,7 +38,7 @@ import { useClientReady } from "@/hooks/use-client-ready";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 
-import { useResumeEditorController } from "@/features/resume-editor/editor/hooks/use-resume-editor-controller";
+import { useResumeEditorController } from "@/features/resume-editor/state/use-resume-editor-controller";
 import { ExtractCvDialog } from "@/features/resume-editor/canvas/controls/extract-cv-dialog";
 import { PdfImportProgress } from "@/features/resume-editor/canvas/controls/pdf-import-progress";
 import { CanvasSectionShell } from "@/features/resume-editor/canvas/canvas-section-shell";

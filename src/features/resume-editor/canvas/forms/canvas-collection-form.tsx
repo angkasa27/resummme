@@ -17,12 +17,12 @@ import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 
 import { CanvasFormShell } from "@/features/resume-editor/canvas/forms/canvas-form-shell";
-import { collectionSectionConfigs } from "@/features/resume-editor/editor/sections/config/collection-section-config";
+import { collectionSectionConfigs } from "@/features/resume-editor/domain/sections/collection-section-config";
 import { collectionSectionFormSchemaMap } from "@/features/resume-editor/forms/collection-section-form-schema-map";
 import { createFormSchemaResolver } from "@/features/resume-editor/forms/schemas/create-form-schema-resolver";
 import { useSyncedFormValues } from "@/features/resume-editor/forms/use-synced-form-values";
-import { CollectionItemFields } from "@/features/resume-editor/editor/sections/collection-item-fields";
-import { sortResumeItems } from "@/features/resume-editor/editor/sections/sort-resume-items";
+import { CollectionItemFields } from "@/features/resume-editor/shared/fields/collection-item-fields";
+import { sortResumeItems } from "@/features/resume-editor/domain/sections/sort-resume-items";
 import { normalizeCollectionItem } from "@/features/resume-editor/domain/sections/normalize-collection-item";
 import type { CollectionSectionKey } from "@/features/resume-editor/domain/sections/section-metadata";
 import type { ResumeDraft } from "@/features/resume-editor/domain/schema";

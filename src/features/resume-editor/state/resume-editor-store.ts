@@ -1,6 +1,6 @@
 import { createStore } from "zustand/vanilla";
 
-import { collectionSectionConfigs } from "@/features/resume-editor/editor/sections/config/collection-section-config";
+import { collectionSectionConfigs } from "@/features/resume-editor/domain/sections/collection-section-config";
 import { isCollectionSectionKey } from "@/features/resume-editor/domain/sections/section-metadata";
 import {
   reorderSectionToIndex,
@@ -8,9 +8,9 @@ import {
   setSectionVisibilityWithOrder,
 } from "@/features/resume-editor/state/draft-utils";
 import { normalizeCollectionItem } from "@/features/resume-editor/domain/sections/normalize-collection-item";
-import { createDefaultResumeDraft } from "@/features/resume-editor/domain/draft/create-default-resume-draft";
+import type { DraftStorage } from "@/features/resume-editor/domain/draft/draft-storage";
+import { LocalDraftStorage } from "@/features/resume-editor/domain/draft/local-draft-storage";
 import type { PdfPresentation, Profile, ResumeDraft } from "@/features/resume-editor/domain/schema";
-import { saveResumeDraft } from "@/features/resume-editor/domain/draft/resume-draft-storage";
 
 export type ResumeSectionKey = keyof ResumeDraft["sections"];
 export type ResumeEditorPanelKey = "profile" | ResumeSectionKey;
@@ -77,7 +77,12 @@ function pushUndoStack(
   return next;
 }
 
-export function createResumeEditorStore(initialDraft = createDefaultResumeDraft()) {
+export function createResumeEditorStore(
+  config?: { storage?: DraftStorage; initialDraft?: ResumeDraft },
+) {
+  const storage = config?.storage ?? new LocalDraftStorage();
+  const initialDraft = config?.initialDraft ?? storage.load();
+
   return createStore<ResumeEditorStoreState>()((set, get) => ({
     draft: initialDraft,
     activeSection: "profile",
@@ -85,7 +90,7 @@ export function createResumeEditorStore(initialDraft = createDefaultResumeDraft(
     redoStack: [],
     saveProfile: (profile) => {
       const state = get();
-      const nextDraft = saveResumeDraft(createNextDraft(state.draft, { profile }));
+      const nextDraft = storage.save(createNextDraft(state.draft, { profile }));
       set({
         draft: nextDraft,
         undoStack: pushUndoStack(state.undoStack, state.draft),
@@ -94,7 +99,7 @@ export function createResumeEditorStore(initialDraft = createDefaultResumeDraft(
     },
     savePdfPresentation: (pdfPresentation) => {
       const state = get();
-      const nextDraft = saveResumeDraft(
+      const nextDraft = storage.save(
         createNextDraft(state.draft, { pdfPresentation })
       );
       set({
@@ -106,7 +111,7 @@ export function createResumeEditorStore(initialDraft = createDefaultResumeDraft(
     saveSection: (sectionKey, sectionValue) => {
       const state = get();
       const normalizedSectionValue = normalizeSectionValue(sectionKey, sectionValue);
-      const nextDraft = saveResumeDraft(
+      const nextDraft = storage.save(
         createNextDraft(state.draft, {
           sections: reorderSections(
             state.draft.sections,
@@ -123,7 +128,7 @@ export function createResumeEditorStore(initialDraft = createDefaultResumeDraft(
     },
     reorderSection: (sectionKey, targetIndex) => {
       const state = get();
-      const nextDraft = saveResumeDraft(
+      const nextDraft = storage.save(
         createNextDraft(state.draft, {
           sections: reorderSectionToIndex(
             state.draft.sections,
@@ -140,7 +145,7 @@ export function createResumeEditorStore(initialDraft = createDefaultResumeDraft(
     },
     setSectionVisibility: (sectionKey, visible) => {
       const state = get();
-      const nextDraft = saveResumeDraft(
+      const nextDraft = storage.save(
         createNextDraft(state.draft, {
           sections: setSectionVisibilityWithOrder(
             state.draft.sections,
@@ -161,7 +166,7 @@ export function createResumeEditorStore(initialDraft = createDefaultResumeDraft(
       });
     },
     replaceDraft: (draft) => {
-      const nextDraft = saveResumeDraft(draft);
+      const nextDraft = storage.save(draft);
       set({
         draft: nextDraft,
         activeSection: "profile",
@@ -173,7 +178,7 @@ export function createResumeEditorStore(initialDraft = createDefaultResumeDraft(
       const state = get();
       const previousDraft = state.undoStack.at(-1);
       if (!previousDraft) return;
-      const nextDraft = saveResumeDraft(previousDraft);
+      const nextDraft = storage.save(previousDraft);
       set({
         draft: nextDraft,
         undoStack: state.undoStack.slice(0, -1),
@@ -184,7 +189,7 @@ export function createResumeEditorStore(initialDraft = createDefaultResumeDraft(
       const state = get();
       const nextDraft = state.redoStack.at(-1);
       if (!nextDraft) return;
-      const persistedDraft = saveResumeDraft(nextDraft);
+      const persistedDraft = storage.save(nextDraft);
       set({
         draft: persistedDraft,
         redoStack: state.redoStack.slice(0, -1),

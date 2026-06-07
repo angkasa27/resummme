@@ -7,7 +7,7 @@ import {
 } from "@/features/resume-editor/domain/sections/section-metadata";
 import { parseResumeDraft, type ResumeDraft } from "@/features/resume-editor/domain/schema";
 import { sanitizeRichTextHtml, sanitizeRichTextHref } from "@/features/resume-editor/domain/rich-text/sanitize-rich-text";
-import { collectionSectionConfigs } from "@/features/resume-editor/editor/sections/config/collection-section-config";
+import { collectionSectionConfigs } from "@/features/resume-editor/domain/sections/collection-section-config";
 import type { ImportedResume } from "@/features/resume-editor/server/imported-resume-schema";
 
 type BuildImportedResumeDraftResult = {
