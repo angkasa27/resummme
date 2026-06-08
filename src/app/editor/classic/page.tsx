@@ -1,5 +1,9 @@
-import { ResumeEditorShell } from "@/features/resume-editor/classic/shell/resume-editor-shell";
+import { EditorHost } from "@/lib/editor-host";
 
-export default function ClassicEditorPage() {
-  return <ResumeEditorShell />;
+export default async function ClassicEditorPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  return <EditorHost mode="classic" searchParams={await searchParams} />;
 }

@@ -1,5 +1,9 @@
-import { ResumeEditorCanvas } from "@/features/resume-editor/canvas/resume-editor-canvas";
+import { EditorHost } from "@/lib/editor-host";
 
-export default function CanvasEditorPage() {
-  return <ResumeEditorCanvas />;
+export default async function CanvasEditorPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  return <EditorHost mode="canvas" searchParams={await searchParams} />;
 }

@@ -28,6 +28,13 @@ type EditorTopBarProps = {
    * touching the editor.
    */
   actions?: ReactNode;
+  /**
+   * Targets for the Canvas/Classic tabs. Default to the bare routes; the SaaS
+   * fork passes id-bearing hrefs (e.g. `/editor/canvas?id=…`) so switching mode
+   * preserves the cloud résumé — without editing this component.
+   */
+  canvasHref?: string;
+  classicHref?: string;
 };
 
 export function EditorTopBar({
@@ -38,6 +45,8 @@ export function EditorTopBar({
   onUndo,
   onRedo,
   actions,
+  canvasHref = "/editor/canvas",
+  classicHref = "/editor/classic",
 }: EditorTopBarProps) {
   const isMobile = useIsMobile();
 
@@ -53,7 +62,7 @@ export function EditorTopBar({
             value="canvas"
             nativeButton={activeView === "canvas"}
             render={
-              activeView === "canvas" ? undefined : <Link href="/editor/canvas" />
+              activeView === "canvas" ? undefined : <Link href={canvasHref} />
             }
             className={cn(
               "px-2 py-0 leading-none! text-xs!",
@@ -67,7 +76,7 @@ export function EditorTopBar({
             value="classic"
             nativeButton={activeView === "classic"}
             render={
-              activeView === "classic" ? undefined : <Link href="/editor/classic" />
+              activeView === "classic" ? undefined : <Link href={classicHref} />
             }
             className={cn(
               "px-2 py-0 leading-none! text-xs!",
