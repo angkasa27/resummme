@@ -34,12 +34,17 @@ type ResumeEditorShellProps = {
   storage?: DraftStorage;
   /** Right-aligned header slot, identical to canvas. Defaults to the GitHub link. */
   headerActions?: ReactNode;
+  /** Tab link targets, forwarded to EditorTopBar (default to the bare routes). */
+  canvasHref?: string;
+  classicHref?: string;
 };
 
 export function ResumeEditorShell({
   initialDraft,
   storage,
   headerActions,
+  canvasHref,
+  classicHref,
 }: ResumeEditorShellProps) {
   const isClientReady = useClientReady();
   const {
@@ -144,6 +149,8 @@ export function ResumeEditorShell({
         onUndo={undo}
         onRedo={redo}
         actions={headerActions}
+        canvasHref={canvasHref}
+        classicHref={classicHref}
       />
 
       <div className="min-h-0 flex-1">

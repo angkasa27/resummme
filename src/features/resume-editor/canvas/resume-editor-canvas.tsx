@@ -77,6 +77,9 @@ type ResumeEditorCanvasProps = {
   storage?: DraftStorage;
   /** Right-aligned header slot. Defaults to the GitHub link. */
   headerActions?: ReactNode;
+  /** Tab link targets, forwarded to EditorTopBar (default to the bare routes). */
+  canvasHref?: string;
+  classicHref?: string;
 };
 
 type EditingTarget = "profile" | "summary" | CollectionSectionKey | null;
@@ -85,6 +88,8 @@ export function ResumeEditorCanvas({
   initialDraft,
   storage,
   headerActions,
+  canvasHref,
+  classicHref,
 }: ResumeEditorCanvasProps) {
   const isClientReady = useClientReady();
   const {
@@ -251,6 +256,8 @@ export function ResumeEditorCanvas({
           onUndo={undo}
           onRedo={redo}
           actions={headerActions}
+          canvasHref={canvasHref}
+          classicHref={classicHref}
         />
 
         {isMobile ? (
