@@ -259,10 +259,10 @@ export function ResumeEditorCanvas({
             <span>
               Canvas isn&apos;t optimized for mobile.{" "}
               <Link
-                href="/editor/legacy"
+                href="/editor/classic"
                 className="font-medium underline underline-offset-2 hover:text-amber-900"
               >
-                Try Legacy mode
+                Try Classic mode
               </Link>{" "}
               for a better experience.
             </span>
@@ -556,7 +556,7 @@ export function ResumeEditorCanvas({
                   Canvas isn&apos;t optimized for mobile
                 </AlertDialogTitle>
                 <AlertDialogDescription>
-                  The Legacy editor offers a better experience on mobile devices
+                  The Classic editor offers a better experience on mobile devices
                   — try switching for easier editing and navigation.
                 </AlertDialogDescription>
               </AlertDialogHeader>
@@ -564,10 +564,10 @@ export function ResumeEditorCanvas({
                 <AlertDialogCancel>Continue Anyway</AlertDialogCancel>
                 <AlertDialogAction
                   onClick={() => {
-                    window.location.href = "/editor/legacy";
+                    window.location.href = "/editor/classic";
                   }}
                 >
-                  Switch to Legacy
+                  Switch to Classic
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>

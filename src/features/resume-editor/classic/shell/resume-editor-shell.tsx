@@ -15,11 +15,11 @@ import {
 } from "@/components/ui/resizable";
 import { Loader } from "lucide-react";
 
-import { ActiveSectionEditor } from "@/features/resume-editor/legacy/sections/active-section-editor";
+import { ActiveSectionEditor } from "@/features/resume-editor/classic/sections/active-section-editor";
 import { useResumeEditorController } from "@/features/resume-editor/state/use-resume-editor-controller";
-import { ResumeEditorSidebar } from "@/features/resume-editor/legacy/resume-editor-sidebar";
-import { ResumeEditorMobileContent } from "@/features/resume-editor/legacy/shell/resume-editor-mobile-content";
-import { ResumeEditorShellActions } from "@/features/resume-editor/legacy/shell/resume-editor-shell-actions";
+import { ResumeEditorSidebar } from "@/features/resume-editor/classic/resume-editor-sidebar";
+import { ResumeEditorMobileContent } from "@/features/resume-editor/classic/shell/resume-editor-mobile-content";
+import { ResumeEditorShellActions } from "@/features/resume-editor/classic/shell/resume-editor-shell-actions";
 import { EditorTopBar } from "@/features/resume-editor/shared/editor-top-bar";
 import { PreviewPane } from "@/features/resume-editor/preview/components/preview-pane";
 import { useClientReady } from "@/hooks/use-client-ready";
@@ -137,7 +137,7 @@ export function ResumeEditorShell({
 
       {/* Row 1 — identical to canvas, full width, fixed (no shift on mode switch). */}
       <EditorTopBar
-        activeView="legacy"
+        activeView="classic"
         saveStatus={saveStatus}
         canUndo={canUndo}
         canRedo={canRedo}

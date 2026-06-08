@@ -6,7 +6,7 @@ import { EyeIcon, PenLineIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import type { EditorPanelKey } from "@/features/resume-editor/domain/sections/section-metadata";
-import { ActiveSectionEditor } from "@/features/resume-editor/legacy/sections/active-section-editor";
+import { ActiveSectionEditor } from "@/features/resume-editor/classic/sections/active-section-editor";
 import { PreviewPane } from "@/features/resume-editor/preview/components/preview-pane";
 import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
 

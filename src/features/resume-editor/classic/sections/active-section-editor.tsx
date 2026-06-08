@@ -1,9 +1,9 @@
 import type { ReactNode } from "react";
 
 import { isCollectionSectionKey } from "@/features/resume-editor/domain/sections/section-metadata";
-import { CollectionSectionPanel } from "@/features/resume-editor/legacy/sections/collection-section-panel";
-import { ProfilePanel } from "@/features/resume-editor/legacy/sections/profile-panel";
-import { SummaryPanel } from "@/features/resume-editor/legacy/sections/summary-panel";
+import { CollectionSectionPanel } from "@/features/resume-editor/classic/sections/collection-section-panel";
+import { ProfilePanel } from "@/features/resume-editor/classic/sections/profile-panel";
+import { SummaryPanel } from "@/features/resume-editor/classic/sections/summary-panel";
 import type {
   ResumeEditorPanelKey,
   ResumeSectionKey,

@@ -25,7 +25,7 @@ import { createFormSchemaResolver } from "@/features/resume-editor/forms/schemas
 import { useAutoSave } from "@/features/resume-editor/forms/use-auto-save";
 import { useSyncedFormValues } from "@/features/resume-editor/forms/use-synced-form-values";
 import { CollectionItemFields } from "@/features/resume-editor/shared/fields/collection-item-fields";
-import { EditorCard } from "@/features/resume-editor/legacy/sections/editor-card";
+import { EditorCard } from "@/features/resume-editor/classic/sections/editor-card";
 import { sortResumeItems } from "@/features/resume-editor/domain/sections/sort-resume-items";
 import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
 import {

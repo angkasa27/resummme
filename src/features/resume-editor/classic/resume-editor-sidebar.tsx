@@ -49,7 +49,7 @@ import {
   sectionLabels,
   type ResumeSectionPanelKey,
 } from "@/features/resume-editor/domain/sections/section-metadata";
-import { SectionIcon } from "@/features/resume-editor/legacy/sections/section-icons";
+import { SectionIcon } from "@/features/resume-editor/classic/sections/section-icons";
 import type { ResumeEditorPanelKey } from "@/features/resume-editor/state/resume-editor-store";
 import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
 import { cn } from "@/lib/utils";
@@ -135,7 +135,7 @@ export function ResumeEditorSidebar({
     <Sidebar
       collapsible="offcanvas"
       // Offset the fixed sidebar container so it sits below the shared top bar
-      // (--header-height, set on the legacy shell wrapper) instead of overlaying it.
+      // (--header-height, set on the classic shell wrapper) instead of overlaying it.
       className="border-r top-(--header-height)! h-[calc(100dvh-var(--header-height))]!"
     >
       <SidebarContent>

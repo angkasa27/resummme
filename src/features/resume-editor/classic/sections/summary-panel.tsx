@@ -18,7 +18,7 @@ import { createFormSchemaResolver } from "@/features/resume-editor/forms/schemas
 import { useAutoSave } from "@/features/resume-editor/forms/use-auto-save";
 import { useSyncedFormValues } from "@/features/resume-editor/forms/use-synced-form-values";
 import { RichTextEditorWithImprove } from "@/features/resume-editor/shared/rich-text/improve-with-ai-dialog";
-import { EditorCard } from "@/features/resume-editor/legacy/sections/editor-card";
+import { EditorCard } from "@/features/resume-editor/classic/sections/editor-card";
 import { FieldLabelText } from "@/features/resume-editor/shared/fields/field-label-text";
 import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
 

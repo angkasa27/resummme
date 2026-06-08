@@ -20,10 +20,10 @@ export default function Home() {
           Open Editor
         </Link>
         <Link
-          href="/editor/legacy"
+          href="/editor/classic"
           className="inline-flex h-9 items-center justify-center rounded-lg border px-4 text-sm font-medium hover:bg-accent"
         >
-          Legacy Editor
+          Classic Editor
         </Link>
       </div>
     </main>

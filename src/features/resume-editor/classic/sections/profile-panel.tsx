@@ -23,7 +23,7 @@ import { profileSchema } from "@/features/resume-editor/domain/schema";
 import { createFormSchemaResolver } from "@/features/resume-editor/forms/schemas/create-form-schema-resolver";
 import { useAutoSave } from "@/features/resume-editor/forms/use-auto-save";
 import { useSyncedFormValues } from "@/features/resume-editor/forms/use-synced-form-values";
-import { EditorCard } from "@/features/resume-editor/legacy/sections/editor-card";
+import { EditorCard } from "@/features/resume-editor/classic/sections/editor-card";
 import { FieldLabelText } from "@/features/resume-editor/shared/fields/field-label-text";
 import {
   ProfilePhotoError,

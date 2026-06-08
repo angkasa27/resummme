@@ -13,7 +13,7 @@ import type { SaveStatus } from "@/features/resume-editor/domain/draft/draft-sto
 
 const GITHUB_URL = "https://github.com/angkasa27/resume-editor";
 
-type EditorView = "canvas" | "legacy";
+type EditorView = "canvas" | "classic";
 
 type EditorTopBarProps = {
   activeView: EditorView;
@@ -64,18 +64,18 @@ export function EditorTopBar({
             Canvas
           </TabsTrigger>
           <TabsTrigger
-            value="legacy"
-            nativeButton={activeView === "legacy"}
+            value="classic"
+            nativeButton={activeView === "classic"}
             render={
-              activeView === "legacy" ? undefined : <Link href="/editor/legacy" />
+              activeView === "classic" ? undefined : <Link href="/editor/classic" />
             }
             className={cn(
               "px-2 py-0 leading-none! text-xs!",
-              activeView === "legacy" &&
+              activeView === "classic" &&
                 "rounded data-active:bg-primary/12 data-active:text-primary hover:text-primary cursor-default",
             )}
           >
-            Legacy
+            Classic
           </TabsTrigger>
         </TabsList>
       </Tabs>

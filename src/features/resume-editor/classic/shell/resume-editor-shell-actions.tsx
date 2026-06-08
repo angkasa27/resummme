@@ -14,7 +14,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ImportMenu } from "@/features/resume-editor/legacy/import-menu";
+import { ImportMenu } from "@/features/resume-editor/classic/import-menu";
 
 type ResumeEditorShellActionsProps = {
   onImportJson: () => void;
