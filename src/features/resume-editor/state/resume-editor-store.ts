@@ -3,7 +3,7 @@ import { createStore } from "zustand/vanilla";
 import { collectionSectionConfigs } from "@/features/resume-editor/domain/sections/collection-section-config";
 import { isCollectionSectionKey } from "@/features/resume-editor/domain/sections/section-metadata";
 import {
-  reorderSectionToIndex,
+  moveSectionToAnchor,
   reorderSections,
   setSectionVisibilityWithOrder,
 } from "@/features/resume-editor/state/draft-utils";
@@ -26,7 +26,10 @@ export type ResumeEditorStoreState = {
     sectionKey: K,
     sectionValue: ResumeDraft["sections"][K]
   ) => void;
-  reorderSection: (sectionKey: ResumeSectionKey, targetIndex: number) => void;
+  reorderSection: (
+    sectionKey: ResumeSectionKey,
+    anchorKey: ResumeSectionKey
+  ) => void;
   setSectionVisibility: (sectionKey: ResumeSectionKey, visible: boolean) => void;
   requestSectionChange: (sectionKey: ResumeEditorPanelKey) => void;
   replaceDraft: (draft: ResumeDraft) => void;
@@ -126,14 +129,14 @@ export function createResumeEditorStore(
         redoStack: [],
       });
     },
-    reorderSection: (sectionKey, targetIndex) => {
+    reorderSection: (sectionKey, anchorKey) => {
       const state = get();
       const nextDraft = storage.save(
         createNextDraft(state.draft, {
-          sections: reorderSectionToIndex(
+          sections: moveSectionToAnchor(
             state.draft.sections,
             sectionKey,
-            targetIndex
+            anchorKey
           ),
         })
       );

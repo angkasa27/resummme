@@ -48,58 +48,46 @@ export function reorderSections(
   return normalizeSectionOrder(sections, nextEntries);
 }
 
-export function moveSection(
+/**
+ * Move `targetKey` to the ordered slot currently occupied by `anchorKey`.
+ *
+ * `order` is a single global index space spanning summary plus every collection
+ * section, visible or hidden. Callers express intent by *which sibling to land
+ * next to* — never a raw index — so the result is correct no matter which
+ * sections are hidden, and there is no second index space to keep in sync. Both
+ * the drag-and-drop sidebar (anchor = the section dropped onto) and the canvas
+ * up/down buttons (anchor = the adjacent visible sibling) reduce to this.
+ */
+export function moveSectionToAnchor(
   sections: ResumeDraft["sections"],
   targetKey: ResumeSectionKey,
-  direction: -1 | 1
+  anchorKey: ResumeSectionKey
 ) {
-  const orderedEntries = getOrderedSectionEntries(sections);
-  const currentIndex = orderedEntries.findIndex(([sectionKey]) => sectionKey === targetKey);
-
-  if (currentIndex < 0) {
+  if (targetKey === anchorKey) {
     return sections;
   }
 
-  const nextIndex = Math.max(
-    0,
-    Math.min(currentIndex + direction, orderedEntries.length - 1)
-  );
+  const orderedEntries = getOrderedSectionEntries(sections);
+  const fromIndex = orderedEntries.findIndex(([sectionKey]) => sectionKey === targetKey);
+  const anchorIndex = orderedEntries.findIndex(([sectionKey]) => sectionKey === anchorKey);
 
-  if (currentIndex === nextIndex) {
+  if (fromIndex < 0 || anchorIndex < 0) {
     return sections;
   }
 
   const nextEntries = [...orderedEntries];
-  const [movedEntry] = nextEntries.splice(currentIndex, 1);
-  nextEntries.splice(nextIndex, 0, movedEntry);
+  const [movedEntry] = nextEntries.splice(fromIndex, 1);
 
-  return normalizeSectionOrder(sections, nextEntries);
-}
-
-export function reorderSectionToIndex(
-  sections: ResumeDraft["sections"],
-  targetKey: ResumeSectionKey,
-  targetIndex: number
-) {
-  const orderedEntries = getOrderedSectionEntries(sections);
-  const currentIndex = orderedEntries.findIndex(([sectionKey]) => sectionKey === targetKey);
-
-  if (currentIndex < 0) {
-    return sections;
-  }
-
-  const boundedIndex = Math.max(
-    0,
-    Math.min(targetIndex, orderedEntries.length - 1)
+  // Re-find the anchor after removal, then insert on the side that matches the
+  // travel direction: dragging down lands after the anchor, dragging up lands
+  // before it — standard list-reorder behavior.
+  const anchorAfterRemoval = nextEntries.findIndex(
+    ([sectionKey]) => sectionKey === anchorKey
   );
+  const insertIndex =
+    fromIndex < anchorIndex ? anchorAfterRemoval + 1 : anchorAfterRemoval;
 
-  if (currentIndex === boundedIndex) {
-    return sections;
-  }
-
-  const nextEntries = [...orderedEntries];
-  const [movedEntry] = nextEntries.splice(currentIndex, 1);
-  nextEntries.splice(boundedIndex, 0, movedEntry);
+  nextEntries.splice(insertIndex, 0, movedEntry);
 
   return normalizeSectionOrder(sections, nextEntries);
 }
@@ -133,17 +121,11 @@ export function setSectionVisibilityWithOrder(
     ([, sectionValue]) => !sectionValue.visible
   );
 
-  const nextEntries = visible
-    ? [...includedEntries, nextTargetEntry, ...availableEntries]
-    : [...includedEntries, nextTargetEntry, ...availableEntries];
+  // Park the toggled section at the visible/hidden boundary: it becomes the
+  // last visible section when shown, or the first hidden section when hidden.
+  // This keeps hidden sections clustered at the tail, so visible sections stay
+  // a contiguous band.
+  const nextEntries = [...includedEntries, nextTargetEntry, ...availableEntries];
 
   return normalizeSectionOrder(sections, nextEntries);
-}
-
-export function nextOrderValue(
-  currentOrder: number,
-  direction: -1 | 1,
-  maxOrder: number
-) {
-  return Math.max(0, Math.min(currentOrder + direction, maxOrder));
 }

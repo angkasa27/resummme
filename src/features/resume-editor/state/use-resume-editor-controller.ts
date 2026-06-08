@@ -43,7 +43,10 @@ export type ResumeEditorController = {
   handleExport: () => void;
   handlePrint: () => Promise<void>;
   requestSectionChange: (sectionKey: ResumeEditorPanelKey) => void;
-  reorderSection: (sectionKey: ResumeSectionKey, targetIndex: number) => void;
+  reorderSection: (
+    sectionKey: ResumeSectionKey,
+    anchorKey: ResumeSectionKey
+  ) => void;
   setSectionVisibility: (sectionKey: ResumeSectionKey, visible: boolean) => void;
   savePdfPresentation: (pdfPresentation: PdfPresentation) => void;
   saveProfile: (profile: Profile) => void;
@@ -249,8 +252,8 @@ export function useResumeEditorController({
     handlePrint,
     requestSectionChange: (sectionKey) =>
       store.getState().requestSectionChange(sectionKey),
-    reorderSection: (sectionKey, targetIndex) =>
-      store.getState().reorderSection(sectionKey, targetIndex),
+    reorderSection: (sectionKey, anchorKey) =>
+      store.getState().reorderSection(sectionKey, anchorKey),
     setSectionVisibility: (sectionKey, visible) =>
       store.getState().setSectionVisibility(sectionKey, visible),
     savePdfPresentation: (pdfPresentation) =>

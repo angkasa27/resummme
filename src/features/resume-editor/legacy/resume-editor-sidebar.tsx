@@ -46,6 +46,7 @@ import {
 } from "@/components/ui/collapsible";
 import {
   getOrderedSectionKeys,
+  isCollectionSectionKey,
   sectionLabels,
   type ResumeSectionPanelKey,
 } from "@/features/resume-editor/domain/sections/section-metadata";
@@ -61,7 +62,7 @@ type ResumeEditorSidebarProps = {
   onRequestSectionChange: (sectionKey: ResumeEditorPanelKey) => void;
   onReorderSection: (
     sectionKey: ResumeSectionPanelKey,
-    targetIndex: number,
+    anchorKey: ResumeSectionPanelKey,
   ) => void;
   onSetSectionVisibility: (
     sectionKey: ResumeSectionPanelKey,
@@ -103,11 +104,16 @@ export function ResumeEditorSidebar({
   const { setOpenMobile } = useSidebar();
 
   const orderedSectionKeys = getOrderedSectionKeys(draft.sections);
-  const visibleSectionKeys = orderedSectionKeys.filter(
-    (sectionKey) => draft.sections[sectionKey].visible,
+  // Summary is pinned at the top — always visible, never reordered or hidden —
+  // mirroring the canvas, where it sits outside the collection sections. Only
+  // collection sections are sortable / hideable here.
+  const sortableSectionKeys = orderedSectionKeys.filter(
+    (sectionKey) =>
+      isCollectionSectionKey(sectionKey) && draft.sections[sectionKey].visible,
   );
   const hiddenSectionKeys = orderedSectionKeys.filter(
-    (sectionKey) => !draft.sections[sectionKey].visible,
+    (sectionKey) =>
+      isCollectionSectionKey(sectionKey) && !draft.sections[sectionKey].visible,
   );
 
   const [availableOpen, setAvailableOpen] = useState(true);
@@ -118,10 +124,7 @@ export function ResumeEditorSidebar({
 
     if (!overKey || activeKey === overKey) return;
 
-    const targetIndex = orderedSectionKeys.indexOf(overKey);
-    if (targetIndex >= 0) {
-      onReorderSection(activeKey, targetIndex);
-    }
+    onReorderSection(activeKey, overKey);
   }
 
   function handleSectionClick(sectionKey: ResumeEditorPanelKey) {
@@ -151,8 +154,27 @@ export function ResumeEditorSidebar({
             </SidebarMenuItem>
           </SidebarMenu>
         </div>
-        {/* Visible sections — sortable */}
-        <SidebarGroup className="px-2 py-2">
+        {/* Summary — always first, always visible, not sortable */}
+        <SidebarGroup className="px-2 pt-2 pb-0">
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  isActive={activeSection === "summary"}
+                  onClick={() => handleSectionClick("summary")}
+                >
+                  <SectionMenuIcon sectionKey="summary" />
+                  <span className="flex-1 truncate">
+                    {sectionLabels.summary}
+                  </span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Collection sections — sortable */}
+        <SidebarGroup className="px-2 pt-1 pb-2">
           <SidebarGroupContent>
             <DndContext
               id="sidebar-section-dnd"
@@ -161,11 +183,11 @@ export function ResumeEditorSidebar({
               onDragEnd={handleDragEnd}
             >
               <SortableContext
-                items={visibleSectionKeys}
+                items={sortableSectionKeys}
                 strategy={verticalListSortingStrategy}
               >
                 <SidebarMenu>
-                  {visibleSectionKeys.map((sectionKey) => (
+                  {sortableSectionKeys.map((sectionKey) => (
                     <SortableSectionItem
                       key={sectionKey}
                       draft={draft}

@@ -68,7 +68,7 @@ export function isCollectionSectionKey(
 }
 
 export function getOrderedSectionKeys(sections: ResumeDraft["sections"]) {
-  return resumeSectionKeys
+  return [...resumeSectionKeys]
     .sort((left, right) => sections[left].order - sections[right].order);
 }
 

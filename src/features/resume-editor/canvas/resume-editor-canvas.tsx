@@ -316,12 +316,18 @@ export function ResumeEditorCanvas({
                           ariaLabel={sectionLabels[sectionKey]}
                           isEditing={isEditing}
                           onEdit={() => startEditingSection(sectionKey)}
-                          onMoveUp={() =>
-                            reorderSection(sectionKey, orderIndex - 1)
-                          }
-                          onMoveDown={() =>
-                            reorderSection(sectionKey, orderIndex + 1)
-                          }
+                          onMoveUp={() => {
+                            const anchorKey = collectionKeys[orderIndex - 1];
+                            if (anchorKey) {
+                              reorderSection(sectionKey, anchorKey);
+                            }
+                          }}
+                          onMoveDown={() => {
+                            const anchorKey = collectionKeys[orderIndex + 1];
+                            if (anchorKey) {
+                              reorderSection(sectionKey, anchorKey);
+                            }
+                          }}
                           onDelete={() => requestHideSection(sectionKey)}
                           canMoveUp={orderIndex > 0}
                           canMoveDown={orderIndex < collectionKeys.length - 1}

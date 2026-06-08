@@ -4,9 +4,7 @@ import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
 import {
   cloneDraft,
   getOrderedSectionEntries,
-  moveSection,
-  nextOrderValue,
-  reorderSectionToIndex,
+  moveSectionToAnchor,
   reorderSections,
   setSectionVisibilityWithOrder,
 } from "@/features/resume-editor/state/draft-utils";
@@ -116,124 +114,91 @@ describe("reorderSections", () => {
   });
 });
 
-describe("reorderSectionToIndex", () => {
-  it("moves a section to a specific index", () => {
+describe("moveSectionToAnchor", () => {
+  // Why: the canvas "move down" button anchors on the next visible sibling.
+  // The old index-based API silently no-opped here (target index equalled the
+  // section's own order), which is exactly the "down doesn't work" bug. Anchor
+  // semantics must actually move the section past its downward neighbor.
+  it("moving onto a lower sibling lands the section after it", () => {
     const sections = makeSections({
       summary: { order: 0 },
       workExperience: { order: 1 },
-      education: { order: 2 },
+      skills: { order: 2 },
       projects: { order: 3 },
     });
 
-    const result = reorderSectionToIndex(sections, "education", 0);
+    const result = moveSectionToAnchor(sections, "workExperience", "skills");
 
     expect(orderedKeys(result).slice(0, 4)).toEqual([
-      "education",
       "summary",
+      "skills",
       "workExperience",
       "projects",
     ]);
   });
 
-  it("clamps negative index to zero", () => {
+  // Why: the canvas "move up" button anchors on the previous visible sibling.
+  // The old code overshot by one (jumping two positions); moving onto an upper
+  // anchor must land the section immediately before it — one step, never two.
+  it("moving onto an upper sibling lands the section before it", () => {
     const sections = makeSections({
       summary: { order: 0 },
       workExperience: { order: 1 },
+      skills: { order: 2 },
+      projects: { order: 3 },
     });
 
-    const result = reorderSectionToIndex(sections, "workExperience", -5);
+    const result = moveSectionToAnchor(sections, "projects", "skills");
 
-    expect(orderedKeys(result).slice(0, 2)).toEqual([
-      "workExperience",
+    expect(orderedKeys(result).slice(0, 4)).toEqual([
       "summary",
+      "workExperience",
+      "projects",
+      "skills",
     ]);
   });
 
-  it("returns sections unchanged when the target is already at the given index", () => {
+  // Why: this is the crux of the refactor. Order is a single global space that
+  // includes hidden sections, but the user only reorders the visible ones. An
+  // anchor that is two global slots away (because a hidden section sits between)
+  // must still move the target to sit directly beside that visible anchor.
+  it("ignores hidden sections sitting between target and anchor", () => {
     const sections = makeSections({
-      summary: { order: 0 },
-      workExperience: { order: 1 },
+      summary: { order: 0, visible: true },
+      workExperience: { order: 1, visible: true },
+      skills: { order: 2, visible: false },
+      projects: { order: 3, visible: true },
     });
 
-    const result = reorderSectionToIndex(sections, "summary", 0);
+    // Visible order is [workExperience, projects]; moving projects up anchors
+    // on workExperience even though hidden "skills" is between them globally.
+    const result = moveSectionToAnchor(sections, "projects", "workExperience");
 
-    expect(result).toBe(sections);
-  });
-
-  it("returns sections unchanged when the section key is not found", () => {
-    const sections = makeSections({ summary: { order: 0 } });
-
-    const result = reorderSectionToIndex(
-      sections,
-      "nonexistent" as ResumeSectionKey,
-      0,
+    const visibleOrder = orderedKeys(result).filter(
+      (key) => result[key].visible,
     );
-
-    expect(result).toBe(sections);
-  });
-});
-
-describe("moveSection", () => {
-  it("moves a section up by one position", () => {
-    const sections = makeSections({
-      summary: { order: 0 },
-      workExperience: { order: 1 },
-      education: { order: 2 },
-    });
-
-    const result = moveSection(sections, "education", -1);
-
-    expect(orderedKeys(result).slice(0, 3)).toEqual([
+    expect(visibleOrder.slice(0, 3)).toEqual([
       "summary",
-      "education",
+      "projects",
       "workExperience",
     ]);
   });
 
-  it("moves a section down by one position", () => {
-    const sections = makeSections({
-      summary: { order: 0 },
-      workExperience: { order: 1 },
-      education: { order: 2 },
-    });
-
-    const result = moveSection(sections, "summary", 1);
-
-    expect(orderedKeys(result).slice(0, 3)).toEqual([
-      "workExperience",
-      "summary",
-      "education",
-    ]);
-  });
-
-  it("returns sections unchanged when moving up from the top", () => {
-    const sections = makeSections({
-      summary: { order: 0 },
-      workExperience: { order: 1 },
-    });
-
-    const result = moveSection(sections, "summary", -1);
-
-    expect(result).toBe(sections);
-  });
-
-  it("returns sections unchanged when moving down from the bottom", () => {
-    const sections = makeSections({});
-    const keys = orderedKeys(sections);
-    const lastKey = keys[keys.length - 1];
-
-    const result = moveSection(sections, lastKey, 1);
-
-    expect(result).toBe(sections);
-  });
-
-  it("returns sections unchanged when the section key is not found", () => {
+  it("returns sections unchanged when target and anchor are the same", () => {
     const sections = makeSections({ summary: { order: 0 } });
 
-    const result = moveSection(
+    const result = moveSectionToAnchor(sections, "summary", "summary");
+
+    expect(result).toBe(sections);
+  });
+
+  it("returns sections unchanged when a key is not found", () => {
+    const sections = makeSections({ summary: { order: 0 } });
+
+    const result = moveSectionToAnchor(
       sections,
+      "summary",
       "nonexistent" as ResumeSectionKey,
-      1,
     );
 
     expect(result).toBe(sections);
@@ -285,23 +250,5 @@ describe("setSectionVisibilityWithOrder", () => {
       .slice(idx + 1)
       .filter(([, v]) => v.visible);
     expect(visibleAfterProjects).toHaveLength(0);
-  });
-});
-
-describe("nextOrderValue", () => {
-  it("increments by +1", () => {
-    expect(nextOrderValue(5, 1, 10)).toBe(6);
-  });
-
-  it("decrements by -1", () => {
-    expect(nextOrderValue(5, -1, 10)).toBe(4);
-  });
-
-  it("clamps above max", () => {
-    expect(nextOrderValue(10, 1, 10)).toBe(10);
-  });
-
-  it("clamps below zero", () => {
-    expect(nextOrderValue(0, -1, 10)).toBe(0);
   });
 });
