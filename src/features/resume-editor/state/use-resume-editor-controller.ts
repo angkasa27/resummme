@@ -1,12 +1,17 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useCallback, useRef, useState, useSyncExternalStore } from "react";
 import type { ChangeEvent, RefObject } from "react";
 import { toast } from "sonner";
 import { useStore } from "zustand";
 
 import type { PdfPresentation, Profile, ResumeDraft } from "@/features/resume-editor/domain/schema";
 import { createResumePdfFilename } from "@/features/resume-editor/domain/draft/resume-pdf-filename";
+import type {
+  DraftStorage,
+  SaveStatus,
+} from "@/features/resume-editor/domain/draft/draft-storage";
+import { LocalDraftStorage } from "@/features/resume-editor/domain/draft/local-draft-storage";
 import {
   createResumeEditorStore,
   type ResumeEditorPanelKey,
@@ -15,6 +20,12 @@ import {
 
 type UseResumeEditorControllerOptions = {
   initialDraft?: ResumeDraft;
+  /**
+   * Persistence module ("batteries"). Defaults to {@link LocalDraftStorage}.
+   * The SaaS fork injects a DB-backed implementation here. Must be a stable
+   * reference — it is captured once on mount.
+   */
+  storage?: DraftStorage;
 };
 
 export type ResumeEditorController = {
@@ -44,13 +55,33 @@ export type ResumeEditorController = {
   redo: () => void;
   canUndo: boolean;
   canRedo: boolean;
+  saveStatus: SaveStatus;
 };
 
 export function useResumeEditorController({
   initialDraft,
+  storage: providedStorage,
 }: UseResumeEditorControllerOptions = {}): ResumeEditorController {
+  const [storage] = useState<DraftStorage>(
+    () => providedStorage ?? new LocalDraftStorage()
+  );
   const [store] = useState(() =>
-    createResumeEditorStore({ initialDraft })
+    createResumeEditorStore({ storage, initialDraft })
+  );
+
+  const subscribeSaveStatus = useCallback(
+    (onChange: () => void) =>
+      storage.subscribeSaveStatus?.(() => onChange()) ?? (() => {}),
+    [storage]
+  );
+  const getSaveStatus = useCallback(
+    (): SaveStatus => storage.getSaveStatus?.() ?? "idle",
+    [storage]
+  );
+  const saveStatus = useSyncExternalStore(
+    subscribeSaveStatus,
+    getSaveStatus,
+    () => "idle" as SaveStatus
   );
   const jsonFileInputRef = useRef<HTMLInputElement>(null);
   const pdfFileInputRef = useRef<HTMLInputElement>(null);
@@ -241,6 +272,7 @@ export function useResumeEditorController({
     },
     canUndo,
     canRedo,
+    saveStatus,
   };
 }
 

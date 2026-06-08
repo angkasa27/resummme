@@ -14,7 +14,7 @@ export default function Home() {
       </p>
       <div className="flex gap-3">
         <Link
-          href="/editor"
+          href="/editor/canvas"
           className="inline-flex h-9 items-center justify-center rounded-lg bg-foreground px-4 text-sm font-medium text-background hover:bg-foreground/90"
         >
           Open Editor

@@ -3,16 +3,15 @@
 import {
   Loader,
   PlusIcon,
-  Redo2Icon,
   SlidersHorizontalIcon,
   TriangleAlert,
-  Undo2Icon,
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import type { ReactNode } from "react";
 
 import { toast } from "sonner";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import {
   Sheet,
   SheetContent,
@@ -69,19 +68,24 @@ import {
   type ResumeSectionPanelKey,
 } from "@/features/resume-editor/domain/sections/section-metadata";
 import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ButtonGroup } from "@/components/ui/button-group";
-import { cn } from "@/lib/utils";
-
-const GITHUB_URL = "https://github.com/angkasa27/resume-editor";
+import type { DraftStorage } from "@/features/resume-editor/domain/draft/draft-storage";
+import { EditorTopBar } from "@/features/resume-editor/canvas/editor-top-bar";
 
 type ResumeEditorCanvasProps = {
   initialDraft?: ResumeDraft;
+  /** Persistence module ("batteries"). Defaults to local storage. */
+  storage?: DraftStorage;
+  /** Right-aligned header slot. Defaults to the GitHub link. */
+  headerActions?: ReactNode;
 };
 
 type EditingTarget = "profile" | "summary" | CollectionSectionKey | null;
 
-export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
+export function ResumeEditorCanvas({
+  initialDraft,
+  storage,
+  headerActions,
+}: ResumeEditorCanvasProps) {
   const isClientReady = useClientReady();
   const {
     jsonFileInputRef,
@@ -102,7 +106,8 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
     redo,
     canUndo,
     canRedo,
-  } = useResumeEditorController({ initialDraft });
+    saveStatus,
+  } = useResumeEditorController({ initialDraft, storage });
 
   const [editing, setEditing] = useState<EditingTarget>(null);
   const [isFormDirty, setIsFormDirty] = useState(false);
@@ -238,74 +243,15 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
         />
         <PdfImportProgress open={isImportingPdf} />
 
-        {/* Top navbar */}
-        <header className="sticky top-0 z-40 flex h-12 shrink-0 items-center gap-2 border-b bg-background px-3 sm:gap-3 sm:px-4 print:hidden">
-          <h1 className="font-bold italic pr-1 bg-clip-text text-transparent bg-linear-to-r from-violet-500 to-indigo-600">
-            Resummme
-          </h1>
-          <Tabs value="canvas" className="h-8">
-            <TabsList className="rounded-md border">
-              <TabsTrigger
-                value="canvas"
-                className="px-2 py-0 leading-none! rounded text-xs! data-active:bg-primary/12 data-active:text-primary hover:text-primary cursor-default"
-              >
-                Canvas
-              </TabsTrigger>
-              <TabsTrigger
-                value="legacy"
-                nativeButton={false}
-                render={<Link href="/legacy" />}
-                className="px-2 py-0 leading-none! text-xs!"
-              >
-                Legacy
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
-          <div className="flex-1" />
-
-          <ButtonGroup>
-            <Button
-              type="button"
-              onClick={undo}
-              disabled={!canUndo}
-              aria-label="Undo"
-              variant="outline"
-              size={isMobile ? "icon-sm" : "sm"}
-            >
-              <Undo2Icon className="size-4" />
-              <span className="hidden md:flex">Undo</span>
-            </Button>
-            <Button
-              type="button"
-              onClick={redo}
-              disabled={!canRedo}
-              aria-label="Redo"
-              variant="outline"
-              size={isMobile ? "icon-sm" : "sm"}
-            >
-              <Redo2Icon className="size-4" />
-              <span className="hidden md:flex">Redo</span>
-            </Button>
-          </ButtonGroup>
-
-          <a
-            href={GITHUB_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Open project on GitHub"
-            // className={`${buttonVariants({ variant: "outline", size: "icon-sm" })} ml-auto bg-foreground text-background hover:bg-foreground/80! hover:text-background!`}
-            className={cn(
-              buttonVariants({
-                variant: "outline",
-                size: isMobile ? "icon-sm" : "sm",
-              }),
-              "ml-auto bg-foreground text-background hover:bg-foreground/80! hover:text-background!",
-            )}
-          >
-            <GithubMarkIcon data-icon="inline-start" />
-            <span className="hidden md:flex">GitHub</span>
-          </a>
-        </header>
+        <EditorTopBar
+          activeView="canvas"
+          saveStatus={saveStatus}
+          canUndo={canUndo}
+          canRedo={canRedo}
+          onUndo={undo}
+          onRedo={redo}
+          actions={headerActions}
+        />
 
         {isMobile ? (
           <div className="flex justify-center gap-1.5 border-b bg-amber-50 px-3 py-1 text-xs text-amber-800">
@@ -313,7 +259,7 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
             <span>
               Canvas isn&apos;t optimized for mobile.{" "}
               <Link
-                href="/legacy"
+                href="/editor/legacy"
                 className="font-medium underline underline-offset-2 hover:text-amber-900"
               >
                 Try Legacy mode
@@ -612,7 +558,7 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
                 <AlertDialogCancel>Continue Anyway</AlertDialogCancel>
                 <AlertDialogAction
                   onClick={() => {
-                    window.location.href = "/legacy";
+                    window.location.href = "/editor/legacy";
                   }}
                 >
                   Switch to Legacy
@@ -623,14 +569,6 @@ export function ResumeEditorCanvas({ initialDraft }: ResumeEditorCanvasProps) {
         ) : null}
       </div>
     </TooltipProvider>
-  );
-}
-
-function GithubMarkIcon(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}>
-      <path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.52-1.32-1.27-1.67-1.27-1.67-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.02 1.75 2.68 1.24 3.34.95.1-.74.4-1.24.72-1.53-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.18-3.09-.12-.29-.51-1.46.11-3.04 0 0 .96-.31 3.15 1.18.91-.25 1.89-.38 2.86-.38.97 0 1.95.13 2.86.38 2.19-1.49 3.15-1.18 3.15-1.18.62 1.58.23 2.75.11 3.04.74.8 1.18 1.83 1.18 3.09 0 4.42-2.69 5.39-5.25 5.68.41.36.78 1.06.78 2.13v3.16c0 .31.21.67.8.55C20.21 21.39 23.5 17.08 23.5 12 23.5 5.65 18.35.5 12 .5z" />
-    </svg>
   );
 }
 

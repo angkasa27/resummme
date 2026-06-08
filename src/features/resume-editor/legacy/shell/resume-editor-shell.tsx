@@ -25,6 +25,7 @@ import { useClientReady } from "@/hooks/use-client-ready";
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { toast } from "sonner";
 import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
+import type { DraftStorage } from "@/features/resume-editor/domain/draft/draft-storage";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Button } from "@/components/ui/button";
@@ -32,9 +33,11 @@ import { useIsMobile } from "@/hooks/use-mobile";
 
 type ResumeEditorShellProps = {
   initialDraft?: ResumeDraft;
+  /** Persistence module ("batteries"). Defaults to local storage. */
+  storage?: DraftStorage;
 };
 
-export function ResumeEditorShell({ initialDraft }: ResumeEditorShellProps) {
+export function ResumeEditorShell({ initialDraft, storage }: ResumeEditorShellProps) {
   const isClientReady = useClientReady();
   const {
     jsonFileInputRef,
@@ -59,7 +62,7 @@ export function ResumeEditorShell({ initialDraft }: ResumeEditorShellProps) {
     redo,
     canUndo,
     canRedo,
-  } = useResumeEditorController({ initialDraft });
+  } = useResumeEditorController({ initialDraft, storage });
   const isMobile = useIsMobile();
 
   useKeyboardShortcuts({
@@ -131,7 +134,7 @@ export function ResumeEditorShell({ initialDraft }: ResumeEditorShellProps) {
                 <TabsTrigger
                   value="canvas"
                   nativeButton={false}
-                  render={<Link href="/" />}
+                  render={<Link href="/editor/canvas" />}
                   className="px-2 py-0 leading-none! text-xs!"
                 >
                   Canvas
