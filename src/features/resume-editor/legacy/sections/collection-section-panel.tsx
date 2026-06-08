@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import type { ReactNode } from "react";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import {
   ArrowDownIcon,
@@ -41,12 +42,14 @@ type CollectionSectionPanelProps = {
   draft: ResumeDraft;
   sectionKey: CollectionSectionKey;
   onSave: (sectionValue: ResumeDraft["sections"][CollectionSectionKey]) => void;
+  leading?: ReactNode;
 };
 
 export function CollectionSectionPanel({
   draft,
   sectionKey,
   onSave,
+  leading,
 }: CollectionSectionPanelProps) {
   const config = collectionSectionConfigs[sectionKey];
   const sectionValue = draft.sections[sectionKey];
@@ -114,6 +117,7 @@ export function CollectionSectionPanel({
   return (
     <EditorCard
       title={config.title}
+      leading={leading}
       meta={
         <div className="flex items-center gap-2 flex-1 justify-between">
           <Badge variant="secondary">

@@ -2,8 +2,10 @@
 
 import { PaletteIcon, TelescopeIcon } from "lucide-react";
 import React from "react";
+import type { ReactNode } from "react";
 
 import { Button } from "@/components/ui/button";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 import {
   Popover,
   PopoverContent,
@@ -28,6 +30,8 @@ type PreviewToolbarProps = {
   presentation: PdfPresentation;
   onChange: (nextPresentation: PdfPresentation) => void;
   onOpenSection?: (panel: EditorPanelKey) => void;
+  /** Right-aligned actions (e.g. import/export). */
+  actions?: ReactNode;
 };
 
 function AdaptivePanel({
@@ -82,11 +86,15 @@ export function PreviewToolbar({
   onChange,
   presentation,
   onOpenSection,
+  actions,
 }: PreviewToolbarProps) {
   return (
-    <div className="flex h-12 shrink-0 items-center justify-between gap-2 border-b bg-background px-4">
+    <div className="flex h-12 shrink-0 items-center gap-2 border-b bg-background px-4">
+      {/* Mobile: reach the section sidebar from the preview view. Desktop keeps
+          the trigger in the form pane header instead. */}
+      <SidebarTrigger className="-ml-1 lg:hidden" />
       <span className="text-xs font-medium text-muted-foreground">Preview</span>
-      <div className="flex items-center gap-1.5">
+      <div className="ml-auto flex items-center gap-1.5">
         <AdaptivePanel
           label="Style"
           icon={<PaletteIcon data-icon="inline-start" />}
@@ -100,6 +108,8 @@ export function PreviewToolbar({
         >
           <InsightsTab draft={draft} onOpenSection={onOpenSection} />
         </AdaptivePanel>
+
+        {actions}
       </div>
     </div>
   );

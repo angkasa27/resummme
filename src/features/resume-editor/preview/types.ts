@@ -63,6 +63,8 @@ export type PreviewPaneProps = {
   draft: ResumeDraft;
   onSavePdfPresentation: (pdfPresentation: PdfPresentation) => void;
   onOpenSection?: (panel: EditorPanelKey) => void;
+  /** Right-aligned actions in the preview toolbar (e.g. import/export). */
+  actions?: ReactNode;
 };
 
 export type PreviewRendererProps = {

@@ -32,7 +32,6 @@ import {
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
-  SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -133,12 +132,12 @@ export function ResumeEditorSidebar({
   }
 
   return (
-    <Sidebar collapsible="offcanvas" className="border-r">
-      <SidebarHeader className="h-12 flex-row shrink-0 items-center border-b px-4 m-0">
-        <span className="font-bold italic pr-1 bg-clip-text text-transparent bg-linear-to-r from-violet-500 to-indigo-600">
-          Resummme
-        </span>
-      </SidebarHeader>
+    <Sidebar
+      collapsible="offcanvas"
+      // Offset the fixed sidebar container so it sits below the shared top bar
+      // (--header-height, set on the legacy shell wrapper) instead of overlaying it.
+      className="border-r top-(--header-height)! h-[calc(100dvh-var(--header-height))]!"
+    >
       <SidebarContent>
         {/* Profile — always first, not sortable */}
         <div className="flex h-12 shrink-0 items-center border-b px-2">

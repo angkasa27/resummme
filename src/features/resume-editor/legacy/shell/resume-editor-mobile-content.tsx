@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import type { ReactNode } from "react";
 import { EyeIcon, PenLineIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -21,6 +22,10 @@ type ResumeEditorMobileContentProps = {
     sectionValue: ResumeDraft["sections"][K],
   ) => void;
   onOpenSection?: (panel: EditorPanelKey) => void;
+  /** Leading slot for the form pane header (sidebar trigger). */
+  leading?: ReactNode;
+  /** Right-aligned actions for the preview toolbar (import/export). */
+  previewActions?: ReactNode;
 };
 
 export function ResumeEditorMobileContent({
@@ -30,6 +35,8 @@ export function ResumeEditorMobileContent({
   onSaveProfile,
   onSaveSection,
   onOpenSection,
+  leading,
+  previewActions,
 }: ResumeEditorMobileContentProps) {
   const [showPreview, setShowPreview] = useState(false);
 
@@ -41,6 +48,7 @@ export function ResumeEditorMobileContent({
             draft={draft}
             onSavePdfPresentation={onSavePdfPresentation}
             onOpenSection={onOpenSection}
+            actions={previewActions}
           />
         </div>
       ) : (
@@ -50,6 +58,7 @@ export function ResumeEditorMobileContent({
             activeSection={activeSection as never}
             onSaveProfile={onSaveProfile}
             onSaveSection={onSaveSection}
+            leading={leading}
           />
         </div>
       )}

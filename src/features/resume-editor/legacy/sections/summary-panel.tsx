@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import type { ReactNode } from "react";
 import { Controller, useForm } from "react-hook-form";
 
 import { Badge } from "@/components/ui/badge";
@@ -28,9 +29,10 @@ type SummaryFormValues = {
 type SummaryPanelProps = {
   draft: ResumeDraft;
   onSave: (summary: ResumeDraft["sections"]["summary"]) => void;
+  leading?: ReactNode;
 };
 
-export function SummaryPanel({ draft, onSave }: SummaryPanelProps) {
+export function SummaryPanel({ draft, onSave, leading }: SummaryPanelProps) {
   const sectionValue = draft.sections.summary;
   const formValues = useMemo(
     () => ({
@@ -55,7 +57,11 @@ export function SummaryPanel({ draft, onSave }: SummaryPanelProps) {
   });
 
   return (
-    <EditorCard title="Summary" meta={<Badge variant="secondary">Intro</Badge>}>
+    <EditorCard
+      title="Summary"
+      leading={leading}
+      meta={<Badge variant="secondary">Intro</Badge>}
+    >
       <FieldGroup>
         <Field data-invalid={getFieldState("content", formState).invalid || undefined}>
           <FieldLabel>

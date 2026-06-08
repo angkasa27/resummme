@@ -69,7 +69,7 @@ import {
 } from "@/features/resume-editor/domain/sections/section-metadata";
 import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
 import type { DraftStorage } from "@/features/resume-editor/domain/draft/draft-storage";
-import { EditorTopBar } from "@/features/resume-editor/canvas/editor-top-bar";
+import { EditorTopBar } from "@/features/resume-editor/shared/editor-top-bar";
 
 type ResumeEditorCanvasProps = {
   initialDraft?: ResumeDraft;

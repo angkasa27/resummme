@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import type { ReactNode } from "react";
 import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form";
 import { ImageIcon, PlusIcon, Trash2Icon, UploadIcon } from "lucide-react";
 import { toast } from "sonner";
@@ -36,9 +37,10 @@ import type {
 type ProfilePanelProps = {
   draft: ResumeDraft;
   onSave: (profile: Profile) => void;
+  leading?: ReactNode;
 };
 
-export function ProfilePanel({ draft, onSave }: ProfilePanelProps) {
+export function ProfilePanel({ draft, onSave, leading }: ProfilePanelProps) {
   const profileForm = useForm<Profile>({
     resolver: createFormSchemaResolver<Profile>(profileSchema),
     defaultValues: draft.profile,
@@ -75,6 +77,7 @@ export function ProfilePanel({ draft, onSave }: ProfilePanelProps) {
   return (
     <EditorCard
       title="Profile"
+      leading={leading}
       meta={<Badge variant="secondary">Header</Badge>}
     >
       <FieldGroup className="grid gap-3 md:grid-cols-2">

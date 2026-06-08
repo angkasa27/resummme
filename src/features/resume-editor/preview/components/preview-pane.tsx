@@ -11,6 +11,7 @@ export function PreviewPane({
   draft,
   onSavePdfPresentation,
   onOpenSection,
+  actions,
 }: PreviewPaneProps) {
   const presentation = useMemo(
     () => normalizePdfPresentation(draft.pdfPresentation),
@@ -24,6 +25,7 @@ export function PreviewPane({
         presentation={presentation}
         onChange={onSavePdfPresentation}
         onOpenSection={onOpenSection}
+        actions={actions}
       />
       <PreviewSheet draft={draft} presentation={presentation} />
     </div>
