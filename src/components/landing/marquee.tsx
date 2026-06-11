@@ -4,6 +4,7 @@ import { useRef, type ReactNode } from "react";
 import {
   motion,
   useAnimationFrame,
+  useInView,
   useMotionValue,
   useReducedMotion,
 } from "motion/react";
@@ -33,12 +34,16 @@ export function Marquee({
 }: MarqueeProps) {
   const reduce = useReducedMotion();
   const x = useMotionValue(0);
+  const containerRef = useRef<HTMLDivElement>(null);
   const copyRef = useRef<HTMLDivElement>(null);
   const hovering = useRef(false);
   const dir = direction === "left" ? -1 : 1;
+  // Only run the per-frame ticker while the row is on (or near) screen, so it
+  // doesn't burn the main thread while below the fold during initial load.
+  const inView = useInView(containerRef, { margin: "200px" });
 
   useAnimationFrame((_, delta) => {
-    if (reduce || (pauseOnHover && hovering.current)) return;
+    if (reduce || !inView || (pauseOnHover && hovering.current)) return;
     const copyWidth = copyRef.current?.offsetWidth ?? 0;
     if (copyWidth === 0) return;
     let next = x.get() + dir * speed * (delta / 1000);
@@ -50,6 +55,7 @@ export function Marquee({
 
   return (
     <div
+      ref={containerRef}
       className={cn("overflow-hidden", className)}
       onMouseEnter={() => (hovering.current = true)}
       onMouseLeave={() => (hovering.current = false)}
