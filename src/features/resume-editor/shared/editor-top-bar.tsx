@@ -2,7 +2,13 @@
 
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { CheckIcon, Loader, Redo2Icon, TriangleAlert, Undo2Icon } from "lucide-react";
+import {
+  CheckIcon,
+  Loader,
+  Redo2Icon,
+  TriangleAlert,
+  Undo2Icon,
+} from "lucide-react";
 
 import { Button, buttonVariants } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
@@ -31,7 +37,7 @@ type EditorTopBarProps = {
   /**
    * Targets for the Canvas/Classic tabs. Default to the bare routes; the SaaS
    * fork passes id-bearing hrefs (e.g. `/editor/canvas?id=…`) so switching mode
-   * preserves the cloud résumé — without editing this component.
+   * preserves the cloud resume — without editing this component.
    */
   canvasHref?: string;
   classicHref?: string;
@@ -52,9 +58,11 @@ export function EditorTopBar({
 
   return (
     <header className="sticky top-0 z-40 flex h-12 shrink-0 items-center gap-2 border-b bg-background px-3 sm:gap-3 sm:px-4 print:hidden">
-      <h1 className="font-bold italic pr-1 bg-clip-text text-transparent bg-linear-to-r from-violet-500 to-indigo-600">
-        Resummme
-      </h1>
+      <Link href="/">
+        <h1 className="font-bold italic pr-1 bg-clip-text text-transparent bg-linear-to-r from-violet-500 to-indigo-600">
+          Resummme
+        </h1>
+      </Link>
 
       <Tabs value={activeView} className="h-8">
         <TabsList className="rounded-md border">

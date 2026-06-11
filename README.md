@@ -1,4 +1,4 @@
-# Resumme | Resume Editor
+# Resummme | Resume Editor
 
 > A free, open-source resume editor. Write once, preview instantly, export to PDF — no account required.
 

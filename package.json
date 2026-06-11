@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "screenshots": "tsx scripts/generate-screenshots.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "next typegen && tsc --noEmit"
@@ -25,6 +26,7 @@
     "clsx": "^2.1.1",
     "date-fns": "^4.4.0",
     "lucide-react": "^1.17.0",
+    "motion": "^12.40.0",
     "next": "16.2.4",
     "pdf-parse": "^2.4.5",
     "pdf-parse-v1": "npm:pdf-parse@1.1.1",
@@ -56,6 +58,7 @@
     "eslint-config-next": "16.2.4",
     "jsdom": "^29.1.1",
     "tailwindcss": "^4.3.0",
+    "tsx": "^4.22.4",
     "typescript": "^5.9.3",
     "vitest": "^4.1.8"
   }
