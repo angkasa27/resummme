@@ -242,7 +242,13 @@ function HeroBackdrop({
 }
 
 /** Soft violet glow that tracks the cursor across the hero (desktop only). */
-function Spotlight({ x, y }: { x: MotionValue<number>; y: MotionValue<number> }) {
+function Spotlight({
+  x,
+  y,
+}: {
+  x: MotionValue<number>;
+  y: MotionValue<number>;
+}) {
   const background = useMotionTemplate`radial-gradient(420px 420px at ${x}px ${y}px, rgba(139, 92, 246, 0.10), transparent 70%)`;
   return (
     <motion.div

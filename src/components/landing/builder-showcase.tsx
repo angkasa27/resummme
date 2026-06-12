@@ -30,6 +30,7 @@ export function BuilderFrame() {
           priority
           sizes="(max-width: 1024px) 100vw, 1024px"
           className="object-cover object-top"
+          quality={100}
         />
       </div>
     </div>

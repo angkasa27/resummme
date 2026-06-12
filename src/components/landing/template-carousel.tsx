@@ -18,6 +18,10 @@ const TEMPLATES_TOP: TemplateMeta[] = [
   { id: "academic", label: "Academic" },
   { id: "minimal", label: "Minimal" },
   { id: "inset", label: "Inset" },
+  { id: "banner", label: "Banner" },
+  { id: "split", label: "Split" },
+  { id: "tinted", label: "Tinted" },
+  { id: "bold-type", label: "Bold Type" },
 ].map((t) => ({ ...t, src: `/templates/${t.id}.jpeg` }));
 
 const TEMPLATES_BOTTOM: TemplateMeta[] = [
@@ -28,6 +32,10 @@ const TEMPLATES_BOTTOM: TemplateMeta[] = [
   { id: "academic-alt", label: "Academic" },
   { id: "minimal-alt", label: "Minimal" },
   { id: "inset-alt", label: "Inset" },
+  { id: "banner-alt", label: "Banner" },
+  { id: "split-alt", label: "Split" },
+  { id: "tinted-alt", label: "Tinted" },
+  { id: "bold-type-alt", label: "Bold Type" },
 ].map((t) => ({ ...t, src: `/templates/${t.id}.jpeg` }));
 
 function TemplateCard({ template }: { template: TemplateMeta }) {
@@ -37,9 +45,10 @@ function TemplateCard({ template }: { template: TemplateMeta }) {
         src={template.src}
         alt={`${template.label} resume template`}
         fill
-        sizes="240px"
+        sizes="(max-width: 640px) 50vw, 240px"
         className="object-cover object-top"
         loading="lazy"
+        quality={80}
       />
       {/* label revealed on hover */}
       <div className="absolute inset-x-0 bottom-0 flex items-end justify-center bg-linear-to-t from-black/65 via-black/20 to-transparent px-3 pt-10 pb-3 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
