@@ -59,12 +59,22 @@ export type PreviewControlDefinition = {
   options: ReadonlyArray<PreviewControlOption>;
 };
 
+/** Document-level actions rendered on the right of the preview toolbar. */
+export type PreviewDocumentActions = {
+  /** Open the AI "Extract from PDF" flow. */
+  onExtractCv: () => void;
+  onImportJson: () => void;
+  onExportJson: () => void;
+  onExportPdf: () => void;
+  isExportingPdf?: boolean;
+  isImportingPdf?: boolean;
+};
+
 export type PreviewPaneProps = {
   draft: ResumeDraft;
   onSavePdfPresentation: (pdfPresentation: PdfPresentation) => void;
   onOpenSection?: (panel: EditorPanelKey) => void;
-  /** Right-aligned actions in the preview toolbar (e.g. import/export). */
-  actions?: ReactNode;
+  documentActions: PreviewDocumentActions;
 };
 
 export type PreviewRendererProps = {

@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import type { ReactNode } from "react";
 
 import {
@@ -19,10 +19,12 @@ import { ActiveSectionEditor } from "@/features/resume-editor/classic/sections/a
 import { useResumeEditorController } from "@/features/resume-editor/state/use-resume-editor-controller";
 import { ResumeEditorSidebar } from "@/features/resume-editor/classic/resume-editor-sidebar";
 import { ResumeEditorMobileContent } from "@/features/resume-editor/classic/shell/resume-editor-mobile-content";
-import { ResumeEditorShellActions } from "@/features/resume-editor/classic/shell/resume-editor-shell-actions";
+import { ExtractCvDialog } from "@/features/resume-editor/canvas/controls/extract-cv-dialog";
+import { PdfImportProgress } from "@/features/resume-editor/canvas/controls/pdf-import-progress";
 import { EditorTopBar } from "@/features/resume-editor/shared/editor-top-bar";
 import { PreviewPane } from "@/features/resume-editor/preview/components/preview-pane";
 import { useClientReady } from "@/hooks/use-client-ready";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { toast } from "sonner";
 import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
@@ -47,17 +49,17 @@ export function ResumeEditorShell({
   classicHref,
 }: ResumeEditorShellProps) {
   const isClientReady = useClientReady();
+  const isMobile = useIsMobile();
+  const [isExtractCvOpen, setIsExtractCvOpen] = useState(false);
   const {
     jsonFileInputRef,
-    pdfFileInputRef,
     draft,
     activeSection,
     isExportingPdf,
     isImportingPdf,
     openJsonImportPicker,
-    openPdfImportPicker,
     handleJsonImport,
-    handlePdfImport,
+    submitPdfFile,
     handleExport,
     handlePrint,
     requestSectionChange,
@@ -103,16 +105,14 @@ export function ResumeEditorShell({
   // Built once, threaded into both desktop panes and the mobile content so the
   // sidebar trigger and import/export controls live in Row 2 (per-pane headers).
   const sidebarTrigger = <SidebarTrigger className="-ml-1" />;
-  const previewActions = (
-    <ResumeEditorShellActions
-      onImportJson={openJsonImportPicker}
-      onImportPdf={openPdfImportPicker}
-      onExport={handleExport}
-      onExportPdf={handlePrint}
-      isExportingPdf={isExportingPdf}
-      isImportingPdf={isImportingPdf}
-    />
-  );
+  const documentActions = {
+    onExtractCv: () => setIsExtractCvOpen(true),
+    onImportJson: openJsonImportPicker,
+    onExportJson: handleExport,
+    onExportPdf: handlePrint,
+    isExportingPdf,
+    isImportingPdf,
+  };
 
   function handleOpenPreviewSection(panel: Parameters<typeof requestSectionChange>[0]) {
     if (panel !== "profile" && panel !== "summary") {
@@ -132,13 +132,18 @@ export function ResumeEditorShell({
         className="hidden"
         onChange={handleJsonImport}
       />
-      <input
-        ref={pdfFileInputRef}
-        type="file"
-        accept="application/pdf,.pdf"
-        className="hidden"
-        onChange={handlePdfImport}
+
+      {/* AI PDF import — same highlighted flow as canvas, surfaced from the
+          "Extract from PDF" action instead of being buried in an import menu. */}
+      <ExtractCvDialog
+        open={isExtractCvOpen}
+        onOpenChange={setIsExtractCvOpen}
+        onSubmit={(file) => {
+          void submitPdfFile(file);
+        }}
+        isMobile={isMobile}
       />
+      <PdfImportProgress open={isImportingPdf} />
 
       {/* Row 1 — identical to canvas, full width, fixed (no shift on mode switch). */}
       <EditorTopBar
@@ -193,7 +198,7 @@ export function ResumeEditorShell({
                         draft={draft}
                         onSavePdfPresentation={savePdfPresentation}
                         onOpenSection={handleOpenPreviewSection}
-                        actions={previewActions}
+                        documentActions={documentActions}
                       />
                     </div>
                   </ResizablePanel>
@@ -209,7 +214,7 @@ export function ResumeEditorShell({
                 onSavePdfPresentation={savePdfPresentation}
                 onOpenSection={handleOpenPreviewSection}
                 leading={sidebarTrigger}
-                previewActions={previewActions}
+                documentActions={documentActions}
               />
             </div>
           </SidebarInset>

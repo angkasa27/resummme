@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import type { EditorPanelKey } from "@/features/resume-editor/domain/sections/section-metadata";
 import { ActiveSectionEditor } from "@/features/resume-editor/classic/sections/active-section-editor";
 import { PreviewPane } from "@/features/resume-editor/preview/components/preview-pane";
+import type { PreviewDocumentActions } from "@/features/resume-editor/preview/types";
 import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
 
 type ResumeEditorMobileContentProps = {
@@ -24,8 +25,8 @@ type ResumeEditorMobileContentProps = {
   onOpenSection?: (panel: EditorPanelKey) => void;
   /** Leading slot for the form pane header (sidebar trigger). */
   leading?: ReactNode;
-  /** Right-aligned actions for the preview toolbar (import/export). */
-  previewActions?: ReactNode;
+  /** Document actions for the preview toolbar (extract/import/export). */
+  documentActions: PreviewDocumentActions;
 };
 
 export function ResumeEditorMobileContent({
@@ -36,7 +37,7 @@ export function ResumeEditorMobileContent({
   onSaveSection,
   onOpenSection,
   leading,
-  previewActions,
+  documentActions,
 }: ResumeEditorMobileContentProps) {
   const [showPreview, setShowPreview] = useState(false);
 
@@ -48,7 +49,7 @@ export function ResumeEditorMobileContent({
             draft={draft}
             onSavePdfPresentation={onSavePdfPresentation}
             onOpenSection={onOpenSection}
-            actions={previewActions}
+            documentActions={documentActions}
           />
         </div>
       ) : (
