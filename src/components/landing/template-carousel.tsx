@@ -39,6 +39,7 @@ function TemplateCard({ template }: { template: TemplateMeta }) {
         fill
         sizes="240px"
         className="object-cover object-top"
+        loading="lazy"
       />
       {/* label revealed on hover */}
       <div className="absolute inset-x-0 bottom-0 flex items-end justify-center bg-linear-to-t from-black/65 via-black/20 to-transparent px-3 pt-10 pb-3 opacity-0 transition-opacity duration-300 group-hover:opacity-100">

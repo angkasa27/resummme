@@ -6,6 +6,8 @@ import { ArrowRight } from "lucide-react";
 import {
   motion,
   MotionValue,
+  useMotionTemplate,
+  useMotionValue,
   useReducedMotion,
   useScroll,
   useTransform,
@@ -13,6 +15,7 @@ import {
 } from "motion/react";
 
 import { buttonVariants } from "@/components/ui/button";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import { BuilderFrame } from "./builder-showcase";
 import { KineticText } from "./kinetic-text";
@@ -36,6 +39,7 @@ const item: Variants = {
 
 export function Hero() {
   const reduce = useReducedMotion();
+  const isMobile = useIsMobile();
   const ref = useRef<HTMLElement>(null);
 
   const { scrollYProgress } = useScroll({
@@ -43,34 +47,58 @@ export function Hero() {
     offset: ["start start", "end start"],
   });
 
-  // Previous showcase values — frame tilts back + scales down, flattening in.
+  // Scroll-linked transforms — tamed magnitudes, desktop-only (see `parallax`).
+  // Frame tilts back + scales down, flattening in.
   const rotateX = useTransform(scrollYProgress, [0, 0.65], [12, 0]);
-  const scale = useTransform(scrollYProgress, [0, 0.65], [0.8, 1]);
-  // New for the merge: the frame rises up (faster than scroll) over the copy.
-  const frameY = useTransform(scrollYProgress, [0, 1], ["20%", "-30%"]);
+  const scale = useTransform(scrollYProgress, [0, 0.65], [0.85, 1]);
+  // The frame rises up (faster than scroll) over the copy.
+  const frameY = useTransform(scrollYProgress, [0, 1], ["15%", "-12%"]);
+  const contentFrameY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
 
-  const animated = !reduce;
+  // Entrance fades run everywhere (except reduced-motion); scroll-linked
+  // parallax/tilt only on desktop, where it's smooth and not jank-prone.
+  const entrance = !reduce;
+  const parallax = !reduce && !isMobile;
 
-  const contentFrameY = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
+  // Cursor spotlight position (desktop only); updated on pointer move.
+  const spotlightX = useMotionValue(-1);
+  const spotlightY = useMotionValue(-1);
 
   return (
-    <section ref={ref} className="relative">
+    <section
+      ref={ref}
+      className="relative"
+      onPointerMove={
+        parallax
+          ? (e) => {
+              if (e.pointerType !== "mouse") return;
+              const rect = e.currentTarget.getBoundingClientRect();
+              spotlightX.set(e.clientX - rect.left);
+              spotlightY.set(e.clientY - rect.top);
+            }
+          : undefined
+      }
+    >
+      {/* Spotlight tracks the section's own coordinate space (matches the rect
+          measured in onPointerMove), so keep it a direct child of the section. */}
+      {parallax && <Spotlight x={spotlightX} y={spotlightY} />}
+
       {/* Copy — previous hero padding, no scroll fade */}
       <div className="relative z-10 flex flex-col items-center gap-6 px-6 pt-24 text-center sm:pt-32 md:pt-48">
-        <HeroBackdrop scrollYProgress={scrollYProgress} animated={animated} />
+        <HeroBackdrop scrollYProgress={scrollYProgress} animated={parallax} />
 
         <motion.div
           className="flex flex-col items-center gap-6"
-          variants={animated ? container : undefined}
-          initial={animated ? "hidden" : false}
-          animate={animated ? "show" : undefined}
-          style={animated ? { y: contentFrameY } : undefined}
+          variants={entrance ? container : undefined}
+          initial={entrance ? "hidden" : false}
+          animate={entrance ? "show" : undefined}
+          style={parallax ? { y: contentFrameY } : undefined}
         >
           <motion.a
             href={GITHUB_URL}
             target="_blank"
             rel="noopener noreferrer"
-            variants={animated ? item : undefined}
+            variants={entrance ? item : undefined}
             className="group inline-flex items-center gap-2 rounded-full border bg-background/70 py-1 pr-2 pl-3 text-xs font-medium text-muted-foreground shadow-sm backdrop-blur transition-colors hover:text-foreground"
           >
             <span className="relative flex size-1.5">
@@ -81,7 +109,7 @@ export function Hero() {
             <ArrowRight className="size-3 transition-transform group-hover:translate-x-0.5" />
           </motion.a>
 
-          <motion.div variants={animated ? item : undefined}>
+          <motion.div variants={entrance ? item : undefined}>
             <KineticText
               text="Resummme"
               className="px-4 text-5xl tracking-tight md:text-7xl"
@@ -89,7 +117,7 @@ export function Hero() {
           </motion.div>
 
           <motion.p
-            variants={animated ? item : undefined}
+            variants={entrance ? item : undefined}
             className="max-w-md text-balance text-muted-foreground"
           >
             Build a recruiter-ready resume in minutes. Write once, preview as
@@ -97,7 +125,7 @@ export function Hero() {
           </motion.p>
 
           <motion.div
-            variants={animated ? item : undefined}
+            variants={entrance ? item : undefined}
             className="flex flex-wrap items-center justify-center gap-3"
           >
             <Link
@@ -121,7 +149,7 @@ export function Hero() {
           </motion.div>
 
           <motion.p
-            variants={animated ? item : undefined}
+            variants={entrance ? item : undefined}
             className="text-xs text-muted-foreground"
           >
             No sign-up. No paywall. Your data never leaves your browser.
@@ -131,15 +159,15 @@ export function Hero() {
 
       {/* Builder frame — previous showcase layout, rises up to cover the copy */}
       <motion.div
-        style={animated ? { y: frameY } : undefined}
+        style={parallax ? { y: frameY } : undefined}
         className="relative z-20 px-6"
       >
         <motion.div
           initial={
-            animated ? { opacity: 0, y: 48, filter: "blur(16px)" } : false
+            entrance ? { opacity: 0, y: 48, filter: "blur(16px)" } : false
           }
           animate={
-            animated ? { opacity: 1, y: 0, filter: "blur(0px)" } : undefined
+            entrance ? { opacity: 1, y: 0, filter: "blur(0px)" } : undefined
           }
           transition={{ duration: 0.8, delay: 0.85, ease: [0.16, 1, 0.3, 1] }}
           className="relative mx-auto max-w-6xl perspective-distant"
@@ -155,7 +183,7 @@ export function Hero() {
           />
           <motion.div
             style={
-              animated
+              parallax
                 ? { rotateX, scale, transformOrigin: "center top" }
                 : undefined
             }
@@ -168,7 +196,7 @@ export function Hero() {
   );
 }
 
-/** Decorative grid + radial glow that fades out toward the bottom of the hero. */
+/** Decorative grid + aurora mesh that fades out toward the bottom of the hero. */
 function HeroBackdrop({
   scrollYProgress,
   animated = true,
@@ -176,7 +204,8 @@ function HeroBackdrop({
   scrollYProgress: MotionValue<number>;
   animated?: boolean;
 }) {
-  const yPosition = useTransform(scrollYProgress, [0, 1], ["0%", "200%"]);
+  // Tamed parallax: the backdrop drifts only slightly behind the scroll.
+  const yPosition = useTransform(scrollYProgress, [0, 1], ["0%", "40%"]);
 
   return (
     <motion.div
@@ -184,6 +213,18 @@ function HeroBackdrop({
       className="pointer-events-none absolute inset-0 -z-10"
       style={animated ? { y: yPosition } : undefined}
     >
+      {/* Aurora mesh — layered, offset blooms in violet / indigo / fuchsia. */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background: [
+            "radial-gradient(40% 40% at 30% 0%, rgba(139, 92, 246, 0.20), transparent 70%)",
+            "radial-gradient(45% 45% at 70% 8%, rgba(99, 102, 241, 0.16), transparent 72%)",
+            "radial-gradient(35% 38% at 52% 14%, rgba(217, 70, 239, 0.12), transparent 70%)",
+          ].join(", "),
+        }}
+      />
+      {/* Masked grid sits over the aurora for structure. */}
       <div
         className="absolute inset-0"
         style={{
@@ -196,13 +237,18 @@ function HeroBackdrop({
             "radial-gradient(ellipse 65% 55% at 50% 0%, black, transparent 75%)",
         }}
       />
-      <div
-        className="absolute inset-0"
-        style={{
-          background:
-            "radial-gradient(50% 50% at 50% 0%, rgba(139, 92, 246, 0.16), transparent 70%)",
-        }}
-      />
     </motion.div>
+  );
+}
+
+/** Soft violet glow that tracks the cursor across the hero (desktop only). */
+function Spotlight({ x, y }: { x: MotionValue<number>; y: MotionValue<number> }) {
+  const background = useMotionTemplate`radial-gradient(420px 420px at ${x}px ${y}px, rgba(139, 92, 246, 0.10), transparent 70%)`;
+  return (
+    <motion.div
+      aria-hidden
+      className="pointer-events-none absolute inset-0 -z-10"
+      style={{ background }}
+    />
   );
 }

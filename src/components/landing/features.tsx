@@ -6,6 +6,7 @@ import {
   type HTMLAttributes,
   type RefAttributes,
 } from "react";
+import { useReducedMotion } from "motion/react";
 
 import { FileCheckIcon } from "@/components/ui/file-check";
 import { FingerprintIcon } from "@/components/ui/fingerprint";
@@ -93,30 +94,37 @@ export function Features() {
 
 function FeatureCard({ feature }: { feature: Feature }) {
   const iconRef = useRef<AnimatedIconHandle>(null);
+  const reduce = useReducedMotion();
   const { Icon } = feature;
 
   return (
+    // Motion owns the `transform` here (blur-up entrance + hover lift), so the
+    // card itself must never CSS-transition `transform` — that fight caused a
+    // post-entrance drift. The hover lift goes through `whileHover` instead.
     <RevealItem
       onMouseEnter={() => iconRef.current?.startAnimation()}
       onMouseLeave={() => iconRef.current?.stopAnimation()}
-      className="group relative overflow-hidden rounded-2xl border bg-background p-6 transition-all duration-300 hover:-translate-y-1 hover:border-violet-500/40 hover:shadow-lg hover:shadow-indigo-500/5"
+      whileHover={reduce ? undefined : { y: -4 }}
+      className="group relative rounded-2xl bg-linear-to-br from-violet-500/30 via-border/60 to-fuchsia-500/20 p-px shadow-sm transition-shadow duration-300 hover:shadow-lg hover:shadow-indigo-500/10"
     >
-      {/* hover wash */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-        style={{
-          background:
-            "radial-gradient(120% 90% at 0% 0%, rgba(139, 92, 246, 0.07), transparent 55%)",
-        }}
-      />
-      <span className="relative inline-flex size-10 items-center justify-center rounded-xl bg-linear-to-r from-violet-500 to-indigo-600 text-white shadow-sm ring-1 ring-violet-500/20 transition-transform duration-300 group-hover:scale-105">
-        <Icon ref={iconRef} size={20} />
-      </span>
-      <h3 className="relative mt-4 font-semibold">{feature.title}</h3>
-      <p className="relative mt-2 text-sm text-muted-foreground">
-        {feature.description}
-      </p>
+      <div className="relative h-full overflow-hidden rounded-[calc(1rem-1px)] bg-background p-6 transition-colors duration-300">
+        {/* hover wash */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+          style={{
+            background:
+              "radial-gradient(120% 90% at 0% 0%, rgba(139, 92, 246, 0.10), transparent 55%)",
+          }}
+        />
+        <span className="relative inline-flex size-10 items-center justify-center rounded-xl bg-linear-to-r from-violet-500 to-indigo-600 text-white shadow-sm ring-1 ring-violet-500/20 transition-transform duration-300 group-hover:scale-105">
+          <Icon ref={iconRef} size={20} />
+        </span>
+        <h3 className="relative mt-4 font-semibold">{feature.title}</h3>
+        <p className="relative mt-2 text-sm text-muted-foreground">
+          {feature.description}
+        </p>
+      </div>
     </RevealItem>
   );
 }
