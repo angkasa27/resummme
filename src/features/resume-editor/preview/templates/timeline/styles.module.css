@@ -18,57 +18,62 @@
   gap: 0;
 }
 
-/* Timeline item: accent bar on the left */
+/* Timeline item: date column on the left, content beside a continuous rail. */
 .template :global(.timeline-item) {
-  display: flex;
-  flex-direction: row;
-  gap: var(--resume-gap-section);
-  padding-left: var(--resume-gap-item);
-  border-left: 1.5px solid var(--resume-accent);
-  padding-bottom: var(--resume-gap-item);
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
 }
-.template :global(.item-list) {
-  padding-left: var(--resume-gap-item);
+
+.template :global(.timeline-date) {
+  padding-right: var(--resume-gap-item);
+  padding-top: 1px;
+}
+
+.template :global(.timeline-date .item-date) {
+  font-weight: 600;
+  color: var(--resume-accent);
+  white-space: normal;
 }
 
 .template :global(.item-content) {
-  flex: 1;
+  grid-column: 2;
+  position: relative;
   min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 2px;
+  border-left: 1.5px solid var(--resume-border);
+  padding-left: calc(var(--resume-gap-item) + 6px);
+  padding-bottom: var(--resume-gap-item);
 }
 
-/* Date is emphasized on its own row above the title */
-.template :global(.item-header) {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-  align-items: stretch;
+/* Accent node dot on the rail beside each item title. */
+.template :global(.item-content)::before {
+  content: "";
+  position: absolute;
+  left: -4.25px;
+  top: 4px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--resume-accent);
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
 }
 
-.template :global(.item-date) {
-  font-size: 0.9em;
-  font-weight: 600;
-  color: var(--resume-accent);
-}
-
-.template :global(.item-title) {
-  font-size: var(--resume-h3);
-  font-weight: 600;
-  margin: 0;
-  line-height: 1.25;
-}
-
+/* Header — name left, contact block right, over a full-width accent rule. */
 .header {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
+  justify-content: space-between;
   gap: var(--resume-gap-section);
+  border-bottom: 2px solid var(--resume-accent);
+  padding-bottom: var(--resume-gap-item);
 }
 
 .header :global(.header-photo) {
-  width: 72px;
-  height: 96px;
+  width: 56px;
+  height: 72px;
   border-radius: 6px;
   overflow: hidden;
   flex-shrink: 0;
@@ -84,6 +89,22 @@
   flex: 1;
   min-width: 0;
   display: flex;
-  flex-direction: column;
-  gap: var(--resume-gap-item);
+  flex-direction: row;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--resume-gap-section);
+}
+
+.header :global(.contact-block) {
+  max-width: 50%;
+  text-align: right;
+}
+
+/* Links stack one per line so a link-heavy profile stays tidy. */
+.header :global(.contact-links .contact-item) {
+  display: block;
+}
+
+.header :global(.contact-links .contact-item + .contact-item)::before {
+  content: none;
 }

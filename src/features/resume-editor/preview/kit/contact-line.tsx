@@ -3,6 +3,12 @@ import { shouldOpenHrefInNewTab } from "@/features/resume-editor/domain/rich-tex
 
 import type { PreviewContactItem, PreviewRenderContext } from "../types";
 
+/**
+ * Contact details render as one list, profile links as a second
+ * `.contact-links` list. Items are inline with "•" separators drawn in CSS
+ * (resume-document.module.css), so templates can restyle them as stacked
+ * lists by overriding `.contact-item` display and its separator.
+ */
 export function PreviewContactLine({
   context,
   className,
@@ -11,17 +17,35 @@ export function PreviewContactLine({
   className?: string;
 }) {
   const { contactItems } = context;
+  const details = contactItems.filter((item) => item.kind !== "link");
+  const links = contactItems.filter((item) => item.kind === "link");
 
   return (
-    <p className={cn("contact-line wrap-break-word", className)}>
-      {contactItems.map((item, index) => (
-        <PreviewContactItemText
-          key={`${item.kind}-${item.value}-${index}`}
-          item={item}
-          index={index}
-        />
-      ))}
-    </p>
+    <div className="contact-block">
+      {details.length > 0 ? (
+        <ul className={cn("contact-line wrap-break-word", className)}>
+          {details.map((item, index) => (
+            <li key={`${item.kind}-${item.value}-${index}`} className="contact-item">
+              <PreviewContactItemText item={item} index={index} />
+            </li>
+          ))}
+        </ul>
+      ) : null}
+      {links.length > 0 ? (
+        <ul
+          className={cn(
+            "contact-line contact-links wrap-break-word",
+            className,
+          )}
+        >
+          {links.map((item, index) => (
+            <li key={`${item.kind}-${item.value}-${index}`} className="contact-item">
+              <PreviewContactItemText item={item} index={index} />
+            </li>
+          ))}
+        </ul>
+      ) : null}
+    </div>
   );
 }
 
@@ -43,27 +67,21 @@ function PreviewContactItemText({
 
   if (item.kind === "link") {
     return (
-      <span>
-        {index > 0 ? " • " : null}
-        <a
-          href={item.value}
-          aria-label={label}
-          target={shouldOpenHrefInNewTab(item.value) ? "_blank" : undefined}
-          rel={
-            shouldOpenHrefInNewTab(item.value)
-              ? "noopener noreferrer"
-              : undefined
-          }
-        >
-          {item.value}
-        </a>
-      </span>
+      <a
+        href={item.value}
+        aria-label={label}
+        target={shouldOpenHrefInNewTab(item.value) ? "_blank" : undefined}
+        rel={
+          shouldOpenHrefInNewTab(item.value) ? "noopener noreferrer" : undefined
+        }
+      >
+        {item.value}
+      </a>
     );
   }
 
   return (
     <span aria-label={label}>
-      {index > 0 ? " • " : null}
       <span aria-hidden="true">{item.value}</span>
     </span>
   );

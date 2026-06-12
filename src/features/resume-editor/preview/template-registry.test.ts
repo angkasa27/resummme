@@ -6,7 +6,7 @@ import {
 } from "@/features/resume-editor/preview/template-registry";
 
 describe("preview template registry", () => {
-  it("exposes all seven built-in templates", () => {
+  it("exposes all eleven built-in templates", () => {
     const ids = previewTemplateDefinitions.map((template) => template.id);
     expect(ids).toEqual([
       "classic",
@@ -16,6 +16,10 @@ describe("preview template registry", () => {
       "academic",
       "minimal",
       "inset",
+      "banner",
+      "split",
+      "tinted",
+      "bold-type",
     ]);
   });
 
@@ -28,6 +32,10 @@ describe("preview template registry", () => {
       "academic",
       "minimal",
       "inset",
+      "banner",
+      "split",
+      "tinted",
+      "bold-type",
     ] as const) {
       expect(getTemplate(id).id).toBe(id);
     }
@@ -37,22 +45,27 @@ describe("preview template registry", () => {
     expect(getTemplate("missing" as never).id).toBe("classic");
   });
 
-  it("partitions sections into side and main columns in the sidebar template", () => {
-    const sidebar = getTemplate("sidebar");
-    expect(sidebar.getColumn?.("skills")).toBe("side");
-    expect(sidebar.getColumn?.("languages")).toBe("side");
-    expect(sidebar.getColumn?.("certifications")).toBe("side");
-    expect(sidebar.getColumn?.("references")).toBe("side");
-    expect(sidebar.getColumn?.("workExperience")).toBe("main");
-    expect(sidebar.getColumn?.("education")).toBe("main");
+  it("partitions sections into side and main columns in the sidebar and split templates", () => {
+    for (const id of ["sidebar", "split"] as const) {
+      const template = getTemplate(id);
+      expect(template.getColumn?.("skills")).toBe("side");
+      expect(template.getColumn?.("languages")).toBe("side");
+      expect(template.getColumn?.("certifications")).toBe("side");
+      expect(template.getColumn?.("references")).toBe("side");
+      expect(template.getColumn?.("workExperience")).toBe("main");
+      expect(template.getColumn?.("education")).toBe("main");
+    }
   });
 
-  it("classic / modern-centered / timeline / academic / minimal / inset have no column partitioning", () => {
+  it("single-column templates have no column partitioning", () => {
     expect(getTemplate("classic").getColumn).toBeUndefined();
     expect(getTemplate("modern-centered").getColumn).toBeUndefined();
     expect(getTemplate("timeline").getColumn).toBeUndefined();
     expect(getTemplate("academic").getColumn).toBeUndefined();
     expect(getTemplate("minimal").getColumn).toBeUndefined();
     expect(getTemplate("inset").getColumn).toBeUndefined();
+    expect(getTemplate("banner").getColumn).toBeUndefined();
+    expect(getTemplate("tinted").getColumn).toBeUndefined();
+    expect(getTemplate("bold-type").getColumn).toBeUndefined();
   });
 });

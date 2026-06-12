@@ -253,8 +253,21 @@ export function StyleTab({ presentation, onChange }: StyleTabProps) {
 
       <div className="col-span-2 pt-1">
         <ColorControl
+          label="Accent"
           value={presentation.accent}
           onChange={(accent) => onChange({ ...presentation, accent })}
+        />
+      </div>
+
+      <div className="col-span-2 pt-1">
+        <ColorControl
+          label="Secondary"
+          value={presentation.secondary ?? presentation.accent}
+          onChange={(secondary) => onChange({ ...presentation, secondary })}
+          allowAuto={{
+            active: presentation.secondary === undefined,
+            onSelect: () => onChange({ ...presentation, secondary: undefined }),
+          }}
         />
       </div>
     </div>

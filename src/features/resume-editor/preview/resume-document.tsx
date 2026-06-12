@@ -21,7 +21,8 @@ export function ResumeDocument({
 
   const hideSummaryHeading =
     context.presentation.templateId === "classic" ||
-    context.presentation.templateId === "timeline";
+    context.presentation.templateId === "timeline" ||
+    context.presentation.templateId === "banner";
 
   const slots: TemplateSlots = {
     header: renderTemplateHeader(context),

@@ -3,16 +3,22 @@ import type { TemplateHeaderProps } from "@/features/resume-editor/preview/templ
 
 import styles from "./styles.module.css";
 
-export function SidebarHeader({ context }: TemplateHeaderProps) {
+export function TintedHeader({ context }: TemplateHeaderProps) {
   const { draft } = context;
   return (
-    <header className={`${styles.header} layout-header`} data-template="sidebar">
+    <header className={`${styles.header} layout-header`} data-template="tinted">
       <div className="header-body">
         <h1 className="name" data-testid="resume-preview-full-name">
           {draft.profile.fullName}
         </h1>
         <PreviewContactLine context={context} />
       </div>
+      {draft.profile.photo ? (
+        <div className="header-photo" data-slot="photo-frame">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={draft.profile.photo} alt={draft.profile.fullName} />
+        </div>
+      ) : null}
     </header>
   );
 }

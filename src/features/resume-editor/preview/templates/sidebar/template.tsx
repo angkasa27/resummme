@@ -20,18 +20,25 @@ function getColumn(sectionKey: CollectionSectionKey): LayoutColumn {
   return SIDE_SECTIONS.has(sectionKey) ? "side" : "main";
 }
 
-function SidebarTemplate({ slots }: TemplateComponentProps) {
+function SidebarTemplate({ context, slots }: TemplateComponentProps) {
   const side: typeof slots.sections = [];
   const main: typeof slots.sections = [];
   for (const entry of slots.sections) {
     (getColumn(entry.key) === "side" ? side : main).push(entry);
   }
+  const { photo, fullName } = context.draft.profile;
 
   return (
     <div className={styles.template}>
       {slots.header}
       <div className="layout-body">
         <div className="layout-side">
+          {photo ? (
+            <div className="side-photo" data-slot="photo-frame">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={photo} alt={fullName} />
+            </div>
+          ) : null}
           {side.map(({ key, node }) => (
             <div key={key}>{node}</div>
           ))}

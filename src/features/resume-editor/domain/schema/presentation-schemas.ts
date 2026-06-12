@@ -20,6 +20,10 @@ export const pdfPresentationSchema = z.preprocess(
     spacing: z.enum(pdfSpacingIds),
     lineHeight: z.enum(pdfLineHeightIds),
     accent: z.string().regex(/^#[0-9a-fA-F]{6}$/),
+    secondary: z
+      .string()
+      .regex(/^#[0-9a-fA-F]{6}$/)
+      .optional(),
     paperSize: z.enum(pdfPaperSizes),
     pageMargin: z.enum(pdfPageMargins),
   }),

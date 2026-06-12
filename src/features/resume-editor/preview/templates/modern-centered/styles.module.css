@@ -10,12 +10,22 @@
   gap: var(--resume-gap-section);
 }
 
-/* Section headings get a hairline accent rule underneath. */
+/* Centered section headings with a short accent rule underneath. */
 .template :global(.section-heading) {
-  border-bottom: 2px solid var(--resume-accent);
-  padding-bottom: var(--resume-gap-inner);
+  text-align: center;
   letter-spacing: 0.12em;
-  text-align: left;
+}
+
+/* Same system as the name: accent text, short secondary rule beneath. */
+.template :global(.section-heading)::after {
+  content: "";
+  display: block;
+  width: 32px;
+  height: 2px;
+  background: var(--resume-secondary);
+  margin: var(--resume-gap-inner) auto 0;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
 }
 
 .template :global(.section) {
@@ -47,17 +57,19 @@
   margin-right: 4px;
 }
 
-/* Header — photo on the side, name with hairline accent rule underneath. */
+/* Header — circular photo centered above the centered name and contacts. */
 .header {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: var(--resume-gap-section);
+  gap: var(--resume-gap-item);
+  text-align: center;
 }
 
 .header :global(.header-photo) {
-  width: 72px;
-  height: 96px;
-  border-radius: 6px;
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
   overflow: hidden;
   flex-shrink: 0;
 }
@@ -69,10 +81,10 @@
 }
 
 .header :global(.header-body) {
-  flex: 1;
   min-width: 0;
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: var(--resume-gap-item);
 }
 
@@ -81,12 +93,16 @@
   padding-bottom: 8px;
 }
 
+/* Short centered rule in the secondary color under the name. */
 .header :global(.name)::after {
   content: "";
   position: absolute;
-  left: 0;
+  left: 50%;
   bottom: 0;
-  width: 100%;
+  width: 48px;
   height: 2px;
-  background: var(--resume-accent);
+  transform: translateX(-50%);
+  background: var(--resume-secondary);
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
 }

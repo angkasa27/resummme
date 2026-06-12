@@ -19,6 +19,12 @@
   display: flex;
   align-items: center;
   gap: var(--resume-gap-section);
+  padding-bottom: var(--resume-gap-item);
+  border-bottom: 3px solid var(--resume-accent);
+}
+
+.header :global(.name) {
+  color: var(--resume-text);
 }
 
 .header :global(.header-photo) {

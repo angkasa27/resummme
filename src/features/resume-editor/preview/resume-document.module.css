@@ -24,7 +24,7 @@
   font-size: var(--resume-h2);
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   color: var(--resume-accent);
   margin: 0;
 }
@@ -36,12 +36,41 @@
   line-height: 1.25;
 }
 
+.root :global(.item-title a) {
+  text-decoration: none;
+  color: inherit;
+}
+
 .root :global(.meta) {
   color: var(--resume-muted);
+  font-size: var(--resume-meta);
+}
+
+.root :global(.contact-block) {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
 }
 
 .root :global(.contact-line) {
   margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--resume-meta);
+}
+
+.root :global(.contact-line .contact-item) {
+  display: inline;
+}
+
+/* Inline separator dots live in CSS so templates can stack items instead. */
+.root :global(.contact-line .contact-item + .contact-item)::before {
+  content: "• ";
+}
+
+.root :global(.contact-links) {
+  color: var(--resume-muted);
 }
 
 .root :global(.item-list) {
@@ -100,8 +129,13 @@
 
 .root :global(.item-date) {
   color: var(--resume-muted);
+  font-size: var(--resume-meta);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
+}
+
+.root :global(.section-indent) {
+  padding-left: var(--resume-indent);
 }
 
 .root :global(.rich-text) {

@@ -1,4 +1,8 @@
 import {
+  readableTextOn,
+  tintHex,
+} from "@/features/resume-editor/domain/presentation/color-utils";
+import {
   DEFAULT_FONT_ID,
   getFont,
   resumeFontIds,
@@ -15,6 +19,10 @@ export const pdfTemplateIds = [
   "academic",
   "minimal",
   "inset",
+  "banner",
+  "split",
+  "tinted",
+  "bold-type",
 ] as const;
 export type PdfTemplateId = (typeof pdfTemplateIds)[number];
 
@@ -40,6 +48,8 @@ export type PdfPresentation = {
   spacing: PdfSpacingId;
   lineHeight: PdfLineHeightId;
   accent: string;
+  /** Optional second theme color; falls back to `accent` when unset. */
+  secondary?: string;
   paperSize: PdfPaperSize;
   pageMargin: PdfPageMargin;
 };
@@ -57,6 +67,10 @@ export const pdfTemplateLabels: Record<PdfTemplateId, string> = {
   academic: "Academic",
   minimal: "Minimal",
   inset: "Inset",
+  banner: "Banner",
+  split: "Split",
+  tinted: "Tinted",
+  "bold-type": "Bold Type",
 };
 
 export const pdfFontScaleLabels: Record<PdfFontScaleId, string> = {
@@ -118,6 +132,12 @@ const innerGapPx: Record<PdfSpacingId, number> = {
   airy: 8,
 };
 
+const indentPx: Record<PdfSpacingId, number> = {
+  compact: 10,
+  standard: 14,
+  airy: 18,
+};
+
 const paperDimensions: Record<
   PdfPaperSize,
   { widthMm: number; heightMm: number }
@@ -138,6 +158,10 @@ const hexColorPattern = /^#[0-9a-fA-F]{6}$/;
 
 export function isValidAccentHex(value: unknown): value is string {
   return typeof value === "string" && hexColorPattern.test(value);
+}
+
+export function getEffectiveSecondary(presentation: PdfPresentation): string {
+  return presentation.secondary ?? presentation.accent;
 }
 
 export function getPaperDimensionsMm(paperSize: PdfPaperSize) {
@@ -191,6 +215,7 @@ export function normalizePdfPresentation(input: unknown): PdfPresentation {
       ? source.lineHeight
       : defaults.lineHeight,
     accent: isValidAccentHex(source.accent) ? source.accent : defaults.accent,
+    secondary: isValidAccentHex(source.secondary) ? source.secondary : undefined,
     paperSize: isMember(pdfPaperSizes, source.paperSize)
       ? source.paperSize
       : defaults.paperSize,
@@ -209,6 +234,7 @@ export function resolvePdfPresentation(
   const paper = paperDimensions[p.paperSize];
   const margin = pageMarginMm[p.pageMargin];
   const printContentWidth = Number((paper.widthMm - margin * 2).toFixed(3));
+  const secondary = getEffectiveSecondary(p);
 
   const vars: Record<string, string> = {
     "--resume-font": getFont(p.fontFamilyId).stack,
@@ -216,14 +242,20 @@ export function resolvePdfPresentation(
     "--resume-muted": "#4b5563",
     "--resume-border": "#cbd5e1",
     "--resume-accent": p.accent,
-    "--resume-h1": `${Number((base * 2.4).toFixed(2))}px`,
-    "--resume-h2": `${Number((base * 0.92).toFixed(2))}px`,
-    "--resume-h3": `${Number((base * 1.08).toFixed(2))}px`,
+    "--resume-secondary": secondary,
+    "--resume-secondary-tint": tintHex(secondary, 0.9),
+    "--resume-on-accent": readableTextOn(p.accent),
+    "--resume-on-secondary": readableTextOn(secondary),
+    "--resume-h1": `${Number((base * 2.3).toFixed(2))}px`,
+    "--resume-h2": `${Number((base * 1.25).toFixed(2))}px`,
+    "--resume-h3": `${Number((base * 1.05).toFixed(2))}px`,
+    "--resume-meta": `${Number((base * 0.92).toFixed(2))}px`,
     "--resume-body": `${base}px`,
     "--resume-leading": String(leading),
     "--resume-gap-section": `${sectionGapPx[p.spacing]}px`,
     "--resume-gap-item": `${itemGapPx[p.spacing]}px`,
     "--resume-gap-inner": `${innerGapPx[p.spacing]}px`,
+    "--resume-indent": `${indentPx[p.spacing]}px`,
     "--resume-paper-width": `${paper.widthMm}mm`,
     "--resume-page-margin": `${margin}mm`,
     "--resume-print-content-width": `${printContentWidth}mm`,

@@ -4,6 +4,10 @@ import type { PdfTemplateId } from "@/features/resume-editor/domain/presentation
 
 import { academicTemplate } from "./templates/academic/template";
 import { AcademicHeader } from "./templates/academic/header";
+import { bannerTemplate } from "./templates/banner/template";
+import { BannerHeader } from "./templates/banner/header";
+import { boldTypeTemplate } from "./templates/bold-type/template";
+import { BoldTypeHeader } from "./templates/bold-type/header";
 import { classicTemplate } from "./templates/classic/template";
 import { ClassicHeader } from "./templates/classic/header";
 import { insetTemplate } from "./templates/inset/template";
@@ -14,8 +18,12 @@ import { modernCenteredTemplate } from "./templates/modern-centered/template";
 import { ModernCenteredHeader } from "./templates/modern-centered/header";
 import { sidebarTemplate } from "./templates/sidebar/template";
 import { SidebarHeader } from "./templates/sidebar/header";
+import { splitTemplate } from "./templates/split/template";
+import { SplitHeader } from "./templates/split/header";
 import { timelineTemplate } from "./templates/timeline/template";
 import { TimelineHeader } from "./templates/timeline/header";
+import { tintedTemplate } from "./templates/tinted/template";
+import { TintedHeader } from "./templates/tinted/header";
 import type { PreviewTemplateDefinition } from "./template-types";
 import type { PreviewRenderContext } from "./types";
 
@@ -27,6 +35,10 @@ export const previewTemplateDefinitions = [
   academicTemplate,
   minimalTemplate,
   insetTemplate,
+  bannerTemplate,
+  splitTemplate,
+  tintedTemplate,
+  boldTypeTemplate,
 ] as const satisfies ReadonlyArray<PreviewTemplateDefinition>;
 
 export function getTemplate(
@@ -52,6 +64,14 @@ export function renderTemplateHeader(context: PreviewRenderContext): ReactNode {
       return <MinimalHeader context={context} />;
     case "inset":
       return <InsetHeader context={context} />;
+    case "banner":
+      return <BannerHeader context={context} />;
+    case "split":
+      return <SplitHeader context={context} />;
+    case "tinted":
+      return <TintedHeader context={context} />;
+    case "bold-type":
+      return <BoldTypeHeader context={context} />;
     case "classic":
     default:
       return <ClassicHeader context={context} />;

@@ -15,6 +15,7 @@
   font-variant: small-caps;
   letter-spacing: 0.16em;
   text-transform: none;
+  color: var(--resume-text);
   border-bottom: 1px solid var(--resume-border);
   padding-bottom: var(--resume-gap-inner);
   font-weight: 600;
@@ -22,6 +23,12 @@
 
 .template :global(.section) {
   gap: var(--resume-gap-item);
+}
+
+/* CV convention: section bodies indent under the flush-left heading. */
+.template :global(.item-list),
+.template :global([data-section="summary"] .rich-text) {
+  padding-left: var(--resume-indent);
 }
 
 .template :global(.item-title) {
@@ -60,8 +67,8 @@
 }
 
 .header :global(.header-photo) {
-  width: 72px;
-  height: 96px;
+  width: 56px;
+  height: 72px;
   border-radius: 6px;
   overflow: hidden;
   margin-bottom: var(--resume-gap-item);
@@ -76,6 +83,7 @@
 .header :global(.name) {
   font-weight: 600;
   letter-spacing: 0.03em;
+  color: var(--resume-text);
 }
 
 .header :global(.contact-line) {

@@ -10,6 +10,21 @@
   gap: var(--resume-gap-section);
 }
 
+/* Label-rail layout: section heading in a narrow left column, items right. */
+.template :global(.section) {
+  display: grid;
+  grid-template-columns: 110px minmax(0, 1fr);
+  gap: var(--resume-gap-item);
+  align-items: start;
+}
+
+.template :global(.section-heading) {
+  font-size: var(--resume-meta);
+  letter-spacing: 0.1em;
+  padding-top: 2px;
+  overflow-wrap: anywhere;
+}
+
 .insetItem {
   display: flex;
   flex-direction: column;

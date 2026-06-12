@@ -32,9 +32,20 @@ export const ACCENT_SWATCHES: ReadonlyArray<{ name: string; hex: string }> = [
 type ColorControlProps = {
   value: string;
   onChange: (next: string) => void;
+  label?: string;
+  /** Renders an "Auto" swatch ahead of the presets; used to clear the value. */
+  allowAuto?: {
+    active: boolean;
+    onSelect: () => void;
+  };
 };
 
-export function ColorControl({ value, onChange }: ColorControlProps) {
+export function ColorControl({
+  value,
+  onChange,
+  label = "Color",
+  allowAuto,
+}: ColorControlProps) {
   const [pickerOpen, setPickerOpen] = useState(false);
   const [hexDraft, setHexDraft] = useState(value);
 
@@ -55,15 +66,29 @@ export function ColorControl({ value, onChange }: ColorControlProps) {
 
   return (
     <div className="flex flex-col gap-2">
-      <span className="text-xs font-medium text-muted-foreground">Color</span>
+      <span className="text-xs font-medium text-muted-foreground">{label}</span>
       <div className="flex gap-1.5 flex-wrap">
+        {allowAuto ? (
+          <button
+            type="button"
+            aria-label={`${label} auto`}
+            aria-pressed={allowAuto.active}
+            onClick={allowAuto.onSelect}
+            className={cn(
+              "size-7 rounded-md border border-black/10 bg-muted text-[10px] font-semibold text-muted-foreground transition-transform hover:scale-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
+              allowAuto.active && "ring-2 ring-offset-2 ring-foreground/60",
+            )}
+          >
+            A
+          </button>
+        ) : null}
         {ACCENT_SWATCHES.map((swatch) => {
-          const isActive = matchedSwatch?.hex === swatch.hex;
+          const isActive = !allowAuto?.active && matchedSwatch?.hex === swatch.hex;
           return (
             <button
               key={swatch.hex}
               type="button"
-              aria-label={`Accent ${swatch.name}`}
+              aria-label={`${label} ${swatch.name}`}
               aria-pressed={isActive}
               onClick={() => onChange(swatch.hex)}
               className={cn(
@@ -86,10 +111,12 @@ export function ColorControl({ value, onChange }: ColorControlProps) {
               <button
                 type="button"
                 aria-label="Custom color"
-                aria-pressed={!matchedSwatch}
+                aria-pressed={!allowAuto?.active && !matchedSwatch}
                 className={cn(
                   "relative size-7 rounded-md transition-transform hover:scale-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
-                  !matchedSwatch && "ring-2 ring-offset-2 ring-foreground/60",
+                  !allowAuto?.active &&
+                    !matchedSwatch &&
+                    "ring-2 ring-offset-2 ring-foreground/60",
                 )}
                 style={{
                   background: matchedSwatch

@@ -75,6 +75,10 @@ const PARSEABILITY_BY_TEMPLATE: Record<PdfTemplateId, number> = {
   sidebar: 55,
   minimal: 100,
   inset: 100,
+  banner: 90,
+  split: 55,
+  tinted: 85,
+  "bold-type": 90,
 };
 
 const ACTION_VERBS = new Set(

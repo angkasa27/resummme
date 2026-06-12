@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   createDefaultPdfPresentation,
   DEFAULT_ACCENT,
+  getEffectiveSecondary,
   getPageMarginMm,
   getPaperDimensionsMm,
   isValidAccentHex,
@@ -106,6 +107,25 @@ describe("normalizePdfPresentation", () => {
       normalizePdfPresentation({ accent: "#ff0000" }).accent,
     ).toBe("#ff0000");
   });
+
+  it("passes through a valid secondary and drops invalid ones", () => {
+    expect(
+      normalizePdfPresentation({ secondary: "#10b981" }).secondary,
+    ).toBe("#10b981");
+    expect(normalizePdfPresentation({ secondary: "green" }).secondary)
+      .toBeUndefined();
+    expect(normalizePdfPresentation({}).secondary).toBeUndefined();
+  });
+});
+
+describe("getEffectiveSecondary", () => {
+  it("falls back to the accent when secondary is unset", () => {
+    const base = createDefaultPdfPresentation();
+    expect(getEffectiveSecondary(base)).toBe(base.accent);
+    expect(
+      getEffectiveSecondary({ ...base, secondary: "#10b981" }),
+    ).toBe("#10b981");
+  });
 });
 
 describe("resolvePdfPresentation", () => {
@@ -140,5 +160,30 @@ describe("resolvePdfPresentation", () => {
     expect(sm.vars["--resume-body"]).toBe("11px");
     expect(md.vars["--resume-body"]).toBe("12px");
     expect(lg.vars["--resume-body"]).toBe("14px");
+  });
+
+  it("makes section headings larger than item titles", () => {
+    const result = resolvePdfPresentation();
+
+    expect(parseFloat(result.vars["--resume-h2"])).toBeGreaterThan(
+      parseFloat(result.vars["--resume-h3"]),
+    );
+  });
+
+  it("emits secondary, tint, on-accent, meta, and indent variables", () => {
+    const base = createDefaultPdfPresentation();
+    const result = resolvePdfPresentation({ ...base, secondary: "#10b981" });
+
+    expect(result.vars["--resume-secondary"]).toBe("#10b981");
+    expect(result.vars["--resume-secondary-tint"]).toMatch(/^#[0-9a-f]{6}$/);
+    expect(result.vars["--resume-on-accent"]).toBe("#ffffff");
+    expect(result.vars["--resume-meta"]).toBeDefined();
+    expect(result.vars["--resume-indent"]).toBe("14px");
+  });
+
+  it("defaults the secondary variable to the accent", () => {
+    const result = resolvePdfPresentation();
+
+    expect(result.vars["--resume-secondary"]).toBe(DEFAULT_ACCENT);
   });
 });
