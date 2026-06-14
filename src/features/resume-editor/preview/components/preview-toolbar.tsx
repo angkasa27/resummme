@@ -152,19 +152,6 @@ export function PreviewToolbar({
           <InsightsTab draft={draft} onOpenSection={onOpenSection} />
         </AdaptivePanel>
 
-        <span className="mx-0.5 h-5 w-px bg-border" aria-hidden />
-
-        {/* Document actions: Extract from PDF (highlighted) is kept distinct
-            from the rarely-used JSON import/export, which fold into one menu. */}
-        {toolbarButton({
-          compact: !showPrimaryLabels,
-          icon: <SparklesIcon />,
-          label: "Extract from PDF",
-          variant: "ai",
-          disabled: isImportingPdf,
-          onClick: onExtractCv,
-        })}
-
         <DropdownMenu>
           <DropdownMenuTrigger
             render={toolbarButton({
@@ -185,6 +172,15 @@ export function PreviewToolbar({
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+
+        {toolbarButton({
+          compact: !showPrimaryLabels,
+          icon: <SparklesIcon />,
+          label: "Extract from PDF",
+          variant: "ai",
+          disabled: isImportingPdf,
+          onClick: onExtractCv,
+        })}
 
         {toolbarButton({
           compact: !showPrimaryLabels,
