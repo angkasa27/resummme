@@ -6,8 +6,6 @@ import { ArrowRight } from "lucide-react";
 import {
   motion,
   MotionValue,
-  useMotionTemplate,
-  useMotionValue,
   useReducedMotion,
   useScroll,
   useTransform,
@@ -60,28 +58,8 @@ export function Hero() {
   const entrance = !reduce;
   const parallax = !reduce && !isMobile;
 
-  // Cursor spotlight position (desktop only); updated on pointer move.
-  const spotlightX = useMotionValue(-1);
-  const spotlightY = useMotionValue(-1);
-
   return (
-    <section
-      ref={ref}
-      className="relative"
-      onPointerMove={
-        parallax
-          ? (e) => {
-              if (e.pointerType !== "mouse") return;
-              const rect = e.currentTarget.getBoundingClientRect();
-              spotlightX.set(e.clientX - rect.left);
-              spotlightY.set(e.clientY - rect.top);
-            }
-          : undefined
-      }
-    >
-      {/* Spotlight tracks the section's own coordinate space (matches the rect
-          measured in onPointerMove), so keep it a direct child of the section. */}
-      {parallax && <Spotlight x={spotlightX} y={spotlightY} />}
+    <section ref={ref} className="relative">
 
       {/* Copy — previous hero padding, no scroll fade */}
       <div className="relative z-10 flex flex-col items-center gap-6 px-6 pt-24 text-center sm:pt-32 md:pt-48">
@@ -241,20 +219,3 @@ function HeroBackdrop({
   );
 }
 
-/** Soft violet glow that tracks the cursor across the hero (desktop only). */
-function Spotlight({
-  x,
-  y,
-}: {
-  x: MotionValue<number>;
-  y: MotionValue<number>;
-}) {
-  const background = useMotionTemplate`radial-gradient(420px 420px at ${x}px ${y}px, rgba(139, 92, 246, 0.10), transparent 70%)`;
-  return (
-    <motion.div
-      aria-hidden
-      className="pointer-events-none absolute inset-0 -z-10"
-      style={{ background }}
-    />
-  );
-}

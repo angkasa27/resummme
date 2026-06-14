@@ -17,9 +17,14 @@ import { SparklesIcon } from "@/components/ui/sparkles";
 
 import { Reveal, RevealItem, RevealStagger } from "./reveal";
 
-type AnimatedIconHandle = { startAnimation: () => void; stopAnimation: () => void };
+type AnimatedIconHandle = {
+  startAnimation: () => void;
+  stopAnimation: () => void;
+};
 type AnimatedIcon = ForwardRefExoticComponent<
-  HTMLAttributes<HTMLDivElement> & { size?: number } & RefAttributes<AnimatedIconHandle>
+  HTMLAttributes<HTMLDivElement> & {
+    size?: number;
+  } & RefAttributes<AnimatedIconHandle>
 >;
 
 type Feature = {
@@ -105,9 +110,9 @@ function FeatureCard({ feature }: { feature: Feature }) {
       onMouseEnter={() => iconRef.current?.startAnimation()}
       onMouseLeave={() => iconRef.current?.stopAnimation()}
       whileHover={reduce ? undefined : { y: -4 }}
-      className="group relative rounded-2xl bg-linear-to-br from-violet-500/30 via-border/60 to-fuchsia-500/20 p-px shadow-sm transition-shadow duration-300 hover:shadow-lg hover:shadow-indigo-500/10"
+      className="group rounded-2xl shadow-sm transition-shadow duration-300 hover:shadow-lg hover:shadow-indigo-500/10 relative h-full overflow-hidden p-6 bg-background border"
     >
-      <div className="relative h-full overflow-hidden rounded-[calc(1rem-1px)] bg-background p-6 transition-colors duration-300">
+      <div className="">
         {/* hover wash */}
         <div
           aria-hidden
