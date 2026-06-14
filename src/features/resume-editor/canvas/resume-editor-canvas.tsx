@@ -469,7 +469,7 @@ export function ResumeEditorCanvas({
                 type="button"
                 size="icon"
                 aria-label="Open control panel"
-                className="fixed bottom-5 right-5 z-30 size-12 rounded-full shadow-lg lg:hidden print:hidden"
+                className="fixed bottom-5 right-5 z-30 size-12 rounded-full shadow-2xl lg:hidden print:hidden"
               />
             }
           >
@@ -563,8 +563,8 @@ export function ResumeEditorCanvas({
                   Canvas isn&apos;t optimized for mobile
                 </AlertDialogTitle>
                 <AlertDialogDescription>
-                  The Classic editor offers a better experience on mobile devices
-                  — try switching for easier editing and navigation.
+                  The Classic editor offers a better experience on mobile
+                  devices — try switching for easier editing and navigation.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>

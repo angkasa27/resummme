@@ -66,9 +66,9 @@ export function ResumeEditorMobileContent({
 
       <Button
         type="button"
-        size="icon-lg"
+        size="icon"
         variant={showPreview ? "default" : "outline"}
-        className="fixed bottom-4 right-4 z-50 shadow-2xl!"
+        className="fixed bottom-5 right-5 z-30 size-12 rounded-full shadow-2xl"
         onClick={() => setShowPreview((current) => !current)}
       >
         {showPreview ? (
