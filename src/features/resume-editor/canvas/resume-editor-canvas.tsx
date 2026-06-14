@@ -69,7 +69,7 @@ import {
 } from "@/features/resume-editor/domain/sections/section-metadata";
 import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
 import type { DraftStorage } from "@/features/resume-editor/domain/draft/draft-storage";
-import { EditorTopBar } from "@/features/resume-editor/shared/editor-top-bar";
+import { useEditorHeader } from "@/features/resume-editor/shared/use-editor-header";
 
 type ResumeEditorCanvasProps = {
   initialDraft?: ResumeDraft;
@@ -113,6 +113,17 @@ export function ResumeEditorCanvas({
     canRedo,
     saveStatus,
   } = useResumeEditorController({ initialDraft, storage });
+
+  useEditorHeader({
+    saveStatus,
+    canUndo,
+    canRedo,
+    onUndo: undo,
+    onRedo: redo,
+    actions: headerActions,
+    canvasHref,
+    classicHref,
+  });
 
   const [editing, setEditing] = useState<EditingTarget>(null);
   const [isFormDirty, setIsFormDirty] = useState(false);
@@ -229,7 +240,7 @@ export function ResumeEditorCanvas({
 
   return (
     <TooltipProvider>
-      <div className="flex min-h-dvh flex-col bg-muted/40">
+      <div className="flex h-[calc(100dvh-3rem)] flex-col bg-muted/40">
         <input
           ref={jsonFileInputRef}
           type="file"
@@ -248,18 +259,6 @@ export function ResumeEditorCanvas({
         />
         <PdfImportProgress open={isImportingPdf} />
 
-        <EditorTopBar
-          activeView="canvas"
-          saveStatus={saveStatus}
-          canUndo={canUndo}
-          canRedo={canRedo}
-          onUndo={undo}
-          onRedo={redo}
-          actions={headerActions}
-          canvasHref={canvasHref}
-          classicHref={classicHref}
-        />
-
         {isMobile ? (
           <div className="flex justify-center gap-1.5 border-b bg-amber-50 px-3 py-1 text-xs text-amber-800">
             <TriangleAlert className="size-4 shrink-0" />
@@ -277,9 +276,9 @@ export function ResumeEditorCanvas({
         ) : null}
 
         {/* Body: preview + control panel */}
-        <div className="flex flex-1">
-          <main className="flex flex-1 justify-center overflow-x-auto px-3 py-6 sm:px-6 sm:py-10">
-            <div style={{ zoom }} className="origin-top print:[zoom:1]">
+        <div className="flex flex-1 h-full">
+          <main className="flex flex-1 justify-center overflow-x-auto overflow-y-auto h-full px-3 py-6 sm:px-6 sm:py-10">
+            <div style={{ zoom }} className="origin-top print:zoom-[1]">
               {(() => {
                 const collectionKeys = visibleSectionKeys.filter(
                   isCollectionSectionKey,
@@ -390,7 +389,7 @@ export function ResumeEditorCanvas({
           </main>
 
           {/* Desktop side rail */}
-          <aside className="sticky top-12 hidden h-[calc(100dvh-3rem)] w-72 shrink-0 overflow-y-auto border-l bg-background lg:flex lg:flex-col print:hidden">
+          <aside className="sticky top-0 hidden w-72 shrink-0 overflow-y-auto border-l bg-background lg:flex lg:flex-col print:hidden">
             <CanvasControlPanel {...controlPanelProps} />
           </aside>
         </div>

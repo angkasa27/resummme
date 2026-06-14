@@ -21,7 +21,7 @@ import { ResumeEditorSidebar } from "@/features/resume-editor/classic/resume-edi
 import { ResumeEditorMobileContent } from "@/features/resume-editor/classic/shell/resume-editor-mobile-content";
 import { ExtractCvDialog } from "@/features/resume-editor/canvas/controls/extract-cv-dialog";
 import { PdfImportProgress } from "@/features/resume-editor/canvas/controls/pdf-import-progress";
-import { EditorTopBar } from "@/features/resume-editor/shared/editor-top-bar";
+import { useEditorHeader } from "@/features/resume-editor/shared/use-editor-header";
 import { PreviewPane } from "@/features/resume-editor/preview/components/preview-pane";
 import { useClientReady } from "@/hooks/use-client-ready";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -75,6 +75,17 @@ export function ResumeEditorShell({
     saveStatus,
   } = useResumeEditorController({ initialDraft, storage });
 
+  useEditorHeader({
+    saveStatus,
+    canUndo,
+    canRedo,
+    onUndo: undo,
+    onRedo: redo,
+    actions: headerActions,
+    canvasHref,
+    classicHref,
+  });
+
   useKeyboardShortcuts({
     "mod+z": undo,
     "mod+shift+z": redo,
@@ -122,7 +133,7 @@ export function ResumeEditorShell({
 
   return (
     <div
-      className="flex h-dvh flex-col overflow-hidden"
+      className="flex h-full flex-col overflow-hidden"
       style={{ "--header-height": "3rem" } as React.CSSProperties}
     >
       <input
@@ -144,19 +155,6 @@ export function ResumeEditorShell({
         isMobile={isMobile}
       />
       <PdfImportProgress open={isImportingPdf} />
-
-      {/* Row 1 — identical to canvas, full width, fixed (no shift on mode switch). */}
-      <EditorTopBar
-        activeView="classic"
-        saveStatus={saveStatus}
-        canUndo={canUndo}
-        canRedo={canRedo}
-        onUndo={undo}
-        onRedo={redo}
-        actions={headerActions}
-        canvasHref={canvasHref}
-        classicHref={classicHref}
-      />
 
       <div className="min-h-0 flex-1">
         <SidebarProvider

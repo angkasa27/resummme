@@ -19,10 +19,12 @@ import type { SaveStatus } from "@/features/resume-editor/domain/draft/draft-sto
 
 const GITHUB_URL = "https://github.com/angkasa27/resume-editor";
 
-type EditorView = "canvas" | "classic";
+export type EditorView = "canvas" | "classic";
 
 type EditorTopBarProps = {
   activeView: EditorView;
+  /** Optimistically reflect a tab click before the route navigation lands. */
+  onSelectView?: (view: EditorView) => void;
   saveStatus: SaveStatus;
   canUndo: boolean;
   canRedo: boolean;
@@ -45,6 +47,7 @@ type EditorTopBarProps = {
 
 export function EditorTopBar({
   activeView,
+  onSelectView,
   saveStatus,
   canUndo,
   canRedo,
@@ -64,8 +67,15 @@ export function EditorTopBar({
         </h1>
       </Link>
 
-      <Tabs value={activeView} className="h-8">
-        <TabsList className="rounded-md border">
+      <Tabs
+        value={activeView}
+        onValueChange={(value) => onSelectView?.(value as EditorView)}
+        className="h-8"
+      >
+        <TabsList
+          className="rounded-md border"
+          pillClassName="rounded bg-primary/12"
+        >
           <TabsTrigger
             value="canvas"
             nativeButton={activeView === "canvas"}
@@ -75,7 +85,7 @@ export function EditorTopBar({
             className={cn(
               "px-2 py-0 leading-none! text-xs!",
               activeView === "canvas" &&
-                "rounded data-active:bg-primary/12 data-active:text-primary hover:text-primary cursor-default",
+                "data-active:text-primary hover:text-primary cursor-default",
             )}
           >
             Canvas
@@ -89,7 +99,7 @@ export function EditorTopBar({
             className={cn(
               "px-2 py-0 leading-none! text-xs!",
               activeView === "classic" &&
-                "rounded data-active:bg-primary/12 data-active:text-primary hover:text-primary cursor-default",
+                "data-active:text-primary hover:text-primary cursor-default",
             )}
           >
             Classic
