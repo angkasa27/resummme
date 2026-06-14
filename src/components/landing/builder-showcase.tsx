@@ -1,3 +1,4 @@
+import { Globe } from "lucide-react";
 import Image from "next/image";
 
 /**
@@ -16,7 +17,8 @@ export function BuilderFrame() {
           <span className="size-2.5 rounded-full bg-yellow-400/80" />
           <span className="size-2.5 rounded-full bg-green-400/80" />
         </span>
-        <div className="mx-auto flex items-center gap-1.5 rounded-md border bg-background/70 px-3 py-1 text-[11px] text-muted-foreground">
+        <div className="mx-auto flex items-center gap-1.5 rounded-md border bg-background/70 pl-1.5 pr-3 py-1 text-[11px] text-muted-foreground">
+          <Globe className="size-3" />
           https://resummme.asaa.dev/editor/canvas
         </div>
       </div>
