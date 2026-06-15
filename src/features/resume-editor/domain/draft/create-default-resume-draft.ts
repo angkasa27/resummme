@@ -108,9 +108,9 @@ function createDefaultLanguageItem() {
 function createDefaultReferenceItem() {
   return {
     id: "default-reference-1",
-    name: "Anindya Putri",
+    name: "Pertiwi Putri",
     background: "Engineering Director, Nusantara Commerce",
-    contactDetails: "anindya.putri@nusantaracommerce.co.id · +62 812-4455-6677",
+    contactDetails: "pertiwi.putri@nusantaracommerce.co.id · +62 812-4455-6677",
   };
 }
 
@@ -159,7 +159,7 @@ export function createDefaultResumeDraft(): ResumeDraft {
         visible: true,
         order: 0,
         content:
-          "<p>Frontend engineer with 6+ years of experience building performant and accessible web products in e-commerce and SaaS environments. Strong track record leading migrations to modern React and Next.js architectures, improving developer velocity, and shipping user-facing features with measurable business impact.</p>",
+          "<p>Software Engineer with 5+ years of experience specializing in frontend development for enterprise web applications. Skilled in building responsive, high-quality interfaces with modern frameworks, improving performance, and creating maintainable component-based systems. Comfortable working beyond the frontend when needed, including API integration, system design, and deployment, to deliver reliable end-to-end products.</p>",
       },
       workExperience: {
         visible: true,
@@ -187,7 +187,7 @@ export function createDefaultResumeDraft(): ResumeDraft {
         items: [createDefaultPublicationItem()],
       },
       certifications: {
-        visible: false,
+        visible: true,
         order: 6,
         items: [createDefaultCertificationItem()],
       },
@@ -197,17 +197,17 @@ export function createDefaultResumeDraft(): ResumeDraft {
         items: [createDefaultAwardItem()],
       },
       languages: {
-        visible: false,
+        visible: true,
         order: 8,
         items: [createDefaultLanguageItem()],
       },
       references: {
-        visible: false,
+        visible: true,
         order: 9,
         items: [createDefaultReferenceItem()],
       },
       organizationVolunteering: {
-        visible: false,
+        visible: true,
         order: 10,
         items: [createDefaultOrganizationItem()],
       },

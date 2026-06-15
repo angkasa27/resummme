@@ -4,8 +4,6 @@
   gap: var(--resume-gap-section);
 }
 
-/* Solid-color rail. Chrome repaints the background on each page fragment, so
-   the fill continues across PDF page breaks (no break-inside rules here). */
 .template :global(.layout-side) {
   background: var(--resume-secondary);
   color: var(--resume-on-secondary);
@@ -65,15 +63,20 @@
 
 .template :global(.layout-side .contact-line) {
   font-size: var(--resume-meta);
+  list-style: disc;
+  padding-left: 1.1em;
 }
 
-/* Rail contacts read as a list: one item per line, no separator dots. */
 .template :global(.layout-side .contact-block) {
   gap: var(--resume-gap-inner);
 }
 
 .template :global(.layout-side .contact-item) {
-  display: block;
+  display: list-item;
+}
+
+.template :global(.layout-side .contact-item + .contact-item) {
+  margin-top: var(--resume-gap-inner);
 }
 
 .template :global(.layout-side .contact-item + .contact-item)::before {
