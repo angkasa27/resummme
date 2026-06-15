@@ -31,7 +31,7 @@ pnpm dev
    ```bash
    pnpm typecheck   # must pass
    pnpm lint        # must pass
-   pnpm test        # must pass (112 tests)
+   pnpm test        # must pass (218 tests)
    ```
 4. Open a pull request against `master`. Fill in the PR template.
 
@@ -48,19 +48,35 @@ pnpm dev
 
 Templates live in `src/features/resume-editor/preview/templates/<name>/`. Each template folder contains:
 
-- `template.tsx` — top-level layout component
-- `header.tsx` — resume header (name, contact info)
-- `items.tsx` — item-level renderers (optional overrides of the shared defaults)
-- `styles.module.css` — scoped CSS that consumes the `--resume-*` CSS variables
+- `template.tsx` — exports the top-level layout component and template definition.
+- `header.tsx` — exports the header component (name, contact info, layout-specific header slots).
+- `items.ts` — maps section IDs (e.g., `workExperience`, `skills`) to their item-level view components (which can be imported from `../_shared/items` or custom-implemented).
+- `styles.module.css` — scoped CSS that defines layout spacing, columns, and styles, consuming the CSS variables configured by the presentation resolver.
 
-Register the new template in `src/features/resume-editor/preview/template-registry.tsx` and add its ID to `pdfTemplateIds` in `pdf-presentation.ts`.
+Registering the template:
+1. Add the template ID to `pdfTemplateIds` in [pdf-presentation.ts](src/features/resume-editor/domain/presentation/pdf-presentation.ts).
+2. Register the template definition and map its header in [template-registry.tsx](src/features/resume-editor/preview/template-registry.tsx).
+3. (Optional) Define a template persona in `scripts/personas.ts` so that screenshots can be generated for it.
 
 ## Adding a Font
 
-Fonts are defined in `src/features/resume-editor/domain/presentation/font-collection.ts`.
+Fonts are defined in [font-collection.ts](src/features/resume-editor/domain/presentation/font-collection.ts).
 
-- For **Google Fonts**: add a `next/font/google` import in `src/app/fonts.ts`, expose it as a CSS variable (e.g. `--font-my-font`), add the variable to the `<html>` classNames in `src/app/layout.tsx`, then add the font entry to `RESUME_FONTS` with the CSS-variable stack.
+- For **Google Fonts**: add a `next/font/google` import in [fonts.ts](src/app/fonts.ts), expose it as a CSS variable (e.g. `--font-my-font`), add the variable to the `<html>` classNames in [layout.tsx](src/app/layout.tsx), then add the font entry to `RESUME_FONTS` with the CSS-variable stack.
 - For **system fonts**: add the entry directly to `RESUME_FONTS` with the CSS font-stack string — no import needed.
+
+## Generating Screenshots
+
+We commit screenshots of the editor and templates to the repository (stored in `public/` and `public/templates/`). If you modify template styles or the canvas editor, you should regenerate the screenshots before committing:
+1. Start the app in development mode in one terminal:
+   ```bash
+   pnpm dev
+   ```
+2. Run the screenshot script in another terminal:
+   ```bash
+   pnpm screenshots
+   ```
+This will spin up headless Puppeteer to capture and overwrite the template and builder images.
 
 ## Tests
 
@@ -70,7 +86,7 @@ Tests live next to the code they test (`*.test.ts` / `*.test.tsx`). The test sui
 - Server route smoke tests
 - UI component rendering
 
-Run `pnpm test:watch` during development. All 112 tests must pass before merging.
+Run `pnpm test:watch` during development. All 218 tests must pass before merging.
 
 ## Questions
 

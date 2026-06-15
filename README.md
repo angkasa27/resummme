@@ -1,6 +1,6 @@
 <div align="center">
   <a href="https://resummme.asaa.dev">
-    <img src="public/builder.webp" alt="Resummme - Open Source Resume Editor" width="800" />
+    <img src="public/og-image.png" alt="Resummme - Open Source Resume Editor" width="800" />
   </a>
 
   <h1>Resummme</h1>
@@ -10,45 +10,41 @@
   <p>
     <a href="https://resummme.asaa.dev"><strong>Live Demo</strong></a>
     ·
-    <a href="https://github.com/angkasa27/resume-editor"><strong>GitHub Repo</strong></a>
+    <a href="https://github.com/angkasa27/resummme"><strong>GitHub Repo</strong></a>
   </p>
 
   <p>
-    <img src="https://img.shields.io/github/package-json/v/angkasa27/resume-editor?style=flat-square" alt="Version">
-    <img src="https://img.shields.io/github/stars/angkasa27/resume-editor?style=flat-square" alt="GitHub Stars">
-    <img src="https://img.shields.io/github/license/angkasa27/resume-editor?style=flat-square" alt="License" />
+    <img src="https://img.shields.io/github/package-json/v/angkasa27/resummme?style=flat-square" alt="Version">
+    <img src="https://img.shields.io/github/stars/angkasa27/resummme?style=flat-square" alt="GitHub Stars">
+    <img src="https://img.shields.io/github/license/angkasa27/resummme?style=flat-square" alt="License" />
   </p>
 </div>
 
 ---
 
-Resummme is a focused, fast resume editor designed to give you everything you need to craft your resume, with nothing that gets in your way.
+Resummme is a focused, fast resume editor designed to give you everything you need to craft your resume, with nothing that gets in your way. 
 
 Built with privacy as a core principle, Resummme gives you complete ownership of your data. The codebase is fully open-source under the GNU Affero General Public License v3, with no tracking, no ads, and no paywalls. All your data stays in your browser and never leaves your machine unless you choose to use the AI or PDF export features.
 
 ## Features
 
 **Resume Building**
-
 - **Two ways to edit**: Drag and drop on the Canvas or fill in structured forms in the Classic editor. Same resume, your choice.
 - **Instant live preview**: Every change renders immediately in a pixel-accurate preview, so what you see is exactly what you export.
 - **Rich text editor**: Edit with formatting support powered by TipTap.
 - **Import and export**: Bring in an existing resume to get started, or download/upload your resume data as portable JSON.
 
 **Templates & Style Control**
-
 - **11 professional templates**: Switch between eleven polished layouts (Classic, Sidebar, Modern Centered, Timeline, Academic, Minimal, Inset, Banner, Split, Tinted, Bold Type) without retyping a thing.
 - **Typography**: Choose from Google Fonts and web-safe system fonts, with each option rendered in its own typeface in the font picker.
 - **Design control**: Full control over accent color, font scale, line height, section spacing, paper size (A4 / Letter), and page margins.
 
 **AI Assistance**
-
 - **AI PDF extraction**: Upload an existing resume PDF and Gemini parses it directly into the editor fields.
 - **AI writing assistant**: Improve any bullet point with AI; choose quick actions (stronger verb, add a metric, make it concise) or write custom instructions powered by Gemini.
 - **ATS score**: Live structural/content scoring with feedback and keyword-gap analysis against any job description.
 
 **Privacy & Security**
-
 - **No account required**: Start building immediately. No registration, login, or passwords needed.
 - **Private by default**: Your data is stored locally in the browser via `localStorage` and never leaves your device.
 
@@ -118,8 +114,8 @@ The quickest way to run Resummme locally:
 
 ```bash
 # Clone the repository
-git clone https://github.com/angkasa27/resume-editor.git
-cd resume-editor
+git clone https://github.com/angkasa27/resummme.git
+cd resummme
 
 # Install dependencies
 pnpm install
@@ -135,19 +131,19 @@ Open [http://localhost:3000](http://localhost:3000) to see the application.
 
 ## Tech Stack
 
-| Category         | Technology                                        |
-| ---------------- | ------------------------------------------------- |
-| Framework        | Next.js 16 (App Router)                           |
-| Runtime          | Node.js 20+                                       |
-| Language         | TypeScript                                        |
-| Styling          | Tailwind CSS 4                                    |
-| UI Primitives    | React 19, Base UI                                 |
-| Rich Text        | TipTap                                            |
-| State Management | Zustand                                           |
-| PDF Export       | Puppeteer (local) / Cloudflare Browser Run (prod) |
-| AI               | Google Gemini API (gemini-2.0-flash)              |
-| Forms            | React Hook Form + Zod                             |
-| Testing          | Vitest + Testing Library                          |
+| Category | Technology |
+| --- | --- |
+| Framework | Next.js 16 (App Router) |
+| Runtime | Node.js 20+ |
+| Language | TypeScript |
+| Styling | Tailwind CSS 4 |
+| UI Primitives | React 19, Base UI |
+| Rich Text | TipTap |
+| State Management | Zustand |
+| PDF Export | Puppeteer (local) / Cloudflare Browser Run (prod) |
+| AI | Google Gemini API (gemini-2.0-flash) |
+| Forms | React Hook Form + Zod |
+| Testing | Vitest + Testing Library |
 
 ## Available Scripts
 
@@ -231,6 +227,25 @@ src/
     server/                    # Server-side PDF export & Gemini helpers
     state/                     # Zustand store
 ```
+
+## How It Works
+
+- **Editor** (`/`) — Split-panel layout: form editor left, live canvas preview center, Style/Insights panel right.
+- **PDF render target** (`/resume-pdf`) — A plain page that Puppeteer opens to capture the PDF. Receives draft + presentation settings via base64-encoded query params.
+- **PDF export** — `POST /api/export-pdf` → Puppeteer/Cloudflare Browser Run → streamed PDF response.
+- **AI PDF import** — `POST /api/import-pdf` → extracts text → Gemini → structured draft JSON.
+- **AI writing** — `POST /api/improve-content` → current field HTML + instructions → Gemini → sanitized HTML.
+- **ATS job match** — `POST /api/insights/match-keywords` → job description → Gemini keyword list → client matches against current draft.
+
+## Star History
+
+<a href="https://star-history.com/#angkasa27/resummme&date">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=angkasa27/resummme&type=date&theme=dark" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=angkasa27/resummme&type=date" />
+    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=angkasa27/resummme&type=date" />
+  </picture>
+</a>
 
 ## Contributing
 
