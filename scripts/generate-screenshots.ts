@@ -1,7 +1,7 @@
 /**
  * Generates landing-page screenshots:
- *   - public/templates/<id>.jpeg — each resume template, a different persona
- *   - public/builder.jpeg        — the canvas editor
+ *   - public/templates/<id>.webp — each resume template, a different persona
+ *   - public/builder.webp        — the canvas editor
  *
  * Reuses the PDF render path: it seeds a résumé draft into sessionStorage (the
  * same key the /resume-pdf page reads), navigates there, waits for
@@ -206,8 +206,12 @@ async function captureTemplates(browser: Browser) {
         `No .resume-document rendered for ${persona.screenshotId}`,
       );
 
-    const out = path.join(TEMPLATES_DIR, `${persona.screenshotId}.jpeg`);
-    await article.screenshot({ path: out, type: "jpeg", quality: 80 });
+    const out = path.join(TEMPLATES_DIR, `${persona.screenshotId}.webp`);
+    await article.screenshot({
+      path: out as `${string}.webp`,
+      type: "webp",
+      quality: 90,
+    });
     console.log(
       `✓ template  ${persona.screenshotId.padEnd(16)} ${persona.fullName}`,
     );
@@ -227,9 +231,9 @@ async function captureBuilder(browser: Browser) {
     .catch(() => undefined);
   await new Promise((resolve) => setTimeout(resolve, 1_500));
 
-  const out = path.join(PUBLIC_DIR, "builder.jpeg");
-  await page.screenshot({ path: out as `${string}.jpeg` });
-  console.log(`✓ builder   ${"canvas".padEnd(16)} → public/builder.jpeg`);
+  const out = path.join(PUBLIC_DIR, "builder.webp");
+  await page.screenshot({ path: out as `${string}.webp`, type: "webp", quality: 92 });
+  console.log(`✓ builder   ${"canvas".padEnd(16)} → public/builder.webp`);
   await page.close();
 }
 
