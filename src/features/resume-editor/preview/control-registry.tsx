@@ -12,10 +12,13 @@ import {
   pdfPageMarginLabels,
   pdfPaperSizes,
   pdfPaperSizeLabels,
+  pdfPhotoShapeIds,
+  pdfPhotoShapeLabels,
   pdfSpacingIds,
   pdfSpacingLabels,
   pdfTemplateIds,
   pdfTemplateLabels,
+  type PdfPhotoShapeId,
   type PdfPresentation,
 } from "@/features/resume-editor/domain/presentation/pdf-presentation";
 import type { PreviewControlDefinition } from "@/features/resume-editor/preview/types";
@@ -31,6 +34,23 @@ function spacingGlyph({ gap }: { gap: number }) {
       <span className="h-0.5 w-4 rounded-full bg-current" />
     </span>
   );
+}
+
+/** Sentinel option value for "use the template's own photo shape". */
+const PHOTO_SHAPE_DEFAULT = "default";
+
+function photoShapeGlyph(shape: PdfPhotoShapeId | typeof PHOTO_SHAPE_DEFAULT) {
+  const base = "border-[1.5px] border-current";
+  const className =
+    shape === "circle"
+      ? `size-4 rounded-full ${base}`
+      : shape === "rectangle"
+        ? `h-4 w-3 rounded-[2px] ${base}`
+        : shape === "default"
+          ? // Dashed = "follow the template's default".
+            `size-4 rounded-[3px] border-dashed ${base}`
+          : `size-4 rounded-[2px] ${base}`;
+  return <span aria-hidden="true" className={className} />;
 }
 
 function listSpacingGlyph({ gap }: { gap: number }) {
@@ -155,6 +175,33 @@ export const previewControlDefinitions = [
             ? listSpacingGlyph({ gap: 4 })
             : listSpacingGlyph({ gap: 3 }),
     })),
+  },
+  {
+    id: "photo-shape",
+    kind: "toggle-group",
+    label: "Photo shape",
+    // "default" → unset photoShape so each template keeps its own photo style.
+    value: (presentation) => presentation.photoShape ?? PHOTO_SHAPE_DEFAULT,
+    update: (nextValue, presentation) =>
+      set(
+        presentation,
+        "photoShape",
+        nextValue === PHOTO_SHAPE_DEFAULT
+          ? undefined
+          : (nextValue as PdfPresentation["photoShape"]),
+      ),
+    options: [
+      {
+        value: PHOTO_SHAPE_DEFAULT,
+        label: "Default",
+        renderOption: () => photoShapeGlyph(PHOTO_SHAPE_DEFAULT),
+      },
+      ...pdfPhotoShapeIds.map((value) => ({
+        value,
+        label: pdfPhotoShapeLabels[value],
+        renderOption: () => photoShapeGlyph(value),
+      })),
+    ],
   },
 ] as const satisfies ReadonlyArray<PreviewControlDefinition>;
 

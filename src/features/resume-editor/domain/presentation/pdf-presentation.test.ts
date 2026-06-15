@@ -116,6 +116,16 @@ describe("normalizePdfPresentation", () => {
       .toBeUndefined();
     expect(normalizePdfPresentation({}).secondary).toBeUndefined();
   });
+
+  it("passes through a valid photoShape and drops invalid/absent ones", () => {
+    expect(normalizePdfPresentation({ photoShape: "circle" }).photoShape).toBe(
+      "circle",
+    );
+    expect(
+      normalizePdfPresentation({ photoShape: "oval" }).photoShape,
+    ).toBeUndefined();
+    expect(normalizePdfPresentation({}).photoShape).toBeUndefined();
+  });
 });
 
 describe("getEffectiveSecondary", () => {
@@ -185,5 +195,40 @@ describe("resolvePdfPresentation", () => {
     const result = resolvePdfPresentation();
 
     expect(result.vars["--resume-secondary"]).toBe(DEFAULT_ACCENT);
+  });
+
+  describe("photo shape", () => {
+    const base = createDefaultPdfPresentation();
+
+    it("emits no photo vars when photoShape is unset (templates keep native look)", () => {
+      const result = resolvePdfPresentation(base);
+
+      expect(result.vars["--resume-photo-aspect"]).toBeUndefined();
+      expect(result.vars["--resume-photo-radius"]).toBeUndefined();
+    });
+
+    it("circle forces a 1:1 aspect and a 50% radius", () => {
+      const result = resolvePdfPresentation({ ...base, photoShape: "circle" });
+
+      expect(result.vars["--resume-photo-aspect"]).toBe("1 / 1");
+      expect(result.vars["--resume-photo-radius"]).toBe("50%");
+    });
+
+    it("square is 1:1 with a small sharp-cornered radius (not circular)", () => {
+      const result = resolvePdfPresentation({ ...base, photoShape: "square" });
+
+      expect(result.vars["--resume-photo-aspect"]).toBe("1 / 1");
+      expect(result.vars["--resume-photo-radius"]).toBe("6px");
+    });
+
+    it("rectangle is portrait 3:4 with a small sharp-cornered radius", () => {
+      const result = resolvePdfPresentation({
+        ...base,
+        photoShape: "rectangle",
+      });
+
+      expect(result.vars["--resume-photo-aspect"]).toBe("3 / 4");
+      expect(result.vars["--resume-photo-radius"]).toBe("6px");
+    });
   });
 });

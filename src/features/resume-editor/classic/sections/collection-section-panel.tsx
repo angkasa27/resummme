@@ -267,7 +267,7 @@ export function CollectionSectionPanel({
                 </ButtonGroup>
               </div>
               {!shrunkIds.has(field.fieldKey) && (
-                <div className="p-3 border-t bg-muted/50 @container/form">
+                <div className="p-3 border-t bg-muted/50">
                   <CollectionItemFields
                     config={config}
                     form={form}

@@ -17,7 +17,17 @@ export class ProfilePhotoError extends Error {
   }
 }
 
-export async function readProfilePhotoAsDataUrl(file: File): Promise<string> {
+/** A crop rectangle in source-image pixels (matches react-easy-crop's `Area`). */
+export type CropArea = { x: number; y: number; width: number; height: number };
+
+/**
+ * Validate (type + size) and decode an image file into an `HTMLImageElement`.
+ * The caller owns `objectUrl` and must `URL.revokeObjectURL` it once done (e.g.
+ * after the crop dialog closes). Throws `ProfilePhotoError` on bad input.
+ */
+export async function loadImageFile(
+  file: File,
+): Promise<{ objectUrl: string; image: HTMLImageElement }> {
   if (!file.type.startsWith("image/")) {
     throw new ProfilePhotoError(
       "unsupported-type",
@@ -34,23 +44,64 @@ export async function readProfilePhotoAsDataUrl(file: File): Promise<string> {
   const objectUrl = URL.createObjectURL(file);
   try {
     const image = await loadHtmlImage(objectUrl);
-    const { width, height } = fitWithin(
-      image.naturalWidth || image.width,
-      image.naturalHeight || image.height,
-      PROFILE_PHOTO_MAX_DIMENSION,
+    return { objectUrl, image };
+  } catch (error) {
+    URL.revokeObjectURL(objectUrl);
+    throw error;
+  }
+}
+
+/**
+ * Draw a crop region of `image` onto a canvas, downscaled to fit within
+ * `maxDimension`, and return a JPEG data URL.
+ */
+export function cropImageToDataUrl(
+  image: HTMLImageElement,
+  area: CropArea,
+  {
+    maxDimension = PROFILE_PHOTO_MAX_DIMENSION,
+    quality = PROFILE_PHOTO_QUALITY,
+  }: { maxDimension?: number; quality?: number } = {},
+): string {
+  const { width, height } = fitWithin(area.width, area.height, maxDimension);
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const context = canvas.getContext("2d");
+  if (!context) {
+    throw new ProfilePhotoError(
+      "encode-failed",
+      "Could not process the image. Try a different file.",
     );
-    const canvas = document.createElement("canvas");
-    canvas.width = width;
-    canvas.height = height;
-    const context = canvas.getContext("2d");
-    if (!context) {
-      throw new ProfilePhotoError(
-        "encode-failed",
-        "Could not process the image. Try a different file.",
-      );
-    }
-    context.drawImage(image, 0, 0, width, height);
-    return canvas.toDataURL("image/jpeg", PROFILE_PHOTO_QUALITY);
+  }
+  context.drawImage(
+    image,
+    area.x,
+    area.y,
+    area.width,
+    area.height,
+    0,
+    0,
+    width,
+    height,
+  );
+  return canvas.toDataURL("image/jpeg", quality);
+}
+
+/**
+ * Convenience: read an image file and encode the whole frame (no manual crop),
+ * downscaled and JPEG-compressed. Used as a fallback when the crop editor is
+ * not involved.
+ */
+export async function readProfilePhotoAsDataUrl(file: File): Promise<string> {
+  const { objectUrl, image } = await loadImageFile(file);
+  try {
+    return cropImageToDataUrl(image, {
+      x: 0,
+      y: 0,
+      width: image.naturalWidth || image.width,
+      height: image.naturalHeight || image.height,
+    });
   } finally {
     URL.revokeObjectURL(objectUrl);
   }
@@ -71,9 +122,13 @@ function loadHtmlImage(src: string): Promise<HTMLImageElement> {
   });
 }
 
-function fitWithin(width: number, height: number, max: number) {
+/**
+ * Scale a (width, height) down so neither side exceeds `max`, preserving aspect
+ * ratio. Pure — unit-tested. Returns the input unchanged when already within.
+ */
+export function fitWithin(width: number, height: number, max: number) {
   if (width <= max && height <= max) {
-    return { width, height };
+    return { width: Math.round(width), height: Math.round(height) };
   }
   const scale = width >= height ? max / width : max / height;
   return {

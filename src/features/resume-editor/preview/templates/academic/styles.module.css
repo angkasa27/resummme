@@ -68,8 +68,9 @@
 
 .header :global(.header-photo) {
   width: 56px;
-  height: 72px;
-  border-radius: 6px;
+  aspect-ratio: var(--resume-photo-aspect, 56 / 72);
+  height: auto;
+  border-radius: var(--resume-photo-radius, 6px);
   overflow: hidden;
   margin-bottom: var(--resume-gap-item);
 }

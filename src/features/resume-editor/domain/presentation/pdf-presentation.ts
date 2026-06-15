@@ -41,6 +41,9 @@ export type PdfPaperSize = (typeof pdfPaperSizes)[number];
 export const pdfPageMargins = ["narrow", "normal", "moderate"] as const;
 export type PdfPageMargin = (typeof pdfPageMargins)[number];
 
+export const pdfPhotoShapeIds = ["square", "rectangle", "circle"] as const;
+export type PdfPhotoShapeId = (typeof pdfPhotoShapeIds)[number];
+
 export type PdfPresentation = {
   templateId: PdfTemplateId;
   fontFamilyId: ResumeFontId;
@@ -52,6 +55,11 @@ export type PdfPresentation = {
   secondary?: string;
   paperSize: PdfPaperSize;
   pageMargin: PdfPageMargin;
+  /**
+   * Optional profile-photo shape override. When unset, each template keeps its
+   * own native photo aspect/radius; when set, it overrides every template.
+   */
+  photoShape?: PdfPhotoShapeId;
 };
 
 export type ResolvedPdfPresentation = {
@@ -71,6 +79,12 @@ export const pdfTemplateLabels: Record<PdfTemplateId, string> = {
   split: "Split",
   tinted: "Tinted",
   "bold-type": "Bold Type",
+};
+
+export const pdfPhotoShapeLabels: Record<PdfPhotoShapeId, string> = {
+  square: "Square",
+  rectangle: "Rectangle",
+  circle: "Circle",
 };
 
 export const pdfFontScaleLabels: Record<PdfFontScaleId, string> = {
@@ -230,6 +244,9 @@ export function normalizePdfPresentation(input: unknown): PdfPresentation {
     pageMargin: isMember(pdfPageMargins, source.pageMargin)
       ? source.pageMargin
       : defaults.pageMargin,
+    photoShape: isMember(pdfPhotoShapeIds, source.photoShape)
+      ? source.photoShape
+      : undefined,
   };
 }
 
@@ -268,6 +285,18 @@ export function resolvePdfPresentation(
     "--resume-page-margin": `${margin}mm`,
     "--resume-print-content-width": `${printContentWidth}mm`,
   };
+
+  // Photo-shape override. Only emit when the user has picked a shape so each
+  // template keeps its native look by default (via CSS var fallbacks). Both
+  // aspect and radius are forced for the chosen shape: `circle` is fully round,
+  // while `square`/`rectangle` use a small radius so they read as sharp-cornered
+  // even on templates whose native photo is a circle.
+  if (p.photoShape) {
+    vars["--resume-photo-aspect"] =
+      p.photoShape === "rectangle" ? "3 / 4" : "1 / 1";
+    vars["--resume-photo-radius"] =
+      p.photoShape === "circle" ? "50%" : "6px";
+  }
 
   return { templateId: p.templateId, vars };
 }

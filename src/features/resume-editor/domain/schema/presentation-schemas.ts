@@ -6,6 +6,7 @@ import {
   pdfLineHeightIds,
   pdfPageMargins,
   pdfPaperSizes,
+  pdfPhotoShapeIds,
   pdfSpacingIds,
   pdfTemplateIds,
   resumeFontIds,
@@ -26,5 +27,6 @@ export const pdfPresentationSchema = z.preprocess(
       .optional(),
     paperSize: z.enum(pdfPaperSizes),
     pageMargin: z.enum(pdfPageMargins),
+    photoShape: z.enum(pdfPhotoShapeIds).optional(),
   }),
 );

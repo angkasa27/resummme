@@ -48,8 +48,9 @@
   right: var(--resume-gap-section);
   bottom: -42px;
   width: 84px;
-  height: 84px;
-  border-radius: 50%;
+  aspect-ratio: var(--resume-photo-aspect, 1 / 1);
+  height: auto;
+  border-radius: var(--resume-photo-radius, 50%);
   overflow: hidden;
 }
 

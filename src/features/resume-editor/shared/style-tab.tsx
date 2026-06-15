@@ -15,6 +15,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
 import { ColorControl } from "@/features/resume-editor/shared/color-control";
 import { previewControlDefinitions } from "@/features/resume-editor/preview/control-registry";
 import type {
@@ -108,7 +109,10 @@ function ToggleField({
         value={[value]}
         variant="outline"
         size="sm"
-        className="grid w-full grid-cols-3"
+        className={cn(
+          "grid w-full",
+          control.options.length === 4 ? "grid-cols-4" : "grid-cols-3",
+        )}
         onValueChange={(nextValue) => {
           const next = nextValue.at(-1);
           if (!next) return;
@@ -211,6 +215,7 @@ export function StyleTab({ presentation, onChange }: StyleTabProps) {
   const pageMargin = getControl("page-margin");
   const lineHeight = getControl("line-height");
   const spacing = getControl("spacing");
+  const photoShape = getControl("photo-shape");
 
   return (
     <div className="grid grid-cols-2 gap-x-3 gap-y-3">
@@ -239,6 +244,13 @@ export function StyleTab({ presentation, onChange }: StyleTabProps) {
       />
       <ToggleField
         control={spacing}
+        presentation={presentation}
+        onChange={onChange}
+      />
+
+      <ToggleField
+        className="col-span-2"
+        control={photoShape}
         presentation={presentation}
         onChange={onChange}
       />

@@ -35,8 +35,9 @@
 
 .header :global(.header-photo) {
   width: 64px;
-  height: 64px;
-  border-radius: 50%;
+  aspect-ratio: var(--resume-photo-aspect, 1 / 1);
+  height: auto;
+  border-radius: var(--resume-photo-radius, 50%);
   overflow: hidden;
   flex-shrink: 0;
 }

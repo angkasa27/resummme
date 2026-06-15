@@ -49,9 +49,10 @@
 }
 
 .template :global(.layout-side .side-photo) {
-  width: 96px;
-  height: 96px;
-  border-radius: 50%;
+  height: 140px;
+  aspect-ratio: var(--resume-photo-aspect, 1 / 1);
+  width: auto;
+  border-radius: var(--resume-photo-radius, 50%);
   overflow: hidden;
   margin: 0 auto;
 }

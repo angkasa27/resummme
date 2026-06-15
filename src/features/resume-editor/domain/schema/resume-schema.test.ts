@@ -56,6 +56,27 @@ describe("resume schema", () => {
     });
   });
 
+  it("persists a chosen photoShape across a save/load round-trip", () => {
+    // The user's photo-shape choice must survive serialization to localStorage.
+    const draft = createDefaultResumeDraft();
+    draft.pdfPresentation = { ...draft.pdfPresentation, photoShape: "circle" };
+
+    const parsed = parseResumeDraft(JSON.parse(JSON.stringify(draft)));
+
+    expect(parsed.pdfPresentation.photoShape).toBe("circle");
+  });
+
+  it("drops an invalid photoShape instead of failing to load", () => {
+    const draft = createDefaultResumeDraft();
+
+    const parsed = parseResumeDraft({
+      ...draft,
+      pdfPresentation: { ...draft.pdfPresentation, photoShape: "oval" },
+    });
+
+    expect(parsed.pdfPresentation.photoShape).toBeUndefined();
+  });
+
   it("rejects unsupported schema versions", () => {
     const draft = createDefaultResumeDraft();
 

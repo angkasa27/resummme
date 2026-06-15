@@ -51,7 +51,7 @@ export function CanvasFormShell({
           </div>
         ) : null}
       </div>
-      <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto py-1">
+      <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto py-1 @container/form">
         {children}
       </div>
       <div className="flex shrink-0 flex-wrap items-center justify-end gap-1.5 border-t bg-popover pt-3">

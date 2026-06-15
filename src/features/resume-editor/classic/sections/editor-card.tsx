@@ -8,7 +8,12 @@ type EditorCardProps = {
   children: ReactNode;
 };
 
-export function EditorCard({ title, meta, leading, children }: EditorCardProps) {
+export function EditorCard({
+  title,
+  meta,
+  leading,
+  children,
+}: EditorCardProps) {
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden">
       <div className="sticky top-0 z-10 flex h-12 shrink-0 items-center gap-2 border-b bg-background px-4 sm:px-6">
@@ -19,7 +24,7 @@ export function EditorCard({ title, meta, leading, children }: EditorCardProps) 
         </div>
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4 sm:px-6">
+      <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4 sm:px-6 @container/form">
         {children}
       </div>
     </div>

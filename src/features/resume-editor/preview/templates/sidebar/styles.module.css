@@ -37,9 +37,10 @@
 }
 
 .template :global(.layout-side .side-photo) {
-  width: 96px;
-  height: 120px;
-  border-radius: 6px;
+  height: 140px;
+  aspect-ratio: var(--resume-photo-aspect, 96 / 120);
+  width: auto;
+  border-radius: var(--resume-photo-radius, 6px);
   overflow: hidden;
   margin: 0 auto;
 }
@@ -77,8 +78,6 @@
   align-items: flex-start;
   gap: 2px;
 }
-
-
 
 .header {
   display: flex;

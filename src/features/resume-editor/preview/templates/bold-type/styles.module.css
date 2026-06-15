@@ -72,8 +72,9 @@
 /* Sharp-cornered square photo matches the editorial look. */
 .header :global(.header-photo) {
   width: 72px;
-  height: 72px;
-  border-radius: 0;
+  aspect-ratio: var(--resume-photo-aspect, 1 / 1);
+  height: auto;
+  border-radius: var(--resume-photo-radius, 0);
   overflow: hidden;
   flex-shrink: 0;
 }
