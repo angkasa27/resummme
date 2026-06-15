@@ -1,6 +1,6 @@
 {
   "name": "resummme",
-  "version": "v1.3.0",
+  "version": "v1.4.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
