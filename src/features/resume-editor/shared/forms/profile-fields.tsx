@@ -4,7 +4,11 @@ import { useState } from "react";
 import { Controller, type FieldError as RhfFieldError } from "react-hook-form";
 import {
   ImageUpIcon,
+  Link,
+  Mail,
+  MapPin,
   PencilIcon,
+  Phone,
   PlusIcon,
   Trash2Icon,
   UserRoundIcon,
@@ -25,6 +29,11 @@ import { Input } from "@/components/ui/input";
 import { FieldLabelText } from "@/features/resume-editor/shared/fields/field-label-text";
 import { PhotoCropDialog } from "@/features/resume-editor/shared/forms/photo-crop-dialog";
 import type { ProfileFormContext } from "@/features/resume-editor/shared/forms/use-profile-form";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group";
 
 type ProfileFieldsProps = {
   ctx: ProfileFormContext;
@@ -72,13 +81,19 @@ export function ProfileFields({ ctx, idPrefix }: ProfileFieldsProps) {
             <FieldLabelText label="Location" />
           </FieldLabel>
           <FieldContent>
-            <Input
-              id={`${idPrefix}-location`}
-              autoComplete="address-level2"
-              placeholder="Jakarta, Indonesia"
-              aria-invalid={invalid("location")}
-              {...register("location")}
-            />
+            <InputGroup>
+              <InputGroupAddon>
+                <MapPin />
+              </InputGroupAddon>
+              <InputGroupInput
+                id={`${idPrefix}-location`}
+                autoComplete="address-level2"
+                placeholder="Jakarta, Indonesia"
+                aria-invalid={invalid("location")}
+                {...register("location")}
+              />
+            </InputGroup>
+
             <FieldError errors={[error("location")]} />
           </FieldContent>
         </Field>
@@ -88,16 +103,21 @@ export function ProfileFields({ ctx, idPrefix }: ProfileFieldsProps) {
             <FieldLabelText label="Phone number" />
           </FieldLabel>
           <FieldContent>
-            <Input
-              id={`${idPrefix}-phone`}
-              type="tel"
-              autoComplete="tel"
-              inputMode="tel"
-              spellCheck={false}
-              placeholder="+62 822-3044-2367"
-              aria-invalid={invalid("phone")}
-              {...register("phone")}
-            />
+            <InputGroup>
+              <InputGroupAddon>
+                <Phone />
+              </InputGroupAddon>
+              <InputGroupInput
+                id={`${idPrefix}-phone`}
+                type="tel"
+                autoComplete="tel"
+                inputMode="tel"
+                spellCheck={false}
+                placeholder="+62 822-3044-2367"
+                aria-invalid={invalid("phone")}
+                {...register("phone")}
+              />
+            </InputGroup>
             <FieldError errors={[error("phone")]} />
           </FieldContent>
         </Field>
@@ -107,20 +127,24 @@ export function ProfileFields({ ctx, idPrefix }: ProfileFieldsProps) {
             <FieldLabelText label="Email address" />
           </FieldLabel>
           <FieldContent>
-            <Input
-              id={`${idPrefix}-email`}
-              type="email"
-              autoComplete="email"
-              inputMode="email"
-              spellCheck={false}
-              placeholder="email.me@here.is"
-              aria-invalid={invalid("email")}
-              {...register("email")}
-            />
+            <InputGroup>
+              <InputGroupAddon>
+                <Mail />
+              </InputGroupAddon>
+              <InputGroupInput
+                id={`${idPrefix}-email`}
+                type="email"
+                autoComplete="email"
+                inputMode="email"
+                spellCheck={false}
+                placeholder="email.me@here.is"
+                aria-invalid={invalid("email")}
+                {...register("email")}
+              />
+            </InputGroup>
             <FieldError errors={[error("email")]} />
           </FieldContent>
         </Field>
-
       </FieldGroup>
 
       <div className="mt-4 flex flex-col gap-3 border-t pt-4">
@@ -156,20 +180,25 @@ export function ProfileFields({ ctx, idPrefix }: ProfileFieldsProps) {
                         control={form.control}
                         name={urlFieldName}
                         render={({ field: nextField }) => (
-                          <Input
-                            id={inputId}
-                            name={nextField.name}
-                            type="url"
-                            autoComplete="url"
-                            inputMode="url"
-                            spellCheck={false}
-                            autoCapitalize="none"
-                            autoCorrect="off"
-                            value={nextField.value}
-                            placeholder="https://www.linkedin.com/in/your-handle"
-                            aria-invalid={invalid(urlFieldName)}
-                            onChange={nextField.onChange}
-                          />
+                          <InputGroup>
+                            <InputGroupAddon>
+                              <Link />
+                            </InputGroupAddon>
+                            <InputGroupInput
+                              id={inputId}
+                              name={nextField.name}
+                              type="url"
+                              autoComplete="url"
+                              inputMode="url"
+                              spellCheck={false}
+                              autoCapitalize="none"
+                              autoCorrect="off"
+                              value={nextField.value}
+                              placeholder="https://www.linkedin.com/in/your-handle"
+                              aria-invalid={invalid(urlFieldName)}
+                              onChange={nextField.onChange}
+                            />
+                          </InputGroup>
                         )}
                       />
                       <FieldError errors={[error(urlFieldName)]} />
@@ -310,8 +339,8 @@ function PhotoField({
               ) : null}
             </div>
             <p className="text-xs text-muted-foreground">
-              Drag &amp; drop or click to upload. PNG, JPG, or WEBP up to 8&nbsp;MB
-              — crop and zoom after choosing.
+              Drag &amp; drop or click to upload. PNG, JPG, or WEBP up to
+              8&nbsp;MB — crop and zoom after choosing.
             </p>
           </div>
         </div>

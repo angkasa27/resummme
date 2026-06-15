@@ -1,6 +1,24 @@
 "use client";
 
 import { Controller, type UseFormReturn } from "react-hook-form";
+import {
+  AtSignIcon,
+  BadgeCheckIcon,
+  BriefcaseBusinessIcon,
+  Building2Icon,
+  GaugeIcon,
+  GlobeIcon,
+  GraduationCapIcon,
+  HashIcon,
+  InfoIcon,
+  LanguagesIcon,
+  LinkIcon,
+  MailIcon,
+  MapPinIcon,
+  TagIcon,
+  TypeIcon,
+  type LucideIcon,
+} from "lucide-react";
 
 import {
   Field,
@@ -10,7 +28,11 @@ import {
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group";
 import {
   Select,
   SelectContent,
@@ -43,6 +65,33 @@ type RenderCollectionItemFieldsProps = {
   index: number;
 };
 
+/** Semantic icon shown inside text/email/url fields (matches the profile form). */
+const fieldIconByName: Record<string, LucideIcon> = {
+  companyName: Building2Icon,
+  organizationName: Building2Icon,
+  issuingOrganization: Building2Icon,
+  issuer: Building2Icon,
+  publisher: Building2Icon,
+  name: Building2Icon,
+  position: BriefcaseBusinessIcon,
+  location: MapPinIcon,
+  categoryName: TagIcon,
+  projectName: GlobeIcon,
+  degree: GraduationCapIcon,
+  gpa: GaugeIcon,
+  certificationName: BadgeCheckIcon,
+  credentialId: HashIcon,
+  language: LanguagesIcon,
+  background: InfoIcon,
+  contactDetails: AtSignIcon,
+};
+
+function getFieldIcon(kind: string, name: string): LucideIcon {
+  if (kind === "url") return LinkIcon;
+  if (kind === "email") return MailIcon;
+  return fieldIconByName[name] ?? TypeIcon;
+}
+
 export function CollectionItemFields({
   config,
   form,
@@ -64,6 +113,7 @@ export function CollectionItemFields({
         ) {
           const fieldName = `items.${index}.${fieldConfig.name}` as const;
           const fieldState = getDynamicFieldState(fieldName);
+          const FieldIcon = getFieldIcon(fieldConfig.kind, fieldConfig.name);
 
           return (
             <Field
@@ -75,39 +125,43 @@ export function CollectionItemFields({
                 <FieldLabelText label={fieldConfig.label} />
               </FieldLabel>
               <FieldContent>
-                <Input
-                  id={fieldName}
-                  type={fieldConfig.kind}
-                  className="bg-background!"
-                  inputMode={
-                    fieldConfig.kind === "email"
-                      ? "email"
-                      : fieldConfig.kind === "url"
-                        ? "url"
+                <InputGroup className="bg-background!">
+                  <InputGroupAddon>
+                    <FieldIcon />
+                  </InputGroupAddon>
+                  <InputGroupInput
+                    id={fieldName}
+                    type={fieldConfig.kind}
+                    inputMode={
+                      fieldConfig.kind === "email"
+                        ? "email"
+                        : fieldConfig.kind === "url"
+                          ? "url"
+                          : undefined
+                    }
+                    autoComplete={
+                      fieldConfig.kind === "email"
+                        ? "email"
+                        : fieldConfig.kind === "url"
+                          ? "url"
+                          : undefined
+                    }
+                    spellCheck={fieldConfig.kind === "text"}
+                    autoCapitalize={
+                      fieldConfig.kind === "email" || fieldConfig.kind === "url"
+                        ? "none"
                         : undefined
-                  }
-                  autoComplete={
-                    fieldConfig.kind === "email"
-                      ? "email"
-                      : fieldConfig.kind === "url"
-                        ? "url"
+                    }
+                    autoCorrect={
+                      fieldConfig.kind === "email" || fieldConfig.kind === "url"
+                        ? "off"
                         : undefined
-                  }
-                  spellCheck={fieldConfig.kind === "text"}
-                  autoCapitalize={
-                    fieldConfig.kind === "email" || fieldConfig.kind === "url"
-                      ? "none"
-                      : undefined
-                  }
-                  autoCorrect={
-                    fieldConfig.kind === "email" || fieldConfig.kind === "url"
-                      ? "off"
-                      : undefined
-                  }
-                  placeholder={fieldConfig.placeholder}
-                  aria-invalid={fieldState.invalid || undefined}
-                  {...register(fieldName as never)}
-                />
+                    }
+                    placeholder={fieldConfig.placeholder}
+                    aria-invalid={fieldState.invalid || undefined}
+                    {...register(fieldName as never)}
+                  />
+                </InputGroup>
                 <FieldError errors={[fieldState.error]} />
               </FieldContent>
             </Field>

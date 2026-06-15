@@ -3,6 +3,7 @@
 import { useEffect, useId } from "react";
 
 import { CanvasFormShell } from "@/features/resume-editor/canvas/forms/canvas-form-shell";
+import { SectionIcon } from "@/features/resume-editor/shared/section-icons";
 import { SummaryFields } from "@/features/resume-editor/shared/forms/summary-fields";
 import {
   useSummaryForm,
@@ -47,6 +48,7 @@ export function CanvasSummaryForm({
     >
       <CanvasFormShell
         title="Summary"
+        icon={<SectionIcon sectionKey="summary" />}
         onCancel={onCancel}
         formId={formId}
         isDirty={formState.isDirty}

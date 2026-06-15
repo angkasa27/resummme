@@ -4,7 +4,6 @@ import { useState } from "react";
 import { HexColorPicker } from "react-colorful";
 import { PaletteIcon } from "lucide-react";
 
-import { Input } from "@/components/ui/input";
 import {
   Popover,
   PopoverContent,
@@ -15,6 +14,11 @@ import {
   DEFAULT_ACCENT,
   isValidAccentHex,
 } from "@/features/resume-editor/domain/presentation/pdf-presentation";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group";
 
 export const ACCENT_SWATCHES: ReadonlyArray<{ name: string; hex: string }> = [
   { name: "Slate", hex: "#1f2937" },
@@ -83,7 +87,8 @@ export function ColorControl({
           </button>
         ) : null}
         {ACCENT_SWATCHES.map((swatch) => {
-          const isActive = !allowAuto?.active && matchedSwatch?.hex === swatch.hex;
+          const isActive =
+            !allowAuto?.active && matchedSwatch?.hex === swatch.hex;
           return (
             <button
               key={swatch.hex}
@@ -134,11 +139,13 @@ export function ColorControl({
             <HexColorPicker
               color={value}
               onChange={onChange}
-              style={{ width: 200, height: 160 }}
+              style={{ width: "auto", height: 160 }}
             />
-            <div className="flex items-center gap-2">
-              <PaletteIcon className="size-4 text-muted-foreground" />
-              <Input
+            <InputGroup>
+              <InputGroupAddon>
+                <PaletteIcon />
+              </InputGroupAddon>
+              <InputGroupInput
                 value={hexDraft}
                 onChange={(event) => setHexDraft(event.target.value)}
                 onBlur={(event) => commitHex(event.target.value)}
@@ -152,7 +159,7 @@ export function ColorControl({
                 className="font-mono uppercase"
                 placeholder={DEFAULT_ACCENT}
               />
-            </div>
+            </InputGroup>
           </PopoverContent>
         </Popover>
       </div>

@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 
 import { CanvasFormShell } from "@/features/resume-editor/canvas/forms/canvas-form-shell";
+import { SectionIcon } from "@/features/resume-editor/shared/section-icons";
 import { collectionSectionConfigs } from "@/features/resume-editor/domain/sections/collection-section-config";
 import { collectionSectionFormSchemaMap } from "@/features/resume-editor/forms/collection-section-form-schema-map";
 import { createFormSchemaResolver } from "@/features/resume-editor/forms/schemas/create-form-schema-resolver";
@@ -144,6 +145,7 @@ export function CanvasCollectionForm({
     >
       <CanvasFormShell
         title={config.title}
+        icon={<SectionIcon sectionKey={sectionKey} />}
         formId={formId}
         isDirty={formState.isDirty}
         isSaving={formState.isSubmitting}

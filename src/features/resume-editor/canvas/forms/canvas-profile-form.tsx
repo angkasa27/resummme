@@ -3,6 +3,7 @@
 import { useEffect, useId } from "react";
 
 import { CanvasFormShell } from "@/features/resume-editor/canvas/forms/canvas-form-shell";
+import { SectionIcon } from "@/features/resume-editor/shared/section-icons";
 import { ProfileFields } from "@/features/resume-editor/shared/forms/profile-fields";
 import { useProfileForm } from "@/features/resume-editor/shared/forms/use-profile-form";
 import type {
@@ -47,6 +48,7 @@ export function CanvasProfileForm({
     >
       <CanvasFormShell
         title="Profile"
+        icon={<SectionIcon sectionKey="profile" />}
         onCancel={onCancel}
         formId={formId}
         isDirty={formState.isDirty}

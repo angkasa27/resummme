@@ -49,7 +49,7 @@ import {
   sectionLabels,
   type ResumeSectionPanelKey,
 } from "@/features/resume-editor/domain/sections/section-metadata";
-import { SectionIcon } from "@/features/resume-editor/classic/sections/section-icons";
+import { SectionIcon } from "@/features/resume-editor/shared/section-icons";
 import type { ResumeEditorPanelKey } from "@/features/resume-editor/state/resume-editor-store";
 import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
 import { cn } from "@/lib/utils";
