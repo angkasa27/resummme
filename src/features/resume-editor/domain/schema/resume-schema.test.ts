@@ -226,7 +226,7 @@ describe("resume schema", () => {
     expect(draft.sections.projects.visible).toBe(true);
     expect(draft.sections.education.visible).toBe(true);
     expect(draft.sections.publications.visible).toBe(false);
-    expect(draft.sections.references.visible).toBe(false);
+    expect(draft.sections.references.visible).toBe(true);
   });
 
   it("seeds every collection section with one empty item", () => {
