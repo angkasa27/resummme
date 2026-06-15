@@ -21,7 +21,7 @@
 /* Timeline item: date column on the left, content beside a continuous rail. */
 .template :global(.timeline-item) {
   display: grid;
-  grid-template-columns: 96px minmax(0, 1fr);
+  grid-template-columns: 128px minmax(0, 1fr);
 }
 
 .template :global(.timeline-date) {
@@ -33,6 +33,11 @@
   font-weight: 600;
   color: var(--resume-accent);
   white-space: normal;
+}
+
+/* Keep each "Month Year" intact; only break the range at the separator. */
+.template :global(.timeline-date .date-part) {
+  white-space: nowrap;
 }
 
 .template :global(.item-content) {
@@ -61,11 +66,10 @@
   -webkit-print-color-adjust: exact;
 }
 
-/* Header — name left, contact block right, over a full-width accent rule. */
+/* Header — photo left, name with contacts stacked beneath, over an accent rule. */
 .header {
   display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
+  align-items: center;
   gap: var(--resume-gap-section);
   border-bottom: 2px solid var(--resume-accent);
   padding-bottom: var(--resume-gap-item);
@@ -89,22 +93,6 @@
   flex: 1;
   min-width: 0;
   display: flex;
-  flex-direction: row;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: var(--resume-gap-section);
-}
-
-.header :global(.contact-block) {
-  max-width: 50%;
-  text-align: right;
-}
-
-/* Links stack one per line so a link-heavy profile stays tidy. */
-.header :global(.contact-links .contact-item) {
-  display: block;
-}
-
-.header :global(.contact-links .contact-item + .contact-item)::before {
-  content: none;
+  flex-direction: column;
+  gap: var(--resume-gap-item);
 }

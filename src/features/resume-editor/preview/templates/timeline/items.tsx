@@ -5,6 +5,32 @@ import { joinParts } from "@/features/resume-editor/preview/helpers/string";
 import type { SectionItem } from "@/features/resume-editor/preview/sections/types";
 import type { TemplateSectionItemMap } from "@/features/resume-editor/preview/template-types";
 
+/**
+ * Renders a date range so each full "Month Year" stays intact and the line
+ * only breaks at the " - " separator (the date column is narrow), e.g.
+ * `Jan 2024 -` / `Oct 2024` instead of `Jan 2024 - Oct` / `2024`.
+ */
+function TimelineDate({ date }: { date: string }) {
+  const separator = " - ";
+  const splitAt = date.indexOf(separator);
+  if (splitAt === -1) {
+    return (
+      <span className="item-date">
+        <span className="date-part">{date}</span>
+      </span>
+    );
+  }
+  const start = date.slice(0, splitAt);
+  const end = date.slice(splitAt + separator.length);
+  return (
+    <span className="item-date">
+      <span className="date-part">
+        {start} - {end}
+      </span>
+    </span>
+  );
+}
+
 function TimelineItem({
   title,
   meta,
@@ -19,7 +45,7 @@ function TimelineItem({
   return (
     <div className="item timeline-item">
       <div className="timeline-date">
-        {date ? <span className="item-date">{date}</span> : null}
+        {date ? <TimelineDate date={date} /> : null}
       </div>
       <div className="item-content">
         <h3 className="item-title">{title}</h3>
@@ -92,11 +118,7 @@ function PublicationsItem({ item }: { item: SectionItem<"publications"> }) {
   );
 }
 
-function CertificationsItem({
-  item,
-}: {
-  item: SectionItem<"certifications">;
-}) {
+function CertificationsItem({ item }: { item: SectionItem<"certifications"> }) {
   return (
     <TimelineItem
       title={
