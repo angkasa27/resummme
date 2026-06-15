@@ -163,7 +163,8 @@ export const collectionSectionConfigs: Record<
     addLabel: "Add project",
     itemTitle: "Project",
     emptyTitle: "No projects yet",
-    emptyDescription: "Add flagship or relevant projects to support your experience.",
+    emptyDescription:
+      "Add flagship or relevant projects to support your experience.",
     createItem: () => ({
       id: createLocalId("project"),
       projectName: "",
@@ -192,7 +193,7 @@ export const collectionSectionConfigs: Record<
         endName: "endDate",
         label: "Date range",
         startPlaceholder: "Feb 2024",
-        endPlaceholder: "Current or Oct 2024",
+        endPlaceholder: "Current",
       },
       {
         kind: "richText",
@@ -436,7 +437,8 @@ export const collectionSectionConfigs: Record<
     addLabel: "Add reference",
     itemTitle: "Reference",
     emptyTitle: "No references yet",
-    emptyDescription: "Add references only when you want them printed on the CV.",
+    emptyDescription:
+      "Add references only when you want them printed on the CV.",
     createItem: () => ({
       id: createLocalId("reference"),
       name: "",
@@ -503,7 +505,7 @@ export const collectionSectionConfigs: Record<
         endName: "endDate",
         label: "Date range",
         startPlaceholder: "Jan 2024",
-        endPlaceholder: "Current or Dec 2024",
+        endPlaceholder: "Current",
       },
       {
         kind: "richText",

@@ -55,7 +55,7 @@ export function CollectionItemFields({
   }
 
   return (
-    <FieldGroup className="grid gap-3 md:grid-cols-2">
+    <FieldGroup className="grid gap-3 @sm/form:grid-cols-2">
       {config.fields.map((fieldConfig) => {
         if (
           fieldConfig.kind === "text" ||
@@ -68,7 +68,7 @@ export function CollectionItemFields({
           return (
             <Field
               key={fieldName}
-              className="md:col-span-2"
+              className="@sm/form:col-span-2"
               data-invalid={fieldState.invalid || undefined}
             >
               <FieldLabel htmlFor={fieldName}>
@@ -121,7 +121,7 @@ export function CollectionItemFields({
           return (
             <Field
               key={fieldName}
-              className="md:col-span-2"
+              className="@sm/form:col-span-2"
               data-invalid={fieldState.invalid || undefined}
             >
               <FieldLabel htmlFor={fieldName}>
@@ -159,7 +159,7 @@ export function CollectionItemFields({
           return (
             <Field
               key={fieldName}
-              className="md:col-span-2"
+              className="@sm/form:col-span-2"
               data-invalid={fieldState.invalid || undefined}
             >
               <FieldLabel htmlFor={fieldName}>
@@ -186,7 +186,7 @@ export function CollectionItemFields({
           return (
             <Field
               key={fieldName}
-              className="md:col-span-2"
+              className="@sm/form:col-span-2"
               data-invalid={fieldState.invalid || undefined}
             >
               <FieldLabel>
@@ -226,7 +226,7 @@ export function CollectionItemFields({
           return (
             <Field
               key={fieldName}
-              className="md:col-span-2"
+              className="@sm/form:col-span-2"
               data-invalid={fieldState.invalid || undefined}
             >
               <FieldLabel htmlFor={fieldName}>
@@ -239,7 +239,11 @@ export function CollectionItemFields({
                   render={({ field }) => (
                     <TagInput
                       id={fieldName}
-                      value={Array.isArray(field.value) ? (field.value as string[]) : []}
+                      value={
+                        Array.isArray(field.value)
+                          ? (field.value as string[])
+                          : []
+                      }
                       onChange={(next) => field.onChange(next)}
                       placeholder={fieldConfig.placeholder}
                       ariaInvalid={fieldState.invalid}
@@ -269,7 +273,7 @@ export function CollectionItemFields({
           return (
             <div
               key={`${startName}-${endName}`}
-              className="grid gap-3 md:col-span-2 md:grid-cols-2"
+              className="grid gap-3 @sm/form:col-span-2 @sm/form:grid-cols-2"
             >
               <Field data-invalid={startFieldState.invalid || undefined}>
                 <FieldLabel htmlFor={startName}>
@@ -325,9 +329,7 @@ export function CollectionItemFields({
                       <MonthYearPicker
                         id={endName}
                         value={isCurrent ? "" : field.value}
-                        placeholder={
-                          fieldConfig.endPlaceholder ?? "Current or Dec 2024"
-                        }
+                        placeholder={fieldConfig.endPlaceholder ?? "Current"}
                         disabled={isCurrent}
                         ariaInvalid={endFieldState.invalid}
                         minValueExclusive={startValue}
@@ -410,4 +412,3 @@ export function CollectionItemFields({
     </FieldGroup>
   );
 }
-

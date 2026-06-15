@@ -272,7 +272,7 @@ export function CanvasCollectionForm({
                     </ButtonGroup>
                   </div>
                   {!isCollapsed ? (
-                    <div className="border-t bg-muted/40 p-3">
+                    <div className="border-t bg-muted/40 p-3 @container/form">
                       <CollectionItemFields
                         config={config}
                         form={
