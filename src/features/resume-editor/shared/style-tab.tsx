@@ -206,7 +206,6 @@ function FontFamilyField({
 }
 
 export function StyleTab({ presentation, onChange }: StyleTabProps) {
-  const template = getControl("template");
   const fontScale = getControl("font-scale");
   const paperSize = getControl("paper-size");
   const pageMargin = getControl("page-margin");
@@ -215,13 +214,6 @@ export function StyleTab({ presentation, onChange }: StyleTabProps) {
 
   return (
     <div className="grid grid-cols-2 gap-x-3 gap-y-3">
-      <SelectField
-        className="col-span-2"
-        control={template}
-        presentation={presentation}
-        onChange={onChange}
-      />
-
       <SelectField
         control={paperSize}
         presentation={presentation}

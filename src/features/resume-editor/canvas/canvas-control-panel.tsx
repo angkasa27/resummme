@@ -2,6 +2,7 @@
 
 import {
   DownloadIcon,
+  LayoutTemplateIcon,
   MinusIcon,
   PaletteIcon,
   PlusIcon,
@@ -14,6 +15,7 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { InsightsTab } from "@/features/resume-editor/shared/insights/insights-tab";
 import { StyleTab } from "@/features/resume-editor/shared/style-tab";
+import { TemplateTab } from "@/features/resume-editor/shared/template-tab";
 import type { PdfPresentation } from "@/features/resume-editor/domain/presentation/pdf-presentation";
 import type { EditorPanelKey } from "@/features/resume-editor/domain/sections/section-metadata";
 import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
@@ -107,24 +109,46 @@ export function CanvasControlPanel({
       <Separator />
 
       {/* Tabs */}
-      <Tabs defaultValue="style" className="px-4 py-3 flex-1">
-        <TabsList className="w-full ">
-          <TabsTrigger value="style">
-            <PaletteIcon />
-            Style
-          </TabsTrigger>
-          <TabsTrigger value="insights">
-            <TelescopeIcon /> Insights
-          </TabsTrigger>
-        </TabsList>
+      <Tabs defaultValue="template" className="min-h-0 flex-1">
+        <div className="px-4 pt-3">
+          <TabsList className="w-full shrink-0">
+            <TabsTrigger value="template">
+              <LayoutTemplateIcon />
+              Template
+            </TabsTrigger>
+            <TabsTrigger value="style">
+              <PaletteIcon />
+              Style
+            </TabsTrigger>
+            <TabsTrigger value="insights">
+              <TelescopeIcon /> Insights
+            </TabsTrigger>
+          </TabsList>
+        </div>
 
-        <TabsContent value="style" className="flex flex-col gap-4 pb-2">
+        <TabsContent
+          value="template"
+          className="min-h-0 overflow-y-auto pt-1.5 pb-3 px-4"
+        >
+          <TemplateTab
+            presentation={presentation}
+            draft={draft}
+            onChange={onPresentationChange}
+          />
+        </TabsContent>
+        <TabsContent
+          value="style"
+          className="min-h-0 overflow-y-auto pt-1.5 pb-3 px-4"
+        >
           <StyleTab
             presentation={presentation}
             onChange={onPresentationChange}
           />
         </TabsContent>
-        <TabsContent value="insights" className="pb-2">
+        <TabsContent
+          value="insights"
+          className="min-h-0 overflow-y-auto pt-1.5 pb-3 px-4"
+        >
           <InsightsTab draft={draft} onOpenSection={onOpenSection} />
         </TabsContent>
       </Tabs>

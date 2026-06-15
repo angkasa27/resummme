@@ -138,13 +138,21 @@ const indentPx: Record<PdfSpacingId, number> = {
   airy: 18,
 };
 
-const paperDimensions: Record<
+export const paperDimensions: Record<
   PdfPaperSize,
   { widthMm: number; heightMm: number }
 > = {
   a4: { widthMm: 210, heightMm: 297 },
   letter: { widthMm: 215.9, heightMm: 279.4 },
 };
+
+/** CSS px per millimetre at 96dpi — used to scale on-screen paper previews. */
+const PX_PER_MM = 96 / 25.4;
+
+/** Paper width in CSS pixels, for scaling a full-size document into a thumbnail. */
+export function getPaperWidthPx(paperSize: PdfPaperSize): number {
+  return paperDimensions[paperSize].widthMm * PX_PER_MM;
+}
 
 const pageMarginMm: Record<PdfPageMargin, number> = {
   narrow: 12.7, // 0.5"

@@ -389,7 +389,7 @@ export function ResumeEditorCanvas({
           </main>
 
           {/* Desktop side rail */}
-          <aside className="sticky top-0 hidden w-72 shrink-0 overflow-y-auto border-l bg-background lg:flex lg:flex-col print:hidden">
+          <aside className="sticky top-0 hidden h-full w-80 shrink-0 overflow-hidden border-l bg-background lg:flex lg:flex-col print:hidden">
             <CanvasControlPanel {...controlPanelProps} />
           </aside>
         </div>

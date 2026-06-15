@@ -6,6 +6,7 @@ import {
   ChevronDownIcon,
   DownloadIcon,
   FileJsonIcon,
+  LayoutTemplateIcon,
   PaletteIcon,
   PrinterIcon,
   SparklesIcon,
@@ -41,6 +42,7 @@ import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
 import type { PreviewDocumentActions } from "@/features/resume-editor/preview/types";
 import { InsightsTab } from "@/features/resume-editor/shared/insights/insights-tab";
 import { StyleTab } from "@/features/resume-editor/shared/style-tab";
+import { TemplateTab } from "@/features/resume-editor/shared/template-tab";
 
 type PreviewToolbarProps = {
   draft: ResumeDraft;
@@ -134,6 +136,19 @@ export function PreviewToolbar({
 
       <div className="ml-auto flex items-center gap-1.5">
         {/* Preview-specific controls */}
+        <AdaptivePanel
+          label="Template"
+          icon={<LayoutTemplateIcon />}
+          compact={!showAllLabels}
+          isMobile={isMobile}
+        >
+          <TemplateTab
+            presentation={presentation}
+            draft={draft}
+            onChange={onChange}
+          />
+        </AdaptivePanel>
+
         <AdaptivePanel
           label="Style"
           icon={<PaletteIcon />}
@@ -233,8 +248,10 @@ function AdaptivePanel({
   return (
     <Popover>
       <PopoverTrigger render={trigger} />
-      <PopoverContent align="end" className="w-80">
-        {children}
+      <PopoverContent align="end" className="w-80 p-0">
+        <div className="max-h-[min(70vh,600px)] overflow-y-auto p-4">
+          {children}
+        </div>
       </PopoverContent>
     </Popover>
   );
