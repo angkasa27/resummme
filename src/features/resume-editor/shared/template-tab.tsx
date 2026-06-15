@@ -140,7 +140,7 @@ const TemplatePreviewCard = memo(function TemplatePreviewCard({
     >
       <div
         aria-hidden
-        className="pointer-events-none absolute left-0 top-0 origin-top-left"
+        className="pointer-events-none absolute left-0 top-0 origin-top-left text-left"
         style={{ width: paperWidthPx, transform: `scale(${scale})` }}
       >
         {scale > 0 ? <ResumeDocument draft={cardDraft} mode="preview" /> : null}
