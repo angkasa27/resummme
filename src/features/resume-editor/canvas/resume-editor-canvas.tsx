@@ -7,7 +7,7 @@ import {
   TriangleAlert,
 } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { ReactNode } from "react";
 
 import { toast } from "sonner";
@@ -50,6 +50,7 @@ import { CanvasProfileForm } from "@/features/resume-editor/canvas/forms/canvas-
 import { CanvasSummaryForm } from "@/features/resume-editor/canvas/forms/canvas-summary-form";
 import { createPreviewRenderContext } from "@/features/resume-editor/preview/engine";
 import { PreviewDocumentRoot } from "@/features/resume-editor/preview/kit/document-root";
+import { usePreviewScale } from "@/features/resume-editor/preview/components/use-preview-scale";
 import {
   getTemplate,
   renderTemplateHeader,
@@ -134,6 +135,14 @@ export function ResumeEditorCanvas({
     useState<CollectionSectionKey | null>(null);
   const [zoom, setZoom] = useState<number>(ZOOM_DEFAULT);
   const isMobile = useIsMobile();
+  const previewViewportRef = useRef<HTMLDivElement | null>(null);
+  const previewSheetRef = useRef<HTMLDivElement | null>(null);
+  const { previewScale, previewShellSize } = usePreviewScale({
+    sheetRef: previewSheetRef,
+    viewportRef: previewViewportRef,
+
+    watchValues: [draft, isMobile],
+  });
   const [dismissedMobileAlert, setDismissedMobileAlert] = useState(
     () =>
       typeof window !== "undefined" &&
@@ -238,6 +247,105 @@ export function ResumeEditorCanvas({
     onZoomChange: setZoom,
   };
 
+  // The interactive preview document, shared by both the desktop (manual zoom)
+  // and mobile (fit-to-width scale) branches so the slot-building logic lives
+  // in one place.
+  const previewDocument = (() => {
+    const collectionKeys = visibleSectionKeys.filter(isCollectionSectionKey);
+    const slots: TemplateSlots = {
+      header: (
+        <CanvasSectionShell
+          ariaLabel="Profile"
+          isEditing={editing === "profile"}
+          onEdit={startEditingProfile}
+        >
+          {renderTemplateHeader(context)}
+        </CanvasSectionShell>
+      ),
+      summary:
+        editing === "summary" || context.summaryContent ? (
+          <CanvasSectionShell
+            ariaLabel="Summary"
+            isEditing={editing === "summary"}
+            onEdit={() => startEditingSection("summary")}
+          >
+            <SummaryView
+              content={context.summaryContent ?? ""}
+              showHeading={
+                context.presentation.templateId !== "classic" &&
+                context.presentation.templateId !== "timeline"
+              }
+            />
+          </CanvasSectionShell>
+        ) : null,
+      sections: collectionKeys.map((sectionKey) => {
+        const orderIndex = collectionKeys.indexOf(sectionKey);
+        const renderable = context.sections.find((s) => s.key === sectionKey);
+        const isEditing = editing === sectionKey;
+        return {
+          key: sectionKey,
+          node: (
+            <CanvasSectionShell
+              ariaLabel={sectionLabels[sectionKey]}
+              isEditing={isEditing}
+              onEdit={() => startEditingSection(sectionKey)}
+              onMoveUp={() => {
+                const anchorKey = collectionKeys[orderIndex - 1];
+                if (anchorKey) {
+                  reorderSection(sectionKey, anchorKey);
+                }
+              }}
+              onMoveDown={() => {
+                const anchorKey = collectionKeys[orderIndex + 1];
+                if (anchorKey) {
+                  reorderSection(sectionKey, anchorKey);
+                }
+              }}
+              onDelete={() => requestHideSection(sectionKey)}
+              canMoveUp={orderIndex > 0}
+              canMoveDown={orderIndex < collectionKeys.length - 1}
+            >
+              {renderable ? (
+                <TemplateSection template={template} section={renderable} />
+              ) : (
+                <EmptySectionPlaceholder
+                  label={sectionLabels[sectionKey]}
+                  onEdit={() => startEditingSection(sectionKey)}
+                />
+              )}
+            </CanvasSectionShell>
+          ),
+        };
+      }),
+    };
+
+    return (
+      <PreviewDocumentRoot context={context}>
+        <template.Component context={context} slots={slots} />
+
+        {hiddenSectionKeys.length > 0 ? (
+          <div className="pt-6 flex flex-wrap justify-center gap-2 print:hidden border-t border-dashed">
+            {hiddenSectionKeys.map((key) => (
+              <Button
+                key={key}
+                type="button"
+                variant="outline"
+                className="rounded-full font-sans!"
+                onClick={() => {
+                  setSectionVisibility(key, true);
+                  startEditingSection(key);
+                }}
+              >
+                <PlusIcon data-icon="inline-start" />
+                Add {sectionLabels[key]}
+              </Button>
+            ))}
+          </div>
+        ) : null}
+      </PreviewDocumentRoot>
+    );
+  })();
+
   return (
     <TooltipProvider>
       <div className="flex h-[calc(100dvh-3rem)] flex-col bg-muted/40">
@@ -277,115 +385,46 @@ export function ResumeEditorCanvas({
 
         {/* Body: preview + control panel */}
         <div className="flex flex-1 h-full">
-          <main className="flex flex-1 justify-center overflow-x-auto overflow-y-auto h-full px-3 py-6 sm:px-6 sm:py-10">
-            <div style={{ zoom }} className="origin-top print:zoom-[1]">
-              {(() => {
-                const collectionKeys = visibleSectionKeys.filter(
-                  isCollectionSectionKey,
-                );
-                const slots: TemplateSlots = {
-                  header: (
-                    <CanvasSectionShell
-                      ariaLabel="Profile"
-                      isEditing={editing === "profile"}
-                      onEdit={startEditingProfile}
-                    >
-                      {renderTemplateHeader(context)}
-                    </CanvasSectionShell>
-                  ),
-                  summary:
-                    editing === "summary" || context.summaryContent ? (
-                      <CanvasSectionShell
-                        ariaLabel="Summary"
-                        isEditing={editing === "summary"}
-                        onEdit={() => startEditingSection("summary")}
-                      >
-                        <SummaryView
-                          content={context.summaryContent ?? ""}
-                          showHeading={
-                            context.presentation.templateId !== "classic" &&
-                            context.presentation.templateId !== "timeline"
-                          }
-                        />
-                      </CanvasSectionShell>
-                    ) : null,
-                  sections: collectionKeys.map((sectionKey) => {
-                    const orderIndex = collectionKeys.indexOf(sectionKey);
-                    const renderable = context.sections.find(
-                      (s) => s.key === sectionKey,
-                    );
-                    const isEditing = editing === sectionKey;
-                    return {
-                      key: sectionKey,
-                      node: (
-                        <CanvasSectionShell
-                          ariaLabel={sectionLabels[sectionKey]}
-                          isEditing={isEditing}
-                          onEdit={() => startEditingSection(sectionKey)}
-                          onMoveUp={() => {
-                            const anchorKey = collectionKeys[orderIndex - 1];
-                            if (anchorKey) {
-                              reorderSection(sectionKey, anchorKey);
-                            }
-                          }}
-                          onMoveDown={() => {
-                            const anchorKey = collectionKeys[orderIndex + 1];
-                            if (anchorKey) {
-                              reorderSection(sectionKey, anchorKey);
-                            }
-                          }}
-                          onDelete={() => requestHideSection(sectionKey)}
-                          canMoveUp={orderIndex > 0}
-                          canMoveDown={orderIndex < collectionKeys.length - 1}
-                        >
-                          {renderable ? (
-                            <TemplateSection
-                              template={template}
-                              section={renderable}
-                            />
-                          ) : (
-                            <EmptySectionPlaceholder
-                              label={sectionLabels[sectionKey]}
-                              onEdit={() => startEditingSection(sectionKey)}
-                            />
-                          )}
-                        </CanvasSectionShell>
-                      ),
-                    };
-                  }),
-                };
-
-                return (
-                  <PreviewDocumentRoot
-                    context={context}
-                    className="max-md:w-full!"
+          {isMobile ? (
+            // Mobile: fit the whole page to the viewport width (no horizontal
+            // scroll). Margins stay true to the exported PDF — we only scale.
+            <main className="flex-1 h-full min-h-0 overflow-y-auto overflow-x-hidden">
+              <div
+                ref={previewViewportRef}
+                className="w-full min-w-0 overflow-hidden px-2 py-4"
+              >
+                <div className="flex w-full min-w-0 justify-center overflow-hidden">
+                  <div
+                    className="relative shrink-0 overflow-visible"
+                    style={{
+                      width: previewShellSize.width || undefined,
+                      height: previewShellSize.height || undefined,
+                    }}
                   >
-                    <template.Component context={context} slots={slots} />
-
-                    {hiddenSectionKeys.length > 0 ? (
-                      <div className="pt-6 flex flex-wrap justify-center gap-2 print:hidden border-t border-dashed">
-                        {hiddenSectionKeys.map((key) => (
-                          <Button
-                            key={key}
-                            type="button"
-                            variant="outline"
-                            className="rounded-full font-sans!"
-                            onClick={() => {
-                              setSectionVisibility(key, true);
-                              startEditingSection(key);
-                            }}
-                          >
-                            <PlusIcon data-icon="inline-start" />
-                            Add {sectionLabels[key]}
-                          </Button>
-                        ))}
-                      </div>
-                    ) : null}
-                  </PreviewDocumentRoot>
-                );
-              })()}
-            </div>
-          </main>
+                    <div
+                      ref={previewSheetRef}
+                      className="absolute left-0 top-0 print:static print:transform-none"
+                      style={{
+                        transform:
+                          previewScale < 1
+                            ? `scale(${previewScale})`
+                            : undefined,
+                        transformOrigin: "top left",
+                      }}
+                    >
+                      {previewDocument}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </main>
+          ) : (
+            <main className="flex flex-1 justify-center overflow-x-auto overflow-y-auto h-full px-3 py-6 sm:px-6 sm:py-10">
+              <div style={{ zoom }} className="origin-top print:zoom-[1]">
+                {previewDocument}
+              </div>
+            </main>
+          )}
 
           {/* Desktop side rail */}
           <aside className="sticky top-0 hidden h-full w-80 shrink-0 overflow-hidden border-l bg-background lg:flex lg:flex-col print:hidden">
