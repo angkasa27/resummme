@@ -75,3 +75,21 @@ export function getOrderedSectionKeys(sections: ResumeDraft["sections"]) {
 export function getOrderedVisibleSectionKeys(sections: ResumeDraft["sections"]) {
   return getOrderedSectionKeys(sections).filter((sectionKey) => sections[sectionKey].visible);
 }
+
+/**
+ * Splits the ordered collection sections into the visible (drag-sortable) keys
+ * and the hidden keys offered by the "Add section" menu. Shared by the desktop
+ * accordion and the mobile section list.
+ */
+export function partitionCollectionKeys(sections: ResumeDraft["sections"]) {
+  const ordered = getOrderedSectionKeys(sections);
+  const sortableKeys = ordered.filter(
+    (key): key is CollectionSectionKey =>
+      isCollectionSectionKey(key) && sections[key].visible
+  );
+  const hiddenKeys = ordered.filter(
+    (key): key is CollectionSectionKey =>
+      isCollectionSectionKey(key) && !sections[key].visible
+  );
+  return { sortableKeys, hiddenKeys };
+}

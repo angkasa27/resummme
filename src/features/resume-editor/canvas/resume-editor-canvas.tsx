@@ -42,9 +42,9 @@ import { ExtractCvDialog } from "@/features/resume-editor/canvas/controls/extrac
 import { PdfImportProgress } from "@/features/resume-editor/canvas/controls/pdf-import-progress";
 import { CanvasSectionShell } from "@/features/resume-editor/canvas/canvas-section-shell";
 import {
-  CanvasControlPanel,
+  EditorControlPanel,
   ZOOM_DEFAULT,
-} from "@/features/resume-editor/canvas/canvas-control-panel";
+} from "@/features/resume-editor/shared/editor-control-panel";
 import { CanvasCollectionForm } from "@/features/resume-editor/canvas/forms/canvas-collection-form";
 import { CanvasProfileForm } from "@/features/resume-editor/canvas/forms/canvas-profile-form";
 import { CanvasSummaryForm } from "@/features/resume-editor/canvas/forms/canvas-summary-form";
@@ -369,7 +369,6 @@ export function ResumeEditorCanvas({
                             key={key}
                             type="button"
                             variant="outline"
-                            // size="sm"
                             className="rounded-full font-sans!"
                             onClick={() => {
                               setSectionVisibility(key, true);
@@ -390,7 +389,7 @@ export function ResumeEditorCanvas({
 
           {/* Desktop side rail */}
           <aside className="sticky top-0 hidden h-full w-80 shrink-0 overflow-hidden border-l bg-background lg:flex lg:flex-col print:hidden">
-            <CanvasControlPanel {...controlPanelProps} />
+            <EditorControlPanel {...controlPanelProps} />
           </aside>
         </div>
 
@@ -481,7 +480,7 @@ export function ResumeEditorCanvas({
                 Style your resume and import or export your draft.
               </SheetDescription>
             </SheetHeader>
-            <CanvasControlPanel {...controlPanelProps} />
+            <EditorControlPanel {...controlPanelProps} />
           </SheetContent>
         </Sheet>
 

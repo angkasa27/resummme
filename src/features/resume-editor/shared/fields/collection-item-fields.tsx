@@ -104,7 +104,7 @@ export function CollectionItemFields({
   }
 
   return (
-    <FieldGroup className="grid gap-3 @sm/form:grid-cols-2">
+    <FieldGroup className="grid grid-cols-1 gap-3 @sm/form:grid-cols-2">
       {config.fields.map((fieldConfig) => {
         if (
           fieldConfig.kind === "text" ||
@@ -225,6 +225,7 @@ export function CollectionItemFields({
                   rows={3}
                   placeholder={fieldConfig.placeholder}
                   aria-invalid={fieldState.invalid || undefined}
+                  className="not-disabled:bg-background!"
                   {...register(fieldName as never)}
                 />
                 <FieldError errors={[fieldState.error]} />
@@ -426,6 +427,7 @@ export function CollectionItemFields({
           return (
             <Field
               key={fieldName}
+              className="@sm/form:col-span-2"
               data-invalid={fieldState.invalid || undefined}
             >
               <FieldLabel>
@@ -438,7 +440,7 @@ export function CollectionItemFields({
                   render={({ field }) => (
                     <Select value={field.value} onValueChange={field.onChange}>
                       <SelectTrigger
-                        className="w-full"
+                        className="w-full not-disabled:bg-background"
                         aria-invalid={fieldState.invalid || undefined}
                       >
                         <SelectValue placeholder="Select proficiency level" />

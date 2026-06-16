@@ -1,13 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import type { ReactNode } from "react";
 
-import {
-  SidebarProvider,
-  SidebarInset,
-  SidebarTrigger,
-} from "@/components/ui/sidebar";
 import {
   ResizablePanelGroup,
   ResizablePanel,
@@ -15,14 +10,19 @@ import {
 } from "@/components/ui/resizable";
 import { Loader } from "lucide-react";
 
-import { ActiveSectionEditor } from "@/features/resume-editor/classic/sections/active-section-editor";
-import { useResumeEditorController } from "@/features/resume-editor/state/use-resume-editor-controller";
-import { ResumeEditorSidebar } from "@/features/resume-editor/classic/resume-editor-sidebar";
+import { SectionAccordion } from "@/features/resume-editor/classic/shell/section-accordion";
 import { ResumeEditorMobileContent } from "@/features/resume-editor/classic/shell/resume-editor-mobile-content";
+import { EditorControlPanel } from "@/features/resume-editor/shared/editor-control-panel";
+import { PreviewSheet } from "@/features/resume-editor/preview/components/preview-sheet";
+import { useResumeEditorController } from "@/features/resume-editor/state/use-resume-editor-controller";
 import { ExtractCvDialog } from "@/features/resume-editor/canvas/controls/extract-cv-dialog";
 import { PdfImportProgress } from "@/features/resume-editor/canvas/controls/pdf-import-progress";
 import { useEditorHeader } from "@/features/resume-editor/shared/use-editor-header";
-import { PreviewPane } from "@/features/resume-editor/preview/components/preview-pane";
+import { normalizePdfPresentation } from "@/features/resume-editor/domain/presentation/pdf-presentation";
+import {
+  isCollectionSectionKey,
+  type EditorPanelKey,
+} from "@/features/resume-editor/domain/sections/section-metadata";
 import { useClientReady } from "@/hooks/use-client-ready";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
@@ -95,6 +95,11 @@ export function ResumeEditorShell({
     },
   });
 
+  const presentation = useMemo(
+    () => normalizePdfPresentation(draft.pdfPresentation),
+    [draft.pdfPresentation],
+  );
+
   if (!isClientReady) {
     return (
       <div className="flex h-dvh items-center justify-center bg-background">
@@ -113,23 +118,41 @@ export function ResumeEditorShell({
     );
   }
 
-  // Built once, threaded into both desktop panes and the mobile content so the
-  // sidebar trigger and import/export controls live in Row 2 (per-pane headers).
-  const sidebarTrigger = <SidebarTrigger className="-ml-1" />;
-  const documentActions = {
-    onExtractCv: () => setIsExtractCvOpen(true),
+  // Opening a section from Insights: ensure it's visible, then make it active
+  // (the accordion expands it; the mobile content opens its form).
+  function openSection(panel: EditorPanelKey) {
+    if (
+      panel !== "profile" &&
+      isCollectionSectionKey(panel) &&
+      !draft.sections[panel].visible
+    ) {
+      setSectionVisibility(panel, true);
+    }
+    requestSectionChange(panel);
+  }
+
+  const sectionProps = {
+    draft,
+    activeSection,
+    onSelectSection: requestSectionChange,
+    onSaveProfile: saveProfile,
+    onSaveSection: saveSection,
+    onReorderSection: reorderSection,
+    onSetSectionVisibility: setSectionVisibility,
+  };
+
+  const controlPanelProps = {
+    presentation,
+    draft,
+    onPresentationChange: savePdfPresentation,
     onImportJson: openJsonImportPicker,
-    onExportJson: handleExport,
+    onExtractCv: () => setIsExtractCvOpen(true),
+    onExport: handleExport,
     onExportPdf: handlePrint,
+    onOpenSection: openSection,
     isExportingPdf,
     isImportingPdf,
   };
-
-  function handleOpenPreviewSection(panel: Parameters<typeof requestSectionChange>[0]) {
-    if (panel !== "profile" && panel !== "summary") {
-      requestSectionChange(panel);
-    }
-  }
 
   return (
     <div
@@ -144,8 +167,7 @@ export function ResumeEditorShell({
         onChange={handleJsonImport}
       />
 
-      {/* AI PDF import — same highlighted flow as canvas, surfaced from the
-          "Extract from PDF" action instead of being buried in an import menu. */}
+      {/* AI PDF import — same highlighted flow as canvas. */}
       <ExtractCvDialog
         open={isExtractCvOpen}
         onOpenChange={setIsExtractCvOpen}
@@ -157,66 +179,37 @@ export function ResumeEditorShell({
       <PdfImportProgress open={isImportingPdf} />
 
       <div className="min-h-0 flex-1">
-        <SidebarProvider
-          defaultOpen={true}
-          className="h-full min-h-0"
-          style={
-            { "--sidebar-width": "260px", minHeight: 0 } as React.CSSProperties
-          }
-        >
-          <ResumeEditorSidebar
-            draft={draft}
-            activeSection={activeSection}
-            onRequestSectionChange={requestSectionChange}
-            onReorderSection={reorderSection}
-            onSetSectionVisibility={setSectionVisibility}
-          />
-
-          <SidebarInset className="flex min-h-0 flex-col overflow-hidden">
-            {/* Main content: resizable editor + preview (Row 2 lives in each pane header) */}
-            <div className="min-h-0 flex-1 overflow-hidden">
-              {/* Desktop: resizable split */}
-              <div className="hidden h-full lg:block">
-                <ResizablePanelGroup orientation="horizontal">
-                  <ResizablePanel defaultSize={50} minSize={35}>
-                    <div className="h-full overflow-hidden">
-                      <ActiveSectionEditor
-                        draft={draft}
-                        activeSection={activeSection}
-                        onSaveProfile={saveProfile}
-                        onSaveSection={saveSection}
-                        leading={sidebarTrigger}
-                      />
-                    </div>
-                  </ResizablePanel>
-                  <ResizableHandle withHandle />
-                  <ResizablePanel defaultSize={50} minSize={30}>
-                    <div className="h-full overflow-hidden bg-muted">
-                      <PreviewPane
-                        draft={draft}
-                        onSavePdfPresentation={savePdfPresentation}
-                        onOpenSection={handleOpenPreviewSection}
-                        documentActions={documentActions}
-                      />
-                    </div>
-                  </ResizablePanel>
-                </ResizablePanelGroup>
+        {/* Desktop: Editor · Preview · Controls — resizable rails that default to
+            the canvas width (320px) but can be dragged wider/narrower. */}
+        <div className="hidden h-full lg:block">
+          <ResizablePanelGroup orientation="horizontal">
+            <ResizablePanel defaultSize="320px" minSize="240px" maxSize="460px">
+              <div className="h-full overflow-hidden">
+                <SectionAccordion {...sectionProps} />
               </div>
+            </ResizablePanel>
+            <ResizableHandle withHandle />
+            <ResizablePanel minSize="22rem">
+              <div className="h-full overflow-hidden bg-muted">
+                <PreviewSheet draft={draft} presentation={presentation} />
+              </div>
+            </ResizablePanel>
+            <ResizableHandle withHandle />
+            <ResizablePanel defaultSize="320px" minSize="240px" maxSize="460px">
+              <div className="h-full overflow-hidden border-l">
+                <EditorControlPanel {...controlPanelProps} />
+              </div>
+            </ResizablePanel>
+          </ResizablePanelGroup>
+        </div>
 
-              {/* Mobile/Tablet: stacked with toggle */}
-              <ResumeEditorMobileContent
-                draft={draft}
-                activeSection={activeSection}
-                onSaveProfile={saveProfile}
-                onSaveSection={saveSection}
-                onSavePdfPresentation={savePdfPresentation}
-                onOpenSection={handleOpenPreviewSection}
-                leading={sidebarTrigger}
-                documentActions={documentActions}
-              />
-            </div>
-          </SidebarInset>
-        </SidebarProvider>
+        {/* Mobile/Tablet: full-screen tabbed app */}
+        <ResumeEditorMobileContent
+          sectionProps={sectionProps}
+          controlPanelProps={controlPanelProps}
+          draft={draft}
+          presentation={presentation}
+        />
       </div>
     </div>
   );

@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { ReactNode } from "react";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import {
   ArrowDownIcon,
@@ -13,10 +12,14 @@ import {
   Trash2Icon,
 } from "lucide-react";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { ConfirmDeleteDialog } from "@/components/ui/confirm-delete-dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { collectionSectionConfigs } from "@/features/resume-editor/domain/sections/collection-section-config";
 import type { CollectionSectionKey } from "@/features/resume-editor/domain/sections/section-metadata";
 import { normalizeCollectionItem } from "@/features/resume-editor/domain/sections/normalize-collection-item";
@@ -25,32 +28,33 @@ import { createFormSchemaResolver } from "@/features/resume-editor/forms/schemas
 import { useAutoSave } from "@/features/resume-editor/forms/use-auto-save";
 import { useSyncedFormValues } from "@/features/resume-editor/forms/use-synced-form-values";
 import { CollectionItemFields } from "@/features/resume-editor/shared/fields/collection-item-fields";
-import { EditorCard } from "@/features/resume-editor/classic/sections/editor-card";
 import { sortResumeItems } from "@/features/resume-editor/domain/sections/sort-resume-items";
 import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
 type CollectionSectionFormValues = {
   items: ResumeDraft["sections"][CollectionSectionKey]["items"];
 };
 
-type CollectionSectionPanelProps = {
+type CollectionSectionBodyProps = {
   draft: ResumeDraft;
   sectionKey: CollectionSectionKey;
   onSave: (sectionValue: ResumeDraft["sections"][CollectionSectionKey]) => void;
-  leading?: ReactNode;
+  /** Hides the whole section (keeps its data). Rendered as the toolbar's
+   * "Remove section" action; omitted when the section can't be removed. */
+  onRemoveSection?: () => void;
 };
 
-export function CollectionSectionPanel({
+/**
+ * Headerless collection editor (item cards with collapse/move/delete, auto-sort,
+ * add, auto-save). Used inside the desktop accordion and the mobile full-screen
+ * form — the surrounding row/header supplies the section title.
+ */
+export function CollectionSectionBody({
   draft,
   sectionKey,
   onSave,
-  leading,
-}: CollectionSectionPanelProps) {
+  onRemoveSection,
+}: CollectionSectionBodyProps) {
   const config = collectionSectionConfigs[sectionKey];
   const sectionValue = draft.sections[sectionKey];
   const formValues = useMemo<CollectionSectionFormValues>(
@@ -75,15 +79,8 @@ export function CollectionSectionPanel({
     reValidateMode: "onChange",
   });
   const { control } = form;
-  const currentItems = useWatch({
-    control,
-    name: "items",
-  });
-  const items = useFieldArray({
-    control,
-    name: "items",
-    keyName: "fieldKey",
-  });
+  const currentItems = useWatch({ control, name: "items" });
+  const items = useFieldArray({ control, name: "items", keyName: "fieldKey" });
 
   const [shrunkIds, setShrunkIds] = useState<Set<string>>(
     () => new Set(items.fields.slice(1).map((f) => f.fieldKey)),
@@ -105,26 +102,35 @@ export function CollectionSectionPanel({
   function toggleShrunk(id: string) {
     setShrunkIds((prev) => {
       const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
-      }
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
       return next;
     });
   }
 
+  const dateRangeField = config.fields.find((f) => f.kind === "dateRange");
+
+  function autoSort() {
+    if (!dateRangeField || dateRangeField.kind !== "dateRange") return;
+    const sorted = sortResumeItems(
+      form.getValues().items as unknown as Record<string, unknown>[],
+      dateRangeField.startName,
+      dateRangeField.endName,
+    );
+    form.setValue(
+      "items",
+      sorted as unknown as CollectionSectionFormValues["items"],
+      { shouldDirty: true },
+    );
+  }
+
   return (
-    <EditorCard
-      title={config.title}
-      leading={leading}
-      meta={
-        <div className="flex items-center gap-2 flex-1 justify-between">
-          <Badge variant="secondary">
-            {currentItems?.length ?? 0} item
-            {(currentItems?.length ?? 0) === 1 ? "" : "s"}
-          </Badge>
-          {config.fields.some((f) => f.kind === "dateRange") && (
+    <div className="flex flex-col gap-3">
+      {/* Section toolbar: Auto-sort (when items carry a date range) + Remove.
+          The section row already shows the item count. */}
+      {dateRangeField || onRemoveSection ? (
+        <div className="flex items-center gap-2">
+          {dateRangeField ? (
             <Tooltip>
               <TooltipTrigger
                 render={
@@ -132,29 +138,7 @@ export function CollectionSectionPanel({
                     type="button"
                     variant="outline"
                     size="sm"
-                    onClick={() => {
-                      const dateRangeField = config.fields.find(
-                        (f) => f.kind === "dateRange",
-                      );
-                      if (
-                        dateRangeField &&
-                        dateRangeField.kind === "dateRange"
-                      ) {
-                        const sorted = sortResumeItems(
-                          form.getValues().items as unknown as Record<
-                            string,
-                            unknown
-                          >[],
-                          dateRangeField.startName,
-                          dateRangeField.endName,
-                        );
-                        form.setValue(
-                          "items",
-                          sorted as unknown as CollectionSectionFormValues["items"],
-                          { shouldDirty: true },
-                        );
-                      }
-                    }}
+                    onClick={autoSort}
                     aria-label="Auto-sort items by date range"
                   >
                     <ArrowDownNarrowWide />
@@ -164,10 +148,22 @@ export function CollectionSectionPanel({
               />
               <TooltipContent>Sort items by date range</TooltipContent>
             </Tooltip>
-          )}
+          ) : null}
+          {onRemoveSection ? (
+            <Button
+              type="button"
+              variant="destructive"
+              size="sm"
+              className="ml-auto"
+              onClick={onRemoveSection}
+            >
+              <Trash2Icon />
+              Remove section
+            </Button>
+          ) : null}
         </div>
-      }
-    >
+      ) : null}
+
       {items.fields.length === 0 ? (
         <div className="rounded-md border border-dashed px-4 py-6 text-center text-sm text-muted-foreground">
           No items added yet. Add the first entry to bring this section into the
@@ -179,10 +175,10 @@ export function CollectionSectionPanel({
             <section
               key={field.fieldKey}
               data-testid="collection-item-card"
-              className="flex flex-col rounded-lg border border-border shadow-[inset_0_1px_0_rgba(255,255,255,0.75)] overflow-hidden"
+              className="flex flex-col overflow-hidden rounded-lg border border-border shadow-[inset_0_1px_0_rgba(255,255,255,0.75)]"
             >
               <div className="flex items-center justify-between gap-3 bg-background px-3 py-2">
-                <div className="flex items-center gap-1 min-w-0">
+                <div className="flex min-w-0 items-center gap-1">
                   <Button
                     type="button"
                     variant="ghost"
@@ -214,7 +210,6 @@ export function CollectionSectionPanel({
                         item?.language ||
                         item?.categoryName ||
                         item?.organizationName) as string | undefined;
-
                       return (
                         representativeValue ||
                         `${config.itemTitle} ${index + 1}`
@@ -266,15 +261,15 @@ export function CollectionSectionPanel({
                   </Button>
                 </ButtonGroup>
               </div>
-              {!shrunkIds.has(field.fieldKey) && (
-                <div className="p-3 border-t bg-muted/50">
+              {!shrunkIds.has(field.fieldKey) ? (
+                <div className="border-t bg-muted/50 p-3">
                   <CollectionItemFields
                     config={config}
                     form={form}
                     index={index}
                   />
                 </div>
-              )}{" "}
+              ) : null}
             </section>
           ))}
         </div>
@@ -282,7 +277,7 @@ export function CollectionSectionPanel({
 
       <Button
         type="button"
-        className="mt-3 w-full"
+        className="w-full"
         onClick={() => items.append(config.createItem() as never)}
       >
         <PlusIcon data-icon="inline-start" />
@@ -299,6 +294,6 @@ export function CollectionSectionPanel({
         title={`Remove ${config.itemTitle.toLowerCase()}?`}
         description="This item will be permanently removed from the section."
       />
-    </EditorCard>
+    </div>
   );
 }
