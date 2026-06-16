@@ -459,7 +459,7 @@ export function ResumeEditorCanvas({
           );
         })()}
 
-        {/* Mobile FAB → Sheet drawer */}
+        {/* Mobile FAB → bottom drawer */}
         <Sheet open={isMobilePanelOpen} onOpenChange={setIsMobilePanelOpen}>
           <SheetTrigger
             render={
@@ -473,14 +473,19 @@ export function ResumeEditorCanvas({
           >
             <SlidersHorizontalIcon className="size-5" />
           </SheetTrigger>
-          <SheetContent side="right" className="w-[88%] max-w-sm p-0">
-            <SheetHeader className="border-b">
+          <SheetContent
+            side="bottom"
+            className="h-[90vh] max-h-[90vh] rounded-t-2xl p-0 gap-0"
+          >
+            <SheetHeader className="shrink-0 border-b">
               <SheetTitle>Controls</SheetTitle>
               <SheetDescription>
                 Style your resume and import or export your draft.
               </SheetDescription>
             </SheetHeader>
-            <EditorControlPanel {...controlPanelProps} />
+            <div className="min-h-0 flex-1 overflow-y-auto relative">
+              <EditorControlPanel {...controlPanelProps} layout="flow" />
+            </div>
           </SheetContent>
         </Sheet>
 

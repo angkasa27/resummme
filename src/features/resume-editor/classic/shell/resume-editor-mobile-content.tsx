@@ -255,7 +255,7 @@ export function ResumeEditorMobileContent({
             ) : null}
 
             {tab === "preview" ? (
-              <div className="h-full overflow-hidden bg-muted">
+              <div className="h-full overflow-hidden bg-muted [&>div]:pb-18">
                 <PreviewSheet draft={draft} presentation={presentation} />
               </div>
             ) : null}

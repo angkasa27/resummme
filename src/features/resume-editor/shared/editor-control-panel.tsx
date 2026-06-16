@@ -8,6 +8,7 @@ import {
   TelescopeIcon,
 } from "lucide-react";
 
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -18,6 +19,7 @@ import { TemplateTab } from "@/features/resume-editor/shared/template-tab";
 import type { PdfPresentation } from "@/features/resume-editor/domain/presentation/pdf-presentation";
 import type { EditorPanelKey } from "@/features/resume-editor/domain/sections/section-metadata";
 import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export const ZOOM_MIN = 0.5;
 export const ZOOM_MAX = 1.5;
@@ -39,6 +41,12 @@ type EditorControlPanelProps = {
    * classic editor auto-fits its preview, so it omits them). */
   zoom?: number;
   onZoomChange?: (next: number) => void;
+  /**
+   * Layout mode. `"panel"` (default, desktop): fixed height with each tab's
+   * content scrolling internally. `"flow"` (mobile drawer): the whole panel
+   * flows in the parent's scroll area and the tabs list sticks to the top.
+   */
+  layout?: "panel" | "flow";
 };
 
 /**
@@ -58,15 +66,25 @@ export function EditorControlPanel({
   isImportingPdf = false,
   zoom,
   onZoomChange,
+  layout = "panel",
 }: EditorControlPanelProps) {
+  const isMobile = useIsMobile();
   function clampZoom(value: number) {
     return Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, value));
   }
 
-  const showZoom = onZoomChange !== undefined && zoom !== undefined;
+  const showZoom =
+    onZoomChange !== undefined && zoom !== undefined && !isMobile;
+  const isFlow = layout === "flow";
+  const tabContentClassName = cn(
+    "pt-1.5 pb-3 px-4",
+    !isFlow && "min-h-0 overflow-y-auto",
+  );
 
   return (
-    <div className="flex h-full min-h-0 flex-col">
+    <div
+      className={cn("flex flex-col", isFlow ? "min-h-full" : "h-full min-h-0")}
+    >
       {/* Document section (fixed top) */}
       <EditorDocumentActions
         className="shrink-0 px-4 py-4"
@@ -81,8 +99,16 @@ export function EditorControlPanel({
       <Separator />
 
       {/* Tabs */}
-      <Tabs defaultValue="template" className="min-h-0 flex-1">
-        <div className="px-4 pt-3">
+      <Tabs
+        defaultValue="template"
+        className={cn("flex flex-col", isFlow ? "flex-1" : "min-h-0 flex-1")}
+      >
+        <div
+          className={cn(
+            "px-4 pt-3",
+            isFlow && "sticky top-[-1px] z-10 bg-popover pb-2",
+          )}
+        >
           <TabsList className="w-full shrink-0">
             <TabsTrigger value="template">
               <LayoutTemplateIcon />
@@ -98,26 +124,20 @@ export function EditorControlPanel({
           </TabsList>
         </div>
 
-        <TabsContent
-          value="template"
-          className="min-h-0 overflow-y-auto pt-1.5 pb-3 px-4"
-        >
+        <TabsContent value="template" className={tabContentClassName}>
           <TemplateTab
             presentation={presentation}
             draft={draft}
             onChange={onPresentationChange}
           />
         </TabsContent>
-        <TabsContent
-          value="style"
-          className="min-h-0 overflow-y-auto pt-1.5 pb-3 px-4"
-        >
-          <StyleTab presentation={presentation} onChange={onPresentationChange} />
+        <TabsContent value="style" className={tabContentClassName}>
+          <StyleTab
+            presentation={presentation}
+            onChange={onPresentationChange}
+          />
         </TabsContent>
-        <TabsContent
-          value="insights"
-          className="min-h-0 overflow-y-auto pt-1.5 pb-3 px-4"
-        >
+        <TabsContent value="insights" className={tabContentClassName}>
           <InsightsTab draft={draft} onOpenSection={onOpenSection} />
         </TabsContent>
       </Tabs>
