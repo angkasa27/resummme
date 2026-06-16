@@ -128,14 +128,14 @@ export function MobileBottomNav({ value, onChange }: MobileBottomNavProps) {
       >
         <TabsList
           pillClassName="rounded-full bg-primary"
-          className="h-auto! gap-1 rounded-full border bg-background p-1.5 shadow-lg grid! grid-cols-4!"
+          className="h-auto! gap-1 rounded-full border bg-background p-1! shadow-lg grid! grid-cols-4!"
         >
           {ITEMS.map(({ key, label, render }) => (
             <TabsTrigger
               key={key}
               value={key}
               className={cn(
-                "h-auto flex-none flex-col rounded-full px-4 py-1.5 text-[10px] leading-none gap-0",
+                "h-auto flex-none flex-col rounded-full px-4 pt-0.5 pb-1.5 text-[10px] leading-none gap-0",
                 "text-muted-foreground hover:text-foreground",
                 "data-active:text-primary-foreground! dark:data-active:text-primary-foreground!",
               )}
