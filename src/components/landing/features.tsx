@@ -15,12 +15,10 @@ import { MonitorCheckIcon } from "@/components/ui/monitor-check";
 import { PenToolIcon } from "@/components/ui/pen-tool";
 import { SparklesIcon } from "@/components/ui/sparkles";
 
+import type { AnimatedIconHandle } from "@/components/ui/animated-icon";
+
 import { Reveal, RevealItem, RevealStagger } from "./reveal";
 
-type AnimatedIconHandle = {
-  startAnimation: () => void;
-  stopAnimation: () => void;
-};
 type AnimatedIcon = ForwardRefExoticComponent<
   HTMLAttributes<HTMLDivElement> & {
     size?: number;
@@ -107,8 +105,12 @@ function FeatureCard({ feature }: { feature: Feature }) {
     // card itself must never CSS-transition `transform` — that fight caused a
     // post-entrance drift. The hover lift goes through `whileHover` instead.
     <RevealItem
-      onMouseEnter={() => iconRef.current?.startAnimation()}
-      onMouseLeave={() => iconRef.current?.stopAnimation()}
+      onMouseEnter={
+        reduce ? undefined : () => iconRef.current?.startAnimation()
+      }
+      onMouseLeave={
+        reduce ? undefined : () => iconRef.current?.stopAnimation()
+      }
       whileHover={reduce ? undefined : { y: -4 }}
       className="group rounded-2xl shadow-sm transition-shadow duration-300 hover:shadow-lg hover:shadow-indigo-500/10 relative h-full overflow-hidden p-6 bg-background border"
     >

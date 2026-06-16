@@ -5,10 +5,12 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { ChevronDownIcon, ChevronRightIcon } from "lucide-react";
+import { ChevronRightIcon } from "lucide-react";
 import { useState } from "react";
 
+import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
+import { Collapse } from "@/features/resume-editor/shared/collapse";
 import { SectionBody } from "@/features/resume-editor/classic/sections/section-body";
 import { AddSectionMenu } from "@/features/resume-editor/shared/add-section-menu";
 import { SectionRow } from "@/features/resume-editor/shared/section-row";
@@ -121,7 +123,9 @@ export function SectionAccordion({
             onClick={() => handleRowClick("profile")}
             trailing={<DisclosureChevron open={expandedKey === "profile"} />}
           />
-          {expandedKey === "profile" ? renderBody("profile") : null}
+          <Collapse open={expandedKey === "profile"}>
+            {renderBody("profile")}
+          </Collapse>
         </div>
         <div>
           <SectionRow
@@ -131,7 +135,9 @@ export function SectionAccordion({
             onClick={() => handleRowClick("summary")}
             trailing={<DisclosureChevron open={expandedKey === "summary"} />}
           />
-          {expandedKey === "summary" ? renderBody("summary") : null}
+          <Collapse open={expandedKey === "summary"}>
+            {renderBody("summary")}
+          </Collapse>
         </div>
       </div>
 
@@ -159,9 +165,9 @@ export function SectionAccordion({
                   onClick={() => handleRowClick(key)}
                   trailing={<DisclosureChevron open={expandedKey === key} />}
                 >
-                  {expandedKey === key
-                    ? renderBody(key, () => onSetSectionVisibility(key, false))
-                    : null}
+                  <Collapse open={expandedKey === key}>
+                    {renderBody(key, () => onSetSectionVisibility(key, false))}
+                  </Collapse>
                 </SortableSectionRow>
               ))}
             </SortableContext>
@@ -180,9 +186,12 @@ export function SectionAccordion({
 }
 
 function DisclosureChevron({ open }: { open: boolean }) {
-  return open ? (
-    <ChevronDownIcon className="size-4 text-muted-foreground" />
-  ) : (
-    <ChevronRightIcon className="size-4 text-muted-foreground/60" />
+  return (
+    <ChevronRightIcon
+      className={cn(
+        "size-4 transition-transform duration-200",
+        open ? "rotate-90 text-muted-foreground" : "text-muted-foreground/60",
+      )}
+    />
   );
 }

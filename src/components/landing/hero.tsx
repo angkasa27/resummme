@@ -9,31 +9,19 @@ import {
   useReducedMotion,
   useScroll,
   useTransform,
-  type Variants,
 } from "motion/react";
 
 import { buttonVariants } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
+import { motionTokens } from "@/lib/motion-tokens";
 import { BuilderFrame } from "./builder-showcase";
 import { KineticText } from "./kinetic-text";
+// Shared landing entrance vocabulary — keeps the hero in lockstep with the rest
+// of the page's reveals (single source of timing/easing).
+import { blurUp as item, staggerContainer as container } from "./reveal";
 
 const GITHUB_URL = "https://github.com/angkasa27/resume-editor";
-
-const container: Variants = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.12, delayChildren: 0.08 } },
-};
-
-const item: Variants = {
-  hidden: { opacity: 0, y: 16, filter: "blur(8px)" },
-  show: {
-    opacity: 1,
-    y: 0,
-    filter: "blur(0px)",
-    transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] },
-  },
-};
 
 export function Hero() {
   const reduce = useReducedMotion();
@@ -142,12 +130,22 @@ export function Hero() {
       >
         <motion.div
           initial={
-            entrance ? { opacity: 0, y: 48, filter: "blur(16px)" } : false
+            entrance
+              ? {
+                  opacity: 0,
+                  y: motionTokens.distance.xl,
+                  filter: "blur(16px)",
+                }
+              : false
           }
           animate={
             entrance ? { opacity: 1, y: 0, filter: "blur(0px)" } : undefined
           }
-          transition={{ duration: 0.8, delay: 0.85, ease: [0.16, 1, 0.3, 1] }}
+          transition={{
+            duration: motionTokens.duration.deliberate,
+            delay: 0.85,
+            ease: motionTokens.easing.expo,
+          }}
           className="relative mx-auto max-w-6xl perspective-distant"
         >
           {/* ambient glow behind the frame */}

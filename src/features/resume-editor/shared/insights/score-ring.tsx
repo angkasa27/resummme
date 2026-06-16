@@ -66,7 +66,7 @@ export function ScoreRing({
             cy={size / 2}
             r={radius}
             className={cn(
-              "transition-all duration-300 ease-out",
+              "transition-[stroke-dashoffset,stroke] duration-300 ease-out",
               tone.stroke,
             )}
             strokeWidth={strokeWidth}

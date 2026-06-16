@@ -7,21 +7,28 @@ import {
   type Variants,
 } from "motion/react";
 
-const EASE = [0.16, 1, 0.3, 1] as const;
+import { motionTokens } from "@/lib/motion-tokens";
+
+/** Blur radius for the landing "blur-up" entrances — a deliberate landing-only
+ *  effect (the token set covers transform/opacity, not filter blur). */
+const BLUR = 10;
 
 /** Creative entrance: rises and clears from a blur (not a plain fade). */
 export const blurUp: Variants = {
-  hidden: { opacity: 0, y: 28, filter: "blur(10px)" },
+  hidden: { opacity: 0, y: motionTokens.distance.lg, filter: `blur(${BLUR}px)` },
   show: {
     opacity: 1,
     y: 0,
     filter: "blur(0px)",
-    transition: { duration: 0.55, ease: EASE },
+    transition: {
+      duration: motionTokens.duration.slow,
+      ease: motionTokens.easing.expo,
+    },
   },
 };
 
 /** Parent that cascades its <RevealItem> children in DOM order on scroll-in. */
-const staggerContainer: Variants = {
+export const staggerContainer: Variants = {
   hidden: {},
   show: { transition: { staggerChildren: 0.08, delayChildren: 0.05 } },
 };
@@ -35,12 +42,24 @@ export function Reveal({
   const reduce = useReducedMotion();
   return (
     <motion.div
-      initial={reduce ? false : { opacity: 0, y: 28, filter: "blur(10px)" }}
+      initial={
+        reduce
+          ? false
+          : {
+              opacity: 0,
+              y: motionTokens.distance.lg,
+              filter: `blur(${BLUR}px)`,
+            }
+      }
       whileInView={
         reduce ? undefined : { opacity: 1, y: 0, filter: "blur(0px)" }
       }
       viewport={{ once: true, margin: "0px 0px -10% 0px" }}
-      transition={{ duration: 0.55, delay, ease: EASE }}
+      transition={{
+        duration: motionTokens.duration.slow,
+        delay,
+        ease: motionTokens.easing.expo,
+      }}
       {...rest}
     >
       {children}

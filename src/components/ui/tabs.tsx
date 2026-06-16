@@ -1,28 +1,28 @@
 "use client";
 
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from "react";
+import { createContext, useContext, useId, useState } from "react";
 import { Tabs as TabsPrimitive } from "@base-ui/react/tabs";
 import { cva, type VariantProps } from "class-variance-authority";
-import { motion } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 
 import { cn } from "@/lib/utils";
+import { motionTokens, springs } from "@/lib/motion-tokens";
 
 const DEFAULT_PILL = "bg-background shadow-sm dark:bg-input/30";
 
-/** The active tab value, so the list can find the trigger to track. */
+/** The active tab value, so each trigger knows whether to host the pill. */
 const TabsValueContext = createContext<string>("");
 
-/** Lets each trigger hand its DOM node to the list for measurement. */
-const TabsRegisterContext = createContext<
-  ((value: string, node: HTMLElement | null) => void) | null
->(null);
+/** Per-list pill config. The active trigger renders the pill as its own
+ *  `inset-0` background; a list-unique `layoutId` makes motion slide it between
+ *  triggers via transforms (no width/height animation, no measurement). The
+ *  unique id also keeps sibling Tabs instances from sharing one pill. */
+type PillContextValue = {
+  pillClassName: string;
+  showPill: boolean;
+  layoutId: string;
+};
+const TabsPillContext = createContext<PillContextValue | null>(null);
 
 function Tabs({
   className,
@@ -32,7 +32,7 @@ function Tabs({
   onValueChange,
   ...props
 }: TabsPrimitive.Root.Props) {
-  // Mirror base-ui's value so the list can read the active tab during render.
+  // Mirror base-ui's value so triggers can read the active tab during render.
   // Controlled lists pass `value`; uncontrolled lists track it here.
   const [internalValue, setInternalValue] = useState<string>(
     typeof defaultValue === "string" ? defaultValue : "",
@@ -44,7 +44,10 @@ function Tabs({
       <TabsPrimitive.Root
         data-slot="tabs"
         data-orientation={orientation}
-        className={cn("group/tabs flex gap-2 data-horizontal:flex-col", className)}
+        className={cn(
+          "group/tabs flex gap-2 data-horizontal:flex-col",
+          className,
+        )}
         value={value}
         defaultValue={defaultValue}
         onValueChange={(next, details) => {
@@ -72,97 +75,43 @@ const tabsListVariants = cva(
   },
 );
 
-type IndicatorRect = {
-  left: number;
-  top: number;
-  width: number;
-  height: number;
-};
-
 function TabsList({
   className,
   variant = "default",
   pillClassName = DEFAULT_PILL,
-  children,
   ...props
 }: TabsPrimitive.List.Props &
   VariantProps<typeof tabsListVariants> & { pillClassName?: string }) {
-  const activeValue = useContext(TabsValueContext);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const nodesRef = useRef(new Map<string, HTMLElement>());
-  const [indicator, setIndicator] = useState<IndicatorRect | null>(null);
-
-  const register = useCallback((value: string, node: HTMLElement | null) => {
-    if (node) nodesRef.current.set(value, node);
-    else nodesRef.current.delete(value);
-  }, []);
-
-  // Measure the active trigger relative to the list, so a single persistent
-  // pill can slide to it. Tracking by value (not by element) keeps this stable
-  // even when a trigger swaps its element type (button <-> link) on activation.
-  const measure = useCallback(() => {
-    const container = containerRef.current;
-    const node = nodesRef.current.get(activeValue);
-    if (!container || !node) return;
-    const c = container.getBoundingClientRect();
-    const n = node.getBoundingClientRect();
-    setIndicator({
-      left: n.left - c.left,
-      top: n.top - c.top,
-      width: n.width,
-      height: n.height,
-    });
-  }, [activeValue]);
-
-  useLayoutEffect(() => {
-    measure();
-    const container = containerRef.current;
-    if (!container || typeof ResizeObserver === "undefined") return;
-    const observer = new ResizeObserver(measure);
-    observer.observe(container);
-    return () => observer.disconnect();
-  }, [measure]);
+  // One stable id per list — the pill's shared-layout namespace.
+  const layoutId = useId();
 
   return (
-    <TabsRegisterContext.Provider value={register}>
+    <TabsPillContext.Provider
+      value={{ pillClassName, showPill: variant !== "line", layoutId }}
+    >
       <TabsPrimitive.List
-        ref={containerRef}
         data-slot="tabs-list"
         data-variant={variant}
         className={cn(tabsListVariants({ variant }), className)}
         {...props}
-      >
-        {variant !== "line" && indicator && (
-          <motion.span
-            aria-hidden
-            className={cn("absolute left-0 top-0 rounded-md", pillClassName)}
-            // initial={false}: appear in place on first paint, slide thereafter.
-            initial={false}
-            animate={{
-              x: indicator.left,
-              y: indicator.top,
-              width: indicator.width,
-              height: indicator.height,
-            }}
-            transition={{ type: "spring", bounce: 0.15, duration: 0.35 }}
-          />
-        )}
-        {children}
-      </TabsPrimitive.List>
-    </TabsRegisterContext.Provider>
+      />
+    </TabsPillContext.Provider>
   );
 }
 
 function TabsTrigger({
   className,
   value,
+  children,
   ...props
 }: TabsPrimitive.Tab.Props) {
-  const register = useContext(TabsRegisterContext);
+  const activeValue = useContext(TabsValueContext);
+  const pill = useContext(TabsPillContext);
+  const reduceMotion = useReducedMotion();
+  const isActive = !!pill?.showPill && String(value) === activeValue;
 
   return (
     <TabsPrimitive.Tab
-      ref={(node) => register?.(String(value), node)}
       data-slot="tabs-trigger"
       value={value}
       className={cn(
@@ -177,17 +126,53 @@ function TabsTrigger({
         className,
       )}
       {...props}
-    />
+    >
+      {/* Sliding pill — only the active trigger hosts it; the shared `layoutId`
+          animates it across triggers via transforms. Reduced motion snaps it
+          in place (Rule 3). */}
+      {isActive && pill ? (
+        <motion.span
+          aria-hidden
+          layoutId={pill.layoutId}
+          className={cn("absolute inset-0 -z-10 rounded-md", pill.pillClassName)}
+          transition={reduceMotion ? { duration: 0 } : springs.pill}
+        />
+      ) : null}
+      {children}
+    </TabsPrimitive.Tab>
   );
 }
 
-function TabsContent({ className, ...props }: TabsPrimitive.Panel.Props) {
+function TabsContent({
+  className,
+  children,
+  ...props
+}: TabsPrimitive.Panel.Props) {
+  const reduceMotion = useReducedMotion();
   return (
     <TabsPrimitive.Panel
       data-slot="tabs-content"
       className={cn("flex-1 text-sm outline-none", className)}
       {...props}
-    />
+    >
+      {/* Enter animation on each tab change — base-ui unmounts the inactive
+          panel, so the active one mounts fresh and this fades/slides it in.
+          Reduced motion drops the transform to an opacity-only fade. */}
+      <motion.div
+        initial={{ opacity: 0, y: reduceMotion ? 0 : motionTokens.distance.sm }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={
+          reduceMotion
+            ? { duration: motionTokens.duration.fast }
+            : {
+                duration: motionTokens.duration.normal,
+                ease: motionTokens.easing.smooth,
+              }
+        }
+      >
+        {children}
+      </motion.div>
+    </TabsPrimitive.Panel>
   );
 }
 

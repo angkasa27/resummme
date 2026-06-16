@@ -6,7 +6,6 @@ import {
   ArrowDownIcon,
   ArrowDownNarrowWide,
   ArrowUpIcon,
-  ChevronDownIcon,
   ChevronRightIcon,
   PlusIcon,
   Trash2Icon,
@@ -28,8 +27,10 @@ import { createFormSchemaResolver } from "@/features/resume-editor/forms/schemas
 import { useAutoSave } from "@/features/resume-editor/forms/use-auto-save";
 import { useSyncedFormValues } from "@/features/resume-editor/forms/use-synced-form-values";
 import { CollectionItemFields } from "@/features/resume-editor/shared/fields/collection-item-fields";
+import { Collapse } from "@/features/resume-editor/shared/collapse";
 import { sortResumeItems } from "@/features/resume-editor/domain/sections/sort-resume-items";
 import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
+import { cn } from "@/lib/utils";
 
 type CollectionSectionFormValues = {
   items: ResumeDraft["sections"][CollectionSectionKey]["items"];
@@ -186,11 +187,12 @@ export function CollectionSectionBody({
                     className="shrink-0"
                     onClick={() => toggleShrunk(field.fieldKey)}
                   >
-                    {shrunkIds.has(field.fieldKey) ? (
-                      <ChevronRightIcon className="size-4" />
-                    ) : (
-                      <ChevronDownIcon className="size-4" />
-                    )}
+                    <ChevronRightIcon
+                      className={cn(
+                        "size-4 transition-transform duration-200",
+                        !shrunkIds.has(field.fieldKey) && "rotate-90",
+                      )}
+                    />
                   </Button>
                   <button
                     type="button"
@@ -261,7 +263,7 @@ export function CollectionSectionBody({
                   </Button>
                 </ButtonGroup>
               </div>
-              {!shrunkIds.has(field.fieldKey) ? (
+              <Collapse open={!shrunkIds.has(field.fieldKey)}>
                 <div className="border-t bg-muted/50 p-3">
                   <CollectionItemFields
                     config={config}
@@ -269,7 +271,7 @@ export function CollectionSectionBody({
                     index={index}
                   />
                 </div>
-              ) : null}
+              </Collapse>
             </section>
           ))}
         </div>
