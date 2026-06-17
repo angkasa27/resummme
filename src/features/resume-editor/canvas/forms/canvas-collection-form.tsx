@@ -3,6 +3,7 @@
 import { useEffect, useId, useMemo, useState } from "react";
 import { ConfirmDeleteDialog } from "@/components/ui/confirm-delete-dialog";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
+import { AnimatePresence, motion } from "motion/react";
 import {
   ArrowDownIcon,
   ArrowDownNarrowWide,
@@ -23,6 +24,7 @@ import { collectionSectionFormSchemaMap } from "@/features/resume-editor/forms/c
 import { createFormSchemaResolver } from "@/features/resume-editor/forms/schemas/create-form-schema-resolver";
 import { useSyncedFormValues } from "@/features/resume-editor/forms/use-synced-form-values";
 import { CollectionItemFields } from "@/features/resume-editor/shared/fields/collection-item-fields";
+import { useListItemMotion } from "@/features/resume-editor/shared/list-motion";
 import { sortResumeItems } from "@/features/resume-editor/domain/sections/sort-resume-items";
 import { normalizeCollectionItem } from "@/features/resume-editor/domain/sections/normalize-collection-item";
 import type { CollectionSectionKey } from "@/features/resume-editor/domain/sections/section-metadata";
@@ -91,6 +93,7 @@ export function CanvasCollectionForm({
   const [pendingDeleteIndex, setPendingDeleteIndex] = useState<number | null>(
     null,
   );
+  const itemMotion = useListItemMotion();
 
   useSyncedFormValues(form, formValues);
 
@@ -194,101 +197,104 @@ export function CanvasCollectionForm({
           </div>
         ) : (
           <div className="flex flex-col gap-2">
-            {items.fields.map((field, index) => {
-              const item = currentItems?.[index] as Record<string, unknown>;
-              const summary =
-                ((item?.companyName ||
-                  item?.projectName ||
-                  item?.name ||
-                  item?.title ||
-                  item?.certificationName ||
-                  item?.language ||
-                  item?.categoryName ||
-                  item?.organizationName) as string | undefined) ||
-                `${config.itemTitle} ${index + 1}`;
-              const isCollapsed = collapsedIds.has(field.fieldKey);
+            <AnimatePresence initial={false}>
+              {items.fields.map((field, index) => {
+                const item = currentItems?.[index] as Record<string, unknown>;
+                const summary =
+                  ((item?.companyName ||
+                    item?.projectName ||
+                    item?.name ||
+                    item?.title ||
+                    item?.certificationName ||
+                    item?.language ||
+                    item?.categoryName ||
+                    item?.organizationName) as string | undefined) ||
+                  `${config.itemTitle} ${index + 1}`;
+                const isCollapsed = collapsedIds.has(field.fieldKey);
 
-              return (
-                <section
-                  key={field.fieldKey}
-                  data-testid="collection-item-card"
-                  className="overflow-hidden rounded-md border bg-background/50"
-                >
-                  <div className="flex items-center justify-between gap-2 px-2 py-1.5">
-                    <button
-                      type="button"
-                      className="flex min-w-0 flex-1 items-center gap-1 text-left"
-                      onClick={() => toggleCollapsed(field.fieldKey)}
-                    >
-                      {isCollapsed ? (
-                        <ChevronRightIcon className="size-4 shrink-0 text-muted-foreground" />
-                      ) : (
-                        <ChevronDownIcon className="size-4 shrink-0 text-muted-foreground" />
-                      )}
-                      <span className="truncate text-sm font-medium">
-                        {summary}
-                      </span>
-                    </button>
-                    <ButtonGroup
-                      aria-label={`${config.itemTitle} ${index + 1} actions`}
-                    >
-                      <Button
+                return (
+                  <motion.section
+                    key={field.fieldKey}
+                    data-testid="collection-item-card"
+                    {...itemMotion}
+                    className="overflow-hidden rounded-md border bg-background/50"
+                  >
+                    <div className="flex items-center justify-between gap-2 px-2 py-1.5">
+                      <button
                         type="button"
-                        variant="outline"
-                        size="icon-sm"
-                        disabled={index === 0}
-                        aria-label={`Move up`}
-                        onClick={() =>
-                          index > 0 && items.move(index, index - 1)
-                        }
+                        className="flex min-w-0 flex-1 items-center gap-1 text-left"
+                        onClick={() => toggleCollapsed(field.fieldKey)}
                       >
-                        <ArrowUpIcon />
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="icon-sm"
-                        disabled={index === items.fields.length - 1}
-                        aria-label={`Move down`}
-                        onClick={() =>
-                          index < items.fields.length - 1 &&
-                          items.move(index, index + 1)
-                        }
+                        {isCollapsed ? (
+                          <ChevronRightIcon className="size-4 shrink-0 text-muted-foreground" />
+                        ) : (
+                          <ChevronDownIcon className="size-4 shrink-0 text-muted-foreground" />
+                        )}
+                        <span className="truncate text-sm font-medium">
+                          {summary}
+                        </span>
+                      </button>
+                      <ButtonGroup
+                        aria-label={`${config.itemTitle} ${index + 1} actions`}
                       >
-                        <ArrowDownIcon />
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        size="icon-sm"
-                        aria-label={`Remove`}
-                        disabled={items.fields.length === 1}
-                        className="border border-border! border-l-0"
-                        onClick={() =>
-                          items.fields.length > 1 &&
-                          setPendingDeleteIndex(index)
-                        }
-                      >
-                        <Trash2Icon className="text-destructive" />
-                      </Button>
-                    </ButtonGroup>
-                  </div>
-                  {!isCollapsed ? (
-                    <div className="border-t bg-muted/40 p-3">
-                      <CollectionItemFields
-                        config={config}
-                        form={
-                          form as unknown as Parameters<
-                            typeof CollectionItemFields
-                          >[0]["form"]
-                        }
-                        index={index}
-                      />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon-sm"
+                          disabled={index === 0}
+                          aria-label={`Move up`}
+                          onClick={() =>
+                            index > 0 && items.move(index, index - 1)
+                          }
+                        >
+                          <ArrowUpIcon />
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon-sm"
+                          disabled={index === items.fields.length - 1}
+                          aria-label={`Move down`}
+                          onClick={() =>
+                            index < items.fields.length - 1 &&
+                            items.move(index, index + 1)
+                          }
+                        >
+                          <ArrowDownIcon />
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="icon-sm"
+                          aria-label={`Remove`}
+                          disabled={items.fields.length === 1}
+                          className="border border-border! border-l-0"
+                          onClick={() =>
+                            items.fields.length > 1 &&
+                            setPendingDeleteIndex(index)
+                          }
+                        >
+                          <Trash2Icon className="text-destructive" />
+                        </Button>
+                      </ButtonGroup>
                     </div>
-                  ) : null}
-                </section>
-              );
-            })}
+                    {!isCollapsed ? (
+                      <div className="border-t bg-muted/40 p-3">
+                        <CollectionItemFields
+                          config={config}
+                          form={
+                            form as unknown as Parameters<
+                              typeof CollectionItemFields
+                            >[0]["form"]
+                          }
+                          index={index}
+                        />
+                      </div>
+                    ) : null}
+                  </motion.section>
+                );
+              })}
+            </AnimatePresence>
           </div>
         )}
         <ConfirmDeleteDialog

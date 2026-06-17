@@ -383,17 +383,19 @@ function MobileSectionList({
               items={sortableKeys}
               strategy={verticalListSortingStrategy}
             >
-              {sortableKeys.map((key) => (
-                <SortableSectionRow
-                  key={key}
-                  sectionKey={key}
-                  label={sectionLabels[key]}
-                  count={draft.sections[key].items.length}
-                  active={activeSection === key}
-                  onClick={() => onOpen(key)}
-                  trailing={navChevron}
-                />
-              ))}
+              <AnimatePresence initial={false}>
+                {sortableKeys.map((key) => (
+                  <SortableSectionRow
+                    key={key}
+                    sectionKey={key}
+                    label={sectionLabels[key]}
+                    count={draft.sections[key].items.length}
+                    active={activeSection === key}
+                    onClick={() => onOpen(key)}
+                    trailing={navChevron}
+                  />
+                ))}
+              </AnimatePresence>
             </SortableContext>
           </DndContext>
 

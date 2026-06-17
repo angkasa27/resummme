@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
+import { AnimatePresence, motion } from "motion/react";
 import {
   ArrowDownIcon,
   ArrowDownNarrowWide,
@@ -28,6 +29,7 @@ import { useAutoSave } from "@/features/resume-editor/forms/use-auto-save";
 import { useSyncedFormValues } from "@/features/resume-editor/forms/use-synced-form-values";
 import { CollectionItemFields } from "@/features/resume-editor/shared/fields/collection-item-fields";
 import { Collapse } from "@/features/resume-editor/shared/collapse";
+import { useListItemMotion } from "@/features/resume-editor/shared/list-motion";
 import { sortResumeItems } from "@/features/resume-editor/domain/sections/sort-resume-items";
 import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
 import { cn } from "@/lib/utils";
@@ -89,6 +91,7 @@ export function CollectionSectionBody({
   const [pendingDeleteIndex, setPendingDeleteIndex] = useState<number | null>(
     null,
   );
+  const itemMotion = useListItemMotion();
 
   useSyncedFormValues(form, formValues);
   useAutoSave(form, (values) => {
@@ -172,108 +175,111 @@ export function CollectionSectionBody({
         </div>
       ) : (
         <div className="flex flex-col gap-3">
-          {items.fields.map((field, index) => (
-            <section
-              key={field.fieldKey}
-              data-testid="collection-item-card"
-              className="flex flex-col overflow-hidden rounded-lg border border-border shadow-[inset_0_1px_0_rgba(255,255,255,0.75)]"
-            >
-              <div className="flex items-center justify-between gap-3 bg-background px-3 py-2">
-                <div className="flex min-w-0 items-center gap-1">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon-sm"
-                    className="shrink-0"
-                    onClick={() => toggleShrunk(field.fieldKey)}
+          <AnimatePresence initial={false}>
+            {items.fields.map((field, index) => (
+              <motion.section
+                key={field.fieldKey}
+                data-testid="collection-item-card"
+                {...itemMotion}
+                className="flex flex-col overflow-hidden rounded-lg border border-border shadow-[inset_0_1px_0_rgba(255,255,255,0.75)]"
+              >
+                <div className="flex items-center justify-between gap-3 bg-background px-3 py-2">
+                  <div className="flex min-w-0 items-center gap-1">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-sm"
+                      className="shrink-0"
+                      onClick={() => toggleShrunk(field.fieldKey)}
+                    >
+                      <ChevronRightIcon
+                        className={cn(
+                          "size-4 transition-transform duration-200",
+                          !shrunkIds.has(field.fieldKey) && "rotate-90",
+                        )}
+                      />
+                    </Button>
+                    <button
+                      type="button"
+                      className="truncate text-left text-sm font-semibold"
+                      onClick={() => toggleShrunk(field.fieldKey)}
+                    >
+                      {(() => {
+                        const item = currentItems?.[index] as Record<
+                          string,
+                          unknown
+                        >;
+                        const representativeValue = (item?.companyName ||
+                          item?.projectName ||
+                          item?.name ||
+                          item?.title ||
+                          item?.certificationName ||
+                          item?.language ||
+                          item?.categoryName ||
+                          item?.organizationName) as string | undefined;
+                        return (
+                          representativeValue ||
+                          `${config.itemTitle} ${index + 1}`
+                        );
+                      })()}
+                    </button>
+                  </div>
+                  <ButtonGroup
+                    aria-label={`${config.itemTitle} ${index + 1} actions`}
                   >
-                    <ChevronRightIcon
-                      className={cn(
-                        "size-4 transition-transform duration-200",
-                        !shrunkIds.has(field.fieldKey) && "rotate-90",
-                      )}
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon-sm"
+                      disabled={index === 0}
+                      aria-label={`Move ${config.itemTitle.toLowerCase()} ${index + 1} up`}
+                      title={`Move ${config.itemTitle.toLowerCase()} ${index + 1} up`}
+                      onClick={() => index > 0 && items.move(index, index - 1)}
+                    >
+                      <ArrowUpIcon />
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon-sm"
+                      disabled={index === items.fields.length - 1}
+                      aria-label={`Move ${config.itemTitle.toLowerCase()} ${index + 1} down`}
+                      title={`Move ${config.itemTitle.toLowerCase()} ${index + 1} down`}
+                      onClick={() =>
+                        index < items.fields.length - 1 &&
+                        items.move(index, index + 1)
+                      }
+                    >
+                      <ArrowDownIcon />
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon-sm"
+                      disabled={items.fields.length === 1}
+                      aria-label={`Remove ${config.itemTitle.toLowerCase()} ${index + 1}`}
+                      title={`Remove ${config.itemTitle.toLowerCase()} ${index + 1}`}
+                      onClick={() =>
+                        items.fields.length > 1 && setPendingDeleteIndex(index)
+                      }
+                      className="border! border-l-0! border-border!"
+                    >
+                      <Trash2Icon />
+                    </Button>
+                  </ButtonGroup>
+                </div>
+                <Collapse open={!shrunkIds.has(field.fieldKey)}>
+                  <div className="border-t bg-muted/50 p-3">
+                    <CollectionItemFields
+                      config={config}
+                      form={form}
+                      index={index}
                     />
-                  </Button>
-                  <button
-                    type="button"
-                    className="truncate text-left text-sm font-semibold"
-                    onClick={() => toggleShrunk(field.fieldKey)}
-                  >
-                    {(() => {
-                      const item = currentItems?.[index] as Record<
-                        string,
-                        unknown
-                      >;
-                      const representativeValue = (item?.companyName ||
-                        item?.projectName ||
-                        item?.name ||
-                        item?.title ||
-                        item?.certificationName ||
-                        item?.language ||
-                        item?.categoryName ||
-                        item?.organizationName) as string | undefined;
-                      return (
-                        representativeValue ||
-                        `${config.itemTitle} ${index + 1}`
-                      );
-                    })()}
-                  </button>
-                </div>
-                <ButtonGroup
-                  aria-label={`${config.itemTitle} ${index + 1} actions`}
-                >
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon-sm"
-                    disabled={index === 0}
-                    aria-label={`Move ${config.itemTitle.toLowerCase()} ${index + 1} up`}
-                    title={`Move ${config.itemTitle.toLowerCase()} ${index + 1} up`}
-                    onClick={() => index > 0 && items.move(index, index - 1)}
-                  >
-                    <ArrowUpIcon />
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon-sm"
-                    disabled={index === items.fields.length - 1}
-                    aria-label={`Move ${config.itemTitle.toLowerCase()} ${index + 1} down`}
-                    title={`Move ${config.itemTitle.toLowerCase()} ${index + 1} down`}
-                    onClick={() =>
-                      index < items.fields.length - 1 &&
-                      items.move(index, index + 1)
-                    }
-                  >
-                    <ArrowDownIcon />
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    size="icon-sm"
-                    disabled={items.fields.length === 1}
-                    aria-label={`Remove ${config.itemTitle.toLowerCase()} ${index + 1}`}
-                    title={`Remove ${config.itemTitle.toLowerCase()} ${index + 1}`}
-                    onClick={() =>
-                      items.fields.length > 1 && setPendingDeleteIndex(index)
-                    }
-                    className="border! border-l-0! border-border!"
-                  >
-                    <Trash2Icon />
-                  </Button>
-                </ButtonGroup>
-              </div>
-              <Collapse open={!shrunkIds.has(field.fieldKey)}>
-                <div className="border-t bg-muted/50 p-3">
-                  <CollectionItemFields
-                    config={config}
-                    form={form}
-                    index={index}
-                  />
-                </div>
-              </Collapse>
-            </section>
-          ))}
+                  </div>
+                </Collapse>
+              </motion.section>
+            ))}
+          </AnimatePresence>
         </div>
       )}
 

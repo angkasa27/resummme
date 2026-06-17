@@ -14,9 +14,11 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { GripVerticalIcon } from "lucide-react";
 import type { ReactNode } from "react";
+import { motion } from "motion/react";
 
 import { SectionRow } from "@/features/resume-editor/shared/section-row";
 import type { ResumeSectionPanelKey } from "@/features/resume-editor/domain/sections/section-metadata";
+import { motionTokens } from "@/lib/motion-tokens";
 
 /**
  * Shared dnd-kit wiring for a section list: pointer + keyboard sensors and a
@@ -84,10 +86,18 @@ export function SortableSectionRow({
   void _tabIndex;
 
   return (
-    <div
+    // Opacity-only enter/exit so a section added/removed from the list fades in
+    // and out. Transform stays owned by dnd-kit (reorder), so motion only
+    // touches opacity — no fight over `transform`. Wrapped by the list's
+    // `AnimatePresence initial={false}`, so existing rows don't fade on load.
+    <motion.div
       ref={setNodeRef}
       style={{ transform: CSS.Transform.toString(transform), transition }}
-      className={isDragging ? "relative z-50 opacity-80" : undefined}
+      className={isDragging ? "relative z-50" : undefined}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: isDragging ? 0.8 : 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: motionTokens.duration.fast }}
     >
       <SectionRow
         sectionKey={sectionKey}
@@ -110,6 +120,6 @@ export function SortableSectionRow({
         trailing={trailing}
       />
       {children}
-    </div>
+    </motion.div>
   );
 }

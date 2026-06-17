@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Collapse } from "@/features/resume-editor/shared/collapse";
 import {
   ATS_CATEGORIES,
   ATS_CATEGORY_LABELS,
@@ -101,7 +102,7 @@ function SuggestionGroup({
           )}
         />
       </button>
-      {open ? (
+      <Collapse open={open}>
         <ul className="flex flex-col gap-1 border-t bg-muted/20 px-2 py-2">
           {items.map((item) => {
             const Icon = SEVERITY_ICONS[item.severity];
@@ -133,7 +134,7 @@ function SuggestionGroup({
             );
           })}
         </ul>
-      ) : null}
+      </Collapse>
     </section>
   );
 }

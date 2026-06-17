@@ -7,6 +7,7 @@ import {
 } from "@dnd-kit/sortable";
 import { ChevronRightIcon } from "lucide-react";
 import { useState } from "react";
+import { AnimatePresence } from "motion/react";
 
 import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
@@ -155,21 +156,23 @@ export function SectionAccordion({
               items={sortableKeys}
               strategy={verticalListSortingStrategy}
             >
-              {sortableKeys.map((key) => (
-                <SortableSectionRow
-                  key={key}
-                  sectionKey={key}
-                  label={sectionLabels[key]}
-                  count={draft.sections[key].items.length}
-                  active={expandedKey === key}
-                  onClick={() => handleRowClick(key)}
-                  trailing={<DisclosureChevron open={expandedKey === key} />}
-                >
-                  <Collapse open={expandedKey === key}>
-                    {renderBody(key, () => onSetSectionVisibility(key, false))}
-                  </Collapse>
-                </SortableSectionRow>
-              ))}
+              <AnimatePresence initial={false}>
+                {sortableKeys.map((key) => (
+                  <SortableSectionRow
+                    key={key}
+                    sectionKey={key}
+                    label={sectionLabels[key]}
+                    count={draft.sections[key].items.length}
+                    active={expandedKey === key}
+                    onClick={() => handleRowClick(key)}
+                    trailing={<DisclosureChevron open={expandedKey === key} />}
+                  >
+                    <Collapse open={expandedKey === key}>
+                      {renderBody(key, () => onSetSectionVisibility(key, false))}
+                    </Collapse>
+                  </SortableSectionRow>
+                ))}
+              </AnimatePresence>
             </SortableContext>
           </DndContext>
         </div>
