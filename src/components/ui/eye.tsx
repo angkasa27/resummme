@@ -71,6 +71,7 @@ const EyeIcon = forwardRef<EyeIconHandle, EyeIconProps>(
           <motion.path
             animate={controls}
             d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"
+            initial="normal"
             style={{ originY: "50%" }}
             transition={{ duration: 0.4, ease: "easeInOut" }}
             variants={{
@@ -82,6 +83,7 @@ const EyeIcon = forwardRef<EyeIconHandle, EyeIconProps>(
             animate={controls}
             cx="12"
             cy="12"
+            initial="normal"
             r="3"
             transition={{ duration: 0.4, ease: "easeInOut" }}
             variants={{

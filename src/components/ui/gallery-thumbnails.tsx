@@ -81,15 +81,16 @@ const GalleryThumbnailsIcon = forwardRef<
         xmlns="http://www.w3.org/2000/svg"
       >
         <rect height="14" rx="2" width="18" x="3" y="3" />
-        {["M4 21h1", "M9 21h1", "M14 21h1", "M19 21h1"].map((d, index) => (
-          <motion.path
-            animate={controls}
-            custom={index + 1}
-            d={d}
-            key={d}
-            variants={PATH_VARIANTS}
-          />
-        ))}
+          {["M4 21h1", "M9 21h1", "M14 21h1", "M19 21h1"].map((d, index) => (
+            <motion.path
+              animate={controls}
+              custom={index + 1}
+              d={d}
+              initial="normal"
+              key={d}
+              variants={PATH_VARIANTS}
+            />
+          ))}
       </svg>
     </div>
   );

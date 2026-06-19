@@ -80,6 +80,7 @@ const PenToolIcon = forwardRef<PenToolIconHandle, PenToolIconProps>(
           animate={controls}
           fill="none"
           height={size}
+          initial="normal"
           stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -97,6 +98,7 @@ const PenToolIcon = forwardRef<PenToolIconHandle, PenToolIconProps>(
           <motion.path
             animate={controls}
             d="m2.3 2.3 7.286 7.286"
+            initial="normal"
             transition={{
               duration: 0.8,
             }}
