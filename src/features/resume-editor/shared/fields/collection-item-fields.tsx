@@ -1,6 +1,7 @@
 "use client";
 
-import { Controller, type UseFormReturn } from "react-hook-form";
+import { type ReactNode } from "react";
+import { Controller, type Control, type FormState, type UseFormRegister, type UseFormSetValue, type UseFormReturn } from "react-hook-form";
 import {
   AtSignIcon,
   BadgeCheckIcon,
@@ -44,7 +45,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { TagInput } from "@/components/ui/tag-input";
-import { type CollectionSectionConfigMap } from "@/features/resume-editor/domain/sections/collection-section-config";
+import { type CollectionSectionConfigMap, type ItemFieldConfig } from "@/features/resume-editor/domain/sections/collection-section-config";
 import {
   languageProficiencyOptions,
   type CollectionSectionKey,
@@ -103,366 +104,461 @@ export function CollectionItemFields({
     return getFieldState(fieldName as never, formState);
   }
 
+  type DynamicFieldState = ReturnType<typeof getDynamicFieldState>;
+
+  type RenderFieldFn = (
+    fieldConfig: ItemFieldConfig,
+    fieldIndex: number,
+    ctrl: Control<CollectionSectionFormValues>,
+    sv: UseFormSetValue<CollectionSectionFormValues>,
+    fs: FormState<CollectionSectionFormValues>,
+    reg: UseFormRegister<CollectionSectionFormValues>,
+    gdfs: (name: string) => DynamicFieldState,
+  ) => ReactNode;
+
+  function renderTextField(
+    _fieldConfig: ItemFieldConfig,
+    fieldIndex: number,
+    _ctrl: Control<CollectionSectionFormValues>,
+    _sv: UseFormSetValue<CollectionSectionFormValues>,
+    _fs: FormState<CollectionSectionFormValues>,
+    reg: UseFormRegister<CollectionSectionFormValues>,
+    gdfs: (name: string) => DynamicFieldState,
+  ) {
+    const fieldConfig = _fieldConfig as ItemFieldConfig & { name: string; placeholder?: string };
+    const fieldName = `items.${fieldIndex}.${fieldConfig.name}` as const;
+    const fieldState = gdfs(fieldName);
+    const FieldIcon = getFieldIcon(fieldConfig.kind, fieldConfig.name);
+
+    return (
+      <Field
+        key={fieldName}
+        className="@sm/form:col-span-2"
+        data-invalid={fieldState.invalid || undefined}
+      >
+        <FieldLabel htmlFor={fieldName}>
+          <FieldLabelText label={fieldConfig.label} />
+        </FieldLabel>
+        <FieldContent>
+          <InputGroup className="bg-background!">
+            <InputGroupAddon>
+              <FieldIcon />
+            </InputGroupAddon>
+            <InputGroupInput
+              id={fieldName}
+              type={fieldConfig.kind === "text" ? "text" : fieldConfig.kind}
+              inputMode={
+                fieldConfig.kind === "email"
+                  ? "email"
+                  : fieldConfig.kind === "url"
+                    ? "url"
+                    : undefined
+              }
+              autoComplete={
+                fieldConfig.kind === "email"
+                  ? "email"
+                  : fieldConfig.kind === "url"
+                    ? "url"
+                    : undefined
+              }
+              spellCheck={fieldConfig.kind === "text"}
+              autoCapitalize={
+                fieldConfig.kind === "email" || fieldConfig.kind === "url"
+                  ? "none"
+                  : undefined
+              }
+              autoCorrect={
+                fieldConfig.kind === "email" || fieldConfig.kind === "url"
+                  ? "off"
+                  : undefined
+              }
+              placeholder={fieldConfig.placeholder}
+              aria-invalid={fieldState.invalid || undefined}
+              {...reg(fieldName as never)}
+            />
+          </InputGroup>
+          <FieldError errors={[fieldState.error]} />
+        </FieldContent>
+      </Field>
+    );
+  }
+
+  function renderMonthYearField(
+    _fieldConfig: ItemFieldConfig,
+    fieldIndex: number,
+    ctrl: Control<CollectionSectionFormValues>,
+    sv: UseFormSetValue<CollectionSectionFormValues>,
+    fs: FormState<CollectionSectionFormValues>,
+    _reg: UseFormRegister<CollectionSectionFormValues>,
+    gdfs: (name: string) => DynamicFieldState,
+  ) {
+    const fieldConfig = _fieldConfig as ItemFieldConfig & { name: string; placeholder?: string };
+    const fieldName = `items.${fieldIndex}.${fieldConfig.name}` as const;
+    const fieldState = gdfs(fieldName);
+
+    return (
+      <Field
+        key={fieldName}
+        className="@sm/form:col-span-2"
+        data-invalid={fieldState.invalid || undefined}
+      >
+        <FieldLabel htmlFor={fieldName}>
+          <FieldLabelText label={fieldConfig.label} />
+        </FieldLabel>
+        <FieldContent>
+          <Controller
+            control={ctrl}
+            name={fieldName as never}
+            render={({ field }) => (
+              <MonthYearPicker
+                id={fieldName}
+                value={field.value}
+                placeholder={fieldConfig.placeholder}
+                ariaInvalid={fieldState.invalid}
+                onChange={(value) =>
+                  sv(fieldName as never, value as never, {
+                    shouldDirty: true,
+                    shouldValidate: fs.isSubmitted,
+                  })
+                }
+              />
+            )}
+          />
+          <FieldError errors={[fieldState.error]} />
+        </FieldContent>
+      </Field>
+    );
+  }
+
+  function renderTextareaField(
+    _fieldConfig: ItemFieldConfig,
+    fieldIndex: number,
+    _ctrl: Control<CollectionSectionFormValues>,
+    _sv: UseFormSetValue<CollectionSectionFormValues>,
+    _fs: FormState<CollectionSectionFormValues>,
+    reg: UseFormRegister<CollectionSectionFormValues>,
+    gdfs: (name: string) => DynamicFieldState,
+  ) {
+    const fieldConfig = _fieldConfig as ItemFieldConfig & { name: string; placeholder?: string };
+    const fieldName = `items.${fieldIndex}.${fieldConfig.name}` as const;
+    const fieldState = gdfs(fieldName);
+
+    return (
+      <Field
+        key={fieldName}
+        className="@sm/form:col-span-2"
+        data-invalid={fieldState.invalid || undefined}
+      >
+        <FieldLabel htmlFor={fieldName}>
+          <FieldLabelText label={fieldConfig.label} />
+        </FieldLabel>
+        <FieldContent>
+          <Textarea
+            id={fieldName}
+            rows={3}
+            placeholder={fieldConfig.placeholder}
+            aria-invalid={fieldState.invalid || undefined}
+            className="not-disabled:bg-background!"
+            {...reg(fieldName as never)}
+          />
+          <FieldError errors={[fieldState.error]} />
+        </FieldContent>
+      </Field>
+    );
+  }
+
+  function renderRichTextField(
+    _fieldConfig: ItemFieldConfig,
+    fieldIndex: number,
+    ctrl: Control<CollectionSectionFormValues>,
+    sv: UseFormSetValue<CollectionSectionFormValues>,
+    fs: FormState<CollectionSectionFormValues>,
+    _reg: UseFormRegister<CollectionSectionFormValues>,
+    gdfs: (name: string) => DynamicFieldState,
+  ) {
+    const fieldConfig = _fieldConfig as ItemFieldConfig & { name: string; placeholder?: string };
+    const fieldName = `items.${fieldIndex}.${fieldConfig.name}` as const;
+    const fieldState = gdfs(fieldName);
+
+    return (
+      <Field
+        key={fieldName}
+        className="@sm/form:col-span-2"
+        data-invalid={fieldState.invalid || undefined}
+      >
+        <FieldLabel>
+          <FieldLabelText label={fieldConfig.label} />
+        </FieldLabel>
+        <FieldContent>
+          <Controller
+            control={ctrl}
+            name={fieldName as never}
+            render={({ field }) => (
+              <RichTextEditorWithImprove
+                value={field.value}
+                ariaLabel={fieldConfig.label}
+                invalid={fieldState.invalid}
+                onChange={(value) =>
+                  sv(fieldName as never, value as never, {
+                    shouldDirty: true,
+                    shouldValidate: fs.isSubmitted,
+                  })
+                }
+              />
+            )}
+          />
+          {fieldConfig.placeholder ? (
+            <FieldDescription>{fieldConfig.placeholder}</FieldDescription>
+          ) : null}
+          <FieldError errors={[fieldState.error]} />
+        </FieldContent>
+      </Field>
+    );
+  }
+
+  function renderStringArrayField(
+    _fieldConfig: ItemFieldConfig,
+    fieldIndex: number,
+    ctrl: Control<CollectionSectionFormValues>,
+    _sv: UseFormSetValue<CollectionSectionFormValues>,
+    _fs: FormState<CollectionSectionFormValues>,
+    _reg: UseFormRegister<CollectionSectionFormValues>,
+    gdfs: (name: string) => DynamicFieldState,
+  ) {
+    const fieldConfig = _fieldConfig as ItemFieldConfig & { name: string; placeholder?: string };
+    const fieldName = `items.${fieldIndex}.${fieldConfig.name}` as const;
+    const fieldState = gdfs(fieldName);
+
+    return (
+      <Field
+        key={fieldName}
+        className="@sm/form:col-span-2"
+        data-invalid={fieldState.invalid || undefined}
+      >
+        <FieldLabel htmlFor={fieldName}>
+          <FieldLabelText label={fieldConfig.label} />
+        </FieldLabel>
+        <FieldContent>
+          <Controller
+            control={ctrl}
+            name={fieldName as never}
+            render={({ field }) => (
+              <TagInput
+                id={fieldName}
+                value={
+                  Array.isArray(field.value)
+                    ? (field.value as string[])
+                    : []
+                }
+                onChange={(next) => field.onChange(next)}
+                placeholder={fieldConfig.placeholder}
+                ariaInvalid={fieldState.invalid}
+                ariaLabel={fieldConfig.label}
+              />
+            )}
+          />
+          <FieldDescription>
+            Press Enter or comma to add a skill. Backspace removes the
+            last one.
+          </FieldDescription>
+          <FieldError errors={[fieldState.error]} />
+        </FieldContent>
+      </Field>
+    );
+  }
+
+  function renderDateRangeField(
+    fieldConfig: ItemFieldConfig,
+    fieldIndex: number,
+    ctrl: Control<CollectionSectionFormValues>,
+    sv: UseFormSetValue<CollectionSectionFormValues>,
+    fs: FormState<CollectionSectionFormValues>,
+    _reg: UseFormRegister<CollectionSectionFormValues>,
+    gdfs: (name: string) => DynamicFieldState,
+  ) {
+    const { startName, endName, startPlaceholder, endPlaceholder } =
+      fieldConfig as Extract<ItemFieldConfig, { kind: "dateRange" }>;
+    const startFieldName = `items.${fieldIndex}.${startName}` as const;
+    const endFieldName = `items.${fieldIndex}.${endName}` as const;
+    const startValue = watch(startFieldName as never) as unknown as string;
+    const endValue = watch(endFieldName as never) as unknown as string;
+    const startFieldState = gdfs(startFieldName);
+    const endFieldState = gdfs(endFieldName);
+    const isCurrent = endValue === "current";
+
+    return (
+      <div
+        key={`${startFieldName}-${endFieldName}`}
+        className="grid gap-3 @sm/form:col-span-2 @sm/form:grid-cols-2"
+      >
+        <Field data-invalid={startFieldState.invalid || undefined}>
+          <FieldLabel htmlFor={startFieldName}>
+            <FieldLabelText label="Start date" />
+          </FieldLabel>
+          <FieldContent>
+            <Controller
+              control={ctrl}
+              name={startFieldName as never}
+              render={({ field }) => (
+                <MonthYearPicker
+                  id={startFieldName}
+                  value={field.value}
+                  placeholder={startPlaceholder ?? "Jan 2024"}
+                  ariaInvalid={startFieldState.invalid}
+                  onChange={(value) => {
+                    const nextStartDate = parseMonthYear(value);
+                    const currentEndDate = parseMonthYear(endValue);
+
+                    sv(startFieldName as never, value as never, {
+                      shouldDirty: true,
+                      shouldValidate: fs.isSubmitted,
+                    });
+
+                    if (
+                      endValue !== "current" &&
+                      nextStartDate &&
+                      currentEndDate &&
+                      currentEndDate.getTime() <= nextStartDate.getTime()
+                    ) {
+                      sv(endFieldName as never, "" as never, {
+                        shouldDirty: true,
+                        shouldValidate: fs.isSubmitted,
+                      });
+                    }
+                  }}
+                />
+              )}
+            />
+            <FieldError errors={[startFieldState.error]} />
+          </FieldContent>
+        </Field>
+
+        <Field data-invalid={endFieldState.invalid || undefined}>
+          <FieldLabel htmlFor={endFieldName}>
+            <FieldLabelText label="End date" />
+          </FieldLabel>
+          <FieldContent>
+            <Controller
+              control={ctrl}
+              name={endFieldName as never}
+              render={({ field }) => (
+                <MonthYearPicker
+                  id={endFieldName}
+                  value={isCurrent ? "" : field.value}
+                  placeholder={endPlaceholder ?? "Current"}
+                  disabled={isCurrent}
+                  ariaInvalid={endFieldState.invalid}
+                  minValueExclusive={startValue}
+                  onChange={(value) =>
+                    sv(endFieldName as never, value as never, {
+                      shouldDirty: true,
+                      shouldValidate: fs.isSubmitted,
+                    })
+                  }
+                />
+              )}
+            />
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Switch
+                checked={isCurrent}
+                onCheckedChange={(checked) =>
+                  sv(
+                    endFieldName as never,
+                    (checked ? "current" : "") as never,
+                    {
+                      shouldDirty: true,
+                      shouldValidate: fs.isSubmitted,
+                    },
+                  )
+                }
+              />
+              <span>Mark this role as current</span>
+            </div>
+            <FieldError errors={[endFieldState.error]} />
+          </FieldContent>
+        </Field>
+      </div>
+    );
+  }
+
+  function renderProficiencyField(
+    _fieldConfig: ItemFieldConfig,
+    fieldIndex: number,
+    ctrl: Control<CollectionSectionFormValues>,
+    _sv: UseFormSetValue<CollectionSectionFormValues>,
+    _fs: FormState<CollectionSectionFormValues>,
+    _reg: UseFormRegister<CollectionSectionFormValues>,
+    gdfs: (name: string) => DynamicFieldState,
+  ) {
+    const fieldConfig = _fieldConfig as ItemFieldConfig & { name: string; placeholder?: string };
+    const fieldName = `items.${fieldIndex}.${fieldConfig.name}` as const;
+    const fieldState = gdfs(fieldName);
+
+    return (
+      <Field
+        key={fieldName}
+        className="@sm/form:col-span-2"
+        data-invalid={fieldState.invalid || undefined}
+      >
+        <FieldLabel>
+          <FieldLabelText label={fieldConfig.label} />
+        </FieldLabel>
+        <FieldContent>
+          <Controller
+            control={ctrl}
+            name={fieldName as never}
+            render={({ field }) => (
+              <Select value={field.value} onValueChange={field.onChange}>
+                <SelectTrigger
+                  className="w-full not-disabled:bg-background"
+                  aria-invalid={fieldState.invalid || undefined}
+                >
+                  <SelectValue placeholder="Select proficiency level" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    {languageProficiencyOptions.map((option) => (
+                      <SelectItem key={option} value={option}>
+                        {option}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            )}
+          />
+          <FieldError errors={[fieldState.error]} />
+        </FieldContent>
+      </Field>
+    );
+  }
+
+  const renderField: Record<string, RenderFieldFn> = {
+    text: renderTextField,
+    email: renderTextField,
+    url: renderTextField,
+    monthYear: renderMonthYearField,
+    textarea: renderTextareaField,
+    richText: renderRichTextField,
+    stringArray: renderStringArrayField,
+    dateRange: renderDateRangeField,
+    proficiency: renderProficiencyField,
+  };
+
   return (
     <FieldGroup className="grid grid-cols-1 gap-3 @sm/form:grid-cols-2">
       {config.fields.map((fieldConfig) => {
-        if (
-          fieldConfig.kind === "text" ||
-          fieldConfig.kind === "email" ||
-          fieldConfig.kind === "url"
-        ) {
-          const fieldName = `items.${index}.${fieldConfig.name}` as const;
-          const fieldState = getDynamicFieldState(fieldName);
-          const FieldIcon = getFieldIcon(fieldConfig.kind, fieldConfig.name);
-
-          return (
-            <Field
-              key={fieldName}
-              className="@sm/form:col-span-2"
-              data-invalid={fieldState.invalid || undefined}
-            >
-              <FieldLabel htmlFor={fieldName}>
-                <FieldLabelText label={fieldConfig.label} />
-              </FieldLabel>
-              <FieldContent>
-                <InputGroup className="bg-background!">
-                  <InputGroupAddon>
-                    <FieldIcon />
-                  </InputGroupAddon>
-                  <InputGroupInput
-                    id={fieldName}
-                    type={fieldConfig.kind}
-                    inputMode={
-                      fieldConfig.kind === "email"
-                        ? "email"
-                        : fieldConfig.kind === "url"
-                          ? "url"
-                          : undefined
-                    }
-                    autoComplete={
-                      fieldConfig.kind === "email"
-                        ? "email"
-                        : fieldConfig.kind === "url"
-                          ? "url"
-                          : undefined
-                    }
-                    spellCheck={fieldConfig.kind === "text"}
-                    autoCapitalize={
-                      fieldConfig.kind === "email" || fieldConfig.kind === "url"
-                        ? "none"
-                        : undefined
-                    }
-                    autoCorrect={
-                      fieldConfig.kind === "email" || fieldConfig.kind === "url"
-                        ? "off"
-                        : undefined
-                    }
-                    placeholder={fieldConfig.placeholder}
-                    aria-invalid={fieldState.invalid || undefined}
-                    {...register(fieldName as never)}
-                  />
-                </InputGroup>
-                <FieldError errors={[fieldState.error]} />
-              </FieldContent>
-            </Field>
+        const renderFn = renderField[fieldConfig.kind];
+        if (renderFn)
+          return renderFn(
+            fieldConfig,
+            index,
+            control,
+            setValue,
+            formState,
+            register,
+            getDynamicFieldState,
           );
-        }
-
-        if (fieldConfig.kind === "monthYear") {
-          const fieldName = `items.${index}.${fieldConfig.name}` as const;
-          const fieldState = getDynamicFieldState(fieldName);
-
-          return (
-            <Field
-              key={fieldName}
-              className="@sm/form:col-span-2"
-              data-invalid={fieldState.invalid || undefined}
-            >
-              <FieldLabel htmlFor={fieldName}>
-                <FieldLabelText label={fieldConfig.label} />
-              </FieldLabel>
-              <FieldContent>
-                <Controller
-                  control={control}
-                  name={fieldName as never}
-                  render={({ field }) => (
-                    <MonthYearPicker
-                      id={fieldName}
-                      value={field.value}
-                      placeholder={fieldConfig.placeholder}
-                      ariaInvalid={fieldState.invalid}
-                      onChange={(value) =>
-                        setValue(fieldName as never, value as never, {
-                          shouldDirty: true,
-                          shouldValidate: formState.isSubmitted,
-                        })
-                      }
-                    />
-                  )}
-                />
-                <FieldError errors={[fieldState.error]} />
-              </FieldContent>
-            </Field>
-          );
-        }
-
-        if (fieldConfig.kind === "textarea") {
-          const fieldName = `items.${index}.${fieldConfig.name}` as const;
-          const fieldState = getDynamicFieldState(fieldName);
-
-          return (
-            <Field
-              key={fieldName}
-              className="@sm/form:col-span-2"
-              data-invalid={fieldState.invalid || undefined}
-            >
-              <FieldLabel htmlFor={fieldName}>
-                <FieldLabelText label={fieldConfig.label} />
-              </FieldLabel>
-              <FieldContent>
-                <Textarea
-                  id={fieldName}
-                  rows={3}
-                  placeholder={fieldConfig.placeholder}
-                  aria-invalid={fieldState.invalid || undefined}
-                  className="not-disabled:bg-background!"
-                  {...register(fieldName as never)}
-                />
-                <FieldError errors={[fieldState.error]} />
-              </FieldContent>
-            </Field>
-          );
-        }
-
-        if (fieldConfig.kind === "richText") {
-          const fieldName = `items.${index}.${fieldConfig.name}` as const;
-          const fieldState = getDynamicFieldState(fieldName);
-
-          return (
-            <Field
-              key={fieldName}
-              className="@sm/form:col-span-2"
-              data-invalid={fieldState.invalid || undefined}
-            >
-              <FieldLabel>
-                <FieldLabelText label={fieldConfig.label} />
-              </FieldLabel>
-              <FieldContent>
-                <Controller
-                  control={control}
-                  name={fieldName as never}
-                  render={({ field }) => (
-                    <RichTextEditorWithImprove
-                      value={field.value}
-                      ariaLabel={fieldConfig.label}
-                      invalid={fieldState.invalid}
-                      onChange={(value) =>
-                        setValue(fieldName as never, value as never, {
-                          shouldDirty: true,
-                          shouldValidate: formState.isSubmitted,
-                        })
-                      }
-                    />
-                  )}
-                />
-                {fieldConfig.placeholder ? (
-                  <FieldDescription>{fieldConfig.placeholder}</FieldDescription>
-                ) : null}
-                <FieldError errors={[fieldState.error]} />
-              </FieldContent>
-            </Field>
-          );
-        }
-
-        if (fieldConfig.kind === "stringArray") {
-          const fieldName = `items.${index}.${fieldConfig.name}` as const;
-          const fieldState = getDynamicFieldState(fieldName);
-
-          return (
-            <Field
-              key={fieldName}
-              className="@sm/form:col-span-2"
-              data-invalid={fieldState.invalid || undefined}
-            >
-              <FieldLabel htmlFor={fieldName}>
-                <FieldLabelText label={fieldConfig.label} />
-              </FieldLabel>
-              <FieldContent>
-                <Controller
-                  control={control}
-                  name={fieldName as never}
-                  render={({ field }) => (
-                    <TagInput
-                      id={fieldName}
-                      value={
-                        Array.isArray(field.value)
-                          ? (field.value as string[])
-                          : []
-                      }
-                      onChange={(next) => field.onChange(next)}
-                      placeholder={fieldConfig.placeholder}
-                      ariaInvalid={fieldState.invalid}
-                      ariaLabel={fieldConfig.label}
-                    />
-                  )}
-                />
-                <FieldDescription>
-                  Press Enter or comma to add a skill. Backspace removes the
-                  last one.
-                </FieldDescription>
-                <FieldError errors={[fieldState.error]} />
-              </FieldContent>
-            </Field>
-          );
-        }
-
-        if (fieldConfig.kind === "dateRange") {
-          const startName = `items.${index}.${fieldConfig.startName}` as const;
-          const endName = `items.${index}.${fieldConfig.endName}` as const;
-          const startValue = watch(startName as never) as unknown as string;
-          const endValue = watch(endName as never) as unknown as string;
-          const startFieldState = getDynamicFieldState(startName);
-          const endFieldState = getDynamicFieldState(endName);
-          const isCurrent = endValue === "current";
-
-          return (
-            <div
-              key={`${startName}-${endName}`}
-              className="grid gap-3 @sm/form:col-span-2 @sm/form:grid-cols-2"
-            >
-              <Field data-invalid={startFieldState.invalid || undefined}>
-                <FieldLabel htmlFor={startName}>
-                  <FieldLabelText label="Start date" />
-                </FieldLabel>
-                <FieldContent>
-                  <Controller
-                    control={control}
-                    name={startName as never}
-                    render={({ field }) => (
-                      <MonthYearPicker
-                        id={startName}
-                        value={field.value}
-                        placeholder={fieldConfig.startPlaceholder ?? "Jan 2024"}
-                        ariaInvalid={startFieldState.invalid}
-                        onChange={(value) => {
-                          const nextStartDate = parseMonthYear(value);
-                          const currentEndDate = parseMonthYear(endValue);
-
-                          setValue(startName as never, value as never, {
-                            shouldDirty: true,
-                            shouldValidate: formState.isSubmitted,
-                          });
-
-                          if (
-                            endValue !== "current" &&
-                            nextStartDate &&
-                            currentEndDate &&
-                            currentEndDate.getTime() <= nextStartDate.getTime()
-                          ) {
-                            setValue(endName as never, "" as never, {
-                              shouldDirty: true,
-                              shouldValidate: formState.isSubmitted,
-                            });
-                          }
-                        }}
-                      />
-                    )}
-                  />
-                  <FieldError errors={[startFieldState.error]} />
-                </FieldContent>
-              </Field>
-
-              <Field data-invalid={endFieldState.invalid || undefined}>
-                <FieldLabel htmlFor={endName}>
-                  <FieldLabelText label="End date" />
-                </FieldLabel>
-                <FieldContent>
-                  <Controller
-                    control={control}
-                    name={endName as never}
-                    render={({ field }) => (
-                      <MonthYearPicker
-                        id={endName}
-                        value={isCurrent ? "" : field.value}
-                        placeholder={fieldConfig.endPlaceholder ?? "Current"}
-                        disabled={isCurrent}
-                        ariaInvalid={endFieldState.invalid}
-                        minValueExclusive={startValue}
-                        onChange={(value) =>
-                          setValue(endName as never, value as never, {
-                            shouldDirty: true,
-                            shouldValidate: formState.isSubmitted,
-                          })
-                        }
-                      />
-                    )}
-                  />
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Switch
-                      checked={isCurrent}
-                      onCheckedChange={(checked) =>
-                        setValue(
-                          endName as never,
-                          (checked ? "current" : "") as never,
-                          {
-                            shouldDirty: true,
-                            shouldValidate: formState.isSubmitted,
-                          },
-                        )
-                      }
-                    />
-                    <span>Mark this role as current</span>
-                  </div>
-                  <FieldError errors={[endFieldState.error]} />
-                </FieldContent>
-              </Field>
-            </div>
-          );
-        }
-
-        if (fieldConfig.kind === "proficiency") {
-          const fieldName = `items.${index}.${fieldConfig.name}` as const;
-          const fieldState = getDynamicFieldState(fieldName);
-
-          return (
-            <Field
-              key={fieldName}
-              className="@sm/form:col-span-2"
-              data-invalid={fieldState.invalid || undefined}
-            >
-              <FieldLabel>
-                <FieldLabelText label={fieldConfig.label} />
-              </FieldLabel>
-              <FieldContent>
-                <Controller
-                  control={control}
-                  name={fieldName as never}
-                  render={({ field }) => (
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger
-                        className="w-full not-disabled:bg-background"
-                        aria-invalid={fieldState.invalid || undefined}
-                      >
-                        <SelectValue placeholder="Select proficiency level" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          {languageProficiencyOptions.map((option) => (
-                            <SelectItem key={option} value={option}>
-                              {option}
-                            </SelectItem>
-                          ))}
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                  )}
-                />
-                <FieldError errors={[fieldState.error]} />
-              </FieldContent>
-            </Field>
-          );
-        }
-
         return null;
       })}
     </FieldGroup>

@@ -1,6 +1,6 @@
 import { format, isValid, parse, startOfMonth } from "date-fns";
 
-export const MONTH_YEAR_FORMAT = "MMM yyyy";
+const MONTH_YEAR_FORMAT = "MMM yyyy";
 
 export function parseMonthYear(value?: string | null) {
   if (typeof value !== "string" || value.trim().length === 0) {

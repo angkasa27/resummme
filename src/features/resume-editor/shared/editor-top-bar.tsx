@@ -175,7 +175,7 @@ function SaveStatusIndicator({ status }: { status: SaveStatus }) {
   );
 }
 
-export function EditorGithubAction() {
+function EditorGithubAction() {
   const isMobile = useIsMobile();
 
   return (

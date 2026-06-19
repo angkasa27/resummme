@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 
-import { renderHtml, richTextHasContent } from "../engine";
+import { renderHtml, richTextHasContent } from "../rich-text-utils";
 
 export function PreviewRichTextBlock({
   content,

@@ -1,13 +1,8 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 import { FileQuestion } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
-
-export const metadata: Metadata = {
-  title: "Page not found | Resummme",
-};
 
 // Root not-found UI. Renders for `notFound()` calls and any unmatched URL
 // across the app, composed inside the root layout (Server Component).

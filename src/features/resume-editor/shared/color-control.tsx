@@ -20,7 +20,7 @@ import {
   InputGroupInput,
 } from "@/components/ui/input-group";
 
-export const ACCENT_SWATCHES: ReadonlyArray<{ name: string; hex: string }> = [
+const ACCENT_SWATCHES: ReadonlyArray<{ name: string; hex: string }> = [
   { name: "Slate", hex: "#1f2937" },
   { name: "Blue", hex: "#2563eb" },
   { name: "Indigo", hex: "#4f46e5" },

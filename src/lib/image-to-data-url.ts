@@ -1,6 +1,6 @@
-export const PROFILE_PHOTO_MAX_DIMENSION = 512;
-export const PROFILE_PHOTO_QUALITY = 0.85;
-export const PROFILE_PHOTO_MAX_BYTES = 8 * 1024 * 1024;
+const PROFILE_PHOTO_MAX_DIMENSION = 512;
+const PROFILE_PHOTO_QUALITY = 0.85;
+const PROFILE_PHOTO_MAX_BYTES = 8 * 1024 * 1024;
 
 export type ReadProfilePhotoError =
   | "unsupported-type"
@@ -86,25 +86,6 @@ export function cropImageToDataUrl(
     height,
   );
   return canvas.toDataURL("image/jpeg", quality);
-}
-
-/**
- * Convenience: read an image file and encode the whole frame (no manual crop),
- * downscaled and JPEG-compressed. Used as a fallback when the crop editor is
- * not involved.
- */
-export async function readProfilePhotoAsDataUrl(file: File): Promise<string> {
-  const { objectUrl, image } = await loadImageFile(file);
-  try {
-    return cropImageToDataUrl(image, {
-      x: 0,
-      y: 0,
-      width: image.naturalWidth || image.width,
-      height: image.naturalHeight || image.height,
-    });
-  } finally {
-    URL.revokeObjectURL(objectUrl);
-  }
 }
 
 function loadHtmlImage(src: string): Promise<HTMLImageElement> {

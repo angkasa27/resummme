@@ -1,14 +1,8 @@
 import { ResumeImportError } from "@/features/resume-editor/server/resume-import-error";
-
-const DEFAULT_GEMINI_MODEL = "gemini-2.0-flash";
-
-type GeminiResponse = {
-  candidates?: Array<{
-    content?: {
-      parts?: Array<{ text?: string }>;
-    };
-  }>;
-};
+import {
+  callGeminiApi,
+  extractResponseText,
+} from "@/features/resume-editor/server/gemini-client";
 
 export type ImproveContentInput = {
   html: string;
@@ -70,52 +64,14 @@ Improvements to apply:
 ${instructionList}`.trim();
 }
 
-function extractResponseText(payload: GeminiResponse): string {
-  return (
-    payload.candidates
-      ?.flatMap((c) => c.content?.parts ?? [])
-      .map((p) => p.text ?? "")
-      .join("")
-      .trim() ?? ""
-  );
-}
-
 export async function improveContentWithGemini(
   input: ImproveContentInput,
 ): Promise<string> {
-  const apiKey = process.env.GEMINI_API_KEY;
+  const payload = await callGeminiApi(buildPrompt(input), {
+    responseMimeType: "text/plain",
+    temperature: 0.4,
+  });
 
-  if (!apiKey) {
-    throw new ResumeImportError("GEMINI_API_KEY is not configured.", 503);
-  }
-
-  const model = process.env.GEMINI_MODEL?.trim() || DEFAULT_GEMINI_MODEL;
-
-  const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
-    {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({
-        contents: [
-          {
-            role: "user",
-            parts: [{ text: buildPrompt(input) }],
-          },
-        ],
-        generationConfig: {
-          responseMimeType: "text/plain",
-          temperature: 0.4,
-        },
-      }),
-    },
-  );
-
-  if (!response.ok) {
-    throw new ResumeImportError("Gemini could not improve the content.", 502);
-  }
-
-  const payload = (await response.json()) as GeminiResponse;
   const responseText = extractResponseText(payload);
 
   if (!responseText) {

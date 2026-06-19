@@ -5,6 +5,7 @@ import { Loader2Icon, SparklesIcon, XIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { DialogHeaderSection } from "@/features/resume-editor/shared/dialog-header";
 import { RichTextEditor } from "@/features/resume-editor/shared/rich-text/rich-text-editor";
 import {
   Dialog,
@@ -48,7 +49,7 @@ type ImproveWithAiDialogProps = {
   onAccept: (improved: string) => void;
 };
 
-export function ImproveWithAiDialog({
+function ImproveWithAiDialog({
   open,
   onOpenChange,
   currentHtml,
@@ -77,7 +78,12 @@ export function ImproveWithAiDialog({
           className="flex max-h-[92dvh] min-h-0 flex-col gap-3 rounded-t-xl p-4 pt-3"
         >
           <div className="mx-auto h-1 w-10 shrink-0 rounded-full bg-border" />
-          <ImproveWithAiHeader onClose={() => onOpenChange(false)} />
+          <DialogHeaderSection
+            icon={<SparklesIcon className="size-4 text-primary" />}
+            title="Improve with AI"
+            description="Select quick actions or describe what to change."
+            onClose={() => onOpenChange(false)}
+          />
           {body}
         </SheetContent>
       </Sheet>
@@ -114,31 +120,6 @@ export function ImproveWithAiDialog({
         {body}
       </DialogContent>
     </Dialog>
-  );
-}
-
-function ImproveWithAiHeader({ onClose }: { onClose: () => void }) {
-  return (
-    <div className="flex items-start justify-between gap-3">
-      <div className="flex flex-col gap-0.5">
-        <h2 className="flex items-center gap-2 text-base font-medium">
-          <SparklesIcon className="size-4 text-primary" />
-          Improve with AI
-        </h2>
-        <p className="text-xs text-muted-foreground">
-          Select quick actions or describe what to change.
-        </p>
-      </div>
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon-sm"
-        aria-label="Close"
-        onClick={onClose}
-      >
-        <XIcon />
-      </Button>
-    </div>
   );
 }
 

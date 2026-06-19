@@ -2,8 +2,8 @@ import { z } from "zod";
 
 import { sanitizeRichTextHtml } from "@/features/resume-editor/domain/rich-text/sanitize-rich-text";
 
-export const monthYearPattern = /^[A-Za-z]{3,9}\s+\d{4}$/;
-export const currentValueSchema = z.literal("current");
+const monthYearPattern = /^[A-Za-z]{3,9}\s+\d{4}$/;
+const currentValueSchema = z.literal("current");
 
 export function requiredText(label: string) {
   return z.string().trim().min(1, `${label} is required.`);
@@ -61,14 +61,6 @@ export function photoField(label: string) {
         message: `${label} must be an uploaded image or a valid URL.`,
       },
     );
-}
-
-export function richTextTextContent(value: string) {
-  return value
-    .replace(/<[^>]*>/g, " ")
-    .replace(/&nbsp;/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
 }
 
 export function monthYearField(label: string) {

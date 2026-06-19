@@ -4,6 +4,7 @@ import { useState } from "react";
 import { TelescopeIcon, XIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { DialogHeaderSection } from "@/features/resume-editor/shared/dialog-header";
 import {
   Dialog,
   DialogContent,
@@ -53,7 +54,12 @@ export function JdAnalyzeDialog({
           className="flex max-h-[92dvh] min-h-0 flex-col gap-3 rounded-t-xl p-4 pt-3"
         >
           <div className="mx-auto h-1 w-10 shrink-0 rounded-full bg-border" />
-          <JdAnalyzeHeader onClose={() => onOpenChange(false)} />
+          <DialogHeaderSection
+            icon={<TelescopeIcon className="size-4 text-primary" />}
+            title="Analyze a job description"
+            description="Paste the listing to surface keyword gaps."
+            onClose={() => onOpenChange(false)}
+          />
           {body}
         </SheetContent>
       </Sheet>
@@ -90,31 +96,6 @@ export function JdAnalyzeDialog({
         {body}
       </DialogContent>
     </Dialog>
-  );
-}
-
-function JdAnalyzeHeader({ onClose }: { onClose: () => void }) {
-  return (
-    <div className="flex items-start justify-between gap-3">
-      <div className="flex flex-col gap-0.5">
-        <h2 className="flex items-center gap-2 text-base font-medium">
-          <TelescopeIcon className="size-4 text-primary" />
-          Analyze a job description
-        </h2>
-        <p className="text-xs text-muted-foreground">
-          Paste the listing to surface keyword gaps.
-        </p>
-      </div>
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon-sm"
-        aria-label="Close"
-        onClick={onClose}
-      >
-        <XIcon />
-      </Button>
-    </div>
   );
 }
 

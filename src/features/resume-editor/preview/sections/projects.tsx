@@ -1,4 +1,4 @@
-import { richTextHasContent } from "@/features/resume-editor/preview/engine";
+import { richTextHasContent } from "@/features/resume-editor/preview/rich-text-utils";
 
 import type { SectionDescriptor } from "./types";
 

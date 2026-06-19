@@ -5,12 +5,10 @@ import {
   type CollectionSectionKey,
 } from "@/features/resume-editor/domain/sections/section-metadata";
 import { resolvePdfPresentation } from "@/features/resume-editor/domain/presentation/pdf-presentation";
-import {
-  sanitizeRichTextHref,
-  sanitizeRichTextHtml,
-} from "@/features/resume-editor/domain/rich-text/sanitize-rich-text";
+import { sanitizeRichTextHref } from "@/features/resume-editor/domain/rich-text/sanitize-rich-text";
 import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
 
+import { richTextHasContent } from "./rich-text-utils";
 import { sectionDescriptors } from "./sections";
 import type {
   AnyPreviewRenderableSection,
@@ -18,21 +16,6 @@ import type {
   PreviewRenderContext,
   PreviewSectionItemMap,
 } from "./types";
-
-export function renderHtml(content: string) {
-  return { __html: sanitizeRichTextHtml(content) };
-}
-
-export function richTextHasContent(value: string) {
-  if (!value) return false;
-  return (
-    value
-      .replace(/<[^>]*>/g, " ")
-      .replace(/&nbsp;/g, " ")
-      .replace(/\s+/g, " ")
-      .trim().length > 0
-  );
-}
 
 function createContactItems(draft: ResumeDraft) {
   return [

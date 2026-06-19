@@ -1,9 +1,4 @@
 import {
-  LayoutTemplateIcon,
-  TypeIcon,
-} from "lucide-react";
-
-import {
   pdfFontScaleIds,
   pdfFontScaleLabels,
   pdfLineHeightIds,
@@ -205,7 +200,4 @@ export const previewControlDefinitions = [
   },
 ] as const satisfies ReadonlyArray<PreviewControlDefinition>;
 
-export const previewControlLabelIcons = {
-  template: LayoutTemplateIcon,
-  "font-scale": TypeIcon,
-};
+

@@ -21,9 +21,9 @@ import type { EditorPanelKey } from "@/features/resume-editor/domain/sections/se
 import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
 import { useIsMobile } from "@/hooks/use-mobile";
 
-export const ZOOM_MIN = 0.5;
-export const ZOOM_MAX = 1.5;
-export const ZOOM_STEP = 0.1;
+const ZOOM_MIN = 0.5;
+const ZOOM_MAX = 1.5;
+const ZOOM_STEP = 0.1;
 export const ZOOM_DEFAULT = 1;
 
 type EditorControlPanelProps = {
