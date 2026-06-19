@@ -1,6 +1,6 @@
 import { ResumeImportError } from "@/features/resume-editor/server/resume-import-error";
 
-export const DEFAULT_GEMINI_MODEL = "gemini-2.0-flash";
+const DEFAULT_GEMINI_MODEL = "gemini-2.0-flash";
 
 export type GeminiResponse = {
   candidates?: Array<{
@@ -19,10 +19,6 @@ export function extractResponseText(payload: GeminiResponse): string | undefined
     .map((part) => part.text ?? "")
     .join("")
     .trim();
-}
-
-export function extractResponseTextToString(payload: GeminiResponse): string {
-  return extractResponseText(payload) ?? "";
 }
 
 export function stripCodeFences(value: string): string {
