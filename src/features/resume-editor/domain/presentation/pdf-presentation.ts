@@ -67,20 +67,6 @@ export type ResolvedPdfPresentation = {
   vars: Record<string, string>;
 };
 
-export const pdfTemplateLabels: Record<PdfTemplateId, string> = {
-  classic: "Classic",
-  sidebar: "Sidebar",
-  "modern-centered": "Modern",
-  timeline: "Timeline",
-  academic: "Academic",
-  minimal: "Minimal",
-  inset: "Inset",
-  banner: "Banner",
-  split: "Split",
-  tinted: "Tinted",
-  "bold-type": "Bold Type",
-};
-
 export const pdfPhotoShapeLabels: Record<PdfPhotoShapeId, string> = {
   square: "Square",
   rectangle: "Rectangle",

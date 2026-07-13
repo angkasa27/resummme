@@ -36,6 +36,12 @@ export type PreviewTemplateDefinition = {
   id: PdfTemplateId;
   label: string;
   description: string;
+  /**
+   * True when the template renders its own Summary heading, so the shared
+   * SummaryView must suppress its <h2>. Single source of truth for
+   * `shouldHideSummaryHeading` — no separate hardcoded id list.
+   */
+  hideSummaryHeading?: boolean;
   Component: (props: TemplateComponentProps) => ReactNode;
   Header: (props: TemplateHeaderProps) => ReactNode;
   itemViews: TemplateSectionItemMap;

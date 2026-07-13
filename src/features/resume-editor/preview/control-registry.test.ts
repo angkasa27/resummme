@@ -1,9 +1,26 @@
 import { describe, expect, it } from "vitest";
 
 import { previewControlDefinitions } from "@/features/resume-editor/preview/control-registry";
+import { previewTemplateDefinitions } from "@/features/resume-editor/preview/template-registry";
 import { createDefaultPdfPresentation } from "@/features/resume-editor/domain/presentation/pdf-presentation";
 
 const photoShape = previewControlDefinitions.find((c) => c.id === "photo-shape")!;
+const templateControl = previewControlDefinitions.find(
+  (c) => c.id === "template",
+)!;
+
+describe("template control", () => {
+  it("derives its options from the template registry (single source of truth)", () => {
+    // Options must mirror the registry so adding/removing a template needs no
+    // second edit here — no separate pdfTemplateLabels enumeration.
+    expect(templateControl.options).toEqual(
+      previewTemplateDefinitions.map((template) => ({
+        value: template.id,
+        label: template.label,
+      })),
+    );
+  });
+});
 
 describe("photo-shape control", () => {
   const base = createDefaultPdfPresentation();

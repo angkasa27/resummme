@@ -26,6 +26,7 @@ export const bannerTemplate: PreviewTemplateDefinition = {
   label: "Banner",
   description:
     "Bold solid-color header band with the name and contacts inside, and a circular photo overlapping its edge.",
+  hideSummaryHeading: true,
   Component: BannerTemplate,
   Header: BannerHeader,
   itemViews: bannerItemViews,

@@ -25,6 +25,7 @@ export const classicTemplate: PreviewTemplateDefinition = {
   id: "classic",
   label: "Classic",
   description: "Single-column resume with the photo and name aligned on top.",
+  hideSummaryHeading: true,
   Component: ClassicTemplate,
   Header: ClassicHeader,
   itemViews: classicItemViews,

@@ -26,6 +26,7 @@ export const timelineTemplate: PreviewTemplateDefinition = {
   label: "Timeline",
   description:
     "Single-column layout with a subtle accent bar beside each item, emphasizing dates and chronology.",
+  hideSummaryHeading: true,
   Component: TimelineTemplate,
   Header: TimelineHeader,
   itemViews: timelineItemViews,

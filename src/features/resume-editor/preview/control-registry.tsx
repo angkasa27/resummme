@@ -11,11 +11,10 @@ import {
   pdfPhotoShapeLabels,
   pdfSpacingIds,
   pdfSpacingLabels,
-  pdfTemplateIds,
-  pdfTemplateLabels,
   type PdfPhotoShapeId,
   type PdfPresentation,
 } from "@/features/resume-editor/domain/presentation/pdf-presentation";
+import { previewTemplateDefinitions } from "@/features/resume-editor/preview/template-registry";
 import type { PreviewControlDefinition } from "@/features/resume-editor/preview/types";
 
 function spacingGlyph({ gap }: { gap: number }) {
@@ -86,9 +85,9 @@ export const previewControlDefinitions = [
         "templateId",
         nextValue as PdfPresentation["templateId"],
       ),
-    options: pdfTemplateIds.map((value) => ({
-      value,
-      label: pdfTemplateLabels[value],
+    options: previewTemplateDefinitions.map((template) => ({
+      value: template.id,
+      label: template.label,
     })),
   },
   {

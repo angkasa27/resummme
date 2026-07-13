@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   getTemplate,
   previewTemplateDefinitions,
+  shouldHideSummaryHeading,
 } from "@/features/resume-editor/preview/template-registry";
 
 describe("preview template registry", () => {
@@ -55,6 +56,23 @@ describe("preview template registry", () => {
       expect(template.getColumn?.("workExperience")).toBe("main");
       expect(template.getColumn?.("education")).toBe("main");
     }
+  });
+
+  it("marks only classic, timeline, and banner as hiding the summary heading", () => {
+    // The templates that render their own Summary heading; the shared
+    // SummaryView must suppress its <h2> for exactly these.
+    const hiding = previewTemplateDefinitions
+      .filter((template) => template.hideSummaryHeading === true)
+      .map((template) => template.id);
+    expect(hiding.sort()).toEqual(["banner", "classic", "timeline"]);
+  });
+
+  it("shouldHideSummaryHeading derives from the template definition", () => {
+    expect(shouldHideSummaryHeading("classic")).toBe(true);
+    expect(shouldHideSummaryHeading("timeline")).toBe(true);
+    expect(shouldHideSummaryHeading("banner")).toBe(true);
+    expect(shouldHideSummaryHeading("sidebar")).toBe(false);
+    expect(shouldHideSummaryHeading("minimal")).toBe(false);
   });
 
   it("single-column templates have no column partitioning", () => {
