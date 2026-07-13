@@ -18,6 +18,10 @@ export type EditorHostProps = {
  * identical across branches. `searchParams` is part of the contract so the cloud
  * host can read `?id=<resumeId>` without changing the routes.
  */
-export async function EditorHost({ mode }: EditorHostProps) {
+export async function EditorHost({ mode, searchParams }: EditorHostProps) {
+  // The OSS host renders the local editor and deliberately ignores
+  // `searchParams`; it is destructured so the swap contract (which the SaaS
+  // host reads for `?id=<resumeId>`) stays part of this function's signature.
+  void searchParams;
   return mode === "canvas" ? <ResumeEditorCanvas /> : <ResumeEditorShell />;
 }

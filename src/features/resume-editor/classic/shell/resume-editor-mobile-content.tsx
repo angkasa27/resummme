@@ -106,6 +106,17 @@ const reducedTransition = { duration: motionTokens.duration.fast };
 
 const TAB_ORDER: EditorTab[] = ["edit", "preview", "design", "insights"];
 
+// Shared +1/-1 slide-direction state for the filmstrip AnimatePresence blocks.
+function useDirection(initial = 1) {
+  const [direction, setDirection] = useState(initial);
+  return {
+    direction,
+    forward: () => setDirection(1),
+    backward: () => setDirection(-1),
+    set: setDirection,
+  };
+}
+
 export function ResumeEditorMobileContent({
   sectionProps,
   controlPanelProps,
@@ -117,12 +128,12 @@ export function ResumeEditorMobileContent({
     null,
   );
   // +1 = navigating into a form / forward tab, -1 = back / previous tab.
-  const [navDir, setNavDir] = useState(1);
-  const [tabDir, setTabDir] = useState(1);
+  const nav = useDirection();
+  const tabs = useDirection();
   const reduceMotion = useReducedMotion();
 
   function changeTab(next: EditorTab) {
-    setTabDir(TAB_ORDER.indexOf(next) >= TAB_ORDER.indexOf(tab) ? 1 : -1);
+    tabs.set(TAB_ORDER.indexOf(next) >= TAB_ORDER.indexOf(tab) ? 1 : -1);
     setTab(next);
     if (next !== "edit") setOpenSection(null);
   }
@@ -136,18 +147,18 @@ export function ResumeEditorMobileContent({
   const onOpenSection = controlPanelProps.onOpenSection;
 
   function openForm(key: ResumeEditorPanelKey) {
-    setNavDir(1);
+    nav.forward();
     onSelectSection(key);
     setOpenSection(key);
   }
 
   function backToList() {
-    setNavDir(-1);
+    nav.backward();
     setOpenSection(null);
   }
 
   function handleInsightsOpen(panel: EditorPanelKey) {
-    setNavDir(1);
+    nav.forward();
     onOpenSection?.(panel);
     setTab("edit");
     setOpenSection(panel);
@@ -179,11 +190,11 @@ export function ResumeEditorMobileContent({
 
       {/* Tab content — slides horizontally between tabs (direction by order). */}
       <div className="relative min-h-0 flex-1 overflow-hidden">
-        <AnimatePresence initial={false} custom={tabDir}>
+        <AnimatePresence initial={false} custom={tabs.direction}>
           <motion.div
             key={tab}
             className="absolute inset-0 transform-gpu bg-background"
-            custom={tabDir}
+            custom={tabs.direction}
             variants={reduceMotion ? fadeVariants : slideVariants}
             initial="enter"
             animate="center"
@@ -192,12 +203,12 @@ export function ResumeEditorMobileContent({
           >
             {tab === "edit" ? (
               <div className="relative h-full overflow-hidden">
-                <AnimatePresence initial={false} custom={navDir}>
+                <AnimatePresence initial={false} custom={nav.direction}>
                   {editingForm && openSection ? (
                     <motion.div
                       key={openSection}
                       className="absolute inset-0 transform-gpu overflow-y-auto bg-background p-4 pb-24 @container/form"
-                      custom={navDir}
+                      custom={nav.direction}
                       variants={sectionVariants}
                       initial="enter"
                       animate="center"
@@ -231,7 +242,7 @@ export function ResumeEditorMobileContent({
                     <motion.div
                       key="list"
                       className="absolute inset-0 transform-gpu bg-background"
-                      custom={navDir}
+                      custom={nav.direction}
                       variants={sectionVariants}
                       initial="enter"
                       animate="center"
