@@ -1,4 +1,4 @@
-import { ResumeEditor } from "@/features/resume-editor/resume-editor";
+import { ResumeEditor } from "@/features/resume-editor/editor/resume-editor";
 
 export type EditorHostProps = {
   searchParams: Record<string, string | string[] | undefined>;

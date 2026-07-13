@@ -1,7 +1,7 @@
 "use client";
 
-import { EditorTopBar } from "@/features/resume-editor/shared/editor-top-bar";
-import { useEditorHeaderStore } from "@/features/resume-editor/shared/editor-header-store";
+import { EditorTopBar } from "@/features/resume-editor/chrome/editor-top-bar";
+import { useEditorHeaderStore } from "@/features/resume-editor/chrome/editor-header-store";
 
 export default function EditorLayout({
   children,
