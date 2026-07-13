@@ -3,7 +3,10 @@ import type { ReactNode } from "react";
 import type { CollectionSectionKey } from "@/features/resume-editor/domain/sections/section-metadata";
 import type { PdfTemplateId } from "@/features/resume-editor/domain/presentation/pdf-presentation";
 import type { SectionItem } from "@/features/resume-editor/preview/sections/types";
-import type { AnyPreviewRenderableSection, PreviewRenderContext } from "@/features/resume-editor/preview/types";
+import type {
+  PreviewRenderableSection,
+  PreviewRenderContext,
+} from "@/features/resume-editor/preview/types";
 
 export type LayoutColumn = "main" | "side";
 
@@ -13,14 +16,30 @@ export type TemplateSectionItemMap = {
   }) => ReactNode;
 };
 
+/**
+ * One section handed to a template's Component. Distributed over
+ * `CollectionSectionKey` so `entry.key === "skills"` narrows `entry.section`
+ * to `PreviewRenderableSection<"skills">` — a template that restructures a
+ * section's content reads `entry.section.items` type-safely, with no cast.
+ * `node` is the section pre-rendered by the shared `TemplateSection` (the
+ * default placement); `section` is the structured data behind it.
+ *
+ * `section` is optional because the canvas edit surface renders a slot for
+ * every section, including empty ones that have no renderable data — a
+ * restructuring template must guard `entry.section` before reading it.
+ */
+export type TemplateSectionEntry = {
+  [K in CollectionSectionKey]: {
+    key: K;
+    node: ReactNode;
+    section?: PreviewRenderableSection<K>;
+  };
+}[CollectionSectionKey];
+
 export type TemplateSlots = {
   header: ReactNode;
   summary: ReactNode | null;
-  sections: Array<{
-    key: CollectionSectionKey;
-    node: ReactNode;
-    section?: AnyPreviewRenderableSection;
-  }>;
+  sections: TemplateSectionEntry[];
 };
 
 export type TemplateComponentProps = {

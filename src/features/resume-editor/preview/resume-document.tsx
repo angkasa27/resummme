@@ -32,11 +32,17 @@ export function ResumeDocument({
         showHeading={!hideSummaryHeading}
       />
     ) : null,
-    sections: context.sections.map((section) => ({
-      key: section.key,
-      section,
-      node: <TemplateSection template={template} section={section} />,
-    })),
+    // `section.key` and `section` co-vary at runtime, but TS can't prove that
+    // across the union element, so assert the entry type once here (the single
+    // central place slots are built) rather than casting in every template.
+    sections: context.sections.map(
+      (section) =>
+        ({
+          key: section.key,
+          section,
+          node: <TemplateSection template={template} section={section} />,
+        }) as TemplateSlots["sections"][number],
+    ),
   };
 
   return (

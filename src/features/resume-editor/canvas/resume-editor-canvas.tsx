@@ -281,6 +281,9 @@ export function ResumeEditorCanvas({
         const orderIndex = collectionKeys.indexOf(sectionKey);
         const renderable = context.sections.find((s) => s.key === sectionKey);
         const isEditing = editing === sectionKey;
+        // Empty sections render a slot with no `renderable`, so `section` is
+        // omitted; assert the entry type once here (TS can't co-vary key with
+        // the union element across the map). Mirrors resume-document.tsx.
         return {
           key: sectionKey,
           node: (
@@ -314,7 +317,7 @@ export function ResumeEditorCanvas({
               )}
             </CanvasSectionShell>
           ),
-        };
+        } as TemplateSlots["sections"][number];
       }),
     };
 
