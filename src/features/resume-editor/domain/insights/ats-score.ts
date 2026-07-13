@@ -51,6 +51,9 @@ export type AtsScore = {
   suggestions: Suggestion[];
 };
 
+/** Each scorer owns its suggestions instead of a threaded push callback. */
+type ScorerResult = { score: number; suggestions: Suggestion[] };
+
 const BASE_WEIGHTS_WITH_JD: Record<AtsCategory, number> = {
   parseability: 25,
   content: 25,
@@ -67,18 +70,40 @@ const BASE_WEIGHTS_NO_JD: Record<AtsCategory, number> = {
   jobMatch: 0,
 };
 
-const PARSEABILITY_BY_TEMPLATE: Record<PdfTemplateId, number> = {
-  classic: 100,
-  "modern-centered": 80,
-  timeline: 100,
-  academic: 80,
-  sidebar: 55,
-  minimal: 100,
-  inset: 100,
-  banner: 90,
-  split: 55,
-  tinted: 85,
-  "bold-type": 90,
+type ParseabilityNote = Omit<Suggestion, "fix">;
+
+type ParseabilityEntry = { score: number; note?: ParseabilityNote };
+
+const SIDEBAR_TEMPLATE_NOTE: ParseabilityNote = {
+  id: "parseability/sidebar-template",
+  category: "parseability",
+  severity: "warn",
+  message:
+    "Multi-column templates can confuse ATS parsers. Switch to a single-column template for stricter ATS reliability.",
+};
+
+const NON_STANDARD_TEMPLATE_NOTE: ParseabilityNote = {
+  id: "parseability/non-standard-template",
+  category: "parseability",
+  severity: "ok",
+  message:
+    "Most ATS parsers handle this template; classic / timeline score slightly higher.",
+};
+
+// Score + optional advisory note per template, driven by data instead of a
+// per-templateId `if` ladder. Preserves the exact prior notes.
+const PARSEABILITY_BY_TEMPLATE: Record<PdfTemplateId, ParseabilityEntry> = {
+  classic: { score: 100 },
+  "modern-centered": { score: 80, note: NON_STANDARD_TEMPLATE_NOTE },
+  timeline: { score: 100 },
+  academic: { score: 80, note: NON_STANDARD_TEMPLATE_NOTE },
+  sidebar: { score: 55, note: SIDEBAR_TEMPLATE_NOTE },
+  minimal: { score: 100 },
+  inset: { score: 100 },
+  banner: { score: 90 },
+  split: { score: 55 },
+  tinted: { score: 85 },
+  "bold-type": { score: 90 },
 };
 
 const ACTION_VERBS = new Set(
@@ -131,7 +156,6 @@ const ACTION_VERBS = new Set(
     "championed",
     "founded",
     "co-founded",
-    "led",
     "spearheaded",
     "expanded",
     "consolidated",
@@ -143,14 +167,12 @@ const ACTION_VERBS = new Set(
     "raised",
     "secured",
     "won",
-    "delivered",
     "pioneered",
     "boosted",
     "accelerated",
     "tripled",
     "doubled",
     "produced",
-    "shipped",
     "engineered",
     "validated",
     "tested",
@@ -161,14 +183,12 @@ const ACTION_VERBS = new Set(
     "documented",
     "reviewed",
     "audited",
-    "secured",
     "rolled",
-    "drove",
     "supported",
     "consulted",
     "collaborated",
     "partnered",
-  ].map((verb) => verb.toLowerCase()),
+  ],
 );
 
 const FIRST_PERSON_PATTERN = /^(?:i |my |me )/i;
@@ -196,42 +216,17 @@ function firstWord(text: string): string {
   return (text.match(/[a-zA-Z][a-zA-Z'-]*/)?.[0] ?? "").toLowerCase();
 }
 
-function scoreParseability(
-  draft: ResumeDraft,
-  push: (s: Suggestion) => void,
-): number {
+function scoreParseability(draft: ResumeDraft): ScorerResult {
   const presentation = normalizePdfPresentation(draft.pdfPresentation);
-  const base = PARSEABILITY_BY_TEMPLATE[presentation.templateId];
-
-  if (presentation.templateId === "sidebar") {
-    push({
-      id: "parseability/sidebar-template",
-      category: "parseability",
-      severity: "warn",
-      message:
-        "Multi-column templates can confuse ATS parsers. Switch to a single-column template for stricter ATS reliability.",
-    });
-  }
-  if (
-    presentation.templateId === "modern-centered" ||
-    presentation.templateId === "academic"
-  ) {
-    push({
-      id: "parseability/non-standard-template",
-      category: "parseability",
-      severity: "ok",
-      message:
-        "Most ATS parsers handle this template; classic / timeline score slightly higher.",
-    });
-  }
-
-  return base;
+  const entry = PARSEABILITY_BY_TEMPLATE[presentation.templateId];
+  const suggestions: Suggestion[] = [];
+  if (entry.note) suggestions.push(entry.note);
+  return { score: entry.score, suggestions };
 }
 
-function scoreContent(
-  draft: ResumeDraft,
-  push: (s: Suggestion) => void,
-): number {
+function scoreContent(draft: ResumeDraft): ScorerResult {
+  const suggestions: Suggestion[] = [];
+  const push = (s: Suggestion) => suggestions.push(s);
   const bullets = extractAllBullets(draft);
   if (bullets.length === 0) {
     push({
@@ -242,7 +237,7 @@ function scoreContent(
         "Add bullet points to your Work Experience or Projects, concrete impact statements parse better and read faster.",
       fix: { panel: "workExperience" },
     });
-    return 20;
+    return { score: 20, suggestions };
   }
 
   const actionVerbStart = bullets.filter((bullet) =>
@@ -322,12 +317,15 @@ function scoreContent(
     });
   }
 
-  return clamp(
-    actionScore * 0.4 +
-      quantifiedScore * 0.35 +
-      lengthScore * 0.25 -
-      firstPersonPenalty,
-  );
+  return {
+    score: clamp(
+      actionScore * 0.4 +
+        quantifiedScore * 0.35 +
+        lengthScore * 0.25 -
+        firstPersonPenalty,
+    ),
+    suggestions,
+  };
 }
 
 function hasItemContent(items: unknown[], requiredFields: string[]): boolean {
@@ -340,10 +338,9 @@ function hasItemContent(items: unknown[], requiredFields: string[]): boolean {
   );
 }
 
-function scoreCompleteness(
-  draft: ResumeDraft,
-  push: (s: Suggestion) => void,
-): number {
+function scoreCompleteness(draft: ResumeDraft): ScorerResult {
+  const suggestions: Suggestion[] = [];
+  const push = (s: Suggestion) => suggestions.push(s);
   let score = 100;
 
   if (!draft.profile.fullName.trim()) {
@@ -454,7 +451,7 @@ function scoreCompleteness(
     });
   }
 
-  return clamp(score);
+  return { score: clamp(score), suggestions };
 }
 
 /**
@@ -462,10 +459,9 @@ function scoreCompleteness(
  * Item-count based, weighted by section type and font scale, normalised against
  * the printable page area. Returns 100 in the sweet spot.
  */
-function scoreLength(
-  draft: ResumeDraft,
-  push: (s: Suggestion) => void,
-): number {
+function scoreLength(draft: ResumeDraft): ScorerResult {
+  const suggestions: Suggestion[] = [];
+  const push = (s: Suggestion) => suggestions.push(s);
   const presentation = normalizePdfPresentation(draft.pdfPresentation);
   const paper = getPaperDimensionsMm(presentation.paperSize);
   const margin = getPageMarginMm(presentation.pageMargin);
@@ -507,7 +503,7 @@ function scoreLength(
       message:
         "Resume looks light on content. Add more impact statements or context to fill at least half a page.",
     });
-    return clamp(lerp(pages, 0.1, 0.4, 30, 80));
+    return { score: clamp(lerp(pages, 0.1, 0.4, 30, 80)), suggestions };
   }
   if (pages > 2.2) {
     push({
@@ -517,15 +513,14 @@ function scoreLength(
       message:
         "Resume may overflow 2 pages, trim older roles or condense bullets to keep recruiters engaged.",
     });
-    return clamp(lerp(pages, 2.2, 4, 80, 30));
+    return { score: clamp(lerp(pages, 2.2, 4, 80, 30)), suggestions };
   }
-  return 100;
+  return { score: 100, suggestions };
 }
 
-function scoreJobMatch(
-  jobMatch: JobMatchResult,
-  push: (s: Suggestion) => void,
-): number {
+function scoreJobMatch(jobMatch: JobMatchResult): ScorerResult {
+  const suggestions: Suggestion[] = [];
+  const push = (s: Suggestion) => suggestions.push(s);
   const pct = jobMatch.coverage * 100;
   if (jobMatch.missing.length > 0) {
     const topMissing = jobMatch.missing
@@ -549,33 +544,40 @@ function scoreJobMatch(
       message: `Strong keyword coverage (${Math.round(pct)}%).`,
     });
   }
-  return clamp(pct);
+  return { score: clamp(pct), suggestions };
 }
 
 export function computeAtsScore(
   draft: ResumeDraft,
   jobMatch?: JobMatchResult,
 ): AtsScore {
-  const suggestions: Suggestion[] = [];
-  const push = (s: Suggestion) => suggestions.push(s);
+  const parseability = scoreParseability(draft);
+  const content = scoreContent(draft);
+  const completeness = scoreCompleteness(draft);
+  const length = scoreLength(draft);
+  const jobMatchResult = jobMatch ? scoreJobMatch(jobMatch) : null;
 
-  const parseability = scoreParseability(draft, push);
-  const content = scoreContent(draft, push);
-  const completeness = scoreCompleteness(draft, push);
-  const length = scoreLength(draft, push);
-  const jobMatchPct = jobMatch ? scoreJobMatch(jobMatch, push) : null;
+  // Same category order as the previous push sequence (final sort below makes
+  // ordering deterministic regardless).
+  const suggestions: Suggestion[] = [
+    ...parseability.suggestions,
+    ...content.suggestions,
+    ...completeness.suggestions,
+    ...length.suggestions,
+    ...(jobMatchResult?.suggestions ?? []),
+  ];
 
   const weights = jobMatch ? BASE_WEIGHTS_WITH_JD : BASE_WEIGHTS_NO_JD;
 
   const breakdown: Record<AtsCategory, CategoryScore | null> = {
-    parseability: { pct: parseability, weight: weights.parseability },
-    content: { pct: content, weight: weights.content },
-    completeness: { pct: completeness, weight: weights.completeness },
-    length: { pct: length, weight: weights.length },
+    parseability: { pct: parseability.score, weight: weights.parseability },
+    content: { pct: content.score, weight: weights.content },
+    completeness: { pct: completeness.score, weight: weights.completeness },
+    length: { pct: length.score, weight: weights.length },
     jobMatch:
-      jobMatchPct === null
+      jobMatchResult === null
         ? null
-        : { pct: jobMatchPct, weight: weights.jobMatch },
+        : { pct: jobMatchResult.score, weight: weights.jobMatch },
   };
 
   const totalWeight = Object.values(breakdown).reduce(
