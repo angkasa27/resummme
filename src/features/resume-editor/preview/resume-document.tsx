@@ -3,6 +3,7 @@ import { PreviewDocumentRoot } from "@/features/resume-editor/preview/kit/docume
 import {
   getTemplate,
   renderTemplateHeader,
+  shouldHideSummaryHeading,
 } from "@/features/resume-editor/preview/template-registry";
 import { TemplateSection } from "@/features/resume-editor/preview/template-section";
 import { SummaryView } from "@/features/resume-editor/preview/sections/summary";
@@ -19,10 +20,9 @@ export function ResumeDocument({
   const context = createPreviewRenderContext(draft, mode);
   const template = getTemplate(context.presentation.templateId);
 
-  const hideSummaryHeading =
-    context.presentation.templateId === "classic" ||
-    context.presentation.templateId === "timeline" ||
-    context.presentation.templateId === "banner";
+  const hideSummaryHeading = shouldHideSummaryHeading(
+    context.presentation.templateId,
+  );
 
   const slots: TemplateSlots = {
     header: renderTemplateHeader(context),

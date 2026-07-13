@@ -29,7 +29,7 @@ export async function POST(request: Request) {
     .split(",")
     .map((o) => o.trim())
     .filter(Boolean);
-  const isSameOrigin = originHeader === null || originHeader === requestOrigin;
+  const isSameOrigin = originHeader !== null && originHeader === requestOrigin;
   const isTrustedOrigin =
     originHeader !== null && trustedOrigins.includes(originHeader);
 

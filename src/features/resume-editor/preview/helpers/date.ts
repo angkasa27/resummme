@@ -8,7 +8,10 @@ export function renderDateRange(
   fallback = "",
 ) {
   if (startDate || endDate) {
-    return `${startDate || ""}${startDate || endDate ? " - " : ""}${renderCurrentDateLabel(endDate || "")}`.trim();
+    const start = startDate || "";
+    const end = renderCurrentDateLabel(endDate || "");
+    const separator = start && end ? " - " : "";
+    return `${start}${separator}${end}`.trim();
   }
 
   return fallback;

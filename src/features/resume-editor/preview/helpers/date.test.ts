@@ -25,12 +25,12 @@ describe("renderDateRange", () => {
     expect(renderDateRange("Jan 2024", "current")).toBe("Jan 2024 - Current");
   });
 
-  it("returns only start when end is empty", () => {
-    expect(renderDateRange("Jan 2024")).toBe("Jan 2024 -");
+  it("returns only start (no dangling separator) when end is empty", () => {
+    expect(renderDateRange("Jan 2024")).toBe("Jan 2024");
   });
 
-  it("returns only end when start is empty", () => {
-    expect(renderDateRange(undefined, "Jun 2024")).toBe("- Jun 2024");
+  it("returns only end (no leading separator) when start is empty", () => {
+    expect(renderDateRange(undefined, "Jun 2024")).toBe("Jun 2024");
   });
 
   it("returns fallback when neither date is present", () => {

@@ -123,11 +123,18 @@ export function createCloudflareBrowserRunWSEndpoint(
 }
 
 async function getLocalBrowser() {
-  localBrowserPromise ??= import("puppeteer").then(({ launch }) =>
-    launch({
-      headless: true,
-    }),
-  );
+  localBrowserPromise ??= import("puppeteer")
+    .then(({ launch }) =>
+      launch({
+        headless: true,
+      }),
+    )
+    .catch((error) => {
+      // Don't cache a rejected promise, otherwise one transient launch failure
+      // would permanently break local PDF export for the process lifetime.
+      localBrowserPromise = null;
+      throw error;
+    });
 
   return localBrowserPromise;
 }
@@ -155,9 +162,21 @@ function createPuppeteerPageAdapter(page: Page): PdfPageAdapter {
       await page.emulateMediaType("screen");
     },
     async waitForReady(timeoutMs) {
-      await page.waitForSelector('[data-pdf-ready="true"]', {
-        timeout: timeoutMs,
-      });
+      const handle = await page.waitForSelector(
+        '[data-pdf-ready="true"],[data-pdf-ready="error"]',
+        {
+          timeout: timeoutMs,
+        },
+      );
+      const result = await handle?.evaluate((el) => ({
+        state: el.getAttribute("data-pdf-ready"),
+        message: el.querySelector("p")?.textContent ?? null,
+      }));
+      if (result?.state === "error") {
+        // Surface the real cause immediately instead of burning the full
+        // timeout waiting for a ready state that will never arrive.
+        throw new Error(result.message || "PDF page reported an error state.");
+      }
     },
     async pdf({ format, marginMm }) {
       const margin = `${marginMm}mm`;
@@ -276,9 +295,19 @@ export async function generateResumePdf({
       error instanceof Error ? error.message : "Unknown PDF generation error";
     throw new Error(`PDF generation failed: ${message}`);
   } finally {
-    if (page) {
-      await page.close();
+    // Swallow cleanup errors so a close-time throw on an already-crashed page
+    // can't supersede the real generation error thrown from catch.
+    try {
+      if (page) {
+        await page.close();
+      }
+    } catch {
+      /* ignore cleanup error */
     }
-    await session.close();
+    try {
+      await session.close();
+    } catch {
+      /* ignore cleanup error */
+    }
   }
 }

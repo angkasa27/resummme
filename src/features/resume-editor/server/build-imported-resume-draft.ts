@@ -15,6 +15,12 @@ type BuildImportedResumeDraftResult = {
   warnings: string[];
 };
 
+// Imported proficiency strings outside the fixed taxonomy would render blank in
+// the exact-match Select; fall back to the section's valid default instead.
+const defaultLanguageProficiency = (
+  collectionSectionConfigs.languages.createItem() as { proficiency: string }
+).proficiency;
+
 const monthMap: Record<string, string> = {
   january: "Jan",
   jan: "Jan",
@@ -328,7 +334,7 @@ export function buildImportedResumeDraft(
               language: cleanText(item.language),
               proficiency: languageProficiencyOptions.includes(cleanText(item.proficiency))
                 ? cleanText(item.proficiency)
-                : cleanText(item.proficiency),
+                : defaultLanguageProficiency,
             })),
           }
         : buildHiddenSection("languages"),

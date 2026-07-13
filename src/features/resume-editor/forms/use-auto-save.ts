@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import type { FieldValues, UseFormReturn } from "react-hook-form";
 
 export function useAutoSave<T extends FieldValues>(
@@ -7,13 +7,25 @@ export function useAutoSave<T extends FieldValues>(
   delay = 500,
 ) {
   const { getValues, formState } = form;
+  const { isDirty, isValid } = formState;
+
+  // Keep the latest onSave behind a ref so an unstable callback identity doesn't
+  // churn the debounce timer on every unrelated re-render.
+  const onSaveRef = useRef(onSave);
+  useLayoutEffect(() => {
+    onSaveRef.current = onSave;
+  });
 
   useEffect(() => {
-    if (!formState.isDirty || !formState.isValid) return;
+    if (!isDirty || !isValid) return;
 
     const timeoutId = setTimeout(() => {
-      onSave(getValues());
+      onSaveRef.current(getValues());
     }, delay);
-    return () => clearTimeout(timeoutId);
-  }, [delay, formState.isDirty, formState.isValid, getValues, onSave]);
+    return () => {
+      clearTimeout(timeoutId);
+      // Flush the pending edit so unmount (e.g. section collapse) doesn't drop it.
+      onSaveRef.current(getValues());
+    };
+  }, [delay, isDirty, isValid, getValues]);
 }

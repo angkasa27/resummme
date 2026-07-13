@@ -26,6 +26,7 @@ describe("POST /api/export-pdf", () => {
         method: "POST",
         headers: {
           "content-type": "application/json",
+          origin: "http://localhost:3000",
         },
         body: JSON.stringify({ draft }),
       })
@@ -51,6 +52,7 @@ describe("POST /api/export-pdf", () => {
         method: "POST",
         headers: {
           "content-type": "application/json",
+          origin: "http://localhost:3000",
         },
         body: JSON.stringify({ draft: { nope: true } }),
       })
@@ -70,6 +72,7 @@ describe("POST /api/export-pdf", () => {
         method: "POST",
         headers: {
           "content-type": "application/json",
+          origin: "http://localhost:3000",
         },
         body: JSON.stringify({ draft }),
       })
@@ -88,6 +91,7 @@ describe("POST /api/export-pdf", () => {
         method: "POST",
         headers: {
           "content-type": "application/json",
+          origin: "http://localhost:3000",
         },
         body: JSON.stringify({ draft: createDefaultResumeDraft() }),
       })
@@ -117,6 +121,27 @@ describe("POST /api/export-pdf", () => {
       draft,
       origin: "https://resume.example.com",
     });
+  });
+
+  it("rejects requests with a missing Origin header outside development", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+
+    try {
+      const response = await POST(
+        new Request("https://resume.example.com/api/export-pdf", {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+          },
+          body: JSON.stringify({ draft: createDefaultResumeDraft() }),
+        })
+      );
+
+      expect(response.status).toBe(403);
+      expect(generateResumePdf).not.toHaveBeenCalled();
+    } finally {
+      vi.unstubAllEnvs();
+    }
   });
 
   it("rejects cross-origin requests unless the origin is trusted", async () => {

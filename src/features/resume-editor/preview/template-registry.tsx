@@ -50,6 +50,16 @@ export function getTemplate(
   );
 }
 
+// Single source of truth so canvas live-preview and the exported PDF never
+// disagree on whether a template renders its own Summary heading.
+export function shouldHideSummaryHeading(templateId: PdfTemplateId): boolean {
+  return (
+    templateId === "classic" ||
+    templateId === "timeline" ||
+    templateId === "banner"
+  );
+}
+
 export function renderTemplateHeader(context: PreviewRenderContext): ReactNode {
   switch (context.presentation.templateId) {
     case "sidebar":

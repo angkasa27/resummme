@@ -54,6 +54,7 @@ import { usePreviewScale } from "@/features/resume-editor/preview/components/use
 import {
   getTemplate,
   renderTemplateHeader,
+  shouldHideSummaryHeading,
 } from "@/features/resume-editor/preview/template-registry";
 import { TemplateSection } from "@/features/resume-editor/preview/template-section";
 import { SummaryView } from "@/features/resume-editor/preview/sections/summary";
@@ -272,8 +273,7 @@ export function ResumeEditorCanvas({
             <SummaryView
               content={context.summaryContent ?? ""}
               showHeading={
-                context.presentation.templateId !== "classic" &&
-                context.presentation.templateId !== "timeline"
+                !shouldHideSummaryHeading(context.presentation.templateId)
               }
             />
           </CanvasSectionShell>
