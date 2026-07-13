@@ -1,7 +1,7 @@
 "use client";
 
 import { type ReactNode } from "react";
-import { Controller, type Control, type FormState, type UseFormRegister, type UseFormSetValue, type UseFormReturn } from "react-hook-form";
+import { Controller, type UseFormReturn } from "react-hook-form";
 import {
   AtSignIcon,
   BadgeCheckIcon,
@@ -104,27 +104,20 @@ export function CollectionItemFields({
     return getFieldState(fieldName as never, formState);
   }
 
-  type DynamicFieldState = ReturnType<typeof getDynamicFieldState>;
-
   type RenderFieldFn = (
     fieldConfig: ItemFieldConfig,
     fieldIndex: number,
-    ctrl: Control<CollectionSectionFormValues>,
-    sv: UseFormSetValue<CollectionSectionFormValues>,
-    fs: FormState<CollectionSectionFormValues>,
-    reg: UseFormRegister<CollectionSectionFormValues>,
-    gdfs: (name: string) => DynamicFieldState,
   ) => ReactNode;
 
-  function renderTextField(
-    _fieldConfig: ItemFieldConfig,
-    fieldIndex: number,
-    _ctrl: Control<CollectionSectionFormValues>,
-    _sv: UseFormSetValue<CollectionSectionFormValues>,
-    _fs: FormState<CollectionSectionFormValues>,
-    reg: UseFormRegister<CollectionSectionFormValues>,
-    gdfs: (name: string) => DynamicFieldState,
-  ) {
+  // Renderers below close over these form helpers directly (like `watch`
+  // already does), so the dispatch passes only the varying inputs.
+  const ctrl = control;
+  const sv = setValue;
+  const fs = formState;
+  const reg = register;
+  const gdfs = getDynamicFieldState;
+
+  function renderTextField(_fieldConfig: ItemFieldConfig, fieldIndex: number) {
     const fieldConfig = _fieldConfig as ItemFieldConfig & { name: string; placeholder?: string };
     const fieldName = `items.${fieldIndex}.${fieldConfig.name}` as const;
     const fieldState = gdfs(fieldName);
@@ -186,11 +179,6 @@ export function CollectionItemFields({
   function renderMonthYearField(
     _fieldConfig: ItemFieldConfig,
     fieldIndex: number,
-    ctrl: Control<CollectionSectionFormValues>,
-    sv: UseFormSetValue<CollectionSectionFormValues>,
-    fs: FormState<CollectionSectionFormValues>,
-    _reg: UseFormRegister<CollectionSectionFormValues>,
-    gdfs: (name: string) => DynamicFieldState,
   ) {
     const fieldConfig = _fieldConfig as ItemFieldConfig & { name: string; placeholder?: string };
     const fieldName = `items.${fieldIndex}.${fieldConfig.name}` as const;
@@ -233,11 +221,6 @@ export function CollectionItemFields({
   function renderTextareaField(
     _fieldConfig: ItemFieldConfig,
     fieldIndex: number,
-    _ctrl: Control<CollectionSectionFormValues>,
-    _sv: UseFormSetValue<CollectionSectionFormValues>,
-    _fs: FormState<CollectionSectionFormValues>,
-    reg: UseFormRegister<CollectionSectionFormValues>,
-    gdfs: (name: string) => DynamicFieldState,
   ) {
     const fieldConfig = _fieldConfig as ItemFieldConfig & { name: string; placeholder?: string };
     const fieldName = `items.${fieldIndex}.${fieldConfig.name}` as const;
@@ -270,11 +253,6 @@ export function CollectionItemFields({
   function renderRichTextField(
     _fieldConfig: ItemFieldConfig,
     fieldIndex: number,
-    ctrl: Control<CollectionSectionFormValues>,
-    sv: UseFormSetValue<CollectionSectionFormValues>,
-    fs: FormState<CollectionSectionFormValues>,
-    _reg: UseFormRegister<CollectionSectionFormValues>,
-    gdfs: (name: string) => DynamicFieldState,
   ) {
     const fieldConfig = _fieldConfig as ItemFieldConfig & { name: string; placeholder?: string };
     const fieldName = `items.${fieldIndex}.${fieldConfig.name}` as const;
@@ -319,11 +297,6 @@ export function CollectionItemFields({
   function renderStringArrayField(
     _fieldConfig: ItemFieldConfig,
     fieldIndex: number,
-    ctrl: Control<CollectionSectionFormValues>,
-    _sv: UseFormSetValue<CollectionSectionFormValues>,
-    _fs: FormState<CollectionSectionFormValues>,
-    _reg: UseFormRegister<CollectionSectionFormValues>,
-    gdfs: (name: string) => DynamicFieldState,
   ) {
     const fieldConfig = _fieldConfig as ItemFieldConfig & { name: string; placeholder?: string };
     const fieldName = `items.${fieldIndex}.${fieldConfig.name}` as const;
@@ -370,11 +343,6 @@ export function CollectionItemFields({
   function renderDateRangeField(
     fieldConfig: ItemFieldConfig,
     fieldIndex: number,
-    ctrl: Control<CollectionSectionFormValues>,
-    sv: UseFormSetValue<CollectionSectionFormValues>,
-    fs: FormState<CollectionSectionFormValues>,
-    _reg: UseFormRegister<CollectionSectionFormValues>,
-    gdfs: (name: string) => DynamicFieldState,
   ) {
     const { startName, endName, startPlaceholder, endPlaceholder } =
       fieldConfig as Extract<ItemFieldConfig, { kind: "dateRange" }>;
@@ -484,11 +452,6 @@ export function CollectionItemFields({
   function renderProficiencyField(
     _fieldConfig: ItemFieldConfig,
     fieldIndex: number,
-    ctrl: Control<CollectionSectionFormValues>,
-    _sv: UseFormSetValue<CollectionSectionFormValues>,
-    _fs: FormState<CollectionSectionFormValues>,
-    _reg: UseFormRegister<CollectionSectionFormValues>,
-    gdfs: (name: string) => DynamicFieldState,
   ) {
     const fieldConfig = _fieldConfig as ItemFieldConfig & { name: string; placeholder?: string };
     const fieldName = `items.${fieldIndex}.${fieldConfig.name}` as const;
@@ -549,16 +512,7 @@ export function CollectionItemFields({
     <FieldGroup className="grid grid-cols-1 gap-3 @sm/form:grid-cols-2">
       {config.fields.map((fieldConfig) => {
         const renderFn = renderField[fieldConfig.kind];
-        if (renderFn)
-          return renderFn(
-            fieldConfig,
-            index,
-            control,
-            setValue,
-            formState,
-            register,
-            getDynamicFieldState,
-          );
+        if (renderFn) return renderFn(fieldConfig, index);
         return null;
       })}
     </FieldGroup>
