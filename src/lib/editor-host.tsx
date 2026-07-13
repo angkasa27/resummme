@@ -1,10 +1,6 @@
-import { ResumeEditorCanvas } from "@/features/resume-editor/canvas/resume-editor-canvas";
-import { ResumeEditorShell } from "@/features/resume-editor/classic/shell/resume-editor-shell";
-
-export type EditorMode = "canvas" | "classic";
+import { ResumeEditor } from "@/features/resume-editor/resume-editor";
 
 export type EditorHostProps = {
-  mode: EditorMode;
   searchParams: Record<string, string | string[] | undefined>;
 };
 
@@ -18,10 +14,10 @@ export type EditorHostProps = {
  * identical across branches. `searchParams` is part of the contract so the cloud
  * host can read `?id=<resumeId>` without changing the routes.
  */
-export async function EditorHost({ mode, searchParams }: EditorHostProps) {
+export async function EditorHost({ searchParams }: EditorHostProps) {
   // The OSS host renders the local editor and deliberately ignores
   // `searchParams`; it is destructured so the swap contract (which the SaaS
   // host reads for `?id=<resumeId>`) stays part of this function's signature.
   void searchParams;
-  return mode === "canvas" ? <ResumeEditorCanvas /> : <ResumeEditorShell />;
+  return <ResumeEditor />;
 }

@@ -10,8 +10,6 @@ type EditorHeaderState = {
   onUndo: () => void;
   onRedo: () => void;
   actions: ReactNode;
-  canvasHref: string | undefined;
-  classicHref: string | undefined;
 };
 
 type EditorHeaderStore = EditorHeaderState & {
@@ -27,7 +25,5 @@ export const useEditorHeaderStore = create<EditorHeaderStore>((set) => ({
   onUndo: noop,
   onRedo: noop,
   actions: undefined,
-  canvasHref: undefined,
-  classicHref: undefined,
   setControls: (patch) => set(patch),
 }));

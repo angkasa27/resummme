@@ -95,16 +95,7 @@ export function Hero() {
             className="flex flex-wrap items-center justify-center gap-3"
           >
             <Link
-              href="/editor/classic"
-              className={cn(
-                buttonVariants({ variant: "outline", size: "lg" }),
-                "px-5",
-              )}
-            >
-              Classic Editor
-            </Link>
-            <Link
-              href="/editor/canvas"
+              href="/editor"
               className={cn(
                 buttonVariants({ variant: "ai", size: "lg" }),
                 "px-5",

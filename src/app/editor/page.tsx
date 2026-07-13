@@ -1,9 +1,9 @@
 import { EditorHost } from "@/lib/editor-host";
 
-export default async function ClassicEditorPage({
+export default async function EditorPage({
   searchParams,
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  return <EditorHost mode="classic" searchParams={await searchParams} />;
+  return <EditorHost searchParams={await searchParams} />;
 }

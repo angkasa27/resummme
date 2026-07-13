@@ -34,9 +34,9 @@ type Feature = {
 const FEATURES: Feature[] = [
   {
     Icon: PenToolIcon,
-    title: "Two ways to edit",
+    title: "Adapts to your device",
     description:
-      "Drag and drop on the Canvas or fill in structured forms in the Classic editor. Same resume, your choice.",
+      "A drag-and-drop canvas on desktop, guided forms on mobile. One editor that fits the screen you're on.",
   },
   {
     Icon: MonitorCheckIcon,

@@ -1,25 +1,11 @@
 "use client";
 
-import {
-  Loader,
-  PlusIcon,
-  SlidersHorizontalIcon,
-  TriangleAlert,
-} from "lucide-react";
-import Link from "next/link";
-import { useRef, useState } from "react";
+import { Loader, PlusIcon, TriangleAlert } from "lucide-react";
+import { useState } from "react";
 import type { ReactNode } from "react";
 
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -34,7 +20,6 @@ import {
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useClientReady } from "@/hooks/use-client-ready";
-import { useIsMobile } from "@/hooks/use-mobile";
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 
 import { useResumeEditorController } from "@/features/resume-editor/state/use-resume-editor-controller";
@@ -50,7 +35,6 @@ import { CanvasProfileForm } from "@/features/resume-editor/canvas/forms/canvas-
 import { CanvasSummaryForm } from "@/features/resume-editor/canvas/forms/canvas-summary-form";
 import { createPreviewRenderContext } from "@/features/resume-editor/preview/engine";
 import { PreviewDocumentRoot } from "@/features/resume-editor/preview/kit/document-root";
-import { usePreviewScale } from "@/features/resume-editor/preview/components/use-preview-scale";
 import {
   getTemplate,
   renderTemplateHeader,
@@ -79,9 +63,6 @@ type ResumeEditorCanvasProps = {
   storage?: DraftStorage;
   /** Right-aligned header slot. Defaults to the GitHub link. */
   headerActions?: ReactNode;
-  /** Tab link targets, forwarded to EditorTopBar (default to the bare routes). */
-  canvasHref?: string;
-  classicHref?: string;
 };
 
 type EditingTarget = "profile" | "summary" | CollectionSectionKey | null;
@@ -90,8 +71,6 @@ export function ResumeEditorCanvas({
   initialDraft,
   storage,
   headerActions,
-  canvasHref,
-  classicHref,
 }: ResumeEditorCanvasProps) {
   const isClientReady = useClientReady();
   const {
@@ -123,33 +102,15 @@ export function ResumeEditorCanvas({
     onUndo: undo,
     onRedo: redo,
     actions: headerActions,
-    canvasHref,
-    classicHref,
   });
 
   const [editing, setEditing] = useState<EditingTarget>(null);
   const [isFormDirty, setIsFormDirty] = useState(false);
   const [isDiscardConfirmOpen, setIsDiscardConfirmOpen] = useState(false);
-  const [isMobilePanelOpen, setIsMobilePanelOpen] = useState(false);
   const [isExtractCvOpen, setIsExtractCvOpen] = useState(false);
   const [pendingHideKey, setPendingHideKey] =
     useState<CollectionSectionKey | null>(null);
   const [zoom, setZoom] = useState<number>(ZOOM_DEFAULT);
-  const isMobile = useIsMobile();
-  const previewViewportRef = useRef<HTMLDivElement | null>(null);
-  const previewSheetRef = useRef<HTMLDivElement | null>(null);
-  const { previewScale, previewShellSize } = usePreviewScale({
-    sheetRef: previewSheetRef,
-    viewportRef: previewViewportRef,
-    // updatedAt changes on every save, so it's a cheap re-measure trigger
-    // instead of stringifying the whole draft each render.
-    watchValues: [draft.updatedAt, isMobile],
-  });
-  const [dismissedMobileAlert, setDismissedMobileAlert] = useState(
-    () =>
-      typeof window !== "undefined" &&
-      localStorage.getItem("resume-editor:mobile-alert-dismissed") === "true",
-  );
 
   useKeyboardShortcuts({
     "mod+z": undo,
@@ -365,76 +326,24 @@ export function ResumeEditorCanvas({
           onSubmit={(file) => {
             void submitPdfFile(file);
           }}
-          isMobile={isMobile}
         />
         <PdfImportProgress open={isImportingPdf} />
 
-        {isMobile ? (
-          <div className="flex justify-center gap-1.5 border-b bg-amber-50 px-3 py-1 text-xs text-amber-800">
-            <TriangleAlert className="size-4 shrink-0" />
-            <span>
-              Canvas isn&apos;t optimized for mobile.{" "}
-              <Link
-                href="/editor/classic"
-                className="font-medium underline underline-offset-2 hover:text-amber-900"
-              >
-                Try Classic mode
-              </Link>{" "}
-              for a better experience.
-            </span>
-          </div>
-        ) : null}
-
         {/* Body: preview + control panel */}
         <div className="flex flex-1 h-full">
-          {isMobile ? (
-            // Mobile: fit the whole page to the viewport width (no horizontal
-            // scroll). Margins stay true to the exported PDF — we only scale.
-            <main className="flex-1 h-full min-h-0 overflow-y-auto overflow-x-hidden">
-              <div
-                ref={previewViewportRef}
-                className="w-full min-w-0 overflow-hidden px-2 py-4"
-              >
-                <div className="flex w-full min-w-0 justify-center overflow-hidden">
-                  <div
-                    className="relative shrink-0 overflow-visible"
-                    style={{
-                      width: previewShellSize.width || undefined,
-                      height: previewShellSize.height || undefined,
-                    }}
-                  >
-                    <div
-                      ref={previewSheetRef}
-                      className="absolute left-0 top-0 print:static print:transform-none"
-                      style={{
-                        transform:
-                          previewScale < 1
-                            ? `scale(${previewScale})`
-                            : undefined,
-                        transformOrigin: "top left",
-                      }}
-                    >
-                      {previewDocument}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </main>
-          ) : (
-            <main className="flex flex-1 justify-center overflow-x-auto overflow-y-auto h-full px-3 py-6 sm:px-6 sm:py-10">
-              <div style={{ zoom }} className="origin-top print:zoom-[1]">
-                {previewDocument}
-              </div>
-            </main>
-          )}
+          <main className="flex flex-1 justify-center overflow-x-auto overflow-y-auto h-full px-3 py-6 sm:px-6 sm:py-10">
+            <div style={{ zoom }} className="origin-top print:zoom-[1]">
+              {previewDocument}
+            </div>
+          </main>
 
           {/* Desktop side rail */}
-          <aside className="sticky top-0 hidden h-full w-80 shrink-0 overflow-hidden border-l bg-background lg:flex lg:flex-col print:hidden">
+          <aside className="sticky top-0 hidden h-full w-80 shrink-0 overflow-hidden border-l bg-background md:flex md:flex-col print:hidden">
             <EditorControlPanel {...controlPanelProps} />
           </aside>
         </div>
 
-        {/* Editor surface — bottom drawer on mobile, centered dialog on desktop. */}
+        {/* Editor surface — centered dialog. */}
         {(() => {
           const handleOpenChange = (open: boolean) => {
             if (open) return;
@@ -469,23 +378,6 @@ export function ResumeEditorCanvas({
               />
             ) : null;
 
-          if (isMobile) {
-            return (
-              <Sheet open={editing !== null} onOpenChange={handleOpenChange}>
-                <SheetContent
-                  side="bottom"
-                  showCloseButton={false}
-                  className="flex h-[92dvh] max-h-[92dvh] flex-col rounded-t-xl p-4 pt-3"
-                >
-                  <div className="mx-auto mb-2 h-1 w-10 shrink-0 rounded-full bg-border" />
-                  <div className="flex min-h-0 flex-1 flex-col">
-                    {formContent}
-                  </div>
-                </SheetContent>
-              </Sheet>
-            );
-          }
-
           return (
             <Dialog open={editing !== null} onOpenChange={handleOpenChange}>
               <DialogContent
@@ -499,36 +391,6 @@ export function ResumeEditorCanvas({
             </Dialog>
           );
         })()}
-
-        {/* Mobile FAB → bottom drawer */}
-        <Sheet open={isMobilePanelOpen} onOpenChange={setIsMobilePanelOpen}>
-          <SheetTrigger
-            render={
-              <Button
-                type="button"
-                size="icon"
-                aria-label="Open control panel"
-                className="fixed bottom-5 right-5 z-30 size-12 rounded-full shadow-2xl lg:hidden print:hidden"
-              />
-            }
-          >
-            <SlidersHorizontalIcon className="size-5" />
-          </SheetTrigger>
-          <SheetContent
-            side="bottom"
-            className="h-[90vh] max-h-[90vh] rounded-t-2xl p-0 gap-0"
-          >
-            <SheetHeader className="shrink-0 border-b">
-              <SheetTitle>Controls</SheetTitle>
-              <SheetDescription>
-                Style your resume and import or export your draft.
-              </SheetDescription>
-            </SheetHeader>
-            <div className="min-h-0 flex-1 overflow-y-auto relative">
-              <EditorControlPanel {...controlPanelProps} layout="flow" />
-            </div>
-          </SheetContent>
-        </Sheet>
 
         {/* Discard-changes confirmation. */}
         <AlertDialog
@@ -584,46 +446,6 @@ export function ResumeEditorCanvas({
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-
-        {isMobile && !dismissedMobileAlert ? (
-          <AlertDialog
-            defaultOpen
-            onOpenChange={(open) => {
-              if (!open) {
-                localStorage.setItem(
-                  "resume-editor:mobile-alert-dismissed",
-                  "true",
-                );
-                setDismissedMobileAlert(true);
-              }
-            }}
-          >
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogMedia className="text-amber-500 bg-amber-50">
-                  <TriangleAlert />
-                </AlertDialogMedia>
-                <AlertDialogTitle>
-                  Canvas isn&apos;t optimized for mobile
-                </AlertDialogTitle>
-                <AlertDialogDescription>
-                  The Classic editor offers a better experience on mobile
-                  devices — try switching for easier editing and navigation.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Continue Anyway</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={() => {
-                    window.location.href = "/editor/classic";
-                  }}
-                >
-                  Switch to Classic
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        ) : null}
       </div>
     </TooltipProvider>
   );

@@ -12,11 +12,8 @@ export function SiteFooter() {
           </span>
         </div>
         <nav className="flex items-center gap-5">
-          <Link href="/editor/canvas" className="hover:text-foreground">
+          <Link href="/editor" className="hover:text-foreground">
             Editor
-          </Link>
-          <Link href="/editor/classic" className="hover:text-foreground">
-            Classic
           </Link>
           <a
             href={GITHUB_URL}

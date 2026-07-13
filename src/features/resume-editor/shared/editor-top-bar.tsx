@@ -12,19 +12,13 @@ import {
 
 import { Button, buttonVariants } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import type { SaveStatus } from "@/features/resume-editor/domain/draft/draft-storage";
 
 const GITHUB_URL = "https://github.com/angkasa27/resume-editor";
 
-export type EditorView = "canvas" | "classic";
-
 type EditorTopBarProps = {
-  activeView: EditorView;
-  /** Optimistically reflect a tab click before the route navigation lands. */
-  onSelectView?: (view: EditorView) => void;
   saveStatus: SaveStatus;
   canUndo: boolean;
   canRedo: boolean;
@@ -36,26 +30,15 @@ type EditorTopBarProps = {
    * touching the editor.
    */
   actions?: ReactNode;
-  /**
-   * Targets for the Canvas/Classic tabs. Default to the bare routes; the SaaS
-   * fork passes id-bearing hrefs (e.g. `/editor/canvas?id=…`) so switching mode
-   * preserves the cloud resume — without editing this component.
-   */
-  canvasHref?: string;
-  classicHref?: string;
 };
 
 export function EditorTopBar({
-  activeView,
-  onSelectView,
   saveStatus,
   canUndo,
   canRedo,
   onUndo,
   onRedo,
   actions,
-  canvasHref = "/editor/canvas",
-  classicHref = "/editor/classic",
 }: EditorTopBarProps) {
   const isMobile = useIsMobile();
 
@@ -66,46 +49,6 @@ export function EditorTopBar({
           Resummme
         </h1>
       </Link>
-
-      <Tabs
-        value={activeView}
-        onValueChange={(value) => onSelectView?.(value as EditorView)}
-        className="h-8"
-      >
-        <TabsList
-          className="rounded-md border"
-          pillClassName="rounded bg-primary/12"
-        >
-          <TabsTrigger
-            value="canvas"
-            nativeButton={activeView === "canvas"}
-            render={
-              activeView === "canvas" ? undefined : <Link href={canvasHref} />
-            }
-            className={cn(
-              "px-2 py-0 leading-none! text-xs!",
-              activeView === "canvas" &&
-                "data-active:text-primary hover:text-primary cursor-default",
-            )}
-          >
-            Canvas
-          </TabsTrigger>
-          <TabsTrigger
-            value="classic"
-            nativeButton={activeView === "classic"}
-            render={
-              activeView === "classic" ? undefined : <Link href={classicHref} />
-            }
-            className={cn(
-              "px-2 py-0 leading-none! text-xs!",
-              activeView === "classic" &&
-                "data-active:text-primary hover:text-primary cursor-default",
-            )}
-          >
-            Classic
-          </TabsTrigger>
-        </TabsList>
-      </Tabs>
 
       <SaveStatusIndicator status={saveStatus} />
 

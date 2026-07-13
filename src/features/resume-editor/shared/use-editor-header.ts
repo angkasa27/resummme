@@ -12,8 +12,6 @@ type EditorHeaderControls = {
   onUndo: () => void;
   onRedo: () => void;
   actions?: ReactNode;
-  canvasHref?: string;
-  classicHref?: string;
 };
 
 /**
@@ -37,18 +35,16 @@ export function useEditorHeader(controls: EditorHeaderControls) {
     onRedoRef.current = controls.onRedo;
   });
 
-  const { actions, canvasHref, classicHref } = controls;
+  const { actions } = controls;
   useEffect(() => {
     setControls({
       onUndo: () => onUndoRef.current(),
       onRedo: () => onRedoRef.current(),
       actions,
-      canvasHref,
-      classicHref,
     });
     return () =>
       setControls({ saveStatus: "idle", canUndo: false, canRedo: false });
-  }, [setControls, actions, canvasHref, classicHref]);
+  }, [setControls, actions]);
 
   const { saveStatus, canUndo, canRedo } = controls;
   useEffect(() => {

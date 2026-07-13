@@ -29,7 +29,7 @@ export function Contribute() {
         </RevealItem>
         <RevealItem className="mt-9 flex flex-wrap items-center justify-center gap-3">
           <Link
-            href="/editor/canvas"
+            href="/editor"
             className={cn(
               buttonVariants({ variant: "ai", size: "lg" }),
               "px-5",

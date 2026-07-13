@@ -1,7 +1,7 @@
 /**
  * Generates landing-page screenshots:
  *   - public/templates/<id>.webp — each resume template, a different persona
- *   - public/builder.webp        — the canvas editor
+ *   - public/builder.webp        — the editor (desktop canvas view)
  *
  * Reuses the PDF render path: it seeds a résumé draft into sessionStorage (the
  * same key the /resume-pdf page reads), navigates there, waits for
@@ -222,7 +222,7 @@ async function captureTemplates(browser: Browser) {
 async function captureBuilder(browser: Browser) {
   const page = await browser.newPage();
   await page.setViewport({ width: 1440, height: 900, deviceScaleFactor: 2 });
-  await page.goto(new URL("/editor/canvas", BASE_URL).toString(), {
+  await page.goto(new URL("/editor", BASE_URL).toString(), {
     waitUntil: "networkidle0",
     timeout: TIMEOUT,
   });
@@ -233,7 +233,7 @@ async function captureBuilder(browser: Browser) {
 
   const out = path.join(PUBLIC_DIR, "builder.webp");
   await page.screenshot({ path: out as `${string}.webp`, type: "webp", quality: 92 });
-  console.log(`✓ builder   ${"canvas".padEnd(16)} → public/builder.webp`);
+  console.log(`✓ builder   ${"editor".padEnd(16)} → public/builder.webp`);
   await page.close();
 }
 

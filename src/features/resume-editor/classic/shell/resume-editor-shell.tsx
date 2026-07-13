@@ -3,17 +3,9 @@
 import React, { useMemo, useState } from "react";
 import type { ReactNode } from "react";
 
-import {
-  ResizablePanelGroup,
-  ResizablePanel,
-  ResizableHandle,
-} from "@/components/ui/resizable";
 import { Loader } from "lucide-react";
 
-import { SectionAccordion } from "@/features/resume-editor/classic/shell/section-accordion";
 import { ResumeEditorMobileContent } from "@/features/resume-editor/classic/shell/resume-editor-mobile-content";
-import { EditorControlPanel } from "@/features/resume-editor/shared/editor-control-panel";
-import { PreviewSheet } from "@/features/resume-editor/preview/components/preview-sheet";
 import { useResumeEditorController } from "@/features/resume-editor/state/use-resume-editor-controller";
 import { ExtractCvDialog } from "@/features/resume-editor/canvas/controls/extract-cv-dialog";
 import { PdfImportProgress } from "@/features/resume-editor/canvas/controls/pdf-import-progress";
@@ -36,17 +28,12 @@ type ResumeEditorShellProps = {
   storage?: DraftStorage;
   /** Right-aligned header slot, identical to canvas. Defaults to the GitHub link. */
   headerActions?: ReactNode;
-  /** Tab link targets, forwarded to EditorTopBar (default to the bare routes). */
-  canvasHref?: string;
-  classicHref?: string;
 };
 
 export function ResumeEditorShell({
   initialDraft,
   storage,
   headerActions,
-  canvasHref,
-  classicHref,
 }: ResumeEditorShellProps) {
   const isClientReady = useClientReady();
   const isMobile = useIsMobile();
@@ -82,8 +69,6 @@ export function ResumeEditorShell({
     onUndo: undo,
     onRedo: redo,
     actions: headerActions,
-    canvasHref,
-    classicHref,
   });
 
   useKeyboardShortcuts({
@@ -179,31 +164,6 @@ export function ResumeEditorShell({
       <PdfImportProgress open={isImportingPdf} />
 
       <div className="min-h-0 flex-1">
-        {/* Desktop: Editor · Preview · Controls — resizable rails that default to
-            the canvas width (320px) but can be dragged wider/narrower. */}
-        <div className="hidden h-full lg:block">
-          <ResizablePanelGroup orientation="horizontal">
-            <ResizablePanel defaultSize="320px" minSize="240px" maxSize="460px">
-              <div className="h-full overflow-hidden">
-                <SectionAccordion {...sectionProps} />
-              </div>
-            </ResizablePanel>
-            <ResizableHandle withHandle />
-            <ResizablePanel minSize="22rem">
-              <div className="h-full overflow-hidden bg-muted">
-                <PreviewSheet draft={draft} presentation={presentation} />
-              </div>
-            </ResizablePanel>
-            <ResizableHandle withHandle />
-            <ResizablePanel defaultSize="320px" minSize="240px" maxSize="460px">
-              <div className="h-full overflow-hidden border-l">
-                <EditorControlPanel {...controlPanelProps} />
-              </div>
-            </ResizablePanel>
-          </ResizablePanelGroup>
-        </div>
-
-        {/* Mobile/Tablet: full-screen tabbed app */}
         <ResumeEditorMobileContent
           sectionProps={sectionProps}
           controlPanelProps={controlPanelProps}
