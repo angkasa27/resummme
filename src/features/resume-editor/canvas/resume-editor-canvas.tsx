@@ -141,8 +141,9 @@ export function ResumeEditorCanvas({
   const { previewScale, previewShellSize } = usePreviewScale({
     sheetRef: previewSheetRef,
     viewportRef: previewViewportRef,
-
-    watchValues: [draft, isMobile],
+    // updatedAt changes on every save, so it's a cheap re-measure trigger
+    // instead of stringifying the whole draft each render.
+    watchValues: [draft.updatedAt, isMobile],
   });
   const [dismissedMobileAlert, setDismissedMobileAlert] = useState(
     () =>
@@ -222,13 +223,11 @@ export function ResumeEditorCanvas({
       startEditingProfile();
       return;
     }
-    if (
-      panel === "summary" ||
-      isCollectionSectionKey(panel as ResumeSectionPanelKey)
-    ) {
-      startEditingSection(panel as ResumeSectionPanelKey);
-      if (!draft.sections[panel as ResumeSectionPanelKey].visible) {
-        setSectionVisibility(panel as ResumeSectionPanelKey, true);
+    const sectionPanel = panel as ResumeSectionPanelKey;
+    if (panel === "summary" || isCollectionSectionKey(sectionPanel)) {
+      startEditingSection(sectionPanel);
+      if (!draft.sections[sectionPanel].visible) {
+        setSectionVisibility(sectionPanel, true);
       }
     }
   }

@@ -236,6 +236,52 @@ export function useResumeEditorController({
     }
   }
 
+  // Stable passthrough identities (store is a stable ref) so consumers'
+  // memoization — and the autosave debounce deps — don't churn every render.
+  const requestSectionChange = useCallback(
+    (sectionKey: ResumeEditorPanelKey) =>
+      store.getState().requestSectionChange(sectionKey),
+    [store]
+  );
+  const reorderSection = useCallback(
+    (sectionKey: ResumeSectionKey, anchorKey: ResumeSectionKey) =>
+      store.getState().reorderSection(sectionKey, anchorKey),
+    [store]
+  );
+  const setSectionVisibility = useCallback(
+    (sectionKey: ResumeSectionKey, visible: boolean) =>
+      store.getState().setSectionVisibility(sectionKey, visible),
+    [store]
+  );
+  const savePdfPresentation = useCallback(
+    (pdfPresentation: PdfPresentation) =>
+      store.getState().savePdfPresentation(pdfPresentation),
+    [store]
+  );
+  const saveProfile = useCallback(
+    (profile: Profile) => store.getState().saveProfile(profile),
+    [store]
+  );
+  const saveSection = useCallback(
+    <K extends ResumeSectionKey>(
+      sectionKey: K,
+      sectionValue: ResumeDraft["sections"][K]
+    ) => store.getState().saveSection(sectionKey, sectionValue),
+    [store]
+  );
+  const undo = useCallback(() => {
+    const state = store.getState();
+    if (state.undoStack.length === 0) return;
+    state.undo();
+    toast.success("Undone");
+  }, [store]);
+  const redo = useCallback(() => {
+    const state = store.getState();
+    if (state.redoStack.length === 0) return;
+    state.redo();
+    toast.success("Redone");
+  }, [store]);
+
   return {
     jsonFileInputRef,
     pdfFileInputRef,
@@ -250,29 +296,14 @@ export function useResumeEditorController({
     submitPdfFile,
     handleExport,
     handlePrint,
-    requestSectionChange: (sectionKey) =>
-      store.getState().requestSectionChange(sectionKey),
-    reorderSection: (sectionKey, anchorKey) =>
-      store.getState().reorderSection(sectionKey, anchorKey),
-    setSectionVisibility: (sectionKey, visible) =>
-      store.getState().setSectionVisibility(sectionKey, visible),
-    savePdfPresentation: (pdfPresentation) =>
-      store.getState().savePdfPresentation(pdfPresentation),
-    saveProfile: (profile) => store.getState().saveProfile(profile),
-    saveSection: (sectionKey, sectionValue) =>
-      store.getState().saveSection(sectionKey, sectionValue),
-    undo: () => {
-      const state = store.getState();
-      if (state.undoStack.length === 0) return;
-      state.undo();
-      toast.success("Undone");
-    },
-    redo: () => {
-      const state = store.getState();
-      if (state.redoStack.length === 0) return;
-      state.redo();
-      toast.success("Redone");
-    },
+    requestSectionChange,
+    reorderSection,
+    setSectionVisibility,
+    savePdfPresentation,
+    saveProfile,
+    saveSection,
+    undo,
+    redo,
     canUndo,
     canRedo,
     saveStatus,

@@ -71,11 +71,14 @@ function normalizeSectionValue<K extends ResumeSectionKey>(
 
 const MAX_HISTORY = 50;
 
+// History keeps the previous draft by reference (no clone): drafts are never
+// mutated in place — createNextDraft spreads a new object, the draft-utils
+// mutators clone their input, and parseResumeDraft returns fresh objects.
 function pushUndoStack(
   stack: ResumeDraft[],
   draft: ResumeDraft
 ): ResumeDraft[] {
-  const next = [...stack, structuredClone(draft)];
+  const next = [...stack, draft];
   if (next.length > MAX_HISTORY) next.shift();
   return next;
 }
@@ -86,118 +89,85 @@ export function createResumeEditorStore(
   const storage = config?.storage ?? new LocalDraftStorage();
   const initialDraft = config?.initialDraft ?? storage.load();
 
-  return createStore<ResumeEditorStoreState>()((set, get) => ({
-    draft: initialDraft,
-    activeSection: "profile",
-    undoStack: [],
-    redoStack: [],
-    saveProfile: (profile) => {
-      const state = get();
-      const nextDraft = storage.save(createNextDraft(state.draft, { profile }));
-      set({
-        draft: nextDraft,
-        undoStack: pushUndoStack(state.undoStack, state.draft),
-        redoStack: [],
-      });
-    },
-    savePdfPresentation: (pdfPresentation) => {
+  return createStore<ResumeEditorStoreState>()((set, get) => {
+    // Shared save path: persist the next draft, snapshot the previous one into
+    // history, and clear the redo stack.
+    const commit = (updater: (draft: ResumeDraft) => Partial<ResumeDraft>) => {
       const state = get();
       const nextDraft = storage.save(
-        createNextDraft(state.draft, { pdfPresentation })
+        createNextDraft(state.draft, updater(state.draft))
       );
       set({
         draft: nextDraft,
         undoStack: pushUndoStack(state.undoStack, state.draft),
         redoStack: [],
       });
-    },
-    saveSection: (sectionKey, sectionValue) => {
-      const state = get();
-      const normalizedSectionValue = normalizeSectionValue(sectionKey, sectionValue);
-      const nextDraft = storage.save(
-        createNextDraft(state.draft, {
+    };
+
+    return {
+      draft: initialDraft,
+      activeSection: "profile",
+      undoStack: [],
+      redoStack: [],
+      saveProfile: (profile) => commit(() => ({ profile })),
+      savePdfPresentation: (pdfPresentation) =>
+        commit(() => ({ pdfPresentation })),
+      saveSection: (sectionKey, sectionValue) =>
+        commit((draft) => ({
           sections: reorderSections(
-            state.draft.sections,
+            draft.sections,
             sectionKey,
-            normalizedSectionValue
+            normalizeSectionValue(sectionKey, sectionValue)
           ),
-        })
-      );
-      set({
-        draft: nextDraft,
-        undoStack: pushUndoStack(state.undoStack, state.draft),
-        redoStack: [],
-      });
-    },
-    reorderSection: (sectionKey, anchorKey) => {
-      const state = get();
-      const nextDraft = storage.save(
-        createNextDraft(state.draft, {
-          sections: moveSectionToAnchor(
-            state.draft.sections,
-            sectionKey,
-            anchorKey
-          ),
-        })
-      );
-      set({
-        draft: nextDraft,
-        undoStack: pushUndoStack(state.undoStack, state.draft),
-        redoStack: [],
-      });
-    },
-    setSectionVisibility: (sectionKey, visible) => {
-      const state = get();
-      const nextDraft = storage.save(
-        createNextDraft(state.draft, {
+        })),
+      reorderSection: (sectionKey, anchorKey) =>
+        commit((draft) => ({
+          sections: moveSectionToAnchor(draft.sections, sectionKey, anchorKey),
+        })),
+      setSectionVisibility: (sectionKey, visible) =>
+        commit((draft) => ({
           sections: setSectionVisibilityWithOrder(
-            state.draft.sections,
+            draft.sections,
             sectionKey,
             visible
           ),
-        })
-      );
-      set({
-        draft: nextDraft,
-        undoStack: pushUndoStack(state.undoStack, state.draft),
-        redoStack: [],
-      });
-    },
-    requestSectionChange: (sectionKey) => {
-      set({
-        activeSection: sectionKey,
-      });
-    },
-    replaceDraft: (draft) => {
-      const nextDraft = storage.save(draft);
-      set({
-        draft: nextDraft,
-        activeSection: "profile",
-        undoStack: [],
-        redoStack: [],
-      });
-    },
-    undo: () => {
-      const state = get();
-      const previousDraft = state.undoStack.at(-1);
-      if (!previousDraft) return;
-      const nextDraft = storage.save(previousDraft);
-      set({
-        draft: nextDraft,
-        undoStack: state.undoStack.slice(0, -1),
-        redoStack: [...state.redoStack, structuredClone(state.draft)],
-      });
-    },
-    redo: () => {
-      const state = get();
-      const nextDraft = state.redoStack.at(-1);
-      if (!nextDraft) return;
-      const persistedDraft = storage.save(nextDraft);
-      set({
-        draft: persistedDraft,
-        redoStack: state.redoStack.slice(0, -1),
-        undoStack: [...state.undoStack, structuredClone(state.draft)],
-      });
-    },
-  }));
+        })),
+      requestSectionChange: (sectionKey) => {
+        set({
+          activeSection: sectionKey,
+        });
+      },
+      replaceDraft: (draft) => {
+        const nextDraft = storage.save(draft);
+        set({
+          draft: nextDraft,
+          activeSection: "profile",
+          undoStack: [],
+          redoStack: [],
+        });
+      },
+      undo: () => {
+        const state = get();
+        const previousDraft = state.undoStack.at(-1);
+        if (!previousDraft) return;
+        const nextDraft = storage.save(previousDraft);
+        set({
+          draft: nextDraft,
+          undoStack: state.undoStack.slice(0, -1),
+          redoStack: [...state.redoStack, state.draft],
+        });
+      },
+      redo: () => {
+        const state = get();
+        const nextDraft = state.redoStack.at(-1);
+        if (!nextDraft) return;
+        const persistedDraft = storage.save(nextDraft);
+        set({
+          draft: persistedDraft,
+          redoStack: state.redoStack.slice(0, -1),
+          undoStack: [...state.undoStack, state.draft],
+        });
+      },
+    };
+  });
 }
