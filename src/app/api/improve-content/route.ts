@@ -1,19 +1,18 @@
 import { sanitizeRichTextHtml } from "@/features/resume-editor/domain/rich-text/sanitize-rich-text";
 import { improveContentWithGemini } from "@/features/resume-editor/server/improve-content-with-gemini";
-import { ResumeImportError } from "@/features/resume-editor/server/resume-import-error";
+import {
+  handleResumeImportError,
+  parseJsonBody,
+} from "@/features/resume-editor/server/http";
 
 export const runtime = "nodejs";
 
 const HTML_CHAR_LIMIT = 8_000;
 
 export async function POST(request: Request) {
-  let body: unknown;
-
-  try {
-    body = await request.json();
-  } catch {
-    return Response.json({ message: "Invalid JSON body." }, { status: 400 });
-  }
+  const parsed = await parseJsonBody(request, "Invalid JSON body.");
+  if (!parsed.ok) return parsed.response;
+  const body = parsed.data;
 
   if (!body || typeof body !== "object") {
     return Response.json({ message: "Invalid request body." }, { status: 400 });
@@ -53,16 +52,6 @@ export async function POST(request: Request) {
       { status: 200 },
     );
   } catch (error) {
-    if (error instanceof ResumeImportError) {
-      return Response.json(
-        { message: error.message },
-        { status: error.status },
-      );
-    }
-
-    return Response.json(
-      { message: "Unable to improve the content." },
-      { status: 500 },
-    );
+    return handleResumeImportError(error, "Unable to improve the content.");
   }
 }

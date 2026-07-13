@@ -40,10 +40,24 @@ function escapeHtmlAttribute(value: string) {
     .replace(/>/g, "&gt;");
 }
 
+// Cache the per-attribute-name regex so it isn't recompiled on every lookup
+// (called up to 3x per matched tag during sanitization).
+const attributeRegexCache = new Map<string, RegExp>();
+
+function getAttributeRegex(name: string) {
+  let regex = attributeRegexCache.get(name);
+  if (!regex) {
+    regex = new RegExp(
+      `${name}\\s*=\\s*("([^"]*)"|'([^']*)'|([^\\s"'>]+))`,
+      "i",
+    );
+    attributeRegexCache.set(name, regex);
+  }
+  return regex;
+}
+
 function getAttributeValue(attributes: string, name: string) {
-  const match = attributes.match(
-    new RegExp(`${name}\\s*=\\s*("([^"]*)"|'([^']*)'|([^\\s"'>]+))`, "i"),
-  );
+  const match = attributes.match(getAttributeRegex(name));
 
   if (!match) {
     return null;

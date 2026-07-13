@@ -1,31 +1,20 @@
 import { generateResumePdf } from "@/features/resume-editor/server/generate-resume-pdf";
 import { createResumePdfFilename } from "@/features/resume-editor/domain/draft/resume-pdf-filename";
 import { parseResumeDraft } from "@/features/resume-editor/domain/schema";
+import { parseJsonBody } from "@/features/resume-editor/server/http";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
 export async function POST(request: Request) {
-  let body: unknown;
-
-  try {
-    body = await request.json();
-  } catch {
-    return Response.json(
-      {
-        message: "Invalid request body.",
-      },
-      {
-        status: 400,
-      }
-    );
-  }
+  const parsed = await parseJsonBody(request, "Invalid request body.");
+  if (!parsed.ok) return parsed.response;
+  const body = parsed.data;
 
   const requestOrigin = new URL(request.url).origin;
   const originHeader = request.headers.get("origin");
-  const trustedOrigins = (
-    process.env.PDF_EXPORT_TRUSTED_ORIGINS ?? ""
-  )
+  // Read from env per request so it stays configurable at runtime.
+  const trustedOrigins = (process.env.PDF_EXPORT_TRUSTED_ORIGINS ?? "")
     .split(",")
     .map((o) => o.trim())
     .filter(Boolean);

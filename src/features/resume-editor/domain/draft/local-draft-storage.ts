@@ -1,20 +1,12 @@
 import { DraftStorage } from "@/features/resume-editor/domain/draft/draft-storage";
 import { createDefaultResumeDraft } from "@/features/resume-editor/domain/draft/create-default-resume-draft";
 import {
-  parseResumeDraft,
-  type ResumeDraft,
-} from "@/features/resume-editor/domain/schema";
-
-const RESUME_STORAGE_KEY = "resume-editor:draft:v2";
-
-function exportResumeDraft(draft: ResumeDraft): string {
-  return JSON.stringify(draft, null, 2);
-}
-
-function importResumeDraft(serializedDraft: string): ResumeDraft {
-  const parsedJson = JSON.parse(serializedDraft) as unknown;
-  return parseResumeDraft(parsedJson);
-}
+  RESUME_STORAGE_KEY,
+  exportResumeDraft,
+  importResumeDraft,
+} from "@/features/resume-editor/domain/draft/resume-draft-storage";
+import { parseResumeDraft } from "@/features/resume-editor/domain/schema";
+import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
 
 export class LocalDraftStorage implements DraftStorage {
   save(draft: ResumeDraft): ResumeDraft {

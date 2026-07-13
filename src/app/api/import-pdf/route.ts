@@ -1,7 +1,7 @@
 import { buildImportedResumeDraft } from "@/features/resume-editor/server/build-imported-resume-draft";
 import { extractPdfText } from "@/features/resume-editor/server/extract-pdf-text";
 import { mapResumeTextWithGemini } from "@/features/resume-editor/server/map-resume-text-with-gemini";
-import { ResumeImportError } from "@/features/resume-editor/server/resume-import-error";
+import { handleResumeImportError } from "@/features/resume-editor/server/http";
 
 export const runtime = "nodejs";
 
@@ -71,24 +71,6 @@ export async function POST(request: Request) {
       status: 200,
     });
   } catch (error) {
-    if (error instanceof ResumeImportError) {
-      return Response.json(
-        {
-          message: error.message,
-        },
-        {
-          status: error.status,
-        },
-      );
-    }
-
-    return Response.json(
-      {
-        message: "Unable to import the uploaded PDF.",
-      },
-      {
-        status: 500,
-      },
-    );
+    return handleResumeImportError(error, "Unable to import the uploaded PDF.");
   }
 }

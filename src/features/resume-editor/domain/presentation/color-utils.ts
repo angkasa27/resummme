@@ -1,4 +1,4 @@
-const hexColorPattern = /^#[0-9a-fA-F]{6}$/;
+export const hexColorPattern = /^#[0-9a-fA-F]{6}$/;
 
 function parseHex(hex: string): [number, number, number] {
   if (!hexColorPattern.test(hex)) return [0, 0, 0];

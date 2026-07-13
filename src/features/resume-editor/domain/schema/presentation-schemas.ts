@@ -11,6 +11,7 @@ import {
   pdfTemplateIds,
   resumeFontIds,
 } from "@/features/resume-editor/domain/presentation/pdf-presentation";
+import { hexColorPattern } from "@/features/resume-editor/domain/presentation/color-utils";
 
 export const pdfPresentationSchema = z.preprocess(
   normalizePdfPresentation,
@@ -20,11 +21,8 @@ export const pdfPresentationSchema = z.preprocess(
     fontScale: z.enum(pdfFontScaleIds),
     spacing: z.enum(pdfSpacingIds),
     lineHeight: z.enum(pdfLineHeightIds),
-    accent: z.string().regex(/^#[0-9a-fA-F]{6}$/),
-    secondary: z
-      .string()
-      .regex(/^#[0-9a-fA-F]{6}$/)
-      .optional(),
+    accent: z.string().regex(hexColorPattern),
+    secondary: z.string().regex(hexColorPattern).optional(),
     paperSize: z.enum(pdfPaperSizes),
     pageMargin: z.enum(pdfPageMargins),
     photoShape: z.enum(pdfPhotoShapeIds).optional(),

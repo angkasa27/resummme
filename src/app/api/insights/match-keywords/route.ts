@@ -1,18 +1,20 @@
 import { extractJobKeywordsWithGemini } from "@/features/resume-editor/server/extract-job-keywords-with-gemini";
-import { ResumeImportError } from "@/features/resume-editor/server/resume-import-error";
+import {
+  handleResumeImportError,
+  parseJsonBody,
+} from "@/features/resume-editor/server/http";
 
 export const runtime = "nodejs";
 
 const MAX_JOB_DESCRIPTION_LENGTH = 12_000;
 
 export async function POST(request: Request) {
-  let payload: { jobDescription?: unknown };
-
-  try {
-    payload = (await request.json()) as { jobDescription?: unknown };
-  } catch {
-    return Response.json({ message: "Invalid JSON payload." }, { status: 400 });
-  }
+  const parsed = await parseJsonBody<{ jobDescription?: unknown }>(
+    request,
+    "Invalid JSON payload.",
+  );
+  if (!parsed.ok) return parsed.response;
+  const payload = parsed.data;
 
   const jobDescription =
     typeof payload.jobDescription === "string"
@@ -39,15 +41,9 @@ export async function POST(request: Request) {
     const keywords = await extractJobKeywordsWithGemini(jobDescription);
     return Response.json({ keywords }, { status: 200 });
   } catch (error) {
-    if (error instanceof ResumeImportError) {
-      return Response.json(
-        { message: error.message },
-        { status: error.status },
-      );
-    }
-    return Response.json(
-      { message: "Could not analyze the job description." },
-      { status: 500 },
+    return handleResumeImportError(
+      error,
+      "Could not analyze the job description.",
     );
   }
 }
