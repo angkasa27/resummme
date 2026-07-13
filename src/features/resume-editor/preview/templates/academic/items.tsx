@@ -1,7 +1,10 @@
 import { PreviewLinkedTitle } from "@/features/resume-editor/preview/kit/linked-title";
 import { PreviewRichTextBlock } from "@/features/resume-editor/preview/kit/rich-text-block";
 import { renderDateRange } from "@/features/resume-editor/preview/helpers/date";
-import { joinParts } from "@/features/resume-editor/preview/helpers/string";
+import {
+  commaJoin,
+  joinParts,
+} from "@/features/resume-editor/preview/helpers/string";
 import type { SectionItem } from "@/features/resume-editor/preview/sections/types";
 import type { TemplateSectionItemMap } from "@/features/resume-editor/preview/template-types";
 
@@ -31,7 +34,7 @@ function SkillsItem({ item }: { item: SectionItem<"skills"> }) {
   return (
     <div className="item">
       <h3 className="item-title">{item.categoryName}</h3>
-      <span className="meta">{item.skills.filter(Boolean).join(", ")}</span>
+      <span className="meta">{commaJoin(item.skills)}</span>
     </div>
   );
 }

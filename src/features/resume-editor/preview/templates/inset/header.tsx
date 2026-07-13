@@ -1,24 +1,8 @@
-import { PreviewContactLine } from "@/features/resume-editor/preview/kit/contact-line";
-import type { TemplateHeaderProps } from "@/features/resume-editor/preview/template-types";
+import { createPhotoHeader } from "@/features/resume-editor/preview/templates/_shared/create-photo-header";
 
 import styles from "./styles.module.css";
 
-export function InsetHeader({ context }: TemplateHeaderProps) {
-  const { draft } = context;
-  return (
-    <header className={`${styles.header} layout-header`} data-template="inset">
-      {draft.profile.photo ? (
-        <div className="header-photo" data-slot="photo-frame">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={draft.profile.photo} alt={draft.profile.fullName} />
-        </div>
-      ) : null}
-      <div className="header-body">
-        <h1 className="name" data-testid="resume-preview-full-name">
-          {draft.profile.fullName}
-        </h1>
-        <PreviewContactLine context={context} />
-      </div>
-    </header>
-  );
-}
+export const InsetHeader = createPhotoHeader({
+  dataTemplate: "inset",
+  styles,
+});

@@ -1,33 +1,16 @@
-import type {
-  PreviewTemplateDefinition,
-  TemplateComponentProps,
-} from "@/features/resume-editor/preview/template-types";
+import { createSingleColumnTemplate } from "@/features/resume-editor/preview/templates/_shared/create-single-column-template";
 
 import { BannerHeader } from "./header";
 import { bannerItemViews } from "./items";
 import styles from "./styles.module.css";
 
-function BannerTemplate({ slots }: TemplateComponentProps) {
-  return (
-    <div className={styles.template}>
-      {slots.header}
-      <div className="layout-body">
-        {slots.summary}
-        {slots.sections.map(({ key, node }) => (
-          <div key={key}>{node}</div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-export const bannerTemplate: PreviewTemplateDefinition = {
+export const bannerTemplate = createSingleColumnTemplate({
   id: "banner",
   label: "Banner",
   description:
     "Bold solid-color header band with the name and contacts inside, and a circular photo overlapping its edge.",
   hideSummaryHeading: true,
-  Component: BannerTemplate,
+  styles,
   Header: BannerHeader,
   itemViews: bannerItemViews,
-};
+});

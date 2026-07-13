@@ -1,31 +1,15 @@
-import type {
-  PreviewTemplateDefinition,
-  TemplateComponentProps,
-} from "@/features/resume-editor/preview/template-types";
+import { createSingleColumnTemplate } from "@/features/resume-editor/preview/templates/_shared/create-single-column-template";
 
 import { MinimalHeader } from "./header";
 import { minimalItemViews } from "./items";
 import styles from "./styles.module.css";
 
-function MinimalTemplate({ slots }: TemplateComponentProps) {
-  return (
-    <div className={styles.template}>
-      {slots.header}
-      <div className="layout-body">
-        {slots.summary}
-        {slots.sections.map(({ key, node }) => (
-          <div key={key}>{node}</div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-export const minimalTemplate: PreviewTemplateDefinition = {
+export const minimalTemplate = createSingleColumnTemplate({
   id: "minimal",
   label: "Minimal",
-  description: "Clean single-column layout with no borders or decorative elements. Just content.",
-  Component: MinimalTemplate,
+  description:
+    "Clean single-column layout with no borders or decorative elements. Just content.",
+  styles,
   Header: MinimalHeader,
   itemViews: minimalItemViews,
-};
+});

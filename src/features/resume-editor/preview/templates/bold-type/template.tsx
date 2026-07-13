@@ -1,32 +1,15 @@
-import type {
-  PreviewTemplateDefinition,
-  TemplateComponentProps,
-} from "@/features/resume-editor/preview/template-types";
+import { createSingleColumnTemplate } from "@/features/resume-editor/preview/templates/_shared/create-single-column-template";
 
 import { BoldTypeHeader } from "./header";
 import { boldTypeItemViews } from "./items";
 import styles from "./styles.module.css";
 
-function BoldTypeTemplate({ slots }: TemplateComponentProps) {
-  return (
-    <div className={styles.template}>
-      {slots.header}
-      <div className="layout-body">
-        {slots.summary}
-        {slots.sections.map(({ key, node }) => (
-          <div key={key}>{node}</div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-export const boldTypeTemplate: PreviewTemplateDefinition = {
+export const boldTypeTemplate = createSingleColumnTemplate({
   id: "bold-type",
   label: "Bold Type",
   description:
     "Editorial layout with an oversized name, heavy rules, and highlight-marker section headings.",
-  Component: BoldTypeTemplate,
+  styles,
   Header: BoldTypeHeader,
   itemViews: boldTypeItemViews,
-};
+});
