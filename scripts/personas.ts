@@ -1,6 +1,6 @@
 import type { PdfTemplateId } from "@/features/resume-editor/domain/presentation/pdf-presentation";
 
-type Job = {
+export type Job = {
   company: string;
   position: string;
   location: string;
@@ -8,10 +8,15 @@ type Job = {
   end: string;
   bullets: string[];
 };
-type Project = { name: string; start: string; end: string; bullets: string[] };
-type Cert = { name: string; org: string; date: string };
+export type Project = {
+  name: string;
+  start: string;
+  end: string;
+  bullets: string[];
+};
+export type Cert = { name: string; org: string; date: string };
 
-type Persona = {
+export type Persona = {
   templateId: PdfTemplateId;
   screenshotId: string;
   accent: string;

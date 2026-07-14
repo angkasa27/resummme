@@ -33,10 +33,13 @@ function InsetItemFrame({
   );
 }
 
-export function WorkExperienceItem({ item }: { item: SectionItem<"workExperience"> }) {
+function WorkExperienceItem({ item }: { item: SectionItem<"workExperience"> }) {
   const titleMeta = item.companyName ? `· ${item.companyName}` : undefined;
   const row2 = joinParts(
-    [item.location, renderDateRange(item.startDate, item.endDate) || undefined].filter(Boolean),
+    [
+      item.location,
+      renderDateRange(item.startDate, item.endDate) || undefined,
+    ].filter(Boolean),
   );
   return (
     <InsetItemFrame
@@ -48,7 +51,7 @@ export function WorkExperienceItem({ item }: { item: SectionItem<"workExperience
   );
 }
 
-export function EducationItem({ item }: { item: SectionItem<"education"> }) {
+function EducationItem({ item }: { item: SectionItem<"education"> }) {
   const title = item.degree || item.name;
   const titleMeta = item.degree && item.name ? `· ${item.name}` : undefined;
   const row2 = joinParts(
@@ -68,18 +71,20 @@ export function EducationItem({ item }: { item: SectionItem<"education"> }) {
   );
 }
 
-export function ProjectsItem({ item }: { item: SectionItem<"projects"> }) {
+function ProjectsItem({ item }: { item: SectionItem<"projects"> }) {
   const row2 = renderDateRange(item.startDate, item.endDate) || undefined;
   return (
     <InsetItemFrame
-      title={<PreviewLinkedTitle title={item.projectName} link={item.projectLink} />}
+      title={
+        <PreviewLinkedTitle title={item.projectName} link={item.projectLink} />
+      }
       row2={row2}
       description={item.description}
     />
   );
 }
 
-export function SkillsItem({ item }: { item: SectionItem<"skills"> }) {
+function SkillsItem({ item }: { item: SectionItem<"skills"> }) {
   const skills = commaJoin(item.skills);
   return (
     <div className={`item ${styles.insetItem}`}>
@@ -94,7 +99,9 @@ export function SkillsItem({ item }: { item: SectionItem<"skills"> }) {
 function PublicationsItem({ item }: { item: SectionItem<"publications"> }) {
   return (
     <InsetItemFrame
-      title={<PreviewLinkedTitle title={item.title} link={item.publicationUrl} />}
+      title={
+        <PreviewLinkedTitle title={item.title} link={item.publicationUrl} />
+      }
       titleMeta={item.publisher ? `· ${item.publisher}` : undefined}
       row2={item.publicationDate}
       description={item.description}
@@ -103,7 +110,9 @@ function PublicationsItem({ item }: { item: SectionItem<"publications"> }) {
 }
 
 function CertificationsItem({ item }: { item: SectionItem<"certifications"> }) {
-  const titleMeta = item.issuingOrganization ? `· ${item.issuingOrganization}` : undefined;
+  const titleMeta = item.issuingOrganization
+    ? `· ${item.issuingOrganization}`
+    : undefined;
   const row2 = joinParts(
     [
       item.issuedDate || undefined,
@@ -112,7 +121,12 @@ function CertificationsItem({ item }: { item: SectionItem<"certifications"> }) {
   );
   return (
     <InsetItemFrame
-      title={<PreviewLinkedTitle title={item.certificationName} link={item.certificationLink} />}
+      title={
+        <PreviewLinkedTitle
+          title={item.certificationName}
+          link={item.certificationLink}
+        />
+      }
       titleMeta={titleMeta}
       row2={row2}
     />
@@ -135,7 +149,9 @@ function LanguagesItem({ item }: { item: SectionItem<"languages"> }) {
     <div className={`item ${styles.insetItem}`}>
       <div className={styles.itemRow1}>
         <h3 className="item-title">{item.language}</h3>
-        {item.proficiency ? <span className="meta">· {item.proficiency}</span> : null}
+        {item.proficiency ? (
+          <span className="meta">· {item.proficiency}</span>
+        ) : null}
       </div>
     </div>
   );
@@ -156,11 +172,14 @@ function OrganizationVolunteeringItem({
 }: {
   item: SectionItem<"organizationVolunteering">;
 }) {
-  const titleMeta = item.organizationName ? `· ${item.organizationName}` : undefined;
+  const titleMeta = item.organizationName
+    ? `· ${item.organizationName}`
+    : undefined;
   const row2 = joinParts(
-    [item.location || undefined, renderDateRange(item.startDate, item.endDate) || undefined].filter(
-      Boolean,
-    ),
+    [
+      item.location || undefined,
+      renderDateRange(item.startDate, item.endDate) || undefined,
+    ].filter(Boolean),
   );
   return (
     <InsetItemFrame

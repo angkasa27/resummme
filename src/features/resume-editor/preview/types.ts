@@ -1,7 +1,4 @@
-import type {
-  CollectionSectionKey,
-  EditorPanelKey,
-} from "@/features/resume-editor/domain/sections/section-metadata";
+import type { CollectionSectionKey } from "@/features/resume-editor/domain/sections/section-metadata";
 import type {
   PdfPresentation,
   ResolvedPdfPresentation,
@@ -68,13 +65,6 @@ export type PreviewDocumentActions = {
   onExportPdf: () => void;
   isExportingPdf?: boolean;
   isImportingPdf?: boolean;
-};
-
-export type PreviewPaneProps = {
-  draft: ResumeDraft;
-  onSavePdfPresentation: (pdfPresentation: PdfPresentation) => void;
-  onOpenSection?: (panel: EditorPanelKey) => void;
-  documentActions: PreviewDocumentActions;
 };
 
 export type PreviewRendererProps = {

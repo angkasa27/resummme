@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useId, useMemo, useState } from "react";
-import { ConfirmDeleteDialog } from "@/components/ui/confirm-delete-dialog";
-import { useFieldArray, useForm, useWatch } from "react-hook-form";
+import { useEffect, useId } from "react";
+import type { UseFieldArrayReturn, UseFormReturn } from "react-hook-form";
 import { AnimatePresence, motion } from "motion/react";
 import {
   ArrowDownIcon,
@@ -19,14 +18,15 @@ import { ButtonGroup } from "@/components/ui/button-group";
 
 import { FormShell } from "@/features/resume-editor/editor/desktop/forms/form-shell";
 import { SectionIcon } from "@/features/resume-editor/ui/section-icons";
-import { collectionSectionConfigs } from "@/features/resume-editor/domain/sections/collection-section-config";
-import { collectionSectionFormSchemaMap } from "@/features/resume-editor/forms/collection-section-form-schema-map";
-import { createFormSchemaResolver } from "@/features/resume-editor/forms/schemas/create-form-schema-resolver";
-import { useSyncedFormValues } from "@/features/resume-editor/forms/use-synced-form-values";
+import type { CollectionSectionConfigMap } from "@/features/resume-editor/domain/sections/collection-section-config";
 import { CollectionItemFields } from "@/features/resume-editor/forms/fields/collection-item-fields";
+import { CollectionItemDeleteDialog } from "@/features/resume-editor/forms/collection-item-delete-dialog";
+import {
+  getCollectionItemSummary,
+  useCollectionItemsForm,
+  type CollectionItemsFormValues,
+} from "@/features/resume-editor/forms/use-collection-items-form";
 import { useListItemMotion } from "@/features/resume-editor/ui/list-motion";
-import { sortResumeItems } from "@/features/resume-editor/domain/sections/sort-resume-items";
-import { normalizeCollectionItem } from "@/features/resume-editor/domain/sections/normalize-collection-item";
 import type { CollectionSectionKey } from "@/features/resume-editor/domain/sections/section-metadata";
 import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
 import {
@@ -34,10 +34,6 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-
-type CollectionFormValues = {
-  items: ResumeDraft["sections"][CollectionSectionKey]["items"];
-};
 
 type DesktopCollectionFormProps = {
   draft: ResumeDraft;
@@ -48,6 +44,105 @@ type DesktopCollectionFormProps = {
   onDirtyChange?: (dirty: boolean) => void;
 };
 
+type ItemFieldArray = UseFieldArrayReturn<
+  CollectionItemsFormValues,
+  "items",
+  "fieldKey"
+>;
+
+type DesktopCollectionItemCardProps = {
+  index: number;
+  config: CollectionSectionConfigMap[CollectionSectionKey];
+  currentItems: CollectionItemsFormValues["items"] | undefined;
+  items: ItemFieldArray;
+  isCollapsed: boolean;
+  onToggleCollapsed: () => void;
+  onRequestDelete: () => void;
+  itemMotion: ReturnType<typeof useListItemMotion>;
+  form: UseFormReturn<CollectionItemsFormValues>;
+};
+
+function DesktopCollectionItemCard({
+  index,
+  config,
+  currentItems,
+  items,
+  isCollapsed,
+  onToggleCollapsed,
+  onRequestDelete,
+  itemMotion,
+  form,
+}: DesktopCollectionItemCardProps) {
+  const summary = getCollectionItemSummary(
+    currentItems?.[index] as Record<string, unknown>,
+    config.itemTitle,
+    index,
+  );
+
+  return (
+    <motion.section
+      data-testid="collection-item-card"
+      {...itemMotion}
+      className="overflow-hidden rounded-md border bg-background/50"
+    >
+      <div className="flex items-center justify-between gap-2 px-2 py-1.5">
+        <button
+          type="button"
+          className="flex min-w-0 flex-1 items-center gap-1 text-left"
+          onClick={onToggleCollapsed}
+        >
+          {isCollapsed ? (
+            <ChevronRightIcon className="size-4 shrink-0 text-muted-foreground" />
+          ) : (
+            <ChevronDownIcon className="size-4 shrink-0 text-muted-foreground" />
+          )}
+          <span className="truncate text-sm font-medium">{summary}</span>
+        </button>
+        <ButtonGroup aria-label={`${config.itemTitle} ${index + 1} actions`}>
+          <Button
+            type="button"
+            variant="outline"
+            size="icon-sm"
+            disabled={index === 0}
+            aria-label={`Move up`}
+            onClick={() => index > 0 && items.move(index, index - 1)}
+          >
+            <ArrowUpIcon />
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="icon-sm"
+            disabled={index === items.fields.length - 1}
+            aria-label={`Move down`}
+            onClick={() =>
+              index < items.fields.length - 1 && items.move(index, index + 1)
+            }
+          >
+            <ArrowDownIcon />
+          </Button>
+          <Button
+            type="button"
+            variant="destructive"
+            size="icon-sm"
+            aria-label={`Remove`}
+            disabled={items.fields.length === 1}
+            className="border border-border! border-l-0"
+            onClick={() => items.fields.length > 1 && onRequestDelete()}
+          >
+            <Trash2Icon className="text-destructive" />
+          </Button>
+        </ButtonGroup>
+      </div>
+      {!isCollapsed ? (
+        <div className="border-t bg-muted/40 p-3">
+          <CollectionItemFields config={config} form={form} index={index} />
+        </div>
+      ) : null}
+    </motion.section>
+  );
+}
+
 export function DesktopCollectionForm({
   draft,
   sectionKey,
@@ -56,46 +151,20 @@ export function DesktopCollectionForm({
   onClose,
   onDirtyChange,
 }: DesktopCollectionFormProps) {
-  const config = collectionSectionConfigs[sectionKey];
-  const sectionValue = draft.sections[sectionKey];
-
-  const formValues = useMemo<CollectionFormValues>(
-    () => ({
-      items:
-        sectionValue.items.length > 0
-          ? (sectionValue.items.map((item) =>
-              normalizeCollectionItem(item, config.createItem()),
-            ) as unknown as CollectionFormValues["items"])
-          : ([config.createItem()] as unknown as CollectionFormValues["items"]),
-    }),
-    [config, sectionValue.items],
-  );
-
-  const form = useForm<CollectionFormValues>({
-    resolver: createFormSchemaResolver<CollectionFormValues>(
-      collectionSectionFormSchemaMap[sectionKey],
-    ),
-    defaultValues: formValues,
-    mode: "onBlur",
-    reValidateMode: "onChange",
-  });
-  const { control } = form;
-  const currentItems = useWatch({ control, name: "items" });
-  const items = useFieldArray({
-    control,
-    name: "items",
-    keyName: "fieldKey",
-  });
-
-  const [collapsedIds, setCollapsedIds] = useState<Set<string>>(
-    () => new Set(items.fields.slice(1).map((f) => f.fieldKey)),
-  );
-  const [pendingDeleteIndex, setPendingDeleteIndex] = useState<number | null>(
-    null,
-  );
-  const itemMotion = useListItemMotion();
-
-  useSyncedFormValues(form, formValues);
+  const {
+    config,
+    form,
+    currentItems,
+    items,
+    collapsedIds,
+    toggleCollapsed,
+    pendingDeleteIndex,
+    setPendingDeleteIndex,
+    itemMotion,
+    dateRangeField,
+    autoSort,
+    toSectionValue,
+  } = useCollectionItemsForm(draft, sectionKey);
 
   const formId = useId();
   const { formState, handleSubmit } = form;
@@ -104,40 +173,9 @@ export function DesktopCollectionForm({
     onDirtyChange?.(formState.isDirty);
   }, [formState.isDirty, onDirtyChange]);
 
-  function handleSave(values: CollectionFormValues) {
-    onSave({
-      ...sectionValue,
-      items: values.items.map((item) =>
-        normalizeCollectionItem(item, config.createItem()),
-      ),
-    } as ResumeDraft["sections"][CollectionSectionKey]);
+  function handleSave(values: CollectionItemsFormValues) {
+    onSave(toSectionValue(values));
     onClose();
-  }
-
-  function toggleCollapsed(id: string) {
-    setCollapsedIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
-      }
-      return next;
-    });
-  }
-
-  const dateRangeField = config.fields.find((f) => f.kind === "dateRange");
-
-  function handleAutoSort() {
-    if (!dateRangeField || dateRangeField.kind !== "dateRange") return;
-    const sorted = sortResumeItems(
-      form.getValues().items as unknown as Record<string, unknown>[],
-      dateRangeField.startName,
-      dateRangeField.endName,
-    );
-    form.setValue("items", sorted as unknown as CollectionFormValues["items"], {
-      shouldDirty: true,
-    });
   }
 
   return (
@@ -168,7 +206,7 @@ export function DesktopCollectionForm({
                       type="button"
                       variant="outline"
                       size="sm"
-                      onClick={handleAutoSort}
+                      onClick={autoSort}
                       aria-label="Auto-sort items by date range"
                     >
                       <ArrowDownNarrowWide data-icon="inline-start" />
@@ -198,115 +236,28 @@ export function DesktopCollectionForm({
         ) : (
           <div className="flex flex-col gap-2">
             <AnimatePresence initial={false}>
-              {items.fields.map((field, index) => {
-                const item = currentItems?.[index] as Record<string, unknown>;
-                const summary =
-                  ((item?.companyName ||
-                    item?.projectName ||
-                    item?.name ||
-                    item?.title ||
-                    item?.certificationName ||
-                    item?.language ||
-                    item?.categoryName ||
-                    item?.organizationName) as string | undefined) ||
-                  `${config.itemTitle} ${index + 1}`;
-                const isCollapsed = collapsedIds.has(field.fieldKey);
-
-                return (
-                  <motion.section
-                    key={field.fieldKey}
-                    data-testid="collection-item-card"
-                    {...itemMotion}
-                    className="overflow-hidden rounded-md border bg-background/50"
-                  >
-                    <div className="flex items-center justify-between gap-2 px-2 py-1.5">
-                      <button
-                        type="button"
-                        className="flex min-w-0 flex-1 items-center gap-1 text-left"
-                        onClick={() => toggleCollapsed(field.fieldKey)}
-                      >
-                        {isCollapsed ? (
-                          <ChevronRightIcon className="size-4 shrink-0 text-muted-foreground" />
-                        ) : (
-                          <ChevronDownIcon className="size-4 shrink-0 text-muted-foreground" />
-                        )}
-                        <span className="truncate text-sm font-medium">
-                          {summary}
-                        </span>
-                      </button>
-                      <ButtonGroup
-                        aria-label={`${config.itemTitle} ${index + 1} actions`}
-                      >
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="icon-sm"
-                          disabled={index === 0}
-                          aria-label={`Move up`}
-                          onClick={() =>
-                            index > 0 && items.move(index, index - 1)
-                          }
-                        >
-                          <ArrowUpIcon />
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="icon-sm"
-                          disabled={index === items.fields.length - 1}
-                          aria-label={`Move down`}
-                          onClick={() =>
-                            index < items.fields.length - 1 &&
-                            items.move(index, index + 1)
-                          }
-                        >
-                          <ArrowDownIcon />
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="destructive"
-                          size="icon-sm"
-                          aria-label={`Remove`}
-                          disabled={items.fields.length === 1}
-                          className="border border-border! border-l-0"
-                          onClick={() =>
-                            items.fields.length > 1 &&
-                            setPendingDeleteIndex(index)
-                          }
-                        >
-                          <Trash2Icon className="text-destructive" />
-                        </Button>
-                      </ButtonGroup>
-                    </div>
-                    {!isCollapsed ? (
-                      <div className="border-t bg-muted/40 p-3">
-                        <CollectionItemFields
-                          config={config}
-                          form={
-                            form as unknown as Parameters<
-                              typeof CollectionItemFields
-                            >[0]["form"]
-                          }
-                          index={index}
-                        />
-                      </div>
-                    ) : null}
-                  </motion.section>
-                );
-              })}
+              {items.fields.map((field, index) => (
+                <DesktopCollectionItemCard
+                  key={field.fieldKey}
+                  index={index}
+                  config={config}
+                  currentItems={currentItems}
+                  items={items}
+                  isCollapsed={collapsedIds.has(field.fieldKey)}
+                  onToggleCollapsed={() => toggleCollapsed(field.fieldKey)}
+                  onRequestDelete={() => setPendingDeleteIndex(index)}
+                  itemMotion={itemMotion}
+                  form={form}
+                />
+              ))}
             </AnimatePresence>
           </div>
         )}
-        <ConfirmDeleteDialog
-          open={pendingDeleteIndex !== null}
-          onOpenChange={(open) => {
-            if (!open) setPendingDeleteIndex(null);
-          }}
-          onConfirm={() => {
-            if (pendingDeleteIndex !== null) items.remove(pendingDeleteIndex);
-          }}
-          title={`Remove ${config.itemTitle.toLowerCase()}?`}
-          description="This item will be permanently removed from the section."
+        <CollectionItemDeleteDialog
+          pendingDeleteIndex={pendingDeleteIndex}
+          onOpenChange={setPendingDeleteIndex}
+          onRemove={items.remove}
+          itemTitle={config.itemTitle}
         />
       </FormShell>
     </form>

@@ -10,12 +10,16 @@ import {
 import { normalizeCollectionItem } from "@/features/resume-editor/domain/sections/normalize-collection-item";
 import type { DraftStorage } from "@/features/resume-editor/domain/draft/draft-storage";
 import { LocalDraftStorage } from "@/features/resume-editor/domain/draft/local-draft-storage";
-import type { PdfPresentation, Profile, ResumeDraft } from "@/features/resume-editor/domain/schema";
+import type {
+  PdfPresentation,
+  Profile,
+  ResumeDraft,
+} from "@/features/resume-editor/domain/schema";
 
 export type ResumeSectionKey = keyof ResumeDraft["sections"];
 export type ResumeEditorPanelKey = "profile" | ResumeSectionKey;
 
-export type ResumeEditorStoreState = {
+type ResumeEditorStoreState = {
   draft: ResumeDraft;
   activeSection: ResumeEditorPanelKey;
   undoStack: ResumeDraft[];
@@ -24,13 +28,16 @@ export type ResumeEditorStoreState = {
   savePdfPresentation: (pdfPresentation: PdfPresentation) => void;
   saveSection: <K extends ResumeSectionKey>(
     sectionKey: K,
-    sectionValue: ResumeDraft["sections"][K]
+    sectionValue: ResumeDraft["sections"][K],
   ) => void;
   reorderSection: (
     sectionKey: ResumeSectionKey,
-    anchorKey: ResumeSectionKey
+    anchorKey: ResumeSectionKey,
   ) => void;
-  setSectionVisibility: (sectionKey: ResumeSectionKey, visible: boolean) => void;
+  setSectionVisibility: (
+    sectionKey: ResumeSectionKey,
+    visible: boolean,
+  ) => void;
   requestSectionChange: (sectionKey: ResumeEditorPanelKey) => void;
   replaceDraft: (draft: ResumeDraft) => void;
   undo: () => void;
@@ -39,7 +46,7 @@ export type ResumeEditorStoreState = {
 
 function createNextDraft(
   currentDraft: ResumeDraft,
-  updates: Partial<ResumeDraft>
+  updates: Partial<ResumeDraft>,
 ): ResumeDraft {
   return {
     ...currentDraft,
@@ -50,21 +57,22 @@ function createNextDraft(
 
 function normalizeSectionValue<K extends ResumeSectionKey>(
   sectionKey: K,
-  sectionValue: ResumeDraft["sections"][K]
+  sectionValue: ResumeDraft["sections"][K],
 ): ResumeDraft["sections"][K] {
   if (!isCollectionSectionKey(sectionKey)) {
     return sectionValue;
   }
 
   const config = collectionSectionConfigs[sectionKey];
-  const collectionSectionValue = sectionValue as ResumeDraft["sections"][typeof sectionKey] & {
-    items: Record<string, unknown>[];
-  };
+  const collectionSectionValue =
+    sectionValue as ResumeDraft["sections"][typeof sectionKey] & {
+      items: Record<string, unknown>[];
+    };
 
   return {
     ...collectionSectionValue,
     items: collectionSectionValue.items.map((item) =>
-      normalizeCollectionItem(item, config.createItem())
+      normalizeCollectionItem(item, config.createItem()),
     ),
   } as ResumeDraft["sections"][K];
 }
@@ -76,16 +84,17 @@ const MAX_HISTORY = 50;
 // mutators clone their input, and parseResumeDraft returns fresh objects.
 function pushUndoStack(
   stack: ResumeDraft[],
-  draft: ResumeDraft
+  draft: ResumeDraft,
 ): ResumeDraft[] {
   const next = [...stack, draft];
   if (next.length > MAX_HISTORY) next.shift();
   return next;
 }
 
-export function createResumeEditorStore(
-  config?: { storage?: DraftStorage; initialDraft?: ResumeDraft },
-) {
+export function createResumeEditorStore(config?: {
+  storage?: DraftStorage;
+  initialDraft?: ResumeDraft;
+}) {
   const storage = config?.storage ?? new LocalDraftStorage();
   const initialDraft = config?.initialDraft ?? storage.load();
 
@@ -95,7 +104,7 @@ export function createResumeEditorStore(
     const commit = (updater: (draft: ResumeDraft) => Partial<ResumeDraft>) => {
       const state = get();
       const nextDraft = storage.save(
-        createNextDraft(state.draft, updater(state.draft))
+        createNextDraft(state.draft, updater(state.draft)),
       );
       set({
         draft: nextDraft,
@@ -117,7 +126,7 @@ export function createResumeEditorStore(
           sections: reorderSections(
             draft.sections,
             sectionKey,
-            normalizeSectionValue(sectionKey, sectionValue)
+            normalizeSectionValue(sectionKey, sectionValue),
           ),
         })),
       reorderSection: (sectionKey, anchorKey) =>
@@ -129,7 +138,7 @@ export function createResumeEditorStore(
           sections: setSectionVisibilityWithOrder(
             draft.sections,
             sectionKey,
-            visible
+            visible,
           ),
         })),
       requestSectionChange: (sectionKey) => {

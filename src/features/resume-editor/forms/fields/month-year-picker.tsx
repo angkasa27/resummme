@@ -34,6 +34,20 @@ type MonthYearPickerProps = {
   minValueExclusive?: string;
 };
 
+function isMonthSelected(monthDate: Date, selectedDate: Date | undefined) {
+  return (
+    !!selectedDate &&
+    selectedDate.getFullYear() === monthDate.getFullYear() &&
+    selectedDate.getMonth() === monthDate.getMonth()
+  );
+}
+
+function isMonthDisabled(monthDate: Date, minExclusiveDate: Date | undefined) {
+  return (
+    !!minExclusiveDate && monthDate.getTime() <= minExclusiveDate.getTime()
+  );
+}
+
 const monthLabels = [
   "Jan",
   "Feb",
@@ -151,21 +165,18 @@ export function MonthYearPicker({
         <div className="grid grid-cols-3 gap-2">
           {monthLabels.map((monthLabel, monthIndex) => {
             const monthDate = setMonth(displayYearStart, monthIndex);
-            const isSelected =
-              selectedDate &&
-              selectedDate.getFullYear() === monthDate.getFullYear() &&
-              selectedDate.getMonth() === monthDate.getMonth();
-            const isDisabled =
-              minExclusiveDate &&
-              monthDate.getTime() <= minExclusiveDate.getTime();
 
             return (
               <Button
                 key={monthLabel}
                 type="button"
-                variant={isSelected ? "default" : "outline"}
+                variant={
+                  isMonthSelected(monthDate, selectedDate)
+                    ? "default"
+                    : "outline"
+                }
                 className="justify-center"
-                disabled={Boolean(isDisabled)}
+                disabled={isMonthDisabled(monthDate, minExclusiveDate)}
                 onClick={() => handleSelectMonth(monthIndex)}
               >
                 {format(monthDate, "MMM")}

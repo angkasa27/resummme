@@ -5,8 +5,14 @@ import {
   resumeSectionKeys,
   type CollectionSectionKey,
 } from "@/features/resume-editor/domain/sections/section-metadata";
-import { parseResumeDraft, type ResumeDraft } from "@/features/resume-editor/domain/schema";
-import { sanitizeRichTextHtml, sanitizeRichTextHref } from "@/features/resume-editor/domain/rich-text/sanitize-rich-text";
+import {
+  parseResumeDraft,
+  type ResumeDraft,
+} from "@/features/resume-editor/domain/schema";
+import {
+  sanitizeRichTextHtml,
+  sanitizeRichTextHref,
+} from "@/features/resume-editor/domain/rich-text/sanitize-rich-text";
 import { collectionSectionConfigs } from "@/features/resume-editor/domain/sections/collection-section-config";
 import type { ImportedResume } from "@/features/resume-editor/server/imported-resume-schema";
 
@@ -97,6 +103,48 @@ function normalizeUrl(value: string) {
   return sanitizeRichTextHref(withProtocol) ?? "";
 }
 
+// monthMap has two keys per month (full name + abbreviation), so
+// Object.values(monthMap) repeats each abbreviation; dedupe once here to get
+// a calendar-ordered lookup from month number (1-12) to abbreviation.
+const orderedMonthAbbreviations = [...new Set(Object.values(monthMap))];
+
+function monthNumberToAbbreviation(monthNumber: number) {
+  return orderedMonthAbbreviations[monthNumber - 1];
+}
+
+function matchCurrentDate(cleanedValue: string, allowCurrent: boolean) {
+  if (allowCurrent && /^(current|present|now|ongoing)$/i.test(cleanedValue)) {
+    return "current";
+  }
+
+  return null;
+}
+
+function matchMonthYearDate(cleanedValue: string) {
+  const monthYearMatch = cleanedValue.match(/^([A-Za-z]{3,9})\s+(\d{4})$/);
+  if (!monthYearMatch) {
+    return null;
+  }
+
+  const month = monthMap[monthYearMatch[1].toLowerCase()];
+  return month ? `${month} ${monthYearMatch[2]}` : null;
+}
+
+function matchNumericDate(
+  cleanedValue: string,
+  pattern: RegExp,
+  monthGroup: 1 | 2,
+  yearGroup: 1 | 2,
+) {
+  const match = cleanedValue.match(pattern);
+  if (!match) {
+    return null;
+  }
+
+  const month = monthNumberToAbbreviation(Number(match[monthGroup]));
+  return month ? `${month} ${match[yearGroup]}` : null;
+}
+
 function normalizeDateValue(
   value: string,
   label: string,
@@ -109,40 +157,14 @@ function normalizeDateValue(
     return "";
   }
 
-  if (allowCurrent && /^(current|present|now|ongoing)$/i.test(cleanedValue)) {
-    return "current";
-  }
+  const normalizedValue =
+    matchCurrentDate(cleanedValue, allowCurrent) ??
+    matchMonthYearDate(cleanedValue) ??
+    matchNumericDate(cleanedValue, /^(\d{1,2})[/-](\d{4})$/, 1, 2) ??
+    matchNumericDate(cleanedValue, /^(\d{4})[/-](\d{1,2})$/, 2, 1);
 
-  const monthYearMatch = cleanedValue.match(/^([A-Za-z]{3,9})\s+(\d{4})$/);
-  if (monthYearMatch) {
-    const month = monthMap[monthYearMatch[1].toLowerCase()];
-    if (month) {
-      return `${month} ${monthYearMatch[2]}`;
-    }
-  }
-
-  const numberMonthMatch = cleanedValue.match(/^(\d{1,2})[/-](\d{4})$/);
-  if (numberMonthMatch) {
-    const monthNumber = Number(numberMonthMatch[1]);
-    const month = Object.values(monthMap).filter(
-      (value, index, array) => array.indexOf(value) === index,
-    )[monthNumber - 1];
-
-    if (month) {
-      return `${month} ${numberMonthMatch[2]}`;
-    }
-  }
-
-  const yearMonthMatch = cleanedValue.match(/^(\d{4})[/-](\d{1,2})$/);
-  if (yearMonthMatch) {
-    const monthNumber = Number(yearMonthMatch[2]);
-    const month = Object.values(monthMap).filter(
-      (value, index, array) => array.indexOf(value) === index,
-    )[monthNumber - 1];
-
-    if (month) {
-      return `${month} ${yearMonthMatch[1]}`;
-    }
+  if (normalizedValue) {
+    return normalizedValue;
   }
 
   warnings.push(`${label} used an unsupported date format and was left blank.`);
@@ -185,7 +207,9 @@ export function buildImportedResumeDraft(
     },
     sections: {
       summary: {
-        visible: importedResume.summary.some((paragraph) => cleanText(paragraph)),
+        visible: importedResume.summary.some((paragraph) =>
+          cleanText(paragraph),
+        ),
         order: resumeSectionKeys.indexOf("summary"),
         content: toRichTextParagraphs(importedResume.summary),
       },
@@ -332,7 +356,9 @@ export function buildImportedResumeDraft(
             items: importedResume.languages.map((item) => ({
               id: createLocalId("language"),
               language: cleanText(item.language),
-              proficiency: languageProficiencyOptions.includes(cleanText(item.proficiency))
+              proficiency: languageProficiencyOptions.includes(
+                cleanText(item.proficiency),
+              )
                 ? cleanText(item.proficiency)
                 : defaultLanguageProficiency,
             })),

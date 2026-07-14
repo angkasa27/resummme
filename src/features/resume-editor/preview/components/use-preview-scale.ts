@@ -9,6 +9,24 @@ type UsePreviewScaleOptions = {
   watchValues: unknown[];
 };
 
+function computePreviewScale(
+  viewport: HTMLDivElement,
+  sheet: HTMLDivElement,
+): { scale: number; width: number; height: number } | null {
+  const computedStyles = window.getComputedStyle(viewport);
+  const horizontalPadding =
+    Number.parseFloat(computedStyles.paddingLeft || "0") +
+    Number.parseFloat(computedStyles.paddingRight || "0");
+  const viewportWidth = Math.max(0, viewport.clientWidth - horizontalPadding);
+  const sheetWidth = sheet.offsetWidth;
+  const sheetHeight = sheet.offsetHeight;
+
+  if (!viewportWidth || !sheetWidth || !sheetHeight) return null;
+
+  const scale = Math.min(1, viewportWidth / sheetWidth);
+  return { scale, width: sheetWidth * scale, height: sheetHeight * scale };
+}
+
 export function usePreviewScale({
   sheetRef,
   viewportRef,
@@ -30,28 +48,11 @@ export function usePreviewScale({
         return;
       }
 
-      const computedStyles = window.getComputedStyle(viewport);
-      const horizontalPadding =
-        Number.parseFloat(computedStyles.paddingLeft || "0") +
-        Number.parseFloat(computedStyles.paddingRight || "0");
-      const viewportWidth = Math.max(
-        0,
-        viewport.clientWidth - horizontalPadding,
-      );
-      const sheetWidth = sheet.offsetWidth;
-      const sheetHeight = sheet.offsetHeight;
+      const result = computePreviewScale(viewport, sheet);
+      if (!result) return;
 
-      if (!viewportWidth || !sheetWidth || !sheetHeight) {
-        return;
-      }
-
-      const nextScale = Math.min(1, viewportWidth / sheetWidth);
-
-      setPreviewScale(nextScale);
-      setPreviewShellSize({
-        width: sheetWidth * nextScale,
-        height: sheetHeight * nextScale,
-      });
+      setPreviewScale(result.scale);
+      setPreviewShellSize({ width: result.width, height: result.height });
     };
 
     updatePreviewScale();

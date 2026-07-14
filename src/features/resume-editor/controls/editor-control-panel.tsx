@@ -49,6 +49,56 @@ type EditorControlPanelProps = {
   layout?: "panel" | "flow";
 };
 
+function clampZoom(value: number) {
+  return Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, value));
+}
+
+type ZoomControlsProps = {
+  zoom: number;
+  onZoomChange: (next: number) => void;
+};
+
+function ZoomControls({ zoom, onZoomChange }: ZoomControlsProps) {
+  return (
+    <>
+      <Separator />
+      {/* Zoom (fixed bottom) */}
+      <section className="flex shrink-0 items-center gap-1 px-4 py-3">
+        <Button
+          type="button"
+          variant="outline"
+          size="icon-sm"
+          aria-label="Zoom out"
+          disabled={zoom <= ZOOM_MIN + 1e-6}
+          onClick={() => onZoomChange(clampZoom(zoom - ZOOM_STEP))}
+        >
+          <MinusIcon />
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          className="flex-1 tabular-nums"
+          aria-label={`Reset zoom to ${ZOOM_DEFAULT * 100}%`}
+          onClick={() => onZoomChange(ZOOM_DEFAULT)}
+        >
+          {Math.round(zoom * 100)}%
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          size="icon-sm"
+          aria-label="Zoom in"
+          disabled={zoom >= ZOOM_MAX - 1e-6}
+          onClick={() => onZoomChange(clampZoom(zoom + ZOOM_STEP))}
+        >
+          <PlusIcon />
+        </Button>
+      </section>
+    </>
+  );
+}
+
 /**
  * Editor control panel shared by the canvas and classic editors: the
  * Template/Style/Insights tabs plus document actions, and optional zoom.
@@ -69,12 +119,6 @@ export function EditorControlPanel({
   layout = "panel",
 }: EditorControlPanelProps) {
   const isMobile = useIsMobile();
-  function clampZoom(value: number) {
-    return Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, value));
-  }
-
-  const showZoom =
-    onZoomChange !== undefined && zoom !== undefined && !isMobile;
   const isFlow = layout === "flow";
   const tabContentClassName = cn(
     "pt-1.5 pb-3 px-4",
@@ -142,43 +186,8 @@ export function EditorControlPanel({
         </TabsContent>
       </Tabs>
 
-      {showZoom ? (
-        <>
-          <Separator />
-          {/* Zoom (fixed bottom) */}
-          <section className="flex shrink-0 items-center gap-1 px-4 py-3">
-            <Button
-              type="button"
-              variant="outline"
-              size="icon-sm"
-              aria-label="Zoom out"
-              disabled={zoom <= ZOOM_MIN + 1e-6}
-              onClick={() => onZoomChange(clampZoom(zoom - ZOOM_STEP))}
-            >
-              <MinusIcon />
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              className="flex-1 tabular-nums"
-              aria-label={`Reset zoom to ${ZOOM_DEFAULT * 100}%`}
-              onClick={() => onZoomChange(ZOOM_DEFAULT)}
-            >
-              {Math.round(zoom * 100)}%
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="icon-sm"
-              aria-label="Zoom in"
-              disabled={zoom >= ZOOM_MAX - 1e-6}
-              onClick={() => onZoomChange(clampZoom(zoom + ZOOM_STEP))}
-            >
-              <PlusIcon />
-            </Button>
-          </section>
-        </>
+      {!isMobile && zoom !== undefined && onZoomChange !== undefined ? (
+        <ZoomControls zoom={zoom} onZoomChange={onZoomChange} />
       ) : null}
     </div>
   );

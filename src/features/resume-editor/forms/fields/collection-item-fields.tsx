@@ -45,7 +45,10 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { TagInput } from "@/components/ui/tag-input";
-import { type CollectionSectionConfigMap, type ItemFieldConfig } from "@/features/resume-editor/domain/sections/collection-section-config";
+import {
+  type CollectionSectionConfigMap,
+  type ItemFieldConfig,
+} from "@/features/resume-editor/domain/sections/collection-section-config";
 import {
   languageProficiencyOptions,
   type CollectionSectionKey,
@@ -93,6 +96,84 @@ function getFieldIcon(kind: string, name: string): LucideIcon {
   return fieldIconByName[name] ?? TypeIcon;
 }
 
+/** Most field kinds share the simple `{ name, placeholder? }` shape; only
+ * `dateRange` deviates (see `renderDateRangeField`). */
+type SimpleItemFieldConfig = ItemFieldConfig & {
+  name: string;
+  placeholder?: string;
+};
+
+function asSimpleFieldConfig(
+  fieldConfig: ItemFieldConfig,
+): SimpleItemFieldConfig {
+  return fieldConfig as SimpleItemFieldConfig;
+}
+
+/** Attributes for `renderTextField`'s `<InputGroupInput>` that vary by kind. */
+function getTextInputAttrs(kind: "text" | "email" | "url") {
+  if (kind === "email") {
+    return {
+      type: "email",
+      inputMode: "email",
+      autoComplete: "email",
+      autoCapitalize: "none",
+      autoCorrect: "off",
+      spellCheck: false,
+    } as const;
+  }
+  if (kind === "url") {
+    return {
+      type: "url",
+      inputMode: "url",
+      autoComplete: "url",
+      autoCapitalize: "none",
+      autoCorrect: "off",
+      spellCheck: false,
+    } as const;
+  }
+  return {
+    type: "text",
+    inputMode: undefined,
+    autoComplete: undefined,
+    autoCapitalize: undefined,
+    autoCorrect: undefined,
+    spellCheck: true,
+  } as const;
+}
+
+type FieldShellProps = {
+  label: string;
+  htmlFor?: string;
+  invalid: boolean;
+  error?: { message?: string };
+  description?: ReactNode;
+  children: ReactNode;
+};
+
+/** Shared `Field`/`FieldLabel`/`FieldContent`/`FieldError` wrapper used by
+ * every simple (non-dateRange) collection item field renderer below. */
+function FieldShell({
+  label,
+  htmlFor,
+  invalid,
+  error,
+  description,
+  children,
+}: FieldShellProps) {
+  return (
+    <Field className="@sm/form:col-span-2" data-invalid={invalid || undefined}>
+      <FieldLabel htmlFor={htmlFor}>
+        <FieldLabelText label={label} />
+      </FieldLabel>
+      <FieldContent>
+        {children}
+        {description}
+        <FieldError errors={[error]} />
+      </FieldContent>
+    </Field>
+  );
+}
+
 export function CollectionItemFields({
   config,
   form,
@@ -117,62 +198,46 @@ export function CollectionItemFields({
   const reg = register;
   const gdfs = getDynamicFieldState;
 
-  function renderTextField(_fieldConfig: ItemFieldConfig, fieldIndex: number) {
-    const fieldConfig = _fieldConfig as ItemFieldConfig & { name: string; placeholder?: string };
+  // Shared preamble for every simple (non-dateRange) field renderer below:
+  // resolve the loosely-typed config, the RHF path, and its live field state.
+  function resolveField(_fieldConfig: ItemFieldConfig, fieldIndex: number) {
+    const fieldConfig = asSimpleFieldConfig(_fieldConfig);
     const fieldName = `items.${fieldIndex}.${fieldConfig.name}` as const;
     const fieldState = gdfs(fieldName);
+    return { fieldConfig, fieldName, fieldState };
+  }
+
+  function renderTextField(_fieldConfig: ItemFieldConfig, fieldIndex: number) {
+    const { fieldConfig, fieldName, fieldState } = resolveField(
+      _fieldConfig,
+      fieldIndex,
+    );
     const FieldIcon = getFieldIcon(fieldConfig.kind, fieldConfig.name);
+    const inputAttrs = getTextInputAttrs(
+      fieldConfig.kind as "text" | "email" | "url",
+    );
 
     return (
-      <Field
+      <FieldShell
         key={fieldName}
-        className="@sm/form:col-span-2"
-        data-invalid={fieldState.invalid || undefined}
+        htmlFor={fieldName}
+        label={fieldConfig.label}
+        invalid={fieldState.invalid}
+        error={fieldState.error}
       >
-        <FieldLabel htmlFor={fieldName}>
-          <FieldLabelText label={fieldConfig.label} />
-        </FieldLabel>
-        <FieldContent>
-          <InputGroup className="bg-background!">
-            <InputGroupAddon>
-              <FieldIcon />
-            </InputGroupAddon>
-            <InputGroupInput
-              id={fieldName}
-              type={fieldConfig.kind === "text" ? "text" : fieldConfig.kind}
-              inputMode={
-                fieldConfig.kind === "email"
-                  ? "email"
-                  : fieldConfig.kind === "url"
-                    ? "url"
-                    : undefined
-              }
-              autoComplete={
-                fieldConfig.kind === "email"
-                  ? "email"
-                  : fieldConfig.kind === "url"
-                    ? "url"
-                    : undefined
-              }
-              spellCheck={fieldConfig.kind === "text"}
-              autoCapitalize={
-                fieldConfig.kind === "email" || fieldConfig.kind === "url"
-                  ? "none"
-                  : undefined
-              }
-              autoCorrect={
-                fieldConfig.kind === "email" || fieldConfig.kind === "url"
-                  ? "off"
-                  : undefined
-              }
-              placeholder={fieldConfig.placeholder}
-              aria-invalid={fieldState.invalid || undefined}
-              {...reg(fieldName as never)}
-            />
-          </InputGroup>
-          <FieldError errors={[fieldState.error]} />
-        </FieldContent>
-      </Field>
+        <InputGroup className="bg-background!">
+          <InputGroupAddon>
+            <FieldIcon />
+          </InputGroupAddon>
+          <InputGroupInput
+            id={fieldName}
+            {...inputAttrs}
+            placeholder={fieldConfig.placeholder}
+            aria-invalid={fieldState.invalid || undefined}
+            {...reg(fieldName as never)}
+          />
+        </InputGroup>
+      </FieldShell>
     );
   }
 
@@ -180,41 +245,38 @@ export function CollectionItemFields({
     _fieldConfig: ItemFieldConfig,
     fieldIndex: number,
   ) {
-    const fieldConfig = _fieldConfig as ItemFieldConfig & { name: string; placeholder?: string };
-    const fieldName = `items.${fieldIndex}.${fieldConfig.name}` as const;
-    const fieldState = gdfs(fieldName);
+    const { fieldConfig, fieldName, fieldState } = resolveField(
+      _fieldConfig,
+      fieldIndex,
+    );
 
     return (
-      <Field
+      <FieldShell
         key={fieldName}
-        className="@sm/form:col-span-2"
-        data-invalid={fieldState.invalid || undefined}
+        htmlFor={fieldName}
+        label={fieldConfig.label}
+        invalid={fieldState.invalid}
+        error={fieldState.error}
       >
-        <FieldLabel htmlFor={fieldName}>
-          <FieldLabelText label={fieldConfig.label} />
-        </FieldLabel>
-        <FieldContent>
-          <Controller
-            control={ctrl}
-            name={fieldName as never}
-            render={({ field }) => (
-              <MonthYearPicker
-                id={fieldName}
-                value={field.value}
-                placeholder={fieldConfig.placeholder}
-                ariaInvalid={fieldState.invalid}
-                onChange={(value) =>
-                  sv(fieldName as never, value as never, {
-                    shouldDirty: true,
-                    shouldValidate: fs.isSubmitted,
-                  })
-                }
-              />
-            )}
-          />
-          <FieldError errors={[fieldState.error]} />
-        </FieldContent>
-      </Field>
+        <Controller
+          control={ctrl}
+          name={fieldName as never}
+          render={({ field }) => (
+            <MonthYearPicker
+              id={fieldName}
+              value={field.value}
+              placeholder={fieldConfig.placeholder}
+              ariaInvalid={fieldState.invalid}
+              onChange={(value) =>
+                sv(fieldName as never, value as never, {
+                  shouldDirty: true,
+                  shouldValidate: fs.isSubmitted,
+                })
+              }
+            />
+          )}
+        />
+      </FieldShell>
     );
   }
 
@@ -222,31 +284,28 @@ export function CollectionItemFields({
     _fieldConfig: ItemFieldConfig,
     fieldIndex: number,
   ) {
-    const fieldConfig = _fieldConfig as ItemFieldConfig & { name: string; placeholder?: string };
-    const fieldName = `items.${fieldIndex}.${fieldConfig.name}` as const;
-    const fieldState = gdfs(fieldName);
+    const { fieldConfig, fieldName, fieldState } = resolveField(
+      _fieldConfig,
+      fieldIndex,
+    );
 
     return (
-      <Field
+      <FieldShell
         key={fieldName}
-        className="@sm/form:col-span-2"
-        data-invalid={fieldState.invalid || undefined}
+        htmlFor={fieldName}
+        label={fieldConfig.label}
+        invalid={fieldState.invalid}
+        error={fieldState.error}
       >
-        <FieldLabel htmlFor={fieldName}>
-          <FieldLabelText label={fieldConfig.label} />
-        </FieldLabel>
-        <FieldContent>
-          <Textarea
-            id={fieldName}
-            rows={3}
-            placeholder={fieldConfig.placeholder}
-            aria-invalid={fieldState.invalid || undefined}
-            className="not-disabled:bg-background!"
-            {...reg(fieldName as never)}
-          />
-          <FieldError errors={[fieldState.error]} />
-        </FieldContent>
-      </Field>
+        <Textarea
+          id={fieldName}
+          rows={3}
+          placeholder={fieldConfig.placeholder}
+          aria-invalid={fieldState.invalid || undefined}
+          className="not-disabled:bg-background!"
+          {...reg(fieldName as never)}
+        />
+      </FieldShell>
     );
   }
 
@@ -254,43 +313,41 @@ export function CollectionItemFields({
     _fieldConfig: ItemFieldConfig,
     fieldIndex: number,
   ) {
-    const fieldConfig = _fieldConfig as ItemFieldConfig & { name: string; placeholder?: string };
-    const fieldName = `items.${fieldIndex}.${fieldConfig.name}` as const;
-    const fieldState = gdfs(fieldName);
+    const { fieldConfig, fieldName, fieldState } = resolveField(
+      _fieldConfig,
+      fieldIndex,
+    );
 
     return (
-      <Field
+      <FieldShell
         key={fieldName}
-        className="@sm/form:col-span-2"
-        data-invalid={fieldState.invalid || undefined}
-      >
-        <FieldLabel>
-          <FieldLabelText label={fieldConfig.label} />
-        </FieldLabel>
-        <FieldContent>
-          <Controller
-            control={ctrl}
-            name={fieldName as never}
-            render={({ field }) => (
-              <RichTextEditorWithImprove
-                value={field.value}
-                ariaLabel={fieldConfig.label}
-                invalid={fieldState.invalid}
-                onChange={(value) =>
-                  sv(fieldName as never, value as never, {
-                    shouldDirty: true,
-                    shouldValidate: fs.isSubmitted,
-                  })
-                }
-              />
-            )}
-          />
-          {fieldConfig.placeholder ? (
+        label={fieldConfig.label}
+        invalid={fieldState.invalid}
+        error={fieldState.error}
+        description={
+          fieldConfig.placeholder ? (
             <FieldDescription>{fieldConfig.placeholder}</FieldDescription>
-          ) : null}
-          <FieldError errors={[fieldState.error]} />
-        </FieldContent>
-      </Field>
+          ) : null
+        }
+      >
+        <Controller
+          control={ctrl}
+          name={fieldName as never}
+          render={({ field }) => (
+            <RichTextEditorWithImprove
+              value={field.value}
+              ariaLabel={fieldConfig.label}
+              invalid={fieldState.invalid}
+              onChange={(value) =>
+                sv(fieldName as never, value as never, {
+                  shouldDirty: true,
+                  shouldValidate: fs.isSubmitted,
+                })
+              }
+            />
+          )}
+        />
+      </FieldShell>
     );
   }
 
@@ -298,45 +355,41 @@ export function CollectionItemFields({
     _fieldConfig: ItemFieldConfig,
     fieldIndex: number,
   ) {
-    const fieldConfig = _fieldConfig as ItemFieldConfig & { name: string; placeholder?: string };
-    const fieldName = `items.${fieldIndex}.${fieldConfig.name}` as const;
-    const fieldState = gdfs(fieldName);
+    const { fieldConfig, fieldName, fieldState } = resolveField(
+      _fieldConfig,
+      fieldIndex,
+    );
 
     return (
-      <Field
+      <FieldShell
         key={fieldName}
-        className="@sm/form:col-span-2"
-        data-invalid={fieldState.invalid || undefined}
-      >
-        <FieldLabel htmlFor={fieldName}>
-          <FieldLabelText label={fieldConfig.label} />
-        </FieldLabel>
-        <FieldContent>
-          <Controller
-            control={ctrl}
-            name={fieldName as never}
-            render={({ field }) => (
-              <TagInput
-                id={fieldName}
-                value={
-                  Array.isArray(field.value)
-                    ? (field.value as string[])
-                    : []
-                }
-                onChange={(next) => field.onChange(next)}
-                placeholder={fieldConfig.placeholder}
-                ariaInvalid={fieldState.invalid}
-                ariaLabel={fieldConfig.label}
-              />
-            )}
-          />
+        htmlFor={fieldName}
+        label={fieldConfig.label}
+        invalid={fieldState.invalid}
+        error={fieldState.error}
+        description={
           <FieldDescription>
-            Press Enter or comma to add a skill. Backspace removes the
-            last one.
+            Press Enter or comma to add a skill. Backspace removes the last one.
           </FieldDescription>
-          <FieldError errors={[fieldState.error]} />
-        </FieldContent>
-      </Field>
+        }
+      >
+        <Controller
+          control={ctrl}
+          name={fieldName as never}
+          render={({ field }) => (
+            <TagInput
+              id={fieldName}
+              value={
+                Array.isArray(field.value) ? (field.value as string[]) : []
+              }
+              onChange={(next) => field.onChange(next)}
+              placeholder={fieldConfig.placeholder}
+              ariaInvalid={fieldState.invalid}
+              ariaLabel={fieldConfig.label}
+            />
+          )}
+        />
+      </FieldShell>
     );
   }
 
@@ -453,46 +506,42 @@ export function CollectionItemFields({
     _fieldConfig: ItemFieldConfig,
     fieldIndex: number,
   ) {
-    const fieldConfig = _fieldConfig as ItemFieldConfig & { name: string; placeholder?: string };
-    const fieldName = `items.${fieldIndex}.${fieldConfig.name}` as const;
-    const fieldState = gdfs(fieldName);
+    const { fieldConfig, fieldName, fieldState } = resolveField(
+      _fieldConfig,
+      fieldIndex,
+    );
 
     return (
-      <Field
+      <FieldShell
         key={fieldName}
-        className="@sm/form:col-span-2"
-        data-invalid={fieldState.invalid || undefined}
+        label={fieldConfig.label}
+        invalid={fieldState.invalid}
+        error={fieldState.error}
       >
-        <FieldLabel>
-          <FieldLabelText label={fieldConfig.label} />
-        </FieldLabel>
-        <FieldContent>
-          <Controller
-            control={ctrl}
-            name={fieldName as never}
-            render={({ field }) => (
-              <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger
-                  className="w-full not-disabled:bg-background"
-                  aria-invalid={fieldState.invalid || undefined}
-                >
-                  <SelectValue placeholder="Select proficiency level" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    {languageProficiencyOptions.map((option) => (
-                      <SelectItem key={option} value={option}>
-                        {option}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            )}
-          />
-          <FieldError errors={[fieldState.error]} />
-        </FieldContent>
-      </Field>
+        <Controller
+          control={ctrl}
+          name={fieldName as never}
+          render={({ field }) => (
+            <Select value={field.value} onValueChange={field.onChange}>
+              <SelectTrigger
+                className="w-full not-disabled:bg-background"
+                aria-invalid={fieldState.invalid || undefined}
+              >
+                <SelectValue placeholder="Select proficiency level" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  {languageProficiencyOptions.map((option) => (
+                    <SelectItem key={option} value={option}>
+                      {option}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          )}
+        />
+      </FieldShell>
     );
   }
 

@@ -45,10 +45,10 @@ export function Hero() {
   // parallax/tilt only on desktop, where it's smooth and not jank-prone.
   const entrance = !reduce;
   const parallax = !reduce && !isMobile;
+  const itemVariants = entrance ? item : undefined;
 
   return (
     <section ref={ref} className="relative">
-
       {/* Copy — previous hero padding, no scroll fade */}
       <div className="relative z-10 flex flex-col items-center gap-6 px-6 pt-24 text-center sm:pt-32 md:pt-48">
         <HeroBackdrop scrollYProgress={scrollYProgress} animated={parallax} />
@@ -64,7 +64,7 @@ export function Hero() {
             href={GITHUB_URL}
             target="_blank"
             rel="noopener noreferrer"
-            variants={entrance ? item : undefined}
+            variants={itemVariants}
             className="group inline-flex items-center gap-2 rounded-full border bg-background/70 py-1 pr-2 pl-3 text-xs font-medium text-muted-foreground shadow-sm backdrop-blur transition-colors hover:text-foreground"
           >
             <span className="relative flex size-1.5">
@@ -75,7 +75,7 @@ export function Hero() {
             <ArrowRight className="size-3 transition-transform group-hover:translate-x-0.5" />
           </motion.a>
 
-          <motion.div variants={entrance ? item : undefined}>
+          <motion.div variants={itemVariants}>
             <KineticText
               text="Resummme"
               className="px-4 text-5xl tracking-tight md:text-7xl"
@@ -83,7 +83,7 @@ export function Hero() {
           </motion.div>
 
           <motion.p
-            variants={entrance ? item : undefined}
+            variants={itemVariants}
             className="max-w-md text-balance text-muted-foreground"
           >
             Build a recruiter-ready resume in minutes. Write once, preview as
@@ -91,7 +91,7 @@ export function Hero() {
           </motion.p>
 
           <motion.div
-            variants={entrance ? item : undefined}
+            variants={itemVariants}
             className="flex flex-wrap items-center justify-center gap-3"
           >
             <Link
@@ -106,7 +106,7 @@ export function Hero() {
           </motion.div>
 
           <motion.p
-            variants={entrance ? item : undefined}
+            variants={itemVariants}
             className="text-xs text-muted-foreground"
           >
             No sign-up. No paywall. Your data never leaves your browser.
@@ -207,4 +207,3 @@ function HeroBackdrop({
     </motion.div>
   );
 }
-

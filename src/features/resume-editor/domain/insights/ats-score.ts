@@ -106,90 +106,88 @@ const PARSEABILITY_BY_TEMPLATE: Record<PdfTemplateId, ParseabilityEntry> = {
   "bold-type": { score: 90 },
 };
 
-const ACTION_VERBS = new Set(
-  [
-    "led",
-    "built",
-    "shipped",
-    "drove",
-    "owned",
-    "architected",
-    "designed",
-    "developed",
-    "delivered",
-    "launched",
-    "scaled",
-    "automated",
-    "implemented",
-    "established",
-    "introduced",
-    "improved",
-    "increased",
-    "decreased",
-    "reduced",
-    "optimized",
-    "rebuilt",
-    "refactored",
-    "migrated",
-    "integrated",
-    "negotiated",
-    "managed",
-    "mentored",
-    "coached",
-    "trained",
-    "hired",
-    "recruited",
-    "presented",
-    "authored",
-    "wrote",
-    "published",
-    "researched",
-    "investigated",
-    "analyzed",
-    "evaluated",
-    "modeled",
-    "forecasted",
-    "executed",
-    "orchestrated",
-    "facilitated",
-    "coordinated",
-    "championed",
-    "founded",
-    "co-founded",
-    "spearheaded",
-    "expanded",
-    "consolidated",
-    "transformed",
-    "modernized",
-    "streamlined",
-    "saved",
-    "earned",
-    "raised",
-    "secured",
-    "won",
-    "pioneered",
-    "boosted",
-    "accelerated",
-    "tripled",
-    "doubled",
-    "produced",
-    "engineered",
-    "validated",
-    "tested",
-    "deployed",
-    "instrumented",
-    "monitored",
-    "debugged",
-    "documented",
-    "reviewed",
-    "audited",
-    "rolled",
-    "supported",
-    "consulted",
-    "collaborated",
-    "partnered",
-  ],
-);
+const ACTION_VERBS = new Set([
+  "led",
+  "built",
+  "shipped",
+  "drove",
+  "owned",
+  "architected",
+  "designed",
+  "developed",
+  "delivered",
+  "launched",
+  "scaled",
+  "automated",
+  "implemented",
+  "established",
+  "introduced",
+  "improved",
+  "increased",
+  "decreased",
+  "reduced",
+  "optimized",
+  "rebuilt",
+  "refactored",
+  "migrated",
+  "integrated",
+  "negotiated",
+  "managed",
+  "mentored",
+  "coached",
+  "trained",
+  "hired",
+  "recruited",
+  "presented",
+  "authored",
+  "wrote",
+  "published",
+  "researched",
+  "investigated",
+  "analyzed",
+  "evaluated",
+  "modeled",
+  "forecasted",
+  "executed",
+  "orchestrated",
+  "facilitated",
+  "coordinated",
+  "championed",
+  "founded",
+  "co-founded",
+  "spearheaded",
+  "expanded",
+  "consolidated",
+  "transformed",
+  "modernized",
+  "streamlined",
+  "saved",
+  "earned",
+  "raised",
+  "secured",
+  "won",
+  "pioneered",
+  "boosted",
+  "accelerated",
+  "tripled",
+  "doubled",
+  "produced",
+  "engineered",
+  "validated",
+  "tested",
+  "deployed",
+  "instrumented",
+  "monitored",
+  "debugged",
+  "documented",
+  "reviewed",
+  "audited",
+  "rolled",
+  "supported",
+  "consulted",
+  "collaborated",
+  "partnered",
+]);
 
 const FIRST_PERSON_PATTERN = /^(?:i |my |me )/i;
 const DIGIT_PATTERN = /\d/;
@@ -224,50 +222,49 @@ function scoreParseability(draft: ResumeDraft): ScorerResult {
   return { score: entry.score, suggestions };
 }
 
-function scoreContent(draft: ResumeDraft): ScorerResult {
-  const suggestions: Suggestion[] = [];
-  const push = (s: Suggestion) => suggestions.push(s);
-  const bullets = extractAllBullets(draft);
-  if (bullets.length === 0) {
-    push({
-      id: "content/no-bullets",
-      category: "content",
-      severity: "fail",
-      message:
-        "Add bullet points to your Work Experience or Projects, concrete impact statements parse better and read faster.",
-      fix: { panel: "workExperience" },
-    });
-    return { score: 20, suggestions };
-  }
+type ContentMetrics = {
+  actionPct: number;
+  quantifiedPct: number;
+  medianWords: number;
+  firstPersonCount: number;
+};
 
+function computeContentMetrics(bullets: string[]): ContentMetrics {
   const actionVerbStart = bullets.filter((bullet) =>
     ACTION_VERBS.has(firstWord(bullet)),
   ).length;
   const quantified = bullets.filter((bullet) =>
     DIGIT_PATTERN.test(bullet),
   ).length;
-  const firstPerson = bullets.filter((bullet) =>
+  const firstPersonCount = bullets.filter((bullet) =>
     FIRST_PERSON_PATTERN.test(bullet),
   ).length;
-  const wordCounts = bullets.map(
-    (bullet) => bullet.split(/\s+/).filter(Boolean).length,
-  );
+  const wordCounts = bullets
+    .map((bullet) => bullet.split(/\s+/).filter(Boolean).length)
+    .sort((a, b) => a - b);
   const medianWords = wordCounts.length
-    ? wordCounts.sort((a, b) => a - b)[Math.floor(wordCounts.length / 2)]
+    ? wordCounts[Math.floor(wordCounts.length / 2)]
     : 0;
 
-  const actionPct = actionVerbStart / bullets.length;
-  const quantifiedPct = quantified / bullets.length;
+  return {
+    actionPct: actionVerbStart / bullets.length,
+    quantifiedPct: quantified / bullets.length,
+    medianWords,
+    firstPersonCount,
+  };
+}
 
-  const actionScore = lerp(actionPct, 0.4, 0.7, 30, 100);
-  const quantifiedScore = lerp(quantifiedPct, 0.2, 0.4, 40, 100);
-  const lengthScore =
-    medianWords >= 8 && medianWords <= 24
-      ? 100
-      : medianWords < 8
-        ? lerp(medianWords, 0, 8, 30, 80)
-        : lerp(medianWords, 24, 50, 80, 30);
-  const firstPersonPenalty = firstPerson > 0 ? 15 : 0;
+function contentLengthScore(medianWords: number): number {
+  if (medianWords >= 8 && medianWords <= 24) return 100;
+  return medianWords < 8
+    ? lerp(medianWords, 0, 8, 30, 80)
+    : lerp(medianWords, 24, 50, 80, 30);
+}
+
+function collectContentSuggestions(metrics: ContentMetrics): Suggestion[] {
+  const { actionPct, quantifiedPct, medianWords, firstPersonCount } = metrics;
+  const suggestions: Suggestion[] = [];
+  const push = (s: Suggestion) => suggestions.push(s);
 
   if (actionPct < 0.5) {
     push({
@@ -307,7 +304,7 @@ function scoreContent(draft: ResumeDraft): ScorerResult {
         "Bullets are long. Trim to one or two lines so recruiters and ATS systems can skim quickly.",
     });
   }
-  if (firstPerson > 0) {
+  if (firstPersonCount > 0) {
     push({
       id: "content/first-person",
       category: "content",
@@ -317,6 +314,33 @@ function scoreContent(draft: ResumeDraft): ScorerResult {
     });
   }
 
+  return suggestions;
+}
+
+function scoreContent(draft: ResumeDraft): ScorerResult {
+  const bullets = extractAllBullets(draft);
+  if (bullets.length === 0) {
+    return {
+      score: 20,
+      suggestions: [
+        {
+          id: "content/no-bullets",
+          category: "content",
+          severity: "fail",
+          message:
+            "Add bullet points to your Work Experience or Projects, concrete impact statements parse better and read faster.",
+          fix: { panel: "workExperience" },
+        },
+      ],
+    };
+  }
+
+  const metrics = computeContentMetrics(bullets);
+  const actionScore = lerp(metrics.actionPct, 0.4, 0.7, 30, 100);
+  const quantifiedScore = lerp(metrics.quantifiedPct, 0.2, 0.4, 40, 100);
+  const lengthScore = contentLengthScore(metrics.medianWords);
+  const firstPersonPenalty = metrics.firstPersonCount > 0 ? 15 : 0;
+
   return {
     score: clamp(
       actionScore * 0.4 +
@@ -324,7 +348,7 @@ function scoreContent(draft: ResumeDraft): ScorerResult {
         lengthScore * 0.25 -
         firstPersonPenalty,
     ),
-    suggestions,
+    suggestions: collectContentSuggestions(metrics),
   };
 }
 
@@ -338,47 +362,70 @@ function hasItemContent(items: unknown[], requiredFields: string[]): boolean {
   );
 }
 
-function scoreCompleteness(draft: ResumeDraft): ScorerResult {
-  const suggestions: Suggestion[] = [];
-  const push = (s: Suggestion) => suggestions.push(s);
-  let score = 100;
+type CompletenessCheck = { penalty: number; suggestion: Suggestion | null };
 
-  if (!draft.profile.fullName.trim()) {
-    score -= 25;
-    push({
+function checkFullName(draft: ResumeDraft): CompletenessCheck {
+  if (draft.profile.fullName.trim()) return { penalty: 0, suggestion: null };
+  return {
+    penalty: 25,
+    suggestion: {
       id: "completeness/full-name",
       category: "completeness",
       severity: "fail",
       message: "Add your full name to the profile.",
       fix: { panel: "profile" },
-    });
-  }
-  if (!draft.profile.email.trim()) {
-    score -= 20;
-    push({
+    },
+  };
+}
+
+function checkEmail(draft: ResumeDraft): CompletenessCheck {
+  if (draft.profile.email.trim()) return { penalty: 0, suggestion: null };
+  return {
+    penalty: 20,
+    suggestion: {
       id: "completeness/email",
       category: "completeness",
       severity: "fail",
       message:
         "Add a contact email, ATS systems will not be able to reach you otherwise.",
       fix: { panel: "profile" },
-    });
-  }
-  if (!draft.profile.phone.trim()) {
-    score -= 5;
-    push({
+    },
+  };
+}
+
+function checkPhone(draft: ResumeDraft): CompletenessCheck {
+  if (draft.profile.phone.trim()) return { penalty: 0, suggestion: null };
+  return {
+    penalty: 5,
+    suggestion: {
       id: "completeness/phone",
       category: "completeness",
       severity: "warn",
       message: "Adding a phone number gives recruiters a faster channel.",
       fix: { panel: "profile" },
-    });
-  }
+    },
+  };
+}
 
+function checkWorkExperience(draft: ResumeDraft): CompletenessCheck {
   const hasWE = hasItemContent(draft.sections.workExperience.items, [
     "companyName",
     "position",
   ]);
+  if (hasWE) return { penalty: 0, suggestion: null };
+  return {
+    penalty: 25,
+    suggestion: {
+      id: "completeness/work-experience",
+      category: "completeness",
+      severity: "fail",
+      message: "Add at least one Work Experience entry.",
+      fix: { panel: "workExperience" },
+    },
+  };
+}
+
+function checkEducationOrProjects(draft: ResumeDraft): CompletenessCheck {
   const hasEdu = hasItemContent(draft.sections.education.items, [
     "name",
     "degree",
@@ -386,70 +433,86 @@ function scoreCompleteness(draft: ResumeDraft): ScorerResult {
   const hasProj = hasItemContent(draft.sections.projects.items, [
     "projectName",
   ]);
-
-  if (!hasWE) {
-    score -= 25;
-    push({
-      id: "completeness/work-experience",
-      category: "completeness",
-      severity: "fail",
-      message: "Add at least one Work Experience entry.",
-      fix: { panel: "workExperience" },
-    });
-  }
-  if (!hasEdu && !hasProj) {
-    score -= 15;
-    push({
+  if (hasEdu || hasProj) return { penalty: 0, suggestion: null };
+  return {
+    penalty: 15,
+    suggestion: {
       id: "completeness/education-or-projects",
       category: "completeness",
       severity: "warn",
       message:
         "Add at least one Education or Project entry to round out your background.",
       fix: { panel: hasEdu ? "projects" : "education" },
-    });
-  }
+    },
+  };
+}
 
-  if (
-    !draft.sections.skills.visible ||
-    draft.sections.skills.items.length === 0
-  ) {
-    score -= 10;
-    push({
+function checkSkills(draft: ResumeDraft): CompletenessCheck {
+  if (draft.sections.skills.visible && draft.sections.skills.items.length > 0)
+    return { penalty: 0, suggestion: null };
+  return {
+    penalty: 10,
+    suggestion: {
       id: "completeness/skills",
       category: "completeness",
       severity: "warn",
       message:
         "Enable a Skills section, ATS keyword matching often looks at it explicitly.",
       fix: { panel: "skills" },
-    });
-  }
+    },
+  };
+}
 
-  if (
-    !draft.sections.summary.visible ||
-    !draft.sections.summary.content.replace(/<[^>]*>/g, "").trim()
-  ) {
-    score -= 5;
-    push({
+function checkSummary(draft: ResumeDraft): CompletenessCheck {
+  const hasSummary =
+    draft.sections.summary.visible &&
+    draft.sections.summary.content.replace(/<[^>]*>/g, "").trim();
+  if (hasSummary) return { penalty: 0, suggestion: null };
+  return {
+    penalty: 5,
+    suggestion: {
       id: "completeness/summary",
       category: "completeness",
       severity: "ok",
       message:
         "A 2–3 sentence summary gives recruiters the quick read they're looking for.",
       fix: { panel: "summary" },
-    });
-  }
+    },
+  };
+}
 
-  if (draft.profile.extraLinks.every((link) => !link.url.trim())) {
-    score -= 5;
-    push({
+function checkLinks(draft: ResumeDraft): CompletenessCheck {
+  if (draft.profile.extraLinks.some((link) => link.url.trim()))
+    return { penalty: 0, suggestion: null };
+  return {
+    penalty: 5,
+    suggestion: {
       id: "completeness/links",
       category: "completeness",
       severity: "ok",
       message:
         "Add at least one professional link (LinkedIn, portfolio, GitHub).",
       fix: { panel: "profile" },
-    });
-  }
+    },
+  };
+}
+
+function scoreCompleteness(draft: ResumeDraft): ScorerResult {
+  const checks = [
+    checkFullName(draft),
+    checkEmail(draft),
+    checkPhone(draft),
+    checkWorkExperience(draft),
+    checkEducationOrProjects(draft),
+    checkSkills(draft),
+    checkSummary(draft),
+    checkLinks(draft),
+  ];
+
+  const score = checks.reduce((total, check) => total - check.penalty, 100);
+  const suggestions = checks
+    .map((check) => check.suggestion)
+    .filter((suggestion): suggestion is Suggestion => suggestion !== null);
 
   return { score: clamp(score), suggestions };
 }

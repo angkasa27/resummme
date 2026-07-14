@@ -5,7 +5,11 @@ import type { ChangeEvent, RefObject } from "react";
 import { toast } from "sonner";
 import { useStore } from "zustand";
 
-import type { PdfPresentation, Profile, ResumeDraft } from "@/features/resume-editor/domain/schema";
+import type {
+  PdfPresentation,
+  Profile,
+  ResumeDraft,
+} from "@/features/resume-editor/domain/schema";
 import { createResumePdfFilename } from "@/features/resume-editor/domain/draft/resume-pdf-filename";
 import type {
   DraftStorage,
@@ -17,6 +21,8 @@ import {
   type ResumeEditorPanelKey,
   type ResumeSectionKey,
 } from "@/features/resume-editor/state/resume-editor-store";
+
+type ResumeEditorStore = ReturnType<typeof createResumeEditorStore>;
 
 type UseResumeEditorControllerOptions = {
   initialDraft?: ResumeDraft;
@@ -45,14 +51,17 @@ export type ResumeEditorController = {
   requestSectionChange: (sectionKey: ResumeEditorPanelKey) => void;
   reorderSection: (
     sectionKey: ResumeSectionKey,
-    anchorKey: ResumeSectionKey
+    anchorKey: ResumeSectionKey,
   ) => void;
-  setSectionVisibility: (sectionKey: ResumeSectionKey, visible: boolean) => void;
+  setSectionVisibility: (
+    sectionKey: ResumeSectionKey,
+    visible: boolean,
+  ) => void;
   savePdfPresentation: (pdfPresentation: PdfPresentation) => void;
   saveProfile: (profile: Profile) => void;
   saveSection: <K extends ResumeSectionKey>(
     sectionKey: K,
-    sectionValue: ResumeDraft["sections"][K]
+    sectionValue: ResumeDraft["sections"][K],
   ) => void;
   undo: () => void;
   redo: () => void;
@@ -61,48 +70,11 @@ export type ResumeEditorController = {
   saveStatus: SaveStatus;
 };
 
-export function useResumeEditorController({
-  initialDraft,
-  storage: providedStorage,
-}: UseResumeEditorControllerOptions = {}): ResumeEditorController {
-  const [storage] = useState<DraftStorage>(
-    () => providedStorage ?? new LocalDraftStorage()
-  );
-  const [store] = useState(() =>
-    createResumeEditorStore({ storage, initialDraft })
-  );
-
-  const subscribeSaveStatus = useCallback(
-    (onChange: () => void) =>
-      storage.subscribeSaveStatus?.(() => onChange()) ?? (() => {}),
-    [storage]
-  );
-  const getSaveStatus = useCallback(
-    (): SaveStatus => storage.getSaveStatus?.() ?? "idle",
-    [storage]
-  );
-  const saveStatus = useSyncExternalStore(
-    subscribeSaveStatus,
-    getSaveStatus,
-    () => "idle" as SaveStatus
-  );
+function useJsonImport(store: ResumeEditorStore) {
   const jsonFileInputRef = useRef<HTMLInputElement>(null);
-  const pdfFileInputRef = useRef<HTMLInputElement>(null);
-  const isExportingPdfRef = useRef(false);
-  const isImportingPdfRef = useRef(false);
-  const draft = useStore(store, (state) => state.draft);
-  const activeSection = useStore(store, (state) => state.activeSection);
-  const canUndo = useStore(store, (state) => state.undoStack.length > 0);
-  const canRedo = useStore(store, (state) => state.redoStack.length > 0);
-  const [isExportingPdf, setIsExportingPdf] = useState(false);
-  const [isImportingPdf, setIsImportingPdf] = useState(false);
 
   function openJsonImportPicker() {
     jsonFileInputRef.current?.click();
-  }
-
-  function openPdfImportPicker() {
-    pdfFileInputRef.current?.click();
   }
 
   async function handleJsonImport(event: ChangeEvent<HTMLInputElement>) {
@@ -115,16 +87,54 @@ export function useResumeEditorController({
     try {
       const fileContents = await selectedFile.text();
       const importedDraft = JSON.parse(fileContents);
-      
+
       store.getState().replaceDraft(importedDraft);
       toast.success("Draft imported.");
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Unable to import that draft."
+        error instanceof Error ? error.message : "Unable to import that draft.",
       );
     } finally {
       event.target.value = "";
     }
+  }
+
+  return { jsonFileInputRef, openJsonImportPicker, handleJsonImport };
+}
+
+/** Posts the PDF to the import endpoint and returns the parsed draft, throwing
+ *  with the server's message (or a fallback) on any failure. */
+async function importPdfDraft(
+  file: File,
+): Promise<{ draft: ResumeDraft; warningCount: number }> {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const response = await fetch("/api/import-pdf", {
+    method: "POST",
+    body: formData,
+  });
+
+  const payload = (await response.json()) as {
+    draft?: ResumeDraft;
+    warnings?: string[];
+    message?: string;
+  };
+
+  if (!response.ok || !payload.draft) {
+    throw new Error(payload.message || "Unable to import that PDF.");
+  }
+
+  return { draft: payload.draft, warningCount: payload.warnings?.length ?? 0 };
+}
+
+function usePdfImport(store: ResumeEditorStore) {
+  const pdfFileInputRef = useRef<HTMLInputElement>(null);
+  const isImportingPdfRef = useRef(false);
+  const [isImportingPdf, setIsImportingPdf] = useState(false);
+
+  function openPdfImportPicker() {
+    pdfFileInputRef.current?.click();
   }
 
   async function submitPdfFile(file: File) {
@@ -134,31 +144,13 @@ export function useResumeEditorController({
     setIsImportingPdf(true);
 
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-
-      const response = await fetch("/api/import-pdf", {
-        method: "POST",
-        body: formData,
-      });
-
-      const payload = (await response.json()) as {
-        draft?: ResumeDraft;
-        warnings?: string[];
-        message?: string;
-      };
-
-      if (!response.ok || !payload.draft) {
-        throw new Error(payload.message || "Unable to import that PDF.");
-      }
-
-      store.getState().replaceDraft(payload.draft);
-      const warningCount = payload.warnings?.length ?? 0;
-      const successMessage =
+      const { draft, warningCount } = await importPdfDraft(file);
+      store.getState().replaceDraft(draft);
+      toast.success(
         warningCount > 0
           ? `PDF imported with ${warningCount} warning${warningCount === 1 ? "" : "s"}.`
-          : "PDF imported.";
-      toast.success(successMessage);
+          : "PDF imported.",
+      );
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Unable to import that PDF.",
@@ -178,6 +170,19 @@ export function useResumeEditorController({
       event.target.value = "";
     }
   }
+
+  return {
+    pdfFileInputRef,
+    isImportingPdf,
+    openPdfImportPicker,
+    submitPdfFile,
+    handlePdfImport,
+  };
+}
+
+function useDraftExport(draft: ResumeDraft) {
+  const isExportingPdfRef = useRef(false);
+  const [isExportingPdf, setIsExportingPdf] = useState(false);
 
   function handleExport() {
     const serialized = JSON.stringify(draft, null, 2);
@@ -228,7 +233,7 @@ export function useResumeEditorController({
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Unable to generate the PDF.",
-        { id: loadingId }
+        { id: loadingId },
       );
     } finally {
       isExportingPdfRef.current = false;
@@ -236,39 +241,13 @@ export function useResumeEditorController({
     }
   }
 
-  // Stable passthrough identities (store is a stable ref) so consumers'
-  // memoization — and the autosave debounce deps — don't churn every render.
-  const requestSectionChange = useCallback(
-    (sectionKey: ResumeEditorPanelKey) =>
-      store.getState().requestSectionChange(sectionKey),
-    [store]
-  );
-  const reorderSection = useCallback(
-    (sectionKey: ResumeSectionKey, anchorKey: ResumeSectionKey) =>
-      store.getState().reorderSection(sectionKey, anchorKey),
-    [store]
-  );
-  const setSectionVisibility = useCallback(
-    (sectionKey: ResumeSectionKey, visible: boolean) =>
-      store.getState().setSectionVisibility(sectionKey, visible),
-    [store]
-  );
-  const savePdfPresentation = useCallback(
-    (pdfPresentation: PdfPresentation) =>
-      store.getState().savePdfPresentation(pdfPresentation),
-    [store]
-  );
-  const saveProfile = useCallback(
-    (profile: Profile) => store.getState().saveProfile(profile),
-    [store]
-  );
-  const saveSection = useCallback(
-    <K extends ResumeSectionKey>(
-      sectionKey: K,
-      sectionValue: ResumeDraft["sections"][K]
-    ) => store.getState().saveSection(sectionKey, sectionValue),
-    [store]
-  );
+  return { isExportingPdf, handleExport, handlePrint };
+}
+
+function useUndoRedo(store: ResumeEditorStore) {
+  const canUndo = useStore(store, (state) => state.undoStack.length > 0);
+  const canRedo = useStore(store, (state) => state.redoStack.length > 0);
+
   const undo = useCallback(() => {
     const state = store.getState();
     if (state.undoStack.length === 0) return;
@@ -282,30 +261,101 @@ export function useResumeEditorController({
     toast.success("Redone");
   }, [store]);
 
+  return { canUndo, canRedo, undo, redo };
+}
+
+export function useResumeEditorController({
+  initialDraft,
+  storage: providedStorage,
+}: UseResumeEditorControllerOptions = {}): ResumeEditorController {
+  const [storage] = useState<DraftStorage>(
+    () => providedStorage ?? new LocalDraftStorage(),
+  );
+  const [store] = useState(() =>
+    createResumeEditorStore({ storage, initialDraft }),
+  );
+
+  const subscribeSaveStatus = useCallback(
+    (onChange: () => void) =>
+      storage.subscribeSaveStatus?.(() => onChange()) ?? (() => {}),
+    [storage],
+  );
+  const getSaveStatus = useCallback(
+    (): SaveStatus => storage.getSaveStatus?.() ?? "idle",
+    [storage],
+  );
+  const saveStatus = useSyncExternalStore(
+    subscribeSaveStatus,
+    getSaveStatus,
+    () => "idle" as SaveStatus,
+  );
+
+  const draft = useStore(store, (state) => state.draft);
+  const activeSection = useStore(store, (state) => state.activeSection);
+
+  const jsonImport = useJsonImport(store);
+  const pdfImport = usePdfImport(store);
+  const draftExport = useDraftExport(draft);
+  const undoRedo = useUndoRedo(store);
+
+  // Stable passthrough identities (store is a stable ref) so consumers'
+  // memoization — and the autosave debounce deps — don't churn every render.
+  const requestSectionChange = useCallback(
+    (sectionKey: ResumeEditorPanelKey) =>
+      store.getState().requestSectionChange(sectionKey),
+    [store],
+  );
+  const reorderSection = useCallback(
+    (sectionKey: ResumeSectionKey, anchorKey: ResumeSectionKey) =>
+      store.getState().reorderSection(sectionKey, anchorKey),
+    [store],
+  );
+  const setSectionVisibility = useCallback(
+    (sectionKey: ResumeSectionKey, visible: boolean) =>
+      store.getState().setSectionVisibility(sectionKey, visible),
+    [store],
+  );
+  const savePdfPresentation = useCallback(
+    (pdfPresentation: PdfPresentation) =>
+      store.getState().savePdfPresentation(pdfPresentation),
+    [store],
+  );
+  const saveProfile = useCallback(
+    (profile: Profile) => store.getState().saveProfile(profile),
+    [store],
+  );
+  const saveSection = useCallback(
+    <K extends ResumeSectionKey>(
+      sectionKey: K,
+      sectionValue: ResumeDraft["sections"][K],
+    ) => store.getState().saveSection(sectionKey, sectionValue),
+    [store],
+  );
+
   return {
-    jsonFileInputRef,
-    pdfFileInputRef,
+    jsonFileInputRef: jsonImport.jsonFileInputRef,
+    pdfFileInputRef: pdfImport.pdfFileInputRef,
     draft,
     activeSection,
-    isExportingPdf,
-    isImportingPdf,
-    openJsonImportPicker,
-    openPdfImportPicker,
-    handleJsonImport,
-    handlePdfImport,
-    submitPdfFile,
-    handleExport,
-    handlePrint,
+    isExportingPdf: draftExport.isExportingPdf,
+    isImportingPdf: pdfImport.isImportingPdf,
+    openJsonImportPicker: jsonImport.openJsonImportPicker,
+    openPdfImportPicker: pdfImport.openPdfImportPicker,
+    handleJsonImport: jsonImport.handleJsonImport,
+    handlePdfImport: pdfImport.handlePdfImport,
+    submitPdfFile: pdfImport.submitPdfFile,
+    handleExport: draftExport.handleExport,
+    handlePrint: draftExport.handlePrint,
     requestSectionChange,
     reorderSection,
     setSectionVisibility,
     savePdfPresentation,
     saveProfile,
     saveSection,
-    undo,
-    redo,
-    canUndo,
-    canRedo,
+    undo: undoRedo.undo,
+    redo: undoRedo.redo,
+    canUndo: undoRedo.canUndo,
+    canRedo: undoRedo.canRedo,
     saveStatus,
   };
 }

@@ -247,6 +247,48 @@ export function ProfileFields({ ctx, idPrefix }: ProfileFieldsProps) {
   );
 }
 
+function PhotoAvatarButton({
+  id,
+  hasPhoto,
+  url,
+  onClick,
+}: {
+  id: string;
+  hasPhoto: boolean;
+  url: string | undefined;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      id={id}
+      onClick={onClick}
+      aria-label={hasPhoto ? "Change profile photo" : "Upload profile photo"}
+      className="group relative size-20 shrink-0 overflow-hidden rounded-full bg-muted ring-1 ring-border outline-none transition focus-visible:ring-2 focus-visible:ring-ring"
+    >
+      {hasPhoto ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={url}
+          alt="Profile preview"
+          className="h-full w-full object-cover"
+        />
+      ) : (
+        <span className="flex h-full w-full items-center justify-center text-muted-foreground">
+          <UserRoundIcon className="size-7" />
+        </span>
+      )}
+      <span className="absolute inset-0 flex items-center justify-center bg-foreground/45 text-background opacity-0 transition-opacity group-hover:opacity-100">
+        {hasPhoto ? (
+          <PencilIcon className="size-5" />
+        ) : (
+          <ImageUpIcon className="size-5" />
+        )}
+      </span>
+    </button>
+  );
+}
+
 function PhotoField({
   photo,
   id,
@@ -284,35 +326,12 @@ function PhotoField({
             dragging ? "border-ring bg-accent/50" : "border-input",
           )}
         >
-          <button
-            type="button"
+          <PhotoAvatarButton
             id={id}
+            hasPhoto={hasPhoto}
+            url={photo.url}
             onClick={photo.openPicker}
-            aria-label={
-              hasPhoto ? "Change profile photo" : "Upload profile photo"
-            }
-            className="group relative size-20 shrink-0 overflow-hidden rounded-full bg-muted ring-1 ring-border outline-none transition focus-visible:ring-2 focus-visible:ring-ring"
-          >
-            {hasPhoto ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={photo.url}
-                alt="Profile preview"
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              <span className="flex h-full w-full items-center justify-center text-muted-foreground">
-                <UserRoundIcon className="size-7" />
-              </span>
-            )}
-            <span className="absolute inset-0 flex items-center justify-center bg-foreground/45 text-background opacity-0 transition-opacity group-hover:opacity-100">
-              {hasPhoto ? (
-                <PencilIcon className="size-5" />
-              ) : (
-                <ImageUpIcon className="size-5" />
-              )}
-            </span>
-          </button>
+          />
 
           <div className="flex min-w-0 flex-1 flex-col gap-2">
             <div className="flex flex-wrap gap-2">

@@ -213,6 +213,53 @@ export function ResumeEditorDesktop({
   // in one place.
   const previewDocument = (() => {
     const collectionKeys = visibleSectionKeys.filter(isCollectionSectionKey);
+
+    // Empty sections render a slot with no `renderable`, so `section` is
+    // omitted; assert the entry type once here (TS can't co-vary key with
+    // the union element across the map). Mirrors resume-document.tsx.
+    function renderSectionSlot(
+      sectionKey: CollectionSectionKey,
+    ): TemplateSlots["sections"][number] {
+      const orderIndex = collectionKeys.indexOf(sectionKey);
+      const renderable = context.sections.find((s) => s.key === sectionKey);
+      const isEditing = editing === sectionKey;
+
+      return {
+        key: sectionKey,
+        node: (
+          <DesktopSectionShell
+            ariaLabel={sectionLabels[sectionKey]}
+            isEditing={isEditing}
+            onEdit={() => startEditingSection(sectionKey)}
+            onMoveUp={() => {
+              const anchorKey = collectionKeys[orderIndex - 1];
+              if (anchorKey) {
+                reorderSection(sectionKey, anchorKey);
+              }
+            }}
+            onMoveDown={() => {
+              const anchorKey = collectionKeys[orderIndex + 1];
+              if (anchorKey) {
+                reorderSection(sectionKey, anchorKey);
+              }
+            }}
+            onDelete={() => requestHideSection(sectionKey)}
+            canMoveUp={orderIndex > 0}
+            canMoveDown={orderIndex < collectionKeys.length - 1}
+          >
+            {renderable ? (
+              <TemplateSection template={template} section={renderable} />
+            ) : (
+              <EmptySectionPlaceholder
+                label={sectionLabels[sectionKey]}
+                onEdit={() => startEditingSection(sectionKey)}
+              />
+            )}
+          </DesktopSectionShell>
+        ),
+      } as TemplateSlots["sections"][number];
+    }
+
     const slots: TemplateSlots = {
       header: (
         <DesktopSectionShell
@@ -238,48 +285,7 @@ export function ResumeEditorDesktop({
             />
           </DesktopSectionShell>
         ) : null,
-      sections: collectionKeys.map((sectionKey) => {
-        const orderIndex = collectionKeys.indexOf(sectionKey);
-        const renderable = context.sections.find((s) => s.key === sectionKey);
-        const isEditing = editing === sectionKey;
-        // Empty sections render a slot with no `renderable`, so `section` is
-        // omitted; assert the entry type once here (TS can't co-vary key with
-        // the union element across the map). Mirrors resume-document.tsx.
-        return {
-          key: sectionKey,
-          node: (
-            <DesktopSectionShell
-              ariaLabel={sectionLabels[sectionKey]}
-              isEditing={isEditing}
-              onEdit={() => startEditingSection(sectionKey)}
-              onMoveUp={() => {
-                const anchorKey = collectionKeys[orderIndex - 1];
-                if (anchorKey) {
-                  reorderSection(sectionKey, anchorKey);
-                }
-              }}
-              onMoveDown={() => {
-                const anchorKey = collectionKeys[orderIndex + 1];
-                if (anchorKey) {
-                  reorderSection(sectionKey, anchorKey);
-                }
-              }}
-              onDelete={() => requestHideSection(sectionKey)}
-              canMoveUp={orderIndex > 0}
-              canMoveDown={orderIndex < collectionKeys.length - 1}
-            >
-              {renderable ? (
-                <TemplateSection template={template} section={renderable} />
-              ) : (
-                <EmptySectionPlaceholder
-                  label={sectionLabels[sectionKey]}
-                  onEdit={() => startEditingSection(sectionKey)}
-                />
-              )}
-            </DesktopSectionShell>
-          ),
-        } as TemplateSlots["sections"][number];
-      }),
+      sections: collectionKeys.map(renderSectionSlot),
     };
 
     return (

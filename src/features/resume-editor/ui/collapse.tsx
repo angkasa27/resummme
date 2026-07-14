@@ -19,6 +19,47 @@ type CollapseProps = {
 const DEFAULT_DURATION_MS = motionTokens.duration.normal * 1000;
 const COLLAPSE_EASE = cssBezier(motionTokens.easing.sharp);
 
+/** Mount, then (after a paint of the collapsed 0fr state) flip to 1fr so the
+ *  grid-track transition actually runs. Returns the effect cleanup. */
+function runOpenTransition(
+  setMounted: (mounted: boolean) => void,
+  setExpanded: (expanded: boolean) => void,
+  reduceMotion: boolean | null,
+) {
+  let raf2 = 0;
+  const raf1 = requestAnimationFrame(() => {
+    setMounted(true);
+    if (reduceMotion) {
+      setExpanded(true);
+    } else {
+      raf2 = requestAnimationFrame(() => setExpanded(true));
+    }
+  });
+  return () => {
+    cancelAnimationFrame(raf1);
+    cancelAnimationFrame(raf2);
+  };
+}
+
+/** Collapse the grid track, then unmount children once the animation (or,
+ *  under reduced motion, immediately) finishes. Returns the effect cleanup. */
+function runCloseTransition(
+  setMounted: (mounted: boolean) => void,
+  setExpanded: (expanded: boolean) => void,
+  reduceMotion: boolean | null,
+  durationMs: number,
+) {
+  const raf1 = requestAnimationFrame(() => setExpanded(false));
+  const timer = window.setTimeout(
+    () => setMounted(false),
+    reduceMotion ? 0 : durationMs,
+  );
+  return () => {
+    cancelAnimationFrame(raf1);
+    clearTimeout(timer);
+  };
+}
+
 /**
  * Height reveal that animates smoothly for content of *any* (even dynamic)
  * height, using the CSS `grid-template-rows: 0fr → 1fr` technique — unlike a
@@ -38,32 +79,9 @@ export function Collapse({
   const [expanded, setExpanded] = useState(open);
 
   useEffect(() => {
-    let raf1 = 0;
-    let raf2 = 0;
-    let timer = 0;
-    if (open) {
-      // Mount, then (after a paint of the collapsed 0fr state) flip to 1fr so
-      // the grid-track transition actually runs.
-      raf1 = requestAnimationFrame(() => {
-        setMounted(true);
-        if (reduceMotion) {
-          setExpanded(true);
-        } else {
-          raf2 = requestAnimationFrame(() => setExpanded(true));
-        }
-      });
-    } else {
-      raf1 = requestAnimationFrame(() => setExpanded(false));
-      timer = window.setTimeout(
-        () => setMounted(false),
-        reduceMotion ? 0 : durationMs,
-      );
-    }
-    return () => {
-      cancelAnimationFrame(raf1);
-      cancelAnimationFrame(raf2);
-      clearTimeout(timer);
-    };
+    return open
+      ? runOpenTransition(setMounted, setExpanded, reduceMotion)
+      : runCloseTransition(setMounted, setExpanded, reduceMotion, durationMs);
   }, [open, reduceMotion, durationMs]);
 
   if (!mounted) return null;

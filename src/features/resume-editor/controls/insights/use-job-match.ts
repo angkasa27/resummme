@@ -24,35 +24,38 @@ type SubmitState =
   | { status: "loading" }
   | { status: "error"; message: string };
 
+function isValidKeyword(kw: ExtractedKeyword): boolean {
+  return (
+    !!kw &&
+    typeof kw.term === "string" &&
+    typeof kw.weight === "number" &&
+    KEYWORD_CATEGORIES.includes(
+      kw.category as (typeof KEYWORD_CATEGORIES)[number],
+    )
+  );
+}
+
+function isPersistedJobShape(parsed: unknown): parsed is PersistedJob {
+  return (
+    !!parsed &&
+    typeof parsed === "object" &&
+    typeof (parsed as PersistedJob).jobDescription === "string" &&
+    Array.isArray((parsed as PersistedJob).keywords)
+  );
+}
+
 function readFromStorage(): PersistedJob | null {
   if (typeof window === "undefined") return null;
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw) as unknown;
-    if (
-      !parsed ||
-      typeof parsed !== "object" ||
-      typeof (parsed as PersistedJob).jobDescription !== "string" ||
-      !Array.isArray((parsed as PersistedJob).keywords)
-    ) {
-      return null;
-    }
-    const candidate = parsed as PersistedJob;
-    const keywords: ExtractedKeyword[] = [];
-    for (const kw of candidate.keywords) {
-      if (
-        kw &&
-        typeof kw.term === "string" &&
-        typeof kw.weight === "number" &&
-        KEYWORD_CATEGORIES.includes(
-          kw.category as (typeof KEYWORD_CATEGORIES)[number],
-        )
-      ) {
-        keywords.push(kw);
-      }
-    }
-    return { jobDescription: candidate.jobDescription, keywords };
+    if (!isPersistedJobShape(parsed)) return null;
+
+    return {
+      jobDescription: parsed.jobDescription,
+      keywords: parsed.keywords.filter(isValidKeyword),
+    };
   } catch {
     return null;
   }
@@ -100,6 +103,28 @@ function writeToStorage(value: PersistedJob | null) {
   }
 }
 
+async function requestKeywordMatch(
+  jobDescription: string,
+): Promise<ExtractedKeyword[]> {
+  const response = await fetch("/api/insights/match-keywords", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ jobDescription }),
+  });
+  const payload = (await response.json()) as {
+    keywords?: ExtractedKeyword[];
+    message?: string;
+  };
+
+  if (!response.ok || !payload.keywords) {
+    throw new Error(
+      payload.message || "Could not analyze the job description.",
+    );
+  }
+
+  return payload.keywords;
+}
+
 export function useJobMatch(draft: ResumeDraft) {
   const persistedJob = useSyncExternalStore(
     subscribe,
@@ -126,23 +151,8 @@ export function useJobMatch(draft: ResumeDraft) {
 
     setSubmitState({ status: "loading" });
     try {
-      const response = await fetch("/api/insights/match-keywords", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ jobDescription: trimmed }),
-      });
-      const payload = (await response.json()) as {
-        keywords?: ExtractedKeyword[];
-        message?: string;
-      };
-
-      if (!response.ok || !payload.keywords) {
-        throw new Error(
-          payload.message || "Could not analyze the job description.",
-        );
-      }
-
-      writeToStorage({ jobDescription: trimmed, keywords: payload.keywords });
+      const keywords = await requestKeywordMatch(trimmed);
+      writeToStorage({ jobDescription: trimmed, keywords });
       setSubmitState({ status: "idle" });
       toast.success("Job description analyzed.");
     } catch (error) {

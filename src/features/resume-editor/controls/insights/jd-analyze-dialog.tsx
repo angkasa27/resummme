@@ -1,17 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { TelescopeIcon, XIcon } from "lucide-react";
+import { TelescopeIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { DialogHeaderSection } from "@/features/resume-editor/ui/dialog-header";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  DialogHeaderRow,
+  DialogHeaderSection,
+} from "@/features/resume-editor/ui/dialog-header";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -72,27 +69,12 @@ export function JdAnalyzeDialog({
         showCloseButton={false}
         className="flex max-h-[85dvh] min-h-0 flex-col gap-4 sm:max-w-xl"
       >
-        <DialogHeader className="flex-row items-start justify-between gap-3">
-          <div className="flex flex-col gap-1">
-            <DialogTitle className="flex items-center gap-2">
-              <TelescopeIcon className="size-4 text-primary" />
-              Analyze a job description
-            </DialogTitle>
-            <DialogDescription>
-              Paste the listing. We&apos;ll extract the keywords an ATS looks
-              for and compare them to your resume.
-            </DialogDescription>
-          </div>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon-sm"
-            aria-label="Close"
-            onClick={() => onOpenChange(false)}
-          >
-            <XIcon />
-          </Button>
-        </DialogHeader>
+        <DialogHeaderRow
+          icon={<TelescopeIcon className="size-4 text-primary" />}
+          title="Analyze a job description"
+          description="Paste the listing. We'll extract the keywords an ATS looks for and compare them to your resume."
+          onClose={() => onOpenChange(false)}
+        />
         {body}
       </DialogContent>
     </Dialog>

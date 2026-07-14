@@ -7,6 +7,25 @@ import { XIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
+function isDuplicateTag(candidate: string, existing: string[]): boolean {
+  const lower = candidate.toLowerCase();
+  return existing.some((tag) => tag.toLowerCase() === lower);
+}
+
+function mergeTags(
+  existing: string[],
+  parts: string[],
+  options: { unique: boolean; maxTags: number | undefined },
+): string[] {
+  const next = [...existing];
+  for (const part of parts) {
+    if (options.unique && isDuplicateTag(part, next)) continue;
+    if (options.maxTags !== undefined && next.length >= options.maxTags) break;
+    next.push(part);
+  }
+  return next;
+}
+
 type TagInputProps = {
   id?: string;
   value: string[];
@@ -39,22 +58,12 @@ export function TagInput({
 
   function commitDraft() {
     const trimmed = draft.trim().replace(/,+$/, "");
-    if (!trimmed) {
-      setDraft("");
-      return;
+    const isDuplicate = unique && isDuplicateTag(trimmed, value);
+    const isAtCapacity = maxTags !== undefined && value.length >= maxTags;
+
+    if (trimmed && !isDuplicate && !isAtCapacity) {
+      onChange([...value, trimmed]);
     }
-    if (unique) {
-      const lower = trimmed.toLowerCase();
-      if (value.some((existing) => existing.toLowerCase() === lower)) {
-        setDraft("");
-        return;
-      }
-    }
-    if (maxTags !== undefined && value.length >= maxTags) {
-      setDraft("");
-      return;
-    }
-    onChange([...value, trimmed]);
     setDraft("");
   }
 
@@ -78,23 +87,14 @@ export function TagInput({
     const pasted = event.clipboardData.getData("text");
     if (!pasted.includes(",") && !pasted.includes("\n")) return;
     event.preventDefault();
+
     const parts = pasted
       .split(/[,\n]/)
       .map((part) => part.trim())
       .filter(Boolean);
     if (parts.length === 0) return;
-    const next = [...value];
-    for (const part of parts) {
-      if (
-        unique &&
-        next.some((existing) => existing.toLowerCase() === part.toLowerCase())
-      ) {
-        continue;
-      }
-      if (maxTags !== undefined && next.length >= maxTags) break;
-      next.push(part);
-    }
-    onChange(next);
+
+    onChange(mergeTags(value, parts, { unique, maxTags }));
     setDraft("");
   }
 

@@ -117,6 +117,145 @@ function useDirection(initial = 1) {
   };
 }
 
+type EditTabPanelProps = {
+  draft: ResumeDraft;
+  openSection: ResumeEditorPanelKey | null;
+  editingForm: boolean;
+  navDirection: number;
+  sectionVariants: typeof slideVariants | typeof fadeVariants;
+  reduceMotion: boolean | null;
+  onSaveProfile: SectionProps["onSaveProfile"];
+  onSaveSection: SectionProps["onSaveSection"];
+  onSetSectionVisibility: SectionProps["onSetSectionVisibility"];
+  backToList: () => void;
+  activeSection: ResumeEditorPanelKey;
+  onReorderSection: SectionProps["onReorderSection"];
+  controlPanelProps: ComponentProps<typeof EditorControlPanel>;
+  onOpen: (key: ResumeEditorPanelKey) => void;
+};
+
+function EditTabPanel({
+  draft,
+  openSection,
+  editingForm,
+  navDirection,
+  sectionVariants,
+  reduceMotion,
+  onSaveProfile,
+  onSaveSection,
+  onSetSectionVisibility,
+  backToList,
+  activeSection,
+  onReorderSection,
+  controlPanelProps,
+  onOpen,
+}: EditTabPanelProps) {
+  return (
+    <div className="relative h-full overflow-hidden">
+      <AnimatePresence initial={false} custom={navDirection}>
+        {editingForm && openSection ? (
+          <motion.div
+            key={openSection}
+            className="absolute inset-0 transform-gpu overflow-y-auto bg-background p-4 pb-24 @container/form"
+            custom={navDirection}
+            variants={sectionVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={reduceMotion ? reducedTransition : slideTransition}
+          >
+            <SectionBody
+              draft={draft}
+              activeSection={openSection}
+              onSaveProfile={onSaveProfile}
+              onSaveSection={onSaveSection}
+              onRemoveSection={
+                isCollectionSectionKey(openSection as ResumeSectionPanelKey)
+                  ? () => {
+                      onSetSectionVisibility(
+                        openSection as ResumeSectionPanelKey,
+                        false,
+                      );
+                      backToList();
+                    }
+                  : undefined
+              }
+              idPrefix="mobile"
+            />
+          </motion.div>
+        ) : (
+          <motion.div
+            key="list"
+            className="absolute inset-0 transform-gpu bg-background"
+            custom={navDirection}
+            variants={sectionVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={reduceMotion ? reducedTransition : slideTransition}
+          >
+            <MobileSectionList
+              draft={draft}
+              activeSection={activeSection}
+              onReorderSection={onReorderSection}
+              onSetSectionVisibility={onSetSectionVisibility}
+              controlPanelProps={controlPanelProps}
+              onOpen={onOpen}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+type DesignTabPanelProps = {
+  presentation: ResumeDraft["pdfPresentation"];
+  draft: ResumeDraft;
+  onPresentationChange: ComponentProps<
+    typeof EditorControlPanel
+  >["onPresentationChange"];
+};
+
+function DesignTabPanel({
+  presentation,
+  draft,
+  onPresentationChange,
+}: DesignTabPanelProps) {
+  return (
+    <Tabs defaultValue="template" className="flex h-full flex-col">
+      <div className="shrink-0 px-4 pt-3">
+        <TabsList className="w-full">
+          <TabsTrigger value="template">
+            <LayoutTemplateIcon />
+            Template
+          </TabsTrigger>
+          <TabsTrigger value="style">
+            <PaletteIcon />
+            Style
+          </TabsTrigger>
+        </TabsList>
+      </div>
+      <TabsContent
+        value="template"
+        className="min-h-0 flex-1 overflow-y-auto p-4 pb-24 @container/form"
+      >
+        <TemplateTab
+          presentation={presentation}
+          draft={draft}
+          onChange={onPresentationChange}
+        />
+      </TabsContent>
+      <TabsContent
+        value="style"
+        className="min-h-0 flex-1 overflow-y-auto p-4 pb-24 @container/form"
+      >
+        <StyleTab presentation={presentation} onChange={onPresentationChange} />
+      </TabsContent>
+    </Tabs>
+  );
+}
+
 export function ResumeEditorMobileContent({
   sectionProps,
   controlPanelProps,
@@ -202,67 +341,22 @@ export function ResumeEditorMobileContent({
             transition={reduceMotion ? reducedTransition : slideTransition}
           >
             {tab === "edit" ? (
-              <div className="relative h-full overflow-hidden">
-                <AnimatePresence initial={false} custom={nav.direction}>
-                  {editingForm && openSection ? (
-                    <motion.div
-                      key={openSection}
-                      className="absolute inset-0 transform-gpu overflow-y-auto bg-background p-4 pb-24 @container/form"
-                      custom={nav.direction}
-                      variants={sectionVariants}
-                      initial="enter"
-                      animate="center"
-                      exit="exit"
-                      transition={
-                        reduceMotion ? reducedTransition : slideTransition
-                      }
-                    >
-                      <SectionBody
-                        draft={draft}
-                        activeSection={openSection}
-                        onSaveProfile={onSaveProfile}
-                        onSaveSection={onSaveSection}
-                        onRemoveSection={
-                          isCollectionSectionKey(
-                            openSection as ResumeSectionPanelKey,
-                          )
-                            ? () => {
-                                onSetSectionVisibility(
-                                  openSection as ResumeSectionPanelKey,
-                                  false,
-                                );
-                                backToList();
-                              }
-                            : undefined
-                        }
-                        idPrefix="mobile"
-                      />
-                    </motion.div>
-                  ) : (
-                    <motion.div
-                      key="list"
-                      className="absolute inset-0 transform-gpu bg-background"
-                      custom={nav.direction}
-                      variants={sectionVariants}
-                      initial="enter"
-                      animate="center"
-                      exit="exit"
-                      transition={
-                        reduceMotion ? reducedTransition : slideTransition
-                      }
-                    >
-                      <MobileSectionList
-                        draft={draft}
-                        activeSection={sectionProps.activeSection}
-                        onReorderSection={sectionProps.onReorderSection}
-                        onSetSectionVisibility={onSetSectionVisibility}
-                        controlPanelProps={controlPanelProps}
-                        onOpen={openForm}
-                      />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
+              <EditTabPanel
+                draft={draft}
+                openSection={openSection}
+                editingForm={editingForm}
+                navDirection={nav.direction}
+                sectionVariants={sectionVariants}
+                reduceMotion={reduceMotion}
+                onSaveProfile={onSaveProfile}
+                onSaveSection={onSaveSection}
+                onSetSectionVisibility={onSetSectionVisibility}
+                backToList={backToList}
+                activeSection={sectionProps.activeSection}
+                onReorderSection={sectionProps.onReorderSection}
+                controlPanelProps={controlPanelProps}
+                onOpen={openForm}
+              />
             ) : null}
 
             {tab === "preview" ? (
@@ -272,39 +366,11 @@ export function ResumeEditorMobileContent({
             ) : null}
 
             {tab === "design" ? (
-              <Tabs defaultValue="template" className="flex h-full flex-col">
-                <div className="shrink-0 px-4 pt-3">
-                  <TabsList className="w-full">
-                    <TabsTrigger value="template">
-                      <LayoutTemplateIcon />
-                      Template
-                    </TabsTrigger>
-                    <TabsTrigger value="style">
-                      <PaletteIcon />
-                      Style
-                    </TabsTrigger>
-                  </TabsList>
-                </div>
-                <TabsContent
-                  value="template"
-                  className="min-h-0 flex-1 overflow-y-auto p-4 pb-24 @container/form"
-                >
-                  <TemplateTab
-                    presentation={presentation}
-                    draft={draft}
-                    onChange={controlPanelProps.onPresentationChange}
-                  />
-                </TabsContent>
-                <TabsContent
-                  value="style"
-                  className="min-h-0 flex-1 overflow-y-auto p-4 pb-24 @container/form"
-                >
-                  <StyleTab
-                    presentation={presentation}
-                    onChange={controlPanelProps.onPresentationChange}
-                  />
-                </TabsContent>
-              </Tabs>
+              <DesignTabPanel
+                presentation={presentation}
+                draft={draft}
+                onPresentationChange={controlPanelProps.onPresentationChange}
+              />
             ) : null}
 
             {tab === "insights" ? (

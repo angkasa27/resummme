@@ -11,6 +11,19 @@ import {
 
 import { cn } from "@/lib/utils";
 
+/** Advance `current` by `delta`, wrapping into `(-copyWidth, 0]` so the
+ *  second copy makes the loop seamless. */
+function wrapMarqueeOffset(
+  current: number,
+  delta: number,
+  copyWidth: number,
+): number {
+  const next = current + delta;
+  if (next <= -copyWidth) return next + copyWidth;
+  if (next > 0) return next - copyWidth;
+  return next;
+}
+
 type MarqueeProps = {
   children: ReactNode;
   /** Pixels per second. */
@@ -46,11 +59,7 @@ export function Marquee({
     if (reduce || !inView || (pauseOnHover && hovering.current)) return;
     const copyWidth = copyRef.current?.offsetWidth ?? 0;
     if (copyWidth === 0) return;
-    let next = x.get() + dir * speed * (delta / 1000);
-    // Keep the offset within (-copyWidth, 0]; the second copy makes the wrap seamless.
-    if (next <= -copyWidth) next += copyWidth;
-    else if (next > 0) next -= copyWidth;
-    x.set(next);
+    x.set(wrapMarqueeOffset(x.get(), dir * speed * (delta / 1000), copyWidth));
   });
 
   return (

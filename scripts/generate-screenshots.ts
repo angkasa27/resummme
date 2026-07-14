@@ -21,53 +21,14 @@ import puppeteer, { type Browser } from "puppeteer";
 
 import { createDefaultResumeDraft } from "@/features/resume-editor/domain/draft/create-default-resume-draft";
 import { exportResumeDraft } from "@/features/resume-editor/domain/draft/resume-draft-storage";
-import type { PdfTemplateId } from "@/features/resume-editor/domain/presentation/pdf-presentation";
 import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
 import { RESUME_PDF_SESSION_STORAGE_KEY } from "@/features/resume-editor/server/resume-pdf-session";
-import { PERSONAS } from "./personas";
+import { PERSONAS, type Persona } from "./personas";
 
 const BASE_URL = process.env.SCREENSHOT_BASE_URL ?? "http://localhost:3000";
 const PUBLIC_DIR = path.join(process.cwd(), "public");
 const TEMPLATES_DIR = path.join(PUBLIC_DIR, "templates");
 const TIMEOUT = 30_000;
-
-type Job = {
-  company: string;
-  position: string;
-  location: string;
-  start: string;
-  end: string;
-  bullets: string[];
-};
-type Project = { name: string; start: string; end: string; bullets: string[] };
-type Cert = { name: string; org: string; date: string };
-
-type Persona = {
-  templateId: PdfTemplateId;
-  screenshotId: string;
-  accent: string;
-  secondary: string;
-  photo: string;
-  fullName: string;
-  location: string;
-  phone: string;
-  email: string;
-  links: string[];
-  summary: string;
-  work: Job[];
-  skills: { category: string; items: string[] };
-  projects: Project[];
-  certs: Cert[];
-  education: {
-    name: string;
-    location: string;
-    start: string;
-    end: string;
-    degree: string;
-    gpa: string;
-    note: string;
-  };
-};
 
 const ul = (bullets: string[]) =>
   `<ul>${bullets.map((b) => `<li>${b}</li>`).join("")}</ul>`;
@@ -232,7 +193,11 @@ async function captureBuilder(browser: Browser) {
   await new Promise((resolve) => setTimeout(resolve, 1_500));
 
   const out = path.join(PUBLIC_DIR, "builder.webp");
-  await page.screenshot({ path: out as `${string}.webp`, type: "webp", quality: 92 });
+  await page.screenshot({
+    path: out as `${string}.webp`,
+    type: "webp",
+    quality: 92,
+  });
   console.log(`✓ builder   ${"editor".padEnd(16)} → public/builder.webp`);
   await page.close();
 }

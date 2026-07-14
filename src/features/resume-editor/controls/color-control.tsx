@@ -44,6 +44,40 @@ type ColorControlProps = {
   };
 };
 
+function isSwatchActive(
+  swatch: { hex: string },
+  matchedSwatch: { hex: string } | undefined,
+  allowAuto: ColorControlProps["allowAuto"],
+): boolean {
+  return !allowAuto?.active && matchedSwatch?.hex === swatch.hex;
+}
+
+function ColorSwatchButton({
+  swatch,
+  label,
+  isActive,
+  onSelect,
+}: {
+  swatch: { name: string; hex: string };
+  label: string;
+  isActive: boolean;
+  onSelect: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      aria-label={`${label} ${swatch.name}`}
+      aria-pressed={isActive}
+      onClick={onSelect}
+      className={cn(
+        "size-7 rounded-md border border-black/10 transition-transform hover:scale-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
+        isActive && "ring-2 ring-offset-2 ring-foreground/60",
+      )}
+      style={{ backgroundColor: swatch.hex }}
+    />
+  );
+}
+
 export function ColorControl({
   value,
   onChange,
@@ -67,6 +101,7 @@ export function ColorControl({
   const matchedSwatch = ACCENT_SWATCHES.find(
     (swatch) => swatch.hex.toLowerCase() === value.toLowerCase(),
   );
+  const isCustomColorActive = !allowAuto?.active && !matchedSwatch;
 
   return (
     <div className="flex flex-col gap-2">
@@ -86,24 +121,15 @@ export function ColorControl({
             A
           </button>
         ) : null}
-        {ACCENT_SWATCHES.map((swatch) => {
-          const isActive =
-            !allowAuto?.active && matchedSwatch?.hex === swatch.hex;
-          return (
-            <button
-              key={swatch.hex}
-              type="button"
-              aria-label={`${label} ${swatch.name}`}
-              aria-pressed={isActive}
-              onClick={() => onChange(swatch.hex)}
-              className={cn(
-                "size-7 rounded-md border border-black/10 transition-transform hover:scale-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
-                isActive && "ring-2 ring-offset-2 ring-foreground/60",
-              )}
-              style={{ backgroundColor: swatch.hex }}
-            />
-          );
-        })}
+        {ACCENT_SWATCHES.map((swatch) => (
+          <ColorSwatchButton
+            key={swatch.hex}
+            swatch={swatch}
+            label={label}
+            isActive={isSwatchActive(swatch, matchedSwatch, allowAuto)}
+            onSelect={() => onChange(swatch.hex)}
+          />
+        ))}
         <Popover
           open={pickerOpen}
           onOpenChange={(open) => {
@@ -116,11 +142,10 @@ export function ColorControl({
               <button
                 type="button"
                 aria-label="Custom color"
-                aria-pressed={!allowAuto?.active && !matchedSwatch}
+                aria-pressed={isCustomColorActive}
                 className={cn(
                   "relative size-7 rounded-md transition-transform hover:scale-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
-                  !allowAuto?.active &&
-                    !matchedSwatch &&
+                  isCustomColorActive &&
                     "ring-2 ring-offset-2 ring-foreground/60",
                 )}
                 style={{

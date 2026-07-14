@@ -26,19 +26,27 @@ const CHIP_INSTRUCTIONS: Record<string, string> = {
     "Correct grammar and punctuation only — keep the original meaning and language intact.",
 };
 
+function collectInstructions(
+  chips: string[],
+  customInstruction: string,
+): string[] {
+  const instructions = chips
+    .map((chip) => CHIP_INSTRUCTIONS[chip])
+    .filter((instruction): instruction is string => Boolean(instruction));
+
+  const trimmedCustom = customInstruction.trim();
+  if (trimmedCustom) {
+    instructions.push(trimmedCustom);
+  }
+
+  return instructions;
+}
+
 function buildPrompt(input: ImproveContentInput): string {
-  const instructions: string[] = [];
-
-  for (const chip of input.chips) {
-    const instruction = CHIP_INSTRUCTIONS[chip];
-    if (instruction) {
-      instructions.push(instruction);
-    }
-  }
-
-  if (input.customInstruction.trim()) {
-    instructions.push(input.customInstruction.trim());
-  }
+  const instructions = collectInstructions(
+    input.chips,
+    input.customInstruction,
+  );
 
   const instructionList =
     instructions.length > 0

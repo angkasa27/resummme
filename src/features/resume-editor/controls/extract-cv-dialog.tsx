@@ -11,14 +11,12 @@ import {
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
+import {
+  DialogHeaderRow,
+  DialogHeaderSection,
+} from "@/features/resume-editor/ui/dialog-header";
 import { cn } from "@/lib/utils";
 
 type ExtractCvDialogProps = {
@@ -53,7 +51,12 @@ export function ExtractCvDialog({
           className="flex max-h-[92dvh] flex-col rounded-t-xl p-4 pt-3 gap-3"
         >
           <div className="mx-auto h-1 w-10 shrink-0 rounded-full bg-border" />
-          <ExtractCvHeader onClose={() => onOpenChange(false)} />
+          <DialogHeaderSection
+            icon={<SparklesIcon className="size-4 text-primary" />}
+            title="Extract from PDF"
+            description="Upload an existing resume. We'll parse the content."
+            onClose={() => onOpenChange(false)}
+          />
           {body}
         </SheetContent>
       </Sheet>
@@ -63,55 +66,15 @@ export function ExtractCvDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent showCloseButton={false} className="sm:max-w-lg gap-4">
-        <DialogHeader className="flex-row items-start justify-between gap-3">
-          <div className="flex flex-col gap-1">
-            <DialogTitle className="flex items-center gap-2">
-              <SparklesIcon className="size-4 text-primary" />
-              Extract from PDF
-            </DialogTitle>
-            <DialogDescription>
-              Upload an existing resume. We&apos;ll parse the content and
-              populate the editor.
-            </DialogDescription>
-          </div>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon-sm"
-            aria-label="Close"
-            onClick={() => onOpenChange(false)}
-          >
-            <XIcon />
-          </Button>
-        </DialogHeader>
+        <DialogHeaderRow
+          icon={<SparklesIcon className="size-4 text-primary" />}
+          title="Extract from PDF"
+          description="Upload an existing resume. We'll parse the content and populate the editor."
+          onClose={() => onOpenChange(false)}
+        />
         {body}
       </DialogContent>
     </Dialog>
-  );
-}
-
-function ExtractCvHeader({ onClose }: { onClose: () => void }) {
-  return (
-    <div className="flex items-start justify-between gap-3">
-      <div className="flex flex-col gap-0.5">
-        <h2 className="flex items-center gap-2 text-base font-medium">
-          <SparklesIcon className="size-4 text-primary" />
-          Extract from PDF
-        </h2>
-        <p className="text-xs text-muted-foreground">
-          Upload an existing resume. We&apos;ll parse the content.
-        </p>
-      </div>
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon-sm"
-        aria-label="Close"
-        onClick={onClose}
-      >
-        <XIcon />
-      </Button>
-    </div>
   );
 }
 

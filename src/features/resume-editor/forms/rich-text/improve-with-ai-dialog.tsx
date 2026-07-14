@@ -1,19 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { Loader2Icon, SparklesIcon, XIcon } from "lucide-react";
+import { Loader2Icon, SparklesIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import { DialogHeaderSection } from "@/features/resume-editor/ui/dialog-header";
-import { RichTextEditor } from "@/features/resume-editor/forms/rich-text/rich-text-editor";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  DialogHeaderRow,
+  DialogHeaderSection,
+} from "@/features/resume-editor/ui/dialog-header";
+import { RichTextEditor } from "@/features/resume-editor/forms/rich-text/rich-text-editor";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -96,31 +93,42 @@ function ImproveWithAiDialog({
         showCloseButton={false}
         className="flex max-h-[85dvh] min-h-0 flex-col gap-4 sm:max-w-lg"
       >
-        <DialogHeader className="flex-row items-start justify-between gap-3 shrink-0">
-          <div className="flex flex-col gap-1">
-            <DialogTitle className="flex items-center gap-2">
-              <SparklesIcon className="size-4 text-primary" />
-              Improve with AI
-            </DialogTitle>
-            <DialogDescription>
-              Select quick actions or describe what to change. The language of
-              your content will be preserved.
-            </DialogDescription>
-          </div>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon-sm"
-            aria-label="Close"
-            onClick={() => onOpenChange(false)}
-          >
-            <XIcon />
-          </Button>
-        </DialogHeader>
+        <DialogHeaderRow
+          className="shrink-0"
+          icon={<SparklesIcon className="size-4 text-primary" />}
+          title="Improve with AI"
+          description="Select quick actions or describe what to change. The language of your content will be preserved."
+          onClose={() => onOpenChange(false)}
+        />
         {body}
       </DialogContent>
     </Dialog>
   );
+}
+
+async function requestContentImprovement(input: {
+  html: string;
+  chips: string[];
+  customInstruction: string;
+}): Promise<string> {
+  const response = await fetch("/api/improve-content", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(input),
+  });
+
+  const payload = (await response.json()) as {
+    improved?: string;
+    message?: string;
+  };
+
+  if (!response.ok || !payload.improved) {
+    throw new Error(
+      payload.message ?? "Could not improve the content. Please try again.",
+    );
+  }
+
+  return payload.improved;
 }
 
 type ImproveWithAiBodyProps = {
@@ -156,28 +164,12 @@ function ImproveWithAiBody({
     setPhase({ kind: "loading" });
 
     try {
-      const response = await fetch("/api/improve-content", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          html: currentHtml,
-          chips: [...selectedChips],
-          customInstruction,
-        }),
+      const improved = await requestContentImprovement({
+        html: currentHtml,
+        chips: [...selectedChips],
+        customInstruction,
       });
-
-      const payload = (await response.json()) as {
-        improved?: string;
-        message?: string;
-      };
-
-      if (!response.ok || !payload.improved) {
-        throw new Error(
-          payload.message ?? "Could not improve the content. Please try again.",
-        );
-      }
-
-      setPhase({ kind: "result", improved: payload.improved });
+      setPhase({ kind: "result", improved });
     } catch (error) {
       const message =
         error instanceof Error
@@ -204,7 +196,8 @@ function ImproveWithAiBody({
     );
   }
 
-  const canSubmit = selectedChips.size > 0 || customInstruction.trim().length > 0;
+  const canSubmit =
+    selectedChips.size > 0 || customInstruction.trim().length > 0;
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-4">
@@ -278,7 +271,9 @@ function LoadingPhase() {
       </div>
       <div className="flex flex-col gap-1">
         <p className="text-sm font-medium text-foreground">{message}</p>
-        <p className="text-xs text-muted-foreground">This takes a few seconds.</p>
+        <p className="text-xs text-muted-foreground">
+          This takes a few seconds.
+        </p>
       </div>
     </div>
   );

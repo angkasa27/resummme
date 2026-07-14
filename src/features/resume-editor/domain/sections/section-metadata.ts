@@ -1,6 +1,6 @@
 import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
 
-export const editablePanelKeys = [
+const editablePanelKeys = [
   "profile",
   "summary",
   "workExperience",
@@ -17,7 +17,7 @@ export const editablePanelKeys = [
 
 export type EditorPanelKey = (typeof editablePanelKeys)[number];
 export const resumeSectionKeys = editablePanelKeys.filter(
-  (panelKey) => panelKey !== "profile"
+  (panelKey) => panelKey !== "profile",
 ) as Exclude<EditorPanelKey, "profile">[];
 export type ResumeSectionPanelKey = (typeof resumeSectionKeys)[number];
 
@@ -62,18 +62,23 @@ export const languageProficiencyOptions = [
 ];
 
 export function isCollectionSectionKey(
-  sectionKey: ResumeSectionPanelKey
+  sectionKey: ResumeSectionPanelKey,
 ): sectionKey is CollectionSectionKey {
   return collectionSectionKeys.includes(sectionKey as CollectionSectionKey);
 }
 
 export function getOrderedSectionKeys(sections: ResumeDraft["sections"]) {
-  return [...resumeSectionKeys]
-    .sort((left, right) => sections[left].order - sections[right].order);
+  return [...resumeSectionKeys].sort(
+    (left, right) => sections[left].order - sections[right].order,
+  );
 }
 
-export function getOrderedVisibleSectionKeys(sections: ResumeDraft["sections"]) {
-  return getOrderedSectionKeys(sections).filter((sectionKey) => sections[sectionKey].visible);
+export function getOrderedVisibleSectionKeys(
+  sections: ResumeDraft["sections"],
+) {
+  return getOrderedSectionKeys(sections).filter(
+    (sectionKey) => sections[sectionKey].visible,
+  );
 }
 
 /**
@@ -85,11 +90,11 @@ export function partitionCollectionKeys(sections: ResumeDraft["sections"]) {
   const ordered = getOrderedSectionKeys(sections);
   const sortableKeys = ordered.filter(
     (key): key is CollectionSectionKey =>
-      isCollectionSectionKey(key) && sections[key].visible
+      isCollectionSectionKey(key) && sections[key].visible,
   );
   const hiddenKeys = ordered.filter(
     (key): key is CollectionSectionKey =>
-      isCollectionSectionKey(key) && !sections[key].visible
+      isCollectionSectionKey(key) && !sections[key].visible,
   );
   return { sortableKeys, hiddenKeys };
 }

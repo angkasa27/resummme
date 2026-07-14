@@ -15,7 +15,7 @@ const datedRangeShape = {
   endDate: monthYearOrCurrentField("End date"),
 } as const;
 
-export const summarySectionSchema = z.object({
+const summarySectionSchema = z.object({
   visible: z.boolean(),
   order: z.number().int().nonnegative(),
   content: richTextField(),
@@ -116,33 +116,29 @@ function createCollectionSectionSchema<TItemSchema extends z.ZodTypeAny>(
   });
 }
 
-export const workExperienceSectionSchema = createCollectionSectionSchema(
+const workExperienceSectionSchema = createCollectionSectionSchema(
   workExperienceItemSchema,
 );
-export const skillsSectionSchema = createCollectionSectionSchema(
+const skillsSectionSchema = createCollectionSectionSchema(
   skillCategoryItemSchema,
 );
-export const projectsSectionSchema =
-  createCollectionSectionSchema(projectItemSchema);
-export const educationSectionSchema = createCollectionSectionSchema(
-  educationItemSchema,
-);
-export const publicationsSectionSchema = createCollectionSectionSchema(
+const projectsSectionSchema = createCollectionSectionSchema(projectItemSchema);
+const educationSectionSchema =
+  createCollectionSectionSchema(educationItemSchema);
+const publicationsSectionSchema = createCollectionSectionSchema(
   publicationItemSchema,
 );
-export const certificationsSectionSchema = createCollectionSectionSchema(
+const certificationsSectionSchema = createCollectionSectionSchema(
   certificationItemSchema,
 );
-export const awardsSectionSchema =
-  createCollectionSectionSchema(awardItemSchema);
-export const languagesSectionSchema = createCollectionSectionSchema(
-  languageItemSchema,
+const awardsSectionSchema = createCollectionSectionSchema(awardItemSchema);
+const languagesSectionSchema =
+  createCollectionSectionSchema(languageItemSchema);
+const referencesSectionSchema =
+  createCollectionSectionSchema(referenceItemSchema);
+const organizationVolunteeringSectionSchema = createCollectionSectionSchema(
+  organizationItemSchema,
 );
-export const referencesSectionSchema = createCollectionSectionSchema(
-  referenceItemSchema,
-);
-export const organizationVolunteeringSectionSchema =
-  createCollectionSectionSchema(organizationItemSchema);
 
 export const sectionsSchema = z.object({
   summary: summarySectionSchema,

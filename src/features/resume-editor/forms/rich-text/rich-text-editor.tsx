@@ -43,6 +43,57 @@ type RichTextEditorProps = {
   onImproveWithAi?: () => void;
 };
 
+type TiptapEditor = NonNullable<ReturnType<typeof useEditor>>;
+
+const FORMAT_TOGGLES = [
+  ["bold", (editor: TiptapEditor) => editor.chain().focus().toggleBold().run()],
+  [
+    "italic",
+    (editor: TiptapEditor) => editor.chain().focus().toggleItalic().run(),
+  ],
+  [
+    "underline",
+    (editor: TiptapEditor) => editor.chain().focus().toggleUnderline().run(),
+  ],
+  [
+    "bulletList",
+    (editor: TiptapEditor) => editor.chain().focus().toggleBulletList().run(),
+  ],
+  [
+    "orderedList",
+    (editor: TiptapEditor) => editor.chain().focus().toggleOrderedList().run(),
+  ],
+] as const;
+
+function getActiveFormats(editor: TiptapEditor): string[] {
+  return FORMAT_TOGGLES.filter(([key]) => editor.isActive(key)).map(
+    ([key]) => key,
+  );
+}
+
+function applyFormatToggle(editor: TiptapEditor, nextValue: string[]) {
+  const nextSet = new Set(nextValue);
+  for (const [formatKey, toggle] of FORMAT_TOGGLES) {
+    const isActive = editor.isActive(formatKey);
+    const shouldBeActive = nextSet.has(formatKey);
+    if (isActive !== shouldBeActive) {
+      toggle(editor);
+    }
+  }
+}
+
+function isSelectionInsideEditor(
+  domSelection: Selection | null,
+  editorDom: Node,
+): domSelection is Selection & { anchorNode: Node; focusNode: Node } {
+  return !!(
+    domSelection?.anchorNode &&
+    domSelection.focusNode &&
+    editorDom.contains(domSelection.anchorNode) &&
+    editorDom.contains(domSelection.focusNode)
+  );
+}
+
 export function RichTextEditor({
   value,
   onChange,
@@ -117,12 +168,7 @@ export function RichTextEditor({
   function getCurrentLinkSelection() {
     const domSelection = window.getSelection();
 
-    if (
-      domSelection?.anchorNode &&
-      domSelection.focusNode &&
-      activeEditor.view.dom.contains(domSelection.anchorNode) &&
-      activeEditor.view.dom.contains(domSelection.focusNode)
-    ) {
+    if (isSelectionInsideEditor(domSelection, activeEditor.view.dom)) {
       try {
         const anchor = activeEditor.view.posAtDOM(
           domSelection.anchorNode,
@@ -201,49 +247,10 @@ export function RichTextEditor({
         <ToggleGroup
           multiple
           variant="outline"
-          // spacing={1}
-          value={[
-            activeEditor.isActive("bold") ? "bold" : "",
-            activeEditor.isActive("italic") ? "italic" : "",
-            activeEditor.isActive("underline") ? "underline" : "",
-            activeEditor.isActive("bulletList") ? "bulletList" : "",
-            activeEditor.isActive("orderedList") ? "orderedList" : "",
-          ].filter(Boolean)}
-          onValueChange={(nextValue) => {
-            const nextSet = new Set(nextValue as string[]);
-            const formatters = [
-              ["bold", () => activeEditor.chain().focus().toggleBold().run()],
-              [
-                "italic",
-                () => activeEditor.chain().focus().toggleItalic().run(),
-              ],
-              [
-                "underline",
-                () => activeEditor.chain().focus().toggleUnderline().run(),
-              ],
-              [
-                "bulletList",
-                () => activeEditor.chain().focus().toggleBulletList().run(),
-              ],
-              [
-                "orderedList",
-                () => activeEditor.chain().focus().toggleOrderedList().run(),
-              ],
-            ] as const;
-
-            for (const [formatKey, toggle] of formatters) {
-              const isActive = activeEditor.isActive(
-                formatKey === "bulletList" || formatKey === "orderedList"
-                  ? formatKey
-                  : formatKey,
-              );
-              const shouldBeActive = nextSet.has(formatKey);
-
-              if (isActive !== shouldBeActive) {
-                toggle();
-              }
-            }
-          }}
+          value={getActiveFormats(activeEditor)}
+          onValueChange={(nextValue) =>
+            applyFormatToggle(activeEditor, nextValue as string[])
+          }
         >
           <ToggleGroupItem value="bold" aria-label="Bold" title="Bold">
             <BoldIcon className="size-4" />
