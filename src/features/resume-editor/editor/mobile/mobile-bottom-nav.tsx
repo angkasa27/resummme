@@ -87,14 +87,14 @@ type NavItem = {
 
 const ITEMS: NavItem[] = [
   {
-    key: "edit",
-    label: "Edit",
-    render: (ref) => <AnimatedSquarePen ref={ref} size={ICON_SIZE} />,
-  },
-  {
     key: "preview",
     label: "Preview",
     render: (ref) => <AnimatedEye ref={ref} size={ICON_SIZE} />,
+  },
+  {
+    key: "edit",
+    label: "Edit",
+    render: (ref) => <AnimatedSquarePen ref={ref} size={ICON_SIZE} />,
   },
   {
     key: "design",

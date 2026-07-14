@@ -104,7 +104,7 @@ const slideTransition = {
 };
 const reducedTransition = { duration: motionTokens.duration.fast };
 
-const TAB_ORDER: EditorTab[] = ["edit", "preview", "design", "insights"];
+const TAB_ORDER: EditorTab[] = ["preview", "edit", "design", "insights"];
 
 // Shared +1/-1 slide-direction state for the filmstrip AnimatePresence blocks.
 function useDirection(initial = 1) {
