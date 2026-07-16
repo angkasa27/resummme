@@ -28,15 +28,6 @@ export function Contribute() {
           </p>
         </RevealItem>
         <RevealItem className="mt-9 flex flex-wrap items-center justify-center gap-3">
-          <Link
-            href="/editor"
-            className={cn(
-              buttonVariants({ variant: "ai", size: "lg" }),
-              "px-5",
-            )}
-          >
-            Open Editor
-          </Link>
           <a
             href={GITHUB_URL}
             target="_blank"
@@ -47,8 +38,17 @@ export function Contribute() {
             )}
           >
             <GithubMarkIcon className="size-4" />
-            Star on GitHub
+            Source Code
           </a>
+          <Link
+            href="/editor"
+            className={cn(
+              buttonVariants({ variant: "ai", size: "lg" }),
+              "px-5",
+            )}
+          >
+            Open Editor
+          </Link>
         </RevealItem>
       </RevealStagger>
     </section>
