@@ -5,11 +5,8 @@ import styles from "./styles.module.css";
 
 export function BannerHeader({ context }: LayoutHeaderProps) {
   const { draft } = context;
-  const headerClass = draft.profile.photo
-    ? `${styles.header} ${styles.hasPhoto}`
-    : styles.header;
   return (
-    <header className={`${headerClass} layout-header`} data-layout="banner">
+    <header className={`${styles.header} layout-header`} data-layout="banner">
       <div className="banner-band">
         <div className="header-body">
           <h1 className="name" data-testid="resume-preview-full-name">

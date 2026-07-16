@@ -13,20 +13,18 @@
   padding: 0 var(--resume-page-margin) var(--resume-page-margin);
 }
 
-/* Edge-to-edge solid accent band; text switches to the readable on-accent color. */
+/* Edge-to-edge solid accent band; text switches to the readable on-accent
+   color. The photo is an ordinary flex child, so the band sizes to its own
+   content — no reserved space, no overhang, no dead zone beneath it. */
 .header :global(.banner-band) {
-  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--resume-gutter);
   background: var(--resume-accent);
   color: var(--resume-on-accent);
-  padding: var(--resume-page-margin);
+  padding: var(--resume-gutter) var(--resume-page-margin);
   print-color-adjust: exact;
   -webkit-print-color-adjust: exact;
-}
-
-/* Reserve room for the circular photo overlapping the band's bottom edge. */
-.hasPhoto :global(.banner-band) {
-  margin-bottom: 42px;
-  padding-right: calc(84px + var(--resume-page-margin) + var(--resume-gap-section));
 }
 
 .header :global(.name) {
@@ -39,6 +37,7 @@
 }
 
 .header :global(.header-body) {
+  flex: 1;
   min-width: 0;
   display: flex;
   flex-direction: column;
@@ -46,14 +45,12 @@
 }
 
 .header :global(.header-photo) {
-  position: absolute;
-  right: var(--resume-page-margin);
-  bottom: -42px;
   width: 84px;
   aspect-ratio: var(--resume-photo-aspect, 1 / 1);
   height: auto;
   border-radius: var(--resume-photo-radius, 50%);
   overflow: hidden;
+  flex-shrink: 0;
 }
 
 .header :global(.header-photo img) {

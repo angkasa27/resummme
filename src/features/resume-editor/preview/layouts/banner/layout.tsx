@@ -8,7 +8,7 @@ export const bannerLayout = createSingleColumnLayout({
   id: "banner",
   label: "Banner",
   description:
-    "Bold solid-color header band with the name and contacts inside, and a circular photo overlapping its edge.",
+    "Bold solid-color header band running edge to edge, with the name, contacts, and photo inside it.",
   hideSummaryHeading: true,
   inset: "none",
   styles,
