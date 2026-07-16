@@ -52,7 +52,7 @@ export function TemplateGallery({
 
   // Preset previews only depend on the paper setup, not the current style —
   // every other style field is overridden by the preset itself.
-  const paperKey = `${presentation.paperSize}:${presentation.pageMargin}`;
+  const paperKey = presentation.paperSize;
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const basePresentation = useMemo(() => presentation, [paperKey]);
 

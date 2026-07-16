@@ -4,7 +4,6 @@ import {
   normalizePdfPresentation,
   pdfFontScaleIds,
   pdfLineHeightIds,
-  pdfPageMargins,
   pdfPaperSizes,
   pdfPhotoShapeIds,
   pdfSpacingIds,
@@ -24,7 +23,6 @@ export const pdfPresentationSchema = z.preprocess(
     accent: z.string().regex(hexColorPattern),
     secondary: z.string().regex(hexColorPattern).optional(),
     paperSize: z.enum(pdfPaperSizes),
-    pageMargin: z.enum(pdfPageMargins),
     photoShape: z.enum(pdfPhotoShapeIds).optional(),
   }),
 );

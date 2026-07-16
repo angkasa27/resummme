@@ -20,7 +20,9 @@
     var(--resume-on-secondary) 35%,
     transparent
   );
-  padding: var(--resume-page-margin) var(--resume-gap-section)
+  /* Bleeding edges take the page margin; the inner edge takes half the gutter
+     so the rail and main column each contribute the same gap between them. */
+  padding: var(--resume-page-margin) calc(var(--resume-gutter) / 2)
     var(--resume-page-margin) var(--resume-page-margin);
   display: flex;
   flex-direction: column;
@@ -36,7 +38,7 @@
   gap: var(--resume-gap-section);
   min-width: 0;
   padding: var(--resume-page-margin) var(--resume-page-margin)
-    var(--resume-page-margin) var(--resume-gap-section);
+    var(--resume-page-margin) calc(var(--resume-gutter) / 2);
 }
 
 .layout :global(.layout-side .section-heading) {

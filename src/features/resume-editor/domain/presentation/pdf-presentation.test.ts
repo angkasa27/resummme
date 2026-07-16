@@ -21,7 +21,6 @@ describe("createDefaultPdfPresentation", () => {
     expect(result.lineHeight).toBe("standard");
     expect(result.accent).toBe(DEFAULT_ACCENT);
     expect(result.paperSize).toBe("a4");
-    expect(result.pageMargin).toBe("narrow");
   });
 });
 
@@ -60,16 +59,18 @@ describe("getPaperDimensionsMm", () => {
 });
 
 describe("getPageMarginMm", () => {
-  it("returns narrow margin", () => {
-    expect(getPageMarginMm("narrow")).toBe(12.7);
+  it("gives rail layouts a tighter margin than typographic ones", () => {
+    // The whole reason the margin moved from a user knob onto the layout: a
+    // 0.36fr rail and a whitespace-led page cannot share one value.
+    expect(getPageMarginMm("split", "standard")).toBeLessThan(
+      getPageMarginMm("minimal", "standard"),
+    );
   });
 
-  it("returns normal margin", () => {
-    expect(getPageMarginMm("normal")).toBe(25.4);
-  });
-
-  it("returns moderate margin", () => {
-    expect(getPageMarginMm("moderate")).toBe(19.05);
+  it("scales with spacing", () => {
+    expect(getPageMarginMm("classic", "standard")).toBe(14);
+    expect(getPageMarginMm("classic", "compact")).toBe(11.9);
+    expect(getPageMarginMm("classic", "airy")).toBe(16.1);
   });
 });
 
@@ -159,7 +160,25 @@ describe("resolvePdfPresentation", () => {
     expect(result.vars["--resume-accent"]).toBe(DEFAULT_ACCENT);
     expect(result.vars["--resume-paper-width"]).toBe("210mm");
     expect(result.vars["--resume-paper-height"]).toBe("297mm");
-    expect(result.vars["--resume-page-margin"]).toBe("12.7mm");
+    expect(result.vars["--resume-page-margin"]).toBe("14mm");
+    expect(result.vars["--resume-gutter"]).toBe("26px");
+  });
+
+  it("derives the page margin from the layout, not a user setting", () => {
+    const base = createDefaultPdfPresentation();
+    const split = resolvePdfPresentation({ ...base, layoutId: "split" });
+    const minimal = resolvePdfPresentation({ ...base, layoutId: "minimal" });
+    expect(split.vars["--resume-page-margin"]).toBe("9mm");
+    expect(minimal.vars["--resume-page-margin"]).toBe("18mm");
+  });
+
+  it("keeps the gutter independent of the page margin", () => {
+    // Two layouts with different margins must still share a gutter at the same
+    // density — conflating the two is what skewed the rail padding.
+    const base = createDefaultPdfPresentation();
+    const split = resolvePdfPresentation({ ...base, layoutId: "split" });
+    const minimal = resolvePdfPresentation({ ...base, layoutId: "minimal" });
+    expect(split.vars["--resume-gutter"]).toBe(minimal.vars["--resume-gutter"]);
   });
 
   it("emits paper dimensions for the selected paper size", () => {

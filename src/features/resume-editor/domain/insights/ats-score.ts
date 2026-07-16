@@ -1,6 +1,6 @@
 import {
   getPaperDimensionsMm,
-  getPageMarginMm,
+  NOMINAL_LENGTH_MARGIN_MM,
   normalizePdfPresentation,
   type PdfLayoutId,
 } from "@/features/resume-editor/domain/presentation/pdf-presentation";
@@ -526,8 +526,7 @@ function scoreLength(draft: ResumeDraft): ScorerResult {
   const push = (s: Suggestion) => suggestions.push(s);
   const presentation = normalizePdfPresentation(draft.pdfPresentation);
   const paper = getPaperDimensionsMm(presentation.paperSize);
-  const margin = getPageMarginMm(presentation.pageMargin);
-  const printableHeightMm = paper.heightMm - margin * 2;
+  const printableHeightMm = paper.heightMm - NOMINAL_LENGTH_MARGIN_MM * 2;
 
   const bulletCount = extractAllBullets(draft).length;
   const itemCount =

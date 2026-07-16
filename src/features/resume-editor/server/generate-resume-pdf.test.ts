@@ -194,7 +194,6 @@ describe("generateResumePdf", () => {
     );
     const draft = createDefaultResumeDraft();
     draft.pdfPresentation.paperSize = "letter";
-    draft.pdfPresentation.pageMargin = "moderate";
 
     await generateResumePdf({
       draft,

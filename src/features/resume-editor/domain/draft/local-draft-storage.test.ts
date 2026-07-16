@@ -55,7 +55,6 @@ describe("LocalDraftStorage", () => {
     draft.pdfPresentation.lineHeight = "relaxed";
     draft.pdfPresentation.spacing = "airy";
     draft.pdfPresentation.paperSize = "letter";
-    draft.pdfPresentation.pageMargin = "moderate";
 
     const exported = exportResumeDraft(draft);
     const imported = importResumeDraft(exported);

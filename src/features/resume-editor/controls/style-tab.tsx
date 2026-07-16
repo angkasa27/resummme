@@ -212,7 +212,6 @@ function FontFamilyField({
 export function StyleTab({ presentation, onChange }: StyleTabProps) {
   const fontScale = getControl("font-scale");
   const paperSize = getControl("paper-size");
-  const pageMargin = getControl("page-margin");
   const lineHeight = getControl("line-height");
   const spacing = getControl("spacing");
   const photoShape = getControl("photo-shape");
@@ -225,17 +224,14 @@ export function StyleTab({ presentation, onChange }: StyleTabProps) {
         onChange={onChange}
       />
       <SelectField
-        control={pageMargin}
-        presentation={presentation}
-        onChange={onChange}
-      />
-
-      <FontFamilyField presentation={presentation} onChange={onChange} />
-      <SelectField
         control={fontScale}
         presentation={presentation}
         onChange={onChange}
       />
+
+      <div className="col-span-2">
+        <FontFamilyField presentation={presentation} onChange={onChange} />
+      </div>
 
       <ToggleField
         control={lineHeight}

@@ -3,7 +3,6 @@ import type {
   PdfFontScaleId,
   PdfLayoutId,
   PdfLineHeightId,
-  PdfPageMargin,
   PdfPresentation,
   PdfSpacingId,
 } from "@/features/resume-editor/domain/presentation/pdf-presentation";
@@ -20,7 +19,6 @@ export type ResumeTemplateStyle = {
   fontScale: PdfFontScaleId;
   spacing: PdfSpacingId;
   lineHeight: PdfLineHeightId;
-  pageMargin?: PdfPageMargin;
 };
 
 /**
@@ -368,8 +366,8 @@ export function getTemplatePresetsByLayout(): Map<
 
 /**
  * Applies a template in one shot: layout + curated style. Preserves the
- * user's paperSize (and pageMargin unless the preset opts in) and clears
- * photoShape so the layout's native photo look applies.
+ * user's paperSize and clears photoShape so the layout's native photo look
+ * applies. Page margin follows the layout, so a preset never sets it.
  */
 export function applyTemplatePreset(
   preset: ResumeTemplatePreset,
@@ -384,7 +382,6 @@ export function applyTemplatePreset(
     spacing: preset.style.spacing,
     lineHeight: preset.style.lineHeight,
     paperSize: current.paperSize,
-    pageMargin: preset.style.pageMargin ?? current.pageMargin,
     photoShape: undefined,
   };
 }
@@ -407,7 +404,6 @@ export function getActiveTemplatePresetId(
       applied.fontScale === presentation.fontScale &&
       applied.spacing === presentation.spacing &&
       applied.lineHeight === presentation.lineHeight &&
-      applied.pageMargin === presentation.pageMargin &&
       (presentation.photoShape ?? null) === null
     ) {
       return preset.id;

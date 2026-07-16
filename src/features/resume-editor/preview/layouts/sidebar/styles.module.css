@@ -15,7 +15,8 @@
 .layout :global(.layout-body) {
   display: grid;
   grid-template-columns: minmax(0, 0.42fr) minmax(0, 1fr);
-  gap: 0 var(--resume-gap-section);
+  /* Columns own their inner padding, so the grid itself adds no gap. */
+  gap: 0;
   flex: 1;
 }
 
@@ -29,15 +30,17 @@
 
 .layout :global(.layout-side) {
   background: var(--resume-secondary-tint);
-  padding: var(--resume-gap-section) var(--resume-gap-section)
+  /* The rail bleeds left and bottom, so those edges take the page margin; the
+     top and inner edges take gutter-derived spacing instead. */
+  padding: var(--resume-gutter) calc(var(--resume-gutter) / 2)
     var(--resume-page-margin) var(--resume-page-margin);
   print-color-adjust: exact;
   -webkit-print-color-adjust: exact;
 }
 
 .layout :global(.layout-main) {
-  padding-right: var(--resume-page-margin);
-  padding-bottom: var(--resume-page-margin);
+  padding: var(--resume-gutter) var(--resume-page-margin)
+    var(--resume-page-margin) calc(var(--resume-gutter) / 2);
 }
 
 .layout :global(.layout-side .section-heading) {

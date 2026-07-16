@@ -51,7 +51,6 @@ describe("resume schema", () => {
       lineHeight: "standard",
       accent: "#2563eb",
       paperSize: "a4",
-      pageMargin: "narrow",
     });
   });
 

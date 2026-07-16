@@ -46,9 +46,6 @@ export type PdfSpacingId = (typeof pdfSpacingIds)[number];
 export const pdfPaperSizes = ["a4", "letter"] as const;
 export type PdfPaperSize = (typeof pdfPaperSizes)[number];
 
-export const pdfPageMargins = ["narrow", "normal", "moderate"] as const;
-export type PdfPageMargin = (typeof pdfPageMargins)[number];
-
 export const pdfPhotoShapeIds = ["square", "rectangle", "circle"] as const;
 export type PdfPhotoShapeId = (typeof pdfPhotoShapeIds)[number];
 
@@ -62,7 +59,6 @@ export type PdfPresentation = {
   /** Optional second theme color; falls back to `accent` when unset. */
   secondary?: string;
   paperSize: PdfPaperSize;
-  pageMargin: PdfPageMargin;
   /**
    * Optional profile-photo shape override. When unset, each layout keeps its
    * own native photo aspect/radius; when set, it overrides every layout.
@@ -104,12 +100,6 @@ export const pdfPaperSizeLabels: Record<PdfPaperSize, string> = {
   letter: "Letter",
 };
 
-export const pdfPageMarginLabels: Record<PdfPageMargin, string> = {
-  narrow: "Narrow",
-  moderate: "Moderate",
-  normal: "Normal",
-};
-
 const fontBasePx: Record<PdfFontScaleId, number> = {
   sm: 11,
   md: 12,
@@ -146,6 +136,44 @@ const indentPx: Record<PdfSpacingId, number> = {
   airy: 18,
 };
 
+/**
+ * Gutter between columns. Deliberately NOT the page margin: the margin is the
+ * distance to the paper edge, the gutter is the distance between two columns,
+ * and conflating them is what forced the rail layouts to hand-roll asymmetric
+ * padding. Both scale with `spacing`, but independently.
+ */
+const gutterPx: Record<PdfSpacingId, number> = {
+  compact: 20,
+  standard: 26,
+  airy: 32,
+};
+
+/**
+ * Page margin is a property of the layout, not a user knob. A rail layout needs
+ * a tight margin or its rail turns into a fat colored band; a typographic
+ * layout needs a wide one because the whitespace IS the design. Exposing one
+ * slider across both could only ever be wrong for one of them.
+ */
+const layoutPageMarginMm: Record<PdfLayoutId, number> = {
+  split: 9, // 0.36fr solid full-height rail — tightest; the rail needs the width
+  sidebar: 10, // 0.42fr rail bleeding left+bottom
+  "bold-type": 12, // oversized type wants edge tension
+  classic: 14, // traditional letter feel
+  timeline: 14, // date gutter already eats width
+  inset: 14, // boxed items supply their own inner air
+  banner: 14, // body matches classic; the band owns its own padding
+  "modern-centered": 16, // centered header needs side air or the name crowds the edge
+  academic: 18, // the margin is the formality
+  minimal: 18, // whitespace is the identity
+};
+
+/** Page margin scales with `spacing` so density stays a single coherent choice. */
+const pageMarginSpacingFactor: Record<PdfSpacingId, number> = {
+  compact: 0.85,
+  standard: 1,
+  airy: 1.15,
+};
+
 export const paperDimensions: Record<
   PdfPaperSize,
   { widthMm: number; heightMm: number }
@@ -161,12 +189,6 @@ const PX_PER_MM = 96 / 25.4;
 export function getPaperWidthPx(paperSize: PdfPaperSize): number {
   return paperDimensions[paperSize].widthMm * PX_PER_MM;
 }
-
-const pageMarginMm: Record<PdfPageMargin, number> = {
-  narrow: 12.7, // 0.5"
-  normal: 25.4, // 1"
-  moderate: 19.05, // 0.75"
-};
 
 export const DEFAULT_ACCENT = "#2563eb";
 
@@ -184,9 +206,22 @@ export function getPaperDimensionsMm(paperSize: PdfPaperSize) {
   return paperDimensions[paperSize];
 }
 
-export function getPageMarginMm(pageMargin: PdfPageMargin) {
-  return pageMarginMm[pageMargin];
+/** Resolved page margin for a layout at a given density, in millimetres. */
+export function getPageMarginMm(layoutId: PdfLayoutId, spacing: PdfSpacingId) {
+  return (
+    Math.round(
+      layoutPageMarginMm[layoutId] * pageMarginSpacingFactor[spacing] * 100,
+    ) / 100
+  );
 }
+
+/**
+ * Nominal margin for content-length estimates only. Deliberately a constant
+ * rather than the layout's own margin: the length score advises on how much
+ * content you have written, so it must not move when you try a different
+ * layout without touching a word.
+ */
+export const NOMINAL_LENGTH_MARGIN_MM = 14;
 
 export function createDefaultPdfPresentation(): PdfPresentation {
   return {
@@ -197,7 +232,6 @@ export function createDefaultPdfPresentation(): PdfPresentation {
     lineHeight: "standard",
     accent: DEFAULT_ACCENT,
     paperSize: "a4",
-    pageMargin: "narrow",
   };
 }
 
@@ -241,9 +275,6 @@ export function normalizePdfPresentation(input: unknown): PdfPresentation {
     paperSize: isMember(pdfPaperSizes, source.paperSize)
       ? source.paperSize
       : defaults.paperSize,
-    pageMargin: isMember(pdfPageMargins, source.pageMargin)
-      ? source.pageMargin
-      : defaults.pageMargin,
     photoShape: isMember(pdfPhotoShapeIds, source.photoShape)
       ? source.photoShape
       : undefined,
@@ -257,7 +288,7 @@ export function resolvePdfPresentation(
   const base = fontBasePx[p.fontScale];
   const leading = lineHeightValues[p.lineHeight];
   const paper = paperDimensions[p.paperSize];
-  const margin = pageMarginMm[p.pageMargin];
+  const margin = getPageMarginMm(p.layoutId, p.spacing);
   const secondary = getEffectiveSecondary(p);
 
   const vars: Record<string, string> = {
@@ -279,6 +310,7 @@ export function resolvePdfPresentation(
     "--resume-gap-section": `${sectionGapPx[p.spacing]}px`,
     "--resume-gap-item": `${itemGapPx[p.spacing]}px`,
     "--resume-gap-inner": `${innerGapPx[p.spacing]}px`,
+    "--resume-gutter": `${gutterPx[p.spacing]}px`,
     "--resume-indent": `${indentPx[p.spacing]}px`,
     "--resume-paper-width": `${paper.widthMm}mm`,
     "--resume-paper-height": `${paper.heightMm}mm`,

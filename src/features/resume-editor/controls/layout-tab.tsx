@@ -63,7 +63,6 @@ export function LayoutTab({
     spacing: presentation.spacing,
     lineHeight: presentation.lineHeight,
     paperSize: presentation.paperSize,
-    pageMargin: presentation.pageMargin,
   });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const previewPresentation = useMemo(() => presentation, [styleKey]);

@@ -3,8 +3,6 @@ import {
   pdfFontScaleLabels,
   pdfLineHeightIds,
   pdfLineHeightLabels,
-  pdfPageMargins,
-  pdfPageMarginLabels,
   pdfPaperSizes,
   pdfPaperSizeLabels,
   pdfPhotoShapeIds,
@@ -112,22 +110,6 @@ export const previewControlDefinitions = [
     options: pdfPaperSizes.map((value) => ({
       value,
       label: pdfPaperSizeLabels[value],
-    })),
-  },
-  {
-    id: "page-margin",
-    kind: "select",
-    label: "Page margin",
-    value: (presentation) => presentation.pageMargin,
-    update: (nextValue, presentation) =>
-      set(
-        presentation,
-        "pageMargin",
-        nextValue as PdfPresentation["pageMargin"],
-      ),
-    options: pdfPageMargins.map((value) => ({
-      value,
-      label: pdfPageMarginLabels[value],
     })),
   },
   {
