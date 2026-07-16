@@ -1,15 +1,9 @@
-/* Full-bleed: the header keeps the page margin while the tinted rail below it
-   paints to the left and bottom paper edges. */
+/* Full-bleed: the accent header band paints to the top/left/right paper edges,
+   and the tinted rail below it reaches the left and bottom edges. */
 .layout {
   display: flex;
   flex-direction: column;
   gap: var(--resume-gap-section);
-  padding-top: var(--resume-page-margin);
-}
-
-.layout > *:first-child {
-  padding-left: var(--resume-page-margin);
-  padding-right: var(--resume-page-margin);
 }
 
 .layout :global(.layout-body) {
@@ -81,12 +75,19 @@
   gap: 2px;
 }
 
-/* Photo lives in the header, not the rail, so the top of the page reads the
-   same as Classic and the rail can start straight into content. */
+/* Photo lives in the header, not the rail, so the rail starts straight into
+   content. The band matches Banner's: solid accent, edge to edge, everything
+   on it — name, contacts, links — in the readable on-accent colour. */
 .header {
   display: flex;
   align-items: center;
-  gap: var(--resume-gap-section);
+  gap: var(--resume-gutter);
+  background: var(--resume-accent);
+  color: var(--resume-on-accent);
+  --resume-name-color: var(--resume-on-accent);
+  padding: var(--resume-gutter) var(--resume-page-margin);
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
 }
 
 .header :global(.header-photo) {

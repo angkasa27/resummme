@@ -21,6 +21,10 @@ import puppeteer, { type Browser } from "puppeteer";
 
 import { createDefaultResumeDraft } from "@/features/resume-editor/domain/draft/create-default-resume-draft";
 import { exportResumeDraft } from "@/features/resume-editor/domain/draft/resume-draft-storage";
+import {
+  applyTemplatePreset,
+  resumeTemplatePresets,
+} from "@/features/resume-editor/domain/presentation/template-presets";
 import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
 import { RESUME_PDF_SESSION_STORAGE_KEY } from "@/features/resume-editor/server/resume-pdf-session";
 import { PERSONAS, type Persona } from "./personas";
@@ -35,12 +39,18 @@ const ul = (bullets: string[]) =>
 
 function buildDraft(p: Persona): ResumeDraft {
   const draft = createDefaultResumeDraft();
-  draft.pdfPresentation = {
-    ...draft.pdfPresentation,
-    layoutId: p.layoutId,
-    accent: p.accent,
-    secondary: p.secondary,
-  };
+  const preset = resumeTemplatePresets.find((t) => t.id === p.presetId);
+  if (!preset) {
+    throw new Error(
+      `Persona ${p.screenshotId} references unknown preset ${p.presetId}`,
+    );
+  }
+  if (preset.layoutId !== p.layoutId) {
+    throw new Error(
+      `Persona ${p.screenshotId} is layout ${p.layoutId} but preset ${p.presetId} is ${preset.layoutId}`,
+    );
+  }
+  draft.pdfPresentation = applyTemplatePreset(preset, draft.pdfPresentation);
   draft.profile = {
     ...draft.profile,
     fullName: p.fullName,

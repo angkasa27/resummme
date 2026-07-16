@@ -1,5 +1,8 @@
+/* No --resume-font here: pinning a serif silently overrode whatever the user
+   picked in the Style tab, which made the font control a no-op on this layout
+   and made any preset naming a different serif dead data. The serif is the
+   preset's job (academic-oxford/burgundy/journal all name one). */
 .layout {
-  --resume-font: Georgia, "Times New Roman", "Liberation Serif", serif;
   display: flex;
   flex-direction: column;
   gap: var(--resume-gap-section);
@@ -15,7 +18,6 @@
   font-variant: small-caps;
   letter-spacing: 0.16em;
   text-transform: none;
-  color: var(--resume-text);
   border-bottom: 1px solid var(--resume-border);
   padding-bottom: var(--resume-gap-inner);
   font-weight: 600;
@@ -62,6 +64,7 @@
   flex-direction: column;
   align-items: center;
   gap: var(--resume-gap-item);
+  --resume-name-color: var(--resume-text);
   text-align: center;
   padding-bottom: var(--resume-gap-section);
 }
@@ -84,7 +87,6 @@
 .header :global(.name) {
   font-weight: 600;
   letter-spacing: 0.03em;
-  color: var(--resume-text);
 }
 
 .header :global(.contact-line) {

@@ -13,6 +13,13 @@
   padding: 0 var(--resume-page-margin) var(--resume-page-margin);
 }
 
+/* Section bodies indent under their flush-left heading, so the page has a
+   hierarchy instead of every line stacking on the same left edge. */
+.layout :global(.item-list),
+.layout :global([data-section="summary"] .rich-text) {
+  padding-left: var(--resume-indent);
+}
+
 /* Edge-to-edge solid accent band; text switches to the readable on-accent
    color. The photo is an ordinary flex child, so the band sizes to its own
    content — no reserved space, no overhang, no dead zone beneath it. */
@@ -22,18 +29,11 @@
   gap: var(--resume-gutter);
   background: var(--resume-accent);
   color: var(--resume-on-accent);
+  /* Everything on the band reads in the on-accent colour, including the name. */
+  --resume-name-color: var(--resume-on-accent);
   padding: var(--resume-gutter) var(--resume-page-margin);
   print-color-adjust: exact;
   -webkit-print-color-adjust: exact;
-}
-
-.header :global(.name) {
-  color: var(--resume-on-accent);
-}
-
-/* Muted gray is unreadable on the colored band — links stay on-accent. */
-.header :global(.contact-links) {
-  color: inherit;
 }
 
 .header :global(.header-body) {

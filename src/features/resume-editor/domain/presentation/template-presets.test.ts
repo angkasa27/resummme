@@ -42,6 +42,39 @@ describe("resumeTemplatePresets", () => {
     const flattened = [...groups.values()].flat();
     expect(flattened).toEqual([...resumeTemplatePresets]);
   });
+
+  it("curates secondary only for the layouts that render it", () => {
+    // Only modern-centered (rule under the name), sidebar (rail tint) and split
+    // (rail fill) read --resume-secondary. Setting it anywhere else is data the
+    // page cannot show, yet getActiveTemplatePresetId still matches on it — so
+    // an invisible field would silently decide whether a template looks active.
+    const RENDERS_SECONDARY = new Set(["modern-centered", "sidebar", "split"]);
+    for (const preset of resumeTemplatePresets) {
+      if (preset.style.secondary) {
+        expect(
+          RENDERS_SECONDARY.has(preset.layoutId),
+          `${preset.id} sets a secondary that ${preset.layoutId} never renders`,
+        ).toBe(true);
+      }
+    }
+  });
+
+  it("keeps bold-type's accent vivid, since it is the highlighter", () => {
+    // bold-type spends accent on the marker highlight behind each heading
+    // (at 30% alpha) and on the dates — not on heading text. A near-black
+    // accent there reads as a grey smudge rather than a highlight.
+    const luminance = (hex: string) => {
+      const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
+      return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+    };
+    for (const preset of resumeTemplatePresets) {
+      if (preset.layoutId !== "bold-type") continue;
+      expect(
+        luminance(preset.style.accent),
+        `${preset.id} accent is too dark to read as a highlight`,
+      ).toBeGreaterThan(0.2);
+    }
+  });
 });
 
 describe("applyTemplatePreset", () => {

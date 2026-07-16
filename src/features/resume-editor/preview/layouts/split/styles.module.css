@@ -102,6 +102,6 @@
   padding-bottom: var(--resume-gap-inner);
 }
 
-.header :global(.name) {
-  color: var(--resume-accent);
+.header {
+  --resume-name-color: var(--resume-accent);
 }

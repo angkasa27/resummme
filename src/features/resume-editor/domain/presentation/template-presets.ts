@@ -34,7 +34,36 @@ export type ResumeTemplatePreset = {
 };
 
 export const resumeTemplatePresets: ReadonlyArray<ResumeTemplatePreset> = [
-  // classic — traditional single column, rule-under-heading
+  // Curation rules, derived from what each layout's CSS actually reads:
+  //
+  // 1. `secondary` is set ONLY for the three layouts that render it —
+  //    modern-centered (the rule under the name), sidebar (the rail tint) and
+  //    split (the rail fill). Everywhere else it is invisible, so setting it
+  //    would be dead data that getActiveTemplatePresetId still has to match on.
+  // 2. `accent` is spent differently per layout. On banner/sidebar it is a
+  //    full bleed band and needs enough depth for white text; on bold-type it is
+  //    the heading highlighter and the dates, so it must be vivid rather than
+  //    near-black; elsewhere it is heading text.
+  // 3. Density follows the layout's structure, not taste: rails and label
+  //    gutters spend width, so they run tighter; whitespace-led layouts run airy.
+  // 4. Fonts are chosen for the layout's character, and every preset names one —
+  //    no layout hardcodes a font behind the user's back.
+
+  // classic — traditional single column, rule under each heading. The ATS-safest
+  // layout, so one preset is a deliberately plain, maximum-compatibility pick.
+  // Matches the stock default, so a fresh draft opens on a named template.
+  {
+    id: "classic-modern",
+    label: "Modern",
+    layoutId: "classic",
+    style: {
+      accent: "#2563eb",
+      fontFamilyId: "inter",
+      fontScale: "md",
+      spacing: "standard",
+      lineHeight: "standard",
+    },
+  },
   {
     id: "classic-executive",
     label: "Executive",
@@ -47,31 +76,22 @@ export const resumeTemplatePresets: ReadonlyArray<ResumeTemplatePreset> = [
       lineHeight: "standard",
     },
   },
+  // Arial + near-black, no flourish: the safest thing to put in a parser.
   {
-    id: "classic-modern",
-    label: "Modern Blue",
+    id: "classic-ats",
+    label: "ATS Safe",
     layoutId: "classic",
     style: {
-      accent: "#2563eb",
-      fontFamilyId: "inter",
+      accent: "#1f2937",
+      fontFamilyId: "arial",
       fontScale: "md",
       spacing: "standard",
       lineHeight: "standard",
     },
   },
-  {
-    id: "classic-compact",
-    label: "Compact Teal",
-    layoutId: "classic",
-    style: {
-      accent: "#0f766e",
-      fontFamilyId: "lato",
-      fontScale: "sm",
-      spacing: "compact",
-      lineHeight: "tight",
-    },
-  },
-  // sidebar — tinted side rail
+
+  // sidebar — accent band over a secondary-tinted rail. Two colour slots, so
+  // accent and secondary are siblings: same hue family, enough gap to read.
   {
     id: "sidebar-slate",
     label: "Slate",
@@ -91,15 +111,13 @@ export const resumeTemplatePresets: ReadonlyArray<ResumeTemplatePreset> = [
     layoutId: "sidebar",
     style: {
       accent: "#166534",
-      secondary: "#14532d",
+      secondary: "#15803d",
       fontFamilyId: "lato",
       fontScale: "md",
       spacing: "standard",
       lineHeight: "standard",
     },
   },
-  // Palettes inherited from the retired `tinted` layout — the rail wears a
-  // tint of `secondary`, so they carry over intact.
   {
     id: "sidebar-lavender",
     label: "Lavender",
@@ -113,26 +131,16 @@ export const resumeTemplatePresets: ReadonlyArray<ResumeTemplatePreset> = [
       lineHeight: "standard",
     },
   },
-  {
-    id: "sidebar-mint",
-    label: "Mint",
-    layoutId: "sidebar",
-    style: {
-      accent: "#047857",
-      secondary: "#059669",
-      fontFamilyId: "lato",
-      fontScale: "md",
-      spacing: "standard",
-      lineHeight: "standard",
-    },
-  },
-  // modern-centered — centered header, airy feel
+
+  // modern-centered — secondary is the short rule under the name and headings,
+  // so it is set a step brighter than the accent to actually register.
   {
     id: "centered-ocean",
     label: "Ocean",
     layoutId: "modern-centered",
     style: {
       accent: "#0369a1",
+      secondary: "#38bdf8",
       fontFamilyId: "open-sans",
       fontScale: "md",
       spacing: "standard",
@@ -145,13 +153,16 @@ export const resumeTemplatePresets: ReadonlyArray<ResumeTemplatePreset> = [
     layoutId: "modern-centered",
     style: {
       accent: "#9f1239",
+      secondary: "#e11d48",
       fontFamilyId: "playfair-display",
       fontScale: "md",
       spacing: "airy",
       lineHeight: "relaxed",
     },
   },
-  // timeline — dated rail down the left of each section
+
+  // timeline — accent draws the dots and the date gutter. The gutter already
+  // spends width, so these stay at standard density.
   {
     id: "timeline-indigo",
     label: "Indigo",
@@ -176,7 +187,9 @@ export const resumeTemplatePresets: ReadonlyArray<ResumeTemplatePreset> = [
       lineHeight: "relaxed",
     },
   },
-  // academic — publication-friendly, serif-first
+
+  // academic — dense CV in small-caps. Serif by convention, and small scale
+  // because a real CV runs long.
   {
     id: "academic-oxford",
     label: "Oxford",
@@ -184,7 +197,7 @@ export const resumeTemplatePresets: ReadonlyArray<ResumeTemplatePreset> = [
     style: {
       accent: "#1e3a8a",
       fontFamilyId: "georgia",
-      fontScale: "md",
+      fontScale: "sm",
       spacing: "standard",
       lineHeight: "standard",
     },
@@ -201,7 +214,20 @@ export const resumeTemplatePresets: ReadonlyArray<ResumeTemplatePreset> = [
       lineHeight: "standard",
     },
   },
-  // minimal — quiet, whitespace-led
+  {
+    id: "academic-journal",
+    label: "Journal",
+    layoutId: "academic",
+    style: {
+      accent: "#111827",
+      fontFamilyId: "times-new-roman",
+      fontScale: "sm",
+      spacing: "compact",
+      lineHeight: "standard",
+    },
+  },
+
+  // minimal — whitespace is the layout. Airy and relaxed, or it is just classic.
   {
     id: "minimal-air",
     label: "Air",
@@ -216,7 +242,7 @@ export const resumeTemplatePresets: ReadonlyArray<ResumeTemplatePreset> = [
   },
   {
     id: "minimal-warm",
-    label: "Warm Stone",
+    label: "Warm",
     layoutId: "minimal",
     style: {
       accent: "#9a3412",
@@ -226,7 +252,22 @@ export const resumeTemplatePresets: ReadonlyArray<ResumeTemplatePreset> = [
       lineHeight: "relaxed",
     },
   },
-  // inset — framed page
+  // No colour at all — the most restrained thing the editor can produce.
+  {
+    id: "minimal-mono",
+    label: "Mono",
+    layoutId: "minimal",
+    style: {
+      accent: "#111827",
+      fontFamilyId: "inter",
+      fontScale: "sm",
+      spacing: "airy",
+      lineHeight: "relaxed",
+    },
+  },
+
+  // inset — the label gutter eats 110px, so these run tight to keep the
+  // content column wide enough to read.
   {
     id: "inset-steel",
     label: "Steel",
@@ -251,14 +292,15 @@ export const resumeTemplatePresets: ReadonlyArray<ResumeTemplatePreset> = [
       lineHeight: "standard",
     },
   },
-  // banner — edge-to-edge accent band
+
+  // banner — accent is a full-bleed band behind white text, so every pick is
+  // deep enough to carry it. No secondary: banner never renders one.
   {
     id: "banner-royal",
     label: "Royal",
     layoutId: "banner",
     style: {
       accent: "#1d4ed8",
-      secondary: "#1e40af",
       fontFamilyId: "inter",
       fontScale: "md",
       spacing: "standard",
@@ -271,7 +313,6 @@ export const resumeTemplatePresets: ReadonlyArray<ResumeTemplatePreset> = [
     layoutId: "banner",
     style: {
       accent: "#047857",
-      secondary: "#065f46",
       fontFamilyId: "lato",
       fontScale: "md",
       spacing: "standard",
@@ -284,14 +325,15 @@ export const resumeTemplatePresets: ReadonlyArray<ResumeTemplatePreset> = [
     layoutId: "banner",
     style: {
       accent: "#1f2937",
-      secondary: "#111827",
       fontFamilyId: "roboto",
       fontScale: "md",
       spacing: "compact",
       lineHeight: "standard",
     },
   },
-  // split — full-height colored rail
+
+  // split — secondary fills the full-height rail and accent is the name beside
+  // it, so the two are set far enough apart to separate the columns.
   {
     id: "split-midnight",
     label: "Midnight",
@@ -318,14 +360,16 @@ export const resumeTemplatePresets: ReadonlyArray<ResumeTemplatePreset> = [
       lineHeight: "standard",
     },
   },
-  // bold-type — typographic poster
+
+  // bold-type — accent is the marker highlight under each heading and the date
+  // colour, NOT the heading text. It has to be vivid; a near-black accent here
+  // renders the highlight as a grey smudge.
   {
-    id: "bold-noir",
-    label: "Noir",
+    id: "bold-citrus",
+    label: "Citrus",
     layoutId: "bold-type",
     style: {
-      accent: "#111827",
-      secondary: "#dc2626",
+      accent: "#ea580c",
       fontFamilyId: "inter",
       fontScale: "md",
       spacing: "compact",
@@ -333,12 +377,11 @@ export const resumeTemplatePresets: ReadonlyArray<ResumeTemplatePreset> = [
     },
   },
   {
-    id: "bold-highlight",
-    label: "Highlighter",
+    id: "bold-lime",
+    label: "Lime",
     layoutId: "bold-type",
     style: {
-      accent: "#18181b",
-      secondary: "#a3e635",
+      accent: "#65a30d",
       fontFamilyId: "roboto",
       fontScale: "lg",
       spacing: "standard",

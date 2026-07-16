@@ -19,8 +19,12 @@ export type Cert = { name: string; org: string; date: string };
 export type Persona = {
   layoutId: PdfLayoutId;
   screenshotId: string;
-  accent: string;
-  secondary: string;
+  /**
+   * The curated template this shot advertises. Screenshots render real presets
+   * rather than one-off colours, so the gallery and the landing carousel show
+   * styles a user can actually pick.
+   */
+  presetId: string;
   photo: string;
   fullName: string;
   location: string;
@@ -51,8 +55,7 @@ export const PERSONAS: Persona[] = [
   {
     layoutId: "classic",
     screenshotId: "classic",
-    accent: "#0d9488",
-    secondary: "#14b8a6",
+    presetId: "classic-modern",
     photo: "https://i.pravatar.cc/320?img=13",
     fullName: "David Park",
     location: "San Francisco, CA",
@@ -182,8 +185,7 @@ export const PERSONAS: Persona[] = [
   {
     layoutId: "sidebar",
     screenshotId: "sidebar",
-    accent: "#4f46e5",
-    secondary: "#818cf8",
+    presetId: "sidebar-slate",
     photo: "https://i.pravatar.cc/320?img=12",
     fullName: "Ryan O'Brien",
     location: "Dublin, Ireland",
@@ -298,8 +300,7 @@ export const PERSONAS: Persona[] = [
   {
     layoutId: "modern-centered",
     screenshotId: "modern-centered",
-    accent: "#db2777",
-    secondary: "#f472b6",
+    presetId: "centered-ocean",
     photo: "https://i.pravatar.cc/320?img=69",
     fullName: "Marcus Reed",
     location: "New York, NY",
@@ -444,8 +445,7 @@ export const PERSONAS: Persona[] = [
   {
     layoutId: "timeline",
     screenshotId: "timeline",
-    accent: "#059669",
-    secondary: "#34d399",
+    presetId: "timeline-indigo",
     photo: "https://i.pravatar.cc/320?img=15",
     fullName: "James Wilson",
     location: "London, UK",
@@ -568,8 +568,7 @@ export const PERSONAS: Persona[] = [
   {
     layoutId: "academic",
     screenshotId: "academic",
-    accent: "#1d4ed8",
-    secondary: "#60a5fa",
+    presetId: "academic-oxford",
     photo: "https://i.pravatar.cc/320?img=14",
     fullName: "Dr. Omar Rahman",
     location: "Boston, MA",
@@ -688,8 +687,7 @@ export const PERSONAS: Persona[] = [
   {
     layoutId: "minimal",
     screenshotId: "minimal",
-    accent: "#111827",
-    secondary: "#4b5563",
+    presetId: "minimal-air",
     photo: "https://i.pravatar.cc/320?img=33",
     fullName: "Andrew Blake",
     location: "Seattle, WA",
@@ -828,8 +826,7 @@ export const PERSONAS: Persona[] = [
   {
     layoutId: "inset",
     screenshotId: "inset",
-    accent: "#d97706",
-    secondary: "#fbbf24",
+    presetId: "inset-steel",
     photo: "https://i.pravatar.cc/320?img=68",
     fullName: "Oliver Brandt",
     location: "Berlin, Germany",
@@ -954,8 +951,7 @@ export const PERSONAS: Persona[] = [
   {
     layoutId: "classic",
     screenshotId: "classic-alt",
-    accent: "#1e3a5f",
-    secondary: "#3b82f6",
+    presetId: "classic-executive",
     photo: "https://i.pravatar.cc/320?img=11",
     fullName: "Ethan Foster",
     location: "Austin, TX",
@@ -1094,8 +1090,7 @@ export const PERSONAS: Persona[] = [
   {
     layoutId: "sidebar",
     screenshotId: "sidebar-alt",
-    accent: "#e11d48",
-    secondary: "#fb7185",
+    presetId: "sidebar-forest",
     photo: "https://i.pravatar.cc/320?img=51",
     fullName: "Liam Gallagher",
     location: "Toronto, ON",
@@ -1231,8 +1226,7 @@ export const PERSONAS: Persona[] = [
   {
     layoutId: "modern-centered",
     screenshotId: "modern-centered-alt",
-    accent: "#0891b2",
-    secondary: "#22d3ee",
+    presetId: "centered-editorial",
     photo: "https://i.pravatar.cc/320?img=53",
     fullName: "Jack Morrison",
     location: "San Diego, CA",
@@ -1356,8 +1350,7 @@ export const PERSONAS: Persona[] = [
   {
     layoutId: "timeline",
     screenshotId: "timeline-alt",
-    accent: "#7c3aed",
-    secondary: "#a78bfa",
+    presetId: "timeline-amber",
     photo: "https://i.pravatar.cc/320?img=61",
     fullName: "Benjamin Cole",
     location: "Chicago, IL",
@@ -1480,8 +1473,7 @@ export const PERSONAS: Persona[] = [
   {
     layoutId: "academic",
     screenshotId: "academic-alt",
-    accent: "#475569",
-    secondary: "#94a3b8",
+    presetId: "academic-burgundy",
     photo: "https://i.pravatar.cc/320?img=53",
     fullName: "Thomas Whitfield",
     location: "Cambridge, UK",
@@ -1617,8 +1609,7 @@ export const PERSONAS: Persona[] = [
   {
     layoutId: "minimal",
     screenshotId: "minimal-alt",
-    accent: "#292524",
-    secondary: "#57534e",
+    presetId: "minimal-warm",
     photo: "https://i.pravatar.cc/320?img=55",
     fullName: "Nathan Cross",
     location: "Denver, CO",
@@ -1761,8 +1752,7 @@ export const PERSONAS: Persona[] = [
   {
     layoutId: "inset",
     screenshotId: "inset-alt",
-    accent: "#be123c",
-    secondary: "#e11d48",
+    presetId: "inset-crimson",
     photo: "https://i.pravatar.cc/320?img=67",
     fullName: "Samuel Pierce",
     location: "Portland, OR",
@@ -1895,8 +1885,7 @@ export const PERSONAS: Persona[] = [
   {
     layoutId: "banner",
     screenshotId: "banner",
-    accent: "#8b5cf6",
-    secondary: "#c4b5fd",
+    presetId: "banner-royal",
     photo: "https://i.pravatar.cc/320?img=12",
     fullName: "Kyle Anderson",
     location: "Los Angeles, CA",
@@ -2040,8 +2029,7 @@ export const PERSONAS: Persona[] = [
   {
     layoutId: "split",
     screenshotId: "split",
-    accent: "#0ea5e9",
-    secondary: "#7dd3fc",
+    presetId: "split-midnight",
     photo: "https://i.pravatar.cc/320?img=68",
     fullName: "Patrick Sullivan",
     location: "Austin, TX",
@@ -2183,8 +2171,7 @@ export const PERSONAS: Persona[] = [
   {
     layoutId: "bold-type",
     screenshotId: "bold-type",
-    accent: "#f97316",
-    secondary: "#fdba74",
+    presetId: "bold-citrus",
     photo: "https://i.pravatar.cc/320?img=33",
     fullName: "Calvin Hughes",
     location: "Chicago, IL",
@@ -2330,8 +2317,7 @@ export const PERSONAS: Persona[] = [
   {
     layoutId: "banner",
     screenshotId: "banner-alt",
-    accent: "#a21caf",
-    secondary: "#e879f9",
+    presetId: "banner-emerald",
     photo: "https://i.pravatar.cc/320?img=55",
     fullName: "Derek Mitchell",
     location: "Brooklyn, NY",
@@ -2462,8 +2448,7 @@ export const PERSONAS: Persona[] = [
   {
     layoutId: "split",
     screenshotId: "split-alt",
-    accent: "#14b8a6",
-    secondary: "#5eead4",
+    presetId: "split-terracotta",
     photo: "https://i.pravatar.cc/320?img=14",
     fullName: "Sean McCarthy",
     location: "Portland, OR",
@@ -2581,8 +2566,7 @@ export const PERSONAS: Persona[] = [
   {
     layoutId: "bold-type",
     screenshotId: "bold-type-alt",
-    accent: "#06b6d4",
-    secondary: "#67e8f7",
+    presetId: "bold-lime",
     photo: "https://i.pravatar.cc/320?img=61",
     fullName: "Miles Ford",
     location: "Seattle, WA",

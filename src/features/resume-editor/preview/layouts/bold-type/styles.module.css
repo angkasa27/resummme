@@ -2,6 +2,8 @@
   display: flex;
   flex-direction: column;
   gap: calc(var(--resume-gap-section) * 1.3);
+  /* Headings are text-coloured here; accent is spent elsewhere. */
+  --resume-heading-color: var(--resume-text);
 }
 
 .layout :global(.layout-body) {
@@ -17,7 +19,6 @@
   font-weight: 800;
   text-transform: none;
   letter-spacing: -0.01em;
-  color: var(--resume-text);
   box-shadow: inset 0 -0.35em
     color-mix(in srgb, var(--resume-accent) 30%, transparent);
   print-color-adjust: exact;
@@ -50,6 +51,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--resume-gap-item);
+  --resume-name-color: var(--resume-text);
 }
 
 .header :global(.header-top) {
@@ -66,7 +68,6 @@
   font-weight: 800;
   letter-spacing: -0.04em;
   line-height: 1.02;
-  color: var(--resume-text);
 }
 
 /* Sharp-cornered square photo matches the editorial look. */

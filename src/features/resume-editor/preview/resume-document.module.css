@@ -43,21 +43,28 @@
   overflow-wrap: anywhere;
 }
 
+/* Colour arrives through an inheriting custom property, not a competing rule.
+   A layout override (`.header :global(.name)`) has the SAME specificity as this
+   one, so source order alone decided the winner — which let banner's name fall
+   back to --resume-accent and vanish into its own accent band. Layouts now set
+   --resume-name-color on an ancestor and inheritance settles it. */
 .root :global(.name) {
   font-size: var(--resume-h1);
   font-weight: 700;
   line-height: 1.1;
   letter-spacing: -0.02em;
-  color: var(--resume-accent);
+  color: var(--resume-name-color, var(--resume-accent));
   margin: 0;
 }
 
+/* Same inheriting-property hand-off as `.name`, for the same reason: a layout's
+   `.layout :global(.section-heading)` override ties this rule on specificity. */
 .root :global(.section-heading) {
   font-size: var(--resume-h2);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: var(--resume-accent);
+  color: var(--resume-heading-color, var(--resume-accent));
   margin: 0;
 }
 
@@ -107,9 +114,10 @@
   margin-inline: 0.45em;
 }
 
-.root :global(.contact-links) {
-  color: var(--resume-muted);
-}
+/* Links read in the same colour as the rest of the contact block. Muting them
+   fought every coloured surface: on a band the grey either lost a source-order
+   coin-flip against the layout's override or won it and rendered near-illegible
+   against the accent. One colour, no override needed, no contrast trap. */
 
 /* Icons sit on the text baseline at the text's own size and colour, so they
    inherit whatever surface they land on (a rail's on-secondary, a band's

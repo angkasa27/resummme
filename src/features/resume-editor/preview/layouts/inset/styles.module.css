@@ -18,6 +18,13 @@
   align-items: start;
 }
 
+/* Items sit off the rail's edge rather than butting straight against it, so
+   the label column reads as a margin note and not as a second text column. */
+.layout :global(.item-list),
+.layout :global([data-section="summary"] .rich-text) {
+  padding-left: var(--resume-indent);
+}
+
 .layout :global(.section-heading) {
   font-size: var(--resume-meta);
   letter-spacing: 0.1em;
