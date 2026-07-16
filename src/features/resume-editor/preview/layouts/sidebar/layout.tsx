@@ -1,30 +1,18 @@
-import type { CollectionSectionKey } from "@/features/resume-editor/domain/sections/section-metadata";
 import type {
-  LayoutColumn,
   PreviewLayoutDefinition,
   LayoutComponentProps,
 } from "@/features/resume-editor/preview/layout-types";
 
+import { getSideRailColumn } from "../_shared/side-rail-sections";
 import { SidebarHeader } from "./header";
 import { sidebarItemViews } from "./items";
 import styles from "./styles.module.css";
-
-const SIDE_SECTIONS = new Set<CollectionSectionKey>([
-  "skills",
-  "languages",
-  "certifications",
-  "references",
-]);
-
-function getColumn(sectionKey: CollectionSectionKey): LayoutColumn {
-  return SIDE_SECTIONS.has(sectionKey) ? "side" : "main";
-}
 
 function SidebarLayout({ context, slots }: LayoutComponentProps) {
   const side: typeof slots.sections = [];
   const main: typeof slots.sections = [];
   for (const entry of slots.sections) {
-    (getColumn(entry.key) === "side" ? side : main).push(entry);
+    (getSideRailColumn(entry.key) === "side" ? side : main).push(entry);
   }
   const { photo, fullName } = context.draft.profile;
 
@@ -62,5 +50,5 @@ export const sidebarLayout: PreviewLayoutDefinition = {
   Component: SidebarLayout,
   Header: SidebarHeader,
   itemViews: sidebarItemViews,
-  getColumn,
+  getColumn: getSideRailColumn,
 };

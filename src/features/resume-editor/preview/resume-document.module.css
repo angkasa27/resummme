@@ -96,9 +96,12 @@
   display: inline;
 }
 
-/* Inline separator dots live in CSS so layouts can stack items instead. */
+/* Inline separator dots live in CSS so layouts can stack items instead. The
+   spacing is margin, not part of `content`, so the dot sits evenly between
+   items rather than glued to the preceding one. */
 .root :global(.contact-line .contact-item + .contact-item)::before {
-  content: "• ";
+  content: "•";
+  margin-inline: 0.45em;
 }
 
 .root :global(.contact-links) {

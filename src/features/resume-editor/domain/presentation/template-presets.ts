@@ -100,6 +100,34 @@ export const resumeTemplatePresets: ReadonlyArray<ResumeTemplatePreset> = [
       lineHeight: "standard",
     },
   },
+  // Palettes inherited from the retired `tinted` layout — the rail wears a
+  // tint of `secondary`, so they carry over intact.
+  {
+    id: "sidebar-lavender",
+    label: "Lavender",
+    layoutId: "sidebar",
+    style: {
+      accent: "#6d28d9",
+      secondary: "#7c3aed",
+      fontFamilyId: "inter",
+      fontScale: "md",
+      spacing: "standard",
+      lineHeight: "standard",
+    },
+  },
+  {
+    id: "sidebar-mint",
+    label: "Mint",
+    layoutId: "sidebar",
+    style: {
+      accent: "#047857",
+      secondary: "#059669",
+      fontFamilyId: "lato",
+      fontScale: "md",
+      spacing: "standard",
+      lineHeight: "standard",
+    },
+  },
   // modern-centered — centered header, airy feel
   {
     id: "centered-ocean",
@@ -287,33 +315,6 @@ export const resumeTemplatePresets: ReadonlyArray<ResumeTemplatePreset> = [
       accent: "#9a3412",
       secondary: "#7c2d12",
       fontFamilyId: "lora",
-      fontScale: "md",
-      spacing: "standard",
-      lineHeight: "standard",
-    },
-  },
-  // tinted — full-page wash
-  {
-    id: "tinted-lavender",
-    label: "Lavender",
-    layoutId: "tinted",
-    style: {
-      accent: "#6d28d9",
-      secondary: "#7c3aed",
-      fontFamilyId: "inter",
-      fontScale: "md",
-      spacing: "standard",
-      lineHeight: "standard",
-    },
-  },
-  {
-    id: "tinted-mint",
-    label: "Mint",
-    layoutId: "tinted",
-    style: {
-      accent: "#047857",
-      secondary: "#059669",
-      fontFamilyId: "lato",
       fontScale: "md",
       spacing: "standard",
       lineHeight: "standard",

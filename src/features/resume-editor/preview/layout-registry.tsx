@@ -12,7 +12,6 @@ import { modernCenteredLayout } from "./layouts/modern-centered/layout";
 import { sidebarLayout } from "./layouts/sidebar/layout";
 import { splitLayout } from "./layouts/split/layout";
 import { timelineLayout } from "./layouts/timeline/layout";
-import { tintedLayout } from "./layouts/tinted/layout";
 import type { PreviewLayoutDefinition } from "./layout-types";
 import type { PreviewRenderContext } from "./types";
 
@@ -26,7 +25,6 @@ export const previewLayoutDefinitions = [
   insetLayout,
   bannerLayout,
   splitLayout,
-  tintedLayout,
   boldTypeLayout,
 ] as const satisfies ReadonlyArray<PreviewLayoutDefinition>;
 

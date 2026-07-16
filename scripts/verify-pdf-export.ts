@@ -13,7 +13,7 @@ import type { PdfLayoutId } from "@/features/resume-editor/domain/presentation/p
 const outDir = process.argv[2] ?? ".pdf-verify";
 const baseUrl = process.argv[3] ?? "http://localhost:3199";
 
-const LAYOUTS: PdfLayoutId[] = ["split", "sidebar", "banner", "tinted", "classic"];
+const LAYOUTS: PdfLayoutId[] = ["split", "sidebar", "banner", "classic"];
 
 async function exportPdf(layoutId: PdfLayoutId, long: boolean) {
   const draft = createDefaultResumeDraft();

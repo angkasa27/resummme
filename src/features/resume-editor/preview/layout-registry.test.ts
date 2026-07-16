@@ -7,7 +7,7 @@ import {
 } from "@/features/resume-editor/preview/layout-registry";
 
 describe("preview layout registry", () => {
-  it("exposes all eleven built-in layouts", () => {
+  it("exposes all ten built-in layouts", () => {
     const ids = previewLayoutDefinitions.map((layout) => layout.id);
     expect(ids).toEqual([
       "classic",
@@ -19,7 +19,6 @@ describe("preview layout registry", () => {
       "inset",
       "banner",
       "split",
-      "tinted",
       "bold-type",
     ]);
   });
@@ -35,7 +34,6 @@ describe("preview layout registry", () => {
       "inset",
       "banner",
       "split",
-      "tinted",
       "bold-type",
     ] as const) {
       expect(getLayout(id).id).toBe(id);
@@ -83,7 +81,6 @@ describe("preview layout registry", () => {
     expect(getLayout("minimal").getColumn).toBeUndefined();
     expect(getLayout("inset").getColumn).toBeUndefined();
     expect(getLayout("banner").getColumn).toBeUndefined();
-    expect(getLayout("tinted").getColumn).toBeUndefined();
     expect(getLayout("bold-type").getColumn).toBeUndefined();
   });
 });

@@ -95,10 +95,6 @@ Built with privacy as a core principle, Resummme gives you complete ownership of
   </tr>
   <tr>
     <td align="center">
-      <img src="public/templates/tinted.webp" alt="Tinted" width="180" />
-      <br /><sub><b>Tinted</b></sub>
-    </td>
-    <td align="center">
       <img src="public/templates/bold-type.webp" alt="Bold Type" width="180" />
       <br /><sub><b>Bold Type</b></sub>
     </td>

@@ -88,6 +88,15 @@ describe("normalizePdfPresentation", () => {
     expect(result.layoutId).toBe("sidebar");
   });
 
+  it("remaps a retired layout id to its successor rather than the default", () => {
+    // A draft saved on `tinted` must land on sidebar, not fall through to the
+    // classic default — the user picked a tinted surface and sidebar's rail
+    // still has one.
+    expect(normalizePdfPresentation({ layoutId: "tinted" }).layoutId).toBe(
+      "sidebar",
+    );
+  });
+
   it("falls back to defaults for invalid values", () => {
     const result = normalizePdfPresentation({
       layoutId: "nonexistent",

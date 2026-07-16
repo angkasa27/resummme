@@ -1,31 +1,19 @@
-import type { CollectionSectionKey } from "@/features/resume-editor/domain/sections/section-metadata";
 import { PreviewContactLine } from "@/features/resume-editor/preview/kit/contact-line";
 import type {
-  LayoutColumn,
   PreviewLayoutDefinition,
   LayoutComponentProps,
 } from "@/features/resume-editor/preview/layout-types";
 
+import { getSideRailColumn } from "../_shared/side-rail-sections";
 import { SplitHeader } from "./header";
 import { splitItemViews } from "./items";
 import styles from "./styles.module.css";
-
-const SIDE_SECTIONS = new Set<CollectionSectionKey>([
-  "skills",
-  "languages",
-  "certifications",
-  "references",
-]);
-
-function getColumn(sectionKey: CollectionSectionKey): LayoutColumn {
-  return SIDE_SECTIONS.has(sectionKey) ? "side" : "main";
-}
 
 function SplitLayout({ context, slots }: LayoutComponentProps) {
   const side: typeof slots.sections = [];
   const main: typeof slots.sections = [];
   for (const entry of slots.sections) {
-    (getColumn(entry.key) === "side" ? side : main).push(entry);
+    (getSideRailColumn(entry.key) === "side" ? side : main).push(entry);
   }
   const { photo, fullName } = context.draft.profile;
 
@@ -62,5 +50,5 @@ export const splitLayout: PreviewLayoutDefinition = {
   Component: SplitLayout,
   Header: SplitHeader,
   itemViews: splitItemViews,
-  getColumn,
+  getColumn: getSideRailColumn,
 };

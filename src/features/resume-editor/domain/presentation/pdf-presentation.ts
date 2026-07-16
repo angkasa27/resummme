@@ -21,10 +21,18 @@ export const pdfLayoutIds = [
   "inset",
   "banner",
   "split",
-  "tinted",
   "bold-type",
 ] as const;
 export type PdfLayoutId = (typeof pdfLayoutIds)[number];
+
+/**
+ * Retired layout ids, mapped to their closest surviving relative. Without this
+ * a saved draft would fall through to the `classic` default and silently lose
+ * the user's choice; `tinted`'s tinted surface lives on in `sidebar`'s rail.
+ */
+const retiredLayoutIds: Record<string, PdfLayoutId> = {
+  tinted: "sidebar",
+};
 
 export const pdfFontScaleIds = ["sm", "md", "lg"] as const;
 export type PdfFontScaleId = (typeof pdfFontScaleIds)[number];
@@ -200,6 +208,14 @@ function isMember<T extends string>(
   return typeof value === "string" && ids.includes(value as T);
 }
 
+function normalizeLayoutId(value: unknown, fallback: PdfLayoutId): PdfLayoutId {
+  if (isMember(pdfLayoutIds, value)) return value;
+  if (typeof value === "string" && value in retiredLayoutIds) {
+    return retiredLayoutIds[value];
+  }
+  return fallback;
+}
+
 export function normalizePdfPresentation(input: unknown): PdfPresentation {
   const defaults = createDefaultPdfPresentation();
   if (typeof input !== "object" || input === null) return defaults;
@@ -207,9 +223,7 @@ export function normalizePdfPresentation(input: unknown): PdfPresentation {
   const source = input as Record<string, unknown>;
 
   return {
-    layoutId: isMember(pdfLayoutIds, source.layoutId)
-      ? source.layoutId
-      : defaults.layoutId,
+    layoutId: normalizeLayoutId(source.layoutId, defaults.layoutId),
     fontFamilyId: isMember(resumeFontIds, source.fontFamilyId)
       ? source.fontFamilyId
       : defaults.fontFamilyId,

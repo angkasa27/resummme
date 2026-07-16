@@ -102,7 +102,6 @@ const PARSEABILITY_BY_LAYOUT: Record<PdfLayoutId, ParseabilityEntry> = {
   inset: { score: 100 },
   banner: { score: 90 },
   split: { score: 55 },
-  tinted: { score: 85 },
   "bold-type": { score: 90 },
 };
 
