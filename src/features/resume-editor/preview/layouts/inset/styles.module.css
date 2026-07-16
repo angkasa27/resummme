@@ -41,14 +41,14 @@
 .itemRow1 {
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
+  align-items: center;
   gap: 4px;
 }
 
 .itemRow2 {
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
+  align-items: center;
   gap: 4px;
   font-size: 0.9em;
   color: var(--resume-muted);

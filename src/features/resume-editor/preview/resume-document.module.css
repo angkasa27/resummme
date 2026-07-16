@@ -145,7 +145,7 @@
 
 .root :global(.contact-line-iconic .contact-item) {
   display: inline-flex;
-  align-items: baseline;
+  align-items: center;
   min-width: 0;
 }
 
@@ -155,7 +155,7 @@
 .root :global(.contact-line-iconic .contact-item > a),
 .root :global(.contact-line-iconic .contact-item > span) {
   display: inline-flex;
-  align-items: baseline;
+  align-items: center;
   min-width: 0;
 }
 
@@ -169,7 +169,7 @@
 
 .root :global(.contact-line-stacked .contact-item) {
   display: flex;
-  align-items: baseline;
+  align-items: center;
 }
 
 .root :global(.contact-line-stacked .contact-item + .contact-item)::before {
@@ -204,7 +204,7 @@
 
 .root :global(.item-row) {
   flex-direction: row;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   gap: var(--resume-gap-item);
 }

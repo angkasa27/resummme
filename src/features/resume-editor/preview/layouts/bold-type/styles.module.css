@@ -59,7 +59,8 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: var(--resume-gap-section);
-  border-bottom: 4px solid var(--resume-text);
+  box-shadow: inset 0 -0.35em
+    color-mix(in srgb, var(--resume-accent) 30%, transparent);
   padding-bottom: var(--resume-gap-item);
 }
 

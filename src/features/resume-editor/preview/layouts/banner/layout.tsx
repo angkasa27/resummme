@@ -9,7 +9,7 @@ export const bannerLayout = createSingleColumnLayout({
   label: "Banner",
   description:
     "Bold solid-color header band running edge to edge, with the name, contacts, and photo inside it.",
-  hideSummaryHeading: true,
+  // hideSummaryHeading: true,
   inset: "none",
   styles,
   Header: BannerHeader,

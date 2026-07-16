@@ -42,7 +42,7 @@
 }
 
 .layout :global(.item-header) {
-  align-items: baseline;
+  align-items: center;
 }
 
 .layout :global(.item-header-main) {
