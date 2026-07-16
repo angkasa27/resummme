@@ -48,7 +48,7 @@ function TemplateCard({ template }: { template: Card }) {
 }
 
 export function TemplateCarousel() {
-  const cards: Card[][] = ROWS.map((row) =>
+  const cards = ROWS.map((row) =>
     row.map((template) => (
       <TemplateCard key={template.id} template={template} />
     )),
