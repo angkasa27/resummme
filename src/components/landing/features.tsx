@@ -108,11 +108,9 @@ function FeatureCard({ feature }: { feature: Feature }) {
       onMouseEnter={
         reduce ? undefined : () => iconRef.current?.startAnimation()
       }
-      onMouseLeave={
-        reduce ? undefined : () => iconRef.current?.stopAnimation()
-      }
-      whileHover={reduce ? undefined : { y: -4 }}
-      className="group rounded-2xl shadow-sm transition-shadow duration-300 hover:shadow-lg hover:shadow-indigo-500/10 relative h-full overflow-hidden p-6 bg-background border"
+      onMouseLeave={reduce ? undefined : () => iconRef.current?.stopAnimation()}
+      whileHover={reduce ? undefined : { y: -4, boxShadow: "var(--shadow-lg)" }}
+      className="group rounded-2xl relative h-full overflow-hidden p-6 bg-background border"
     >
       <div className="">
         {/* hover wash */}
