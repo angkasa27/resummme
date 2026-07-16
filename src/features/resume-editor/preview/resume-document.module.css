@@ -76,6 +76,9 @@
 .root :global(.meta) {
   color: var(--resume-muted);
   font-size: var(--resume-meta);
+  /* A long unbreakable token (an email, a credential id) otherwise spills out
+     of a narrow column — visible as reference emails escaping the side rail. */
+  overflow-wrap: break-word;
 }
 
 .root :global(.contact-block) {
@@ -133,6 +136,16 @@
 }
 
 .root :global(.contact-line-iconic .contact-item) {
+  display: inline-flex;
+  align-items: baseline;
+  min-width: 0;
+}
+
+/* Bind each icon to its own text. Without this the anchor stays inline, so a
+   link too long for its column wraps after the glyph and strands it alone on
+   the line above. The text still breaks internally via min-width: 0. */
+.root :global(.contact-line-iconic .contact-item > a),
+.root :global(.contact-line-iconic .contact-item > span) {
   display: inline-flex;
   align-items: baseline;
   min-width: 0;
