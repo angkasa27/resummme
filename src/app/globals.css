@@ -162,12 +162,10 @@
 
 .resume-document ul {
   list-style: disc;
-  padding-left: 1.25rem;
 }
 
 .resume-document ol {
   list-style: decimal;
-  padding-left: 1.25rem;
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -42,12 +42,12 @@ function buildDraft(p: Persona): ResumeDraft {
   const preset = resumeTemplatePresets.find((t) => t.id === p.presetId);
   if (!preset) {
     throw new Error(
-      `Persona ${p.screenshotId} references unknown preset ${p.presetId}`,
+      `Persona ${p.presetId} references unknown preset ${p.presetId}`,
     );
   }
   if (preset.layoutId !== p.layoutId) {
     throw new Error(
-      `Persona ${p.screenshotId} is layout ${p.layoutId} but preset ${p.presetId} is ${preset.layoutId}`,
+      `Persona ${p.presetId} is layout ${p.layoutId} but preset ${p.presetId} is ${preset.layoutId}`,
     );
   }
   draft.pdfPresentation = applyTemplatePreset(preset, draft.pdfPresentation);
@@ -59,7 +59,7 @@ function buildDraft(p: Persona): ResumeDraft {
     email: p.email,
     photo: p.photo,
     extraLinks: p.links.map((url, i) => ({
-      id: `link-${p.screenshotId}-${i}`,
+      id: `link-${p.presetId}-${i}`,
       url,
     })),
   };
@@ -74,7 +74,7 @@ function buildDraft(p: Persona): ResumeDraft {
     ...s.workExperience,
     items: p.work.map((w, i) => ({
       ...workBase,
-      id: `work-${p.screenshotId}-${i}`,
+      id: `work-${p.presetId}-${i}`,
       companyName: w.company,
       position: w.position,
       location: w.location,
@@ -97,7 +97,7 @@ function buildDraft(p: Persona): ResumeDraft {
     ...s.projects,
     items: p.projects.map((pr, i) => ({
       ...projectBase,
-      id: `project-${p.screenshotId}-${i}`,
+      id: `project-${p.presetId}-${i}`,
       projectName: pr.name,
       startDate: pr.start,
       endDate: pr.end,
@@ -109,7 +109,7 @@ function buildDraft(p: Persona): ResumeDraft {
     visible: true,
     items: p.certs.map((c, i) => ({
       ...certBase,
-      id: `cert-${p.screenshotId}-${i}`,
+      id: `cert-${p.presetId}-${i}`,
       certificationName: c.name,
       issuingOrganization: c.org,
       issuedDate: c.date,
@@ -173,17 +173,17 @@ async function captureTemplates(browser: Browser) {
     const article = await page.$(".resume-document");
     if (!article)
       throw new Error(
-        `No .resume-document rendered for ${persona.screenshotId}`,
+        `No .resume-document rendered for ${persona.presetId}`,
       );
 
-    const out = path.join(TEMPLATES_DIR, `${persona.screenshotId}.webp`);
+    const out = path.join(TEMPLATES_DIR, `${persona.presetId}.webp`);
     await article.screenshot({
       path: out as `${string}.webp`,
       type: "webp",
       quality: 90,
     });
     console.log(
-      `✓ template  ${persona.screenshotId.padEnd(16)} ${persona.fullName}`,
+      `✓ template  ${persona.presetId.padEnd(16)} ${persona.fullName}`,
     );
     await page.close();
   }

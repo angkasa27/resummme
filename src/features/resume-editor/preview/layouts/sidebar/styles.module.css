@@ -11,7 +11,7 @@
 
 .layout :global(.layout-body) {
   display: grid;
-  grid-template-columns: minmax(0, 0.42fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 0.45fr) minmax(0, 1fr);
   /* Columns own their inner padding, so the grid itself adds no gap. */
   gap: 0;
   flex: 1;
@@ -29,7 +29,7 @@
   background: var(--resume-secondary-tint);
   /* The rail bleeds left and bottom, so those edges take the page margin; the
      top and inner edges take gutter-derived spacing instead. */
-  padding: var(--resume-gutter) calc(var(--resume-gutter) / 2)
+  padding: var(--resume-gutter) calc(var(--resume-gutter))
     var(--resume-page-margin) var(--resume-page-margin);
   print-color-adjust: exact;
   -webkit-print-color-adjust: exact;
@@ -37,7 +37,7 @@
 
 .layout :global(.layout-main) {
   padding: var(--resume-gutter) var(--resume-page-margin)
-    var(--resume-page-margin) calc(var(--resume-gutter) / 2);
+    var(--resume-page-margin) calc(var(--resume-gutter));
 }
 
 .layout :global(.layout-side .section-heading) {
@@ -45,10 +45,10 @@
   color: var(--resume-secondary);
 }
 
-.layout :global(.layout-main .section-heading) {
+/* .layout :global(.layout-main .section-heading) {
   border-bottom: 1px solid var(--resume-border);
   padding-bottom: var(--resume-gap-inner);
-}
+} */
 
 /* Stack item-header vertically inside the narrow side column. */
 .layout :global(.layout-side .item-header) {
@@ -56,6 +56,7 @@
   flex-direction: column;
   align-items: stretch;
   gap: 2px;
+  min-width: 0;
 }
 
 .layout :global(.layout-side .item-header-side) {
@@ -76,6 +77,7 @@
   flex-direction: column;
   align-items: flex-start;
   gap: 2px;
+  min-width: 0;
 }
 
 /* Photo lives in the header, not the rail, so the rail starts straight into

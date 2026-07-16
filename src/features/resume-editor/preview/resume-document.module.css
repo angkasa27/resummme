@@ -20,24 +20,24 @@
 
 /* Shared content insets — layouts opt in per side instead of the root forcing
    a uniform padding, so decorative surfaces can bleed to the paper edge. */
-.root :global(.page-inset) {
+:where(.root) :global(.page-inset) {
   padding: var(--resume-page-margin);
 }
 
-.root :global(.page-inset-x) {
+:where(.root) :global(.page-inset-x) {
   padding-left: var(--resume-page-margin);
   padding-right: var(--resume-page-margin);
 }
 
-.root :global(.page-inset-t) {
+:where(.root) :global(.page-inset-t) {
   padding-top: var(--resume-page-margin);
 }
 
-.root :global(.page-inset-b) {
+:where(.root) :global(.page-inset-b) {
   padding-bottom: var(--resume-page-margin);
 }
 
-.root :global(a) {
+:where(.root) :global(a) {
   color: inherit;
   text-decoration: underline;
   overflow-wrap: anywhere;
@@ -48,7 +48,7 @@
    one, so source order alone decided the winner — which let banner's name fall
    back to --resume-accent and vanish into its own accent band. Layouts now set
    --resume-name-color on an ancestor and inheritance settles it. */
-.root :global(.name) {
+:where(.root) :global(.name) {
   font-size: var(--resume-h1);
   font-weight: 700;
   line-height: 1.1;
@@ -59,7 +59,7 @@
 
 /* Same inheriting-property hand-off as `.name`, for the same reason: a layout's
    `.layout :global(.section-heading)` override ties this rule on specificity. */
-.root :global(.section-heading) {
+:where(.root) :global(.section-heading) {
   font-size: var(--resume-h2);
   font-weight: 700;
   text-transform: uppercase;
@@ -68,19 +68,20 @@
   margin: 0;
 }
 
-.root :global(.item-title) {
+:where(.root) :global(.item-title) {
   font-size: var(--resume-h3);
   font-weight: 600;
   margin: 0;
   line-height: 1.25;
+  overflow-wrap: break-word;
 }
 
-.root :global(.item-title a) {
+:where(.root) :global(.item-title a) {
   text-decoration: none;
   color: inherit;
 }
 
-.root :global(.meta) {
+:where(.root) :global(.meta) {
   color: var(--resume-muted);
   font-size: var(--resume-meta);
   /* A long unbreakable token (an email, a credential id) otherwise spills out
@@ -88,28 +89,28 @@
   overflow-wrap: break-word;
 }
 
-.root :global(.contact-block) {
+:where(.root) :global(.contact-block) {
   display: flex;
   flex-direction: column;
   gap: 2px;
   min-width: 0;
 }
 
-.root :global(.contact-line) {
+:where(.root) :global(.contact-line) {
   margin: 0;
   padding: 0;
   list-style: none;
   font-size: var(--resume-meta);
 }
 
-.root :global(.contact-line .contact-item) {
+:where(.root) :global(.contact-line .contact-item) {
   display: inline;
 }
 
 /* Inline separator dots live in CSS so layouts can stack items instead. The
    spacing is margin, not part of `content`, so the dot sits evenly between
    items rather than glued to the preceding one. */
-.root :global(.contact-line .contact-item + .contact-item)::before {
+:where(.root) :global(.contact-line .contact-item + .contact-item)::before {
   content: "•";
   margin-inline: 0.45em;
 }
@@ -122,7 +123,7 @@
 /* Icons sit on the text baseline at the text's own size and colour, so they
    inherit whatever surface they land on (a rail's on-secondary, a band's
    on-accent) with no per-layout override. */
-.root :global(.contact-icon) {
+:where(.root) :global(.contact-icon) {
   display: inline-block;
   width: 1em;
   height: 1em;
@@ -133,17 +134,17 @@
 }
 
 /* An icon already says which field this is, so the dot would be noise. */
-.root :global(.contact-line-iconic .contact-item + .contact-item)::before {
+:where(.root) :global(.contact-line-iconic .contact-item + .contact-item)::before {
   content: none;
 }
 
-.root :global(.contact-line-iconic) {
+:where(.root) :global(.contact-line-iconic) {
   display: flex;
   flex-wrap: wrap;
   gap: 0 var(--resume-gap-item);
 }
 
-.root :global(.contact-line-iconic .contact-item) {
+:where(.root) :global(.contact-line-iconic .contact-item) {
   display: inline-flex;
   align-items: center;
   min-width: 0;
@@ -152,122 +153,134 @@
 /* Bind each icon to its own text. Without this the anchor stays inline, so a
    link too long for its column wraps after the glyph and strands it alone on
    the line above. The text still breaks internally via min-width: 0. */
-.root :global(.contact-line-iconic .contact-item > a),
-.root :global(.contact-line-iconic .contact-item > span) {
+:where(.root) :global(.contact-line-iconic .contact-item > a),
+:where(.root) :global(.contact-line-iconic .contact-item > span) {
   display: inline-flex;
   align-items: center;
   min-width: 0;
 }
 
+/* The flex child <span> has min-width:auto by default, which forces its parent
+   inline-flex container as wide as the URL text.  Without min-width:0 the text
+   overflows the narrow 0.36fr rail instead of wrapping. */
+:where(.root) :global(.contact-line-iconic .contact-item > a > span),
+:where(.root) :global(.contact-line-iconic .contact-item > span > span) {
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+
 /* Stacked: one contact per line. The narrow rails need this — an inline run of
    emails and URLs has nowhere to wrap and breaks mid-word. */
-.root :global(.contact-line-stacked) {
+:where(.root) :global(.contact-line-stacked) {
   display: flex;
   flex-direction: column;
   gap: var(--resume-gap-inner);
 }
 
-.root :global(.contact-line-stacked .contact-item) {
+:where(.root) :global(.contact-line-stacked .contact-item) {
   display: flex;
   align-items: center;
 }
 
-.root :global(.contact-line-stacked .contact-item + .contact-item)::before {
+:where(.root) :global(.contact-line-stacked .contact-item + .contact-item)::before {
   content: none;
 }
 
 /* Shortened labels fit, so only break a link as a last resort. */
-.root :global(.contact-line a) {
-  overflow-wrap: break-word;
+:where(.root) :global(.contact-line a) {
+  overflow-wrap: anywhere;
 }
 
-.root :global(.item-list) {
+:where(.root) :global(.item-list) {
   display: flex;
   flex-direction: column;
   gap: var(--resume-gap-item);
+  min-width: 0;
 }
 
-.root :global(.section) {
+:where(.root) :global(.section) {
   display: flex;
   flex-direction: column;
   gap: var(--resume-gap-item);
+  min-width: 0;
 }
 
-.root :global(.item) {
+:where(.root) :global(.item) {
   display: flex;
   flex-direction: column;
   gap: var(--resume-gap-inner);
+  min-width: 0;
   /* With zero physical PDF margins, page breaks land inside section gaps
      instead of mid-item so content keeps breathing room at page edges. */
   break-inside: avoid;
 }
 
-.root :global(.item-row) {
+:where(.root) :global(.item-row) {
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
   gap: var(--resume-gap-item);
 }
 
-.root :global(.item-row .item-title) {
+:where(.root) :global(.item-row .item-title) {
   flex-shrink: 0;
 }
 
-.root :global(.item-row .meta) {
+:where(.root) :global(.item-row .meta) {
   text-align: right;
 }
 
-.root :global(.item-header) {
+:where(.root) :global(.item-header) {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: start;
   gap: var(--resume-gap-item);
 }
 
-.root :global(.item-header-main) {
+:where(.root) :global(.item-header-main) {
   min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
 
-.root :global(.item-header-side) {
+:where(.root) :global(.item-header-side) {
   text-align: right;
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
 
-.root :global(.item-date) {
+:where(.root) :global(.item-date) {
   color: var(--resume-muted);
   font-size: var(--resume-meta);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
 
-.root :global(.section-indent) {
+:where(.root) :global(.section-indent) {
   padding-left: var(--resume-indent);
 }
 
-.root :global(.rich-text) {
+:where(.root) :global(.rich-text) {
   text-align: justify;
 }
 
-.root :global(.rich-text p) {
+:where(.root) :global(.rich-text p) {
   margin: 0;
 }
 
-.root :global(.rich-text p + p) {
+:where(.root) :global(.rich-text p + p) {
   margin-top: 6px;
 }
 
-.root :global(.rich-text ul),
-.root :global(.rich-text ol) {
+:where(.root) :global(.rich-text ul),
+:where(.root) :global(.rich-text ol) {
   margin: 0;
   padding-left: 1.25em;
 }
 
-.root :global(.rich-text:empty) {
+:where(.root) :global(.rich-text:empty) {
   display: none;
 }
 

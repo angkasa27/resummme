@@ -16,6 +16,10 @@
   letter-spacing: 0.12em;
 }
 
+.layout :global(.contact-line) {
+  justify-content: center;
+}
+
 /* Same system as the name: accent text, short secondary rule beneath. */
 .layout :global(.section-heading)::after {
   content: "";

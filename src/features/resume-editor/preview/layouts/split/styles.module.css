@@ -2,7 +2,7 @@
    left/top/bottom paper edges while main content keeps the page margin. */
 .layout {
   display: grid;
-  grid-template-columns: minmax(0, 0.36fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 0.4fr) minmax(0, 1fr);
   gap: 0;
 }
 
@@ -22,7 +22,7 @@
   );
   /* Bleeding edges take the page margin; the inner edge takes half the gutter
      so the rail and main column each contribute the same gap between them. */
-  padding: var(--resume-page-margin) calc(var(--resume-gutter) / 2)
+  padding: var(--resume-page-margin) calc(var(--resume-gutter))
     var(--resume-page-margin) var(--resume-page-margin);
   display: flex;
   flex-direction: column;
@@ -38,13 +38,13 @@
   gap: var(--resume-gap-section);
   min-width: 0;
   padding: var(--resume-page-margin) var(--resume-page-margin)
-    var(--resume-page-margin) calc(var(--resume-gutter) / 2);
+    var(--resume-page-margin) calc(var(--resume-gutter));
 }
 
 .layout :global(.layout-side .section-heading) {
   color: var(--resume-on-secondary);
-  border-bottom: 1px solid var(--resume-border);
-  padding-bottom: var(--resume-gap-inner);
+  border-top: 1px solid var(--resume-border);
+  padding-top: var(--resume-gap-section);
 }
 
 .layout :global(.layout-side .item-title),
@@ -79,6 +79,7 @@
   flex-direction: column;
   align-items: stretch;
   gap: 2px;
+  min-width: 0;
 }
 
 .layout :global(.layout-side .item-header-side) {
@@ -95,11 +96,12 @@
   flex-direction: column;
   align-items: flex-start;
   gap: 2px;
+  min-width: 0;
 }
 
 .layout :global(.layout-main .section-heading) {
-  border-bottom: 1px solid var(--resume-border);
-  padding-bottom: var(--resume-gap-inner);
+  border-top: 1px solid var(--resume-border);
+  padding-top: var(--resume-gap-section);
 }
 
 .header {

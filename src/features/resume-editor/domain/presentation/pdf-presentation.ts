@@ -137,18 +137,6 @@ const indentPx: Record<PdfSpacingId, number> = {
 };
 
 /**
- * Gutter between columns. Deliberately NOT the page margin: the margin is the
- * distance to the paper edge, the gutter is the distance between two columns,
- * and conflating them is what forced the rail layouts to hand-roll asymmetric
- * padding. Both scale with `spacing`, but independently.
- */
-const gutterPx: Record<PdfSpacingId, number> = {
-  compact: 20,
-  standard: 26,
-  airy: 32,
-};
-
-/**
  * Page margin is a property of the layout, not a user knob. A rail layout needs
  * a tight margin or its rail turns into a fat colored band; a typographic
  * layout needs a wide one because the whitespace IS the design. Exposing one
@@ -271,7 +259,9 @@ export function normalizePdfPresentation(input: unknown): PdfPresentation {
       ? source.lineHeight
       : defaults.lineHeight,
     accent: isValidAccentHex(source.accent) ? source.accent : defaults.accent,
-    secondary: isValidAccentHex(source.secondary) ? source.secondary : undefined,
+    secondary: isValidAccentHex(source.secondary)
+      ? source.secondary
+      : undefined,
     paperSize: isMember(pdfPaperSizes, source.paperSize)
       ? source.paperSize
       : defaults.paperSize,
@@ -310,7 +300,7 @@ export function resolvePdfPresentation(
     "--resume-gap-section": `${sectionGapPx[p.spacing]}px`,
     "--resume-gap-item": `${itemGapPx[p.spacing]}px`,
     "--resume-gap-inner": `${innerGapPx[p.spacing]}px`,
-    "--resume-gutter": `${gutterPx[p.spacing]}px`,
+    "--resume-gutter": `${margin / 2}mm`,
     "--resume-indent": `${indentPx[p.spacing]}px`,
     "--resume-paper-width": `${paper.widthMm}mm`,
     "--resume-paper-height": `${paper.heightMm}mm`,
@@ -325,8 +315,7 @@ export function resolvePdfPresentation(
   if (p.photoShape) {
     vars["--resume-photo-aspect"] =
       p.photoShape === "rectangle" ? "3 / 4" : "1 / 1";
-    vars["--resume-photo-radius"] =
-      p.photoShape === "circle" ? "50%" : "6px";
+    vars["--resume-photo-radius"] = p.photoShape === "circle" ? "50%" : "6px";
   }
 
   return { layoutId: p.layoutId, vars };

@@ -18,7 +18,6 @@ export type Cert = { name: string; org: string; date: string };
 
 export type Persona = {
   layoutId: PdfLayoutId;
-  screenshotId: string;
   /**
    * The curated template this shot advertises. Screenshots render real presets
    * rather than one-off colours, so the gallery and the landing carousel show
@@ -47,14 +46,12 @@ export type Persona = {
   };
 };
 
-// 14 personas: 2 per template, all western male, distinct configurations.
-// The first 7 share screenshotId == layoutId (top carousel row);
-// the second 7 use screenshotId == layoutId + "-alt" (bottom carousel row).
+// 20 personas, one per presets that has a screenshot. Screenshot filename equals
+// presetId — public/templates/<presetId>.webp.
 export const PERSONAS: Persona[] = [
   // ── Row 1 ──────────────────────────────────────────────────────────────────
   {
     layoutId: "classic",
-    screenshotId: "classic",
     presetId: "classic-modern",
     photo: "https://i.pravatar.cc/320?img=13",
     fullName: "David Park",
@@ -184,7 +181,6 @@ export const PERSONAS: Persona[] = [
   },
   {
     layoutId: "sidebar",
-    screenshotId: "sidebar",
     presetId: "sidebar-slate",
     photo: "https://i.pravatar.cc/320?img=12",
     fullName: "Ryan O'Brien",
@@ -299,7 +295,6 @@ export const PERSONAS: Persona[] = [
   },
   {
     layoutId: "modern-centered",
-    screenshotId: "modern-centered",
     presetId: "centered-ocean",
     photo: "https://i.pravatar.cc/320?img=69",
     fullName: "Marcus Reed",
@@ -444,7 +439,6 @@ export const PERSONAS: Persona[] = [
   },
   {
     layoutId: "timeline",
-    screenshotId: "timeline",
     presetId: "timeline-indigo",
     photo: "https://i.pravatar.cc/320?img=15",
     fullName: "James Wilson",
@@ -567,7 +561,6 @@ export const PERSONAS: Persona[] = [
   },
   {
     layoutId: "academic",
-    screenshotId: "academic",
     presetId: "academic-oxford",
     photo: "https://i.pravatar.cc/320?img=14",
     fullName: "Dr. Omar Rahman",
@@ -686,7 +679,6 @@ export const PERSONAS: Persona[] = [
   },
   {
     layoutId: "minimal",
-    screenshotId: "minimal",
     presetId: "minimal-air",
     photo: "https://i.pravatar.cc/320?img=33",
     fullName: "Andrew Blake",
@@ -825,7 +817,6 @@ export const PERSONAS: Persona[] = [
   },
   {
     layoutId: "inset",
-    screenshotId: "inset",
     presetId: "inset-steel",
     photo: "https://i.pravatar.cc/320?img=68",
     fullName: "Oliver Brandt",
@@ -950,7 +941,6 @@ export const PERSONAS: Persona[] = [
   // ── Row 2: alt variants ────────────────────────────────────────────────────
   {
     layoutId: "classic",
-    screenshotId: "classic-alt",
     presetId: "classic-executive",
     photo: "https://i.pravatar.cc/320?img=11",
     fullName: "Ethan Foster",
@@ -1089,7 +1079,6 @@ export const PERSONAS: Persona[] = [
   },
   {
     layoutId: "sidebar",
-    screenshotId: "sidebar-alt",
     presetId: "sidebar-forest",
     photo: "https://i.pravatar.cc/320?img=51",
     fullName: "Liam Gallagher",
@@ -1225,7 +1214,6 @@ export const PERSONAS: Persona[] = [
   },
   {
     layoutId: "modern-centered",
-    screenshotId: "modern-centered-alt",
     presetId: "centered-editorial",
     photo: "https://i.pravatar.cc/320?img=53",
     fullName: "Jack Morrison",
@@ -1349,7 +1337,6 @@ export const PERSONAS: Persona[] = [
   },
   {
     layoutId: "timeline",
-    screenshotId: "timeline-alt",
     presetId: "timeline-amber",
     photo: "https://i.pravatar.cc/320?img=61",
     fullName: "Benjamin Cole",
@@ -1472,7 +1459,6 @@ export const PERSONAS: Persona[] = [
   },
   {
     layoutId: "academic",
-    screenshotId: "academic-alt",
     presetId: "academic-burgundy",
     photo: "https://i.pravatar.cc/320?img=53",
     fullName: "Thomas Whitfield",
@@ -1608,7 +1594,6 @@ export const PERSONAS: Persona[] = [
   },
   {
     layoutId: "minimal",
-    screenshotId: "minimal-alt",
     presetId: "minimal-warm",
     photo: "https://i.pravatar.cc/320?img=55",
     fullName: "Nathan Cross",
@@ -1751,7 +1736,6 @@ export const PERSONAS: Persona[] = [
   },
   {
     layoutId: "inset",
-    screenshotId: "inset-alt",
     presetId: "inset-crimson",
     photo: "https://i.pravatar.cc/320?img=67",
     fullName: "Samuel Pierce",
@@ -1884,7 +1868,6 @@ export const PERSONAS: Persona[] = [
   // ── New templates: banner ──────────────────────────────────────────────────
   {
     layoutId: "banner",
-    screenshotId: "banner",
     presetId: "banner-royal",
     photo: "https://i.pravatar.cc/320?img=12",
     fullName: "Kyle Anderson",
@@ -2028,7 +2011,6 @@ export const PERSONAS: Persona[] = [
   },
   {
     layoutId: "split",
-    screenshotId: "split",
     presetId: "split-midnight",
     photo: "https://i.pravatar.cc/320?img=68",
     fullName: "Patrick Sullivan",
@@ -2170,7 +2152,6 @@ export const PERSONAS: Persona[] = [
   },
   {
     layoutId: "bold-type",
-    screenshotId: "bold-type",
     presetId: "bold-citrus",
     photo: "https://i.pravatar.cc/320?img=33",
     fullName: "Calvin Hughes",
@@ -2316,7 +2297,6 @@ export const PERSONAS: Persona[] = [
   // ── New templates: banner-alt ──────────────────────────────────────────────
   {
     layoutId: "banner",
-    screenshotId: "banner-alt",
     presetId: "banner-emerald",
     photo: "https://i.pravatar.cc/320?img=55",
     fullName: "Derek Mitchell",
@@ -2447,7 +2427,6 @@ export const PERSONAS: Persona[] = [
   },
   {
     layoutId: "split",
-    screenshotId: "split-alt",
     presetId: "split-terracotta",
     photo: "https://i.pravatar.cc/320?img=14",
     fullName: "Sean McCarthy",
@@ -2565,7 +2544,6 @@ export const PERSONAS: Persona[] = [
   },
   {
     layoutId: "bold-type",
-    screenshotId: "bold-type-alt",
     presetId: "bold-lime",
     photo: "https://i.pravatar.cc/320?img=61",
     fullName: "Miles Ford",
