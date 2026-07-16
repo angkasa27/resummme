@@ -59,6 +59,14 @@ export type PreviewLayoutDefinition = {
    * True when the layout renders its own Summary heading, so the shared
    * SummaryView must suppress its <h2>. Single source of truth for
    * `shouldHideSummaryHeading` — no separate hardcoded id list.
+   *
+   * The rule: hide the heading only where the summary sits flush under the
+   * header and reads as a lede paragraph (classic, banner, timeline). Show it
+   * everywhere the headings themselves carry the structure — a uniformly
+   * labelled layout (minimal), an academic CV where labelled sections are the
+   * convention, or one whose gutter/rail labels would leave a bare paragraph
+   * orphaned. A shown heading is also the safer default for ATS parsers, which
+   * key on section headings.
    */
   hideSummaryHeading?: boolean;
   Component: (props: LayoutComponentProps) => ReactNode;

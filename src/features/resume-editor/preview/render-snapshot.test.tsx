@@ -22,13 +22,23 @@ function buildFixtureDraft(layoutId: ResumeDraft["pdfPresentation"]["layoutId"])
   return draft;
 }
 
+/**
+ * Icon path data is noise for this guard: it cares that the right icon lands in
+ * the right slot, which the retained `class="lucide lucide-*"` already says.
+ * Collapsing the body keeps the snapshot legible and stops a lucide version
+ * bump from rewriting ten snapshots for no behavioural change.
+ */
+function collapseIconPaths(html: string): string {
+  return html.replace(/(<svg\b[^>]*>).*?<\/svg>/g, "$1</svg>");
+}
+
 describe("resume document render snapshots", () => {
   for (const layoutId of pdfLayoutIds) {
     it(`renders the ${layoutId} layout identically`, () => {
       const html = renderToStaticMarkup(
         <ResumeDocument draft={buildFixtureDraft(layoutId)} mode="preview" />,
       );
-      expect(html).toMatchSnapshot();
+      expect(collapseIconPaths(html)).toMatchSnapshot();
     });
   }
 });

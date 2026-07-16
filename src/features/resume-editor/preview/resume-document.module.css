@@ -108,6 +108,58 @@
   color: var(--resume-muted);
 }
 
+/* Icons sit on the text baseline at the text's own size and colour, so they
+   inherit whatever surface they land on (a rail's on-secondary, a band's
+   on-accent) with no per-layout override. */
+.root :global(.contact-icon) {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.13em;
+  margin-right: 0.32em;
+  stroke-width: 2;
+  flex-shrink: 0;
+}
+
+/* An icon already says which field this is, so the dot would be noise. */
+.root :global(.contact-line-iconic .contact-item + .contact-item)::before {
+  content: none;
+}
+
+.root :global(.contact-line-iconic) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--resume-gap-item);
+}
+
+.root :global(.contact-line-iconic .contact-item) {
+  display: inline-flex;
+  align-items: baseline;
+  min-width: 0;
+}
+
+/* Stacked: one contact per line. The narrow rails need this — an inline run of
+   emails and URLs has nowhere to wrap and breaks mid-word. */
+.root :global(.contact-line-stacked) {
+  display: flex;
+  flex-direction: column;
+  gap: var(--resume-gap-inner);
+}
+
+.root :global(.contact-line-stacked .contact-item) {
+  display: flex;
+  align-items: baseline;
+}
+
+.root :global(.contact-line-stacked .contact-item + .contact-item)::before {
+  content: none;
+}
+
+/* Shortened labels fit, so only break a link as a last resort. */
+.root :global(.contact-line a) {
+  overflow-wrap: break-word;
+}
+
 .root :global(.item-list) {
   display: flex;
   flex-direction: column;

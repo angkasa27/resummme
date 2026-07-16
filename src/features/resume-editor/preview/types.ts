@@ -8,8 +8,16 @@ import type { ReactNode } from "react";
 
 export type PreviewMode = "preview" | "pdf";
 
+/**
+ * Each contact carries its own kind rather than being identified by position.
+ * Empty fields are dropped before render, so an index-based guess mislabels
+ * every item after the gap — and the icon for a kind has to come from the item
+ * itself, not from where it happens to land.
+ */
 export type PreviewContactItem =
-  | { kind: "text"; value: string }
+  | { kind: "location"; value: string }
+  | { kind: "phone"; value: string }
+  | { kind: "email"; value: string }
   | { kind: "link"; value: string };
 
 export type PreviewSectionItemMap = {

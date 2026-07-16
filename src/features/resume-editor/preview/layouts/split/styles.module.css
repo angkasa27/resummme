@@ -67,26 +67,10 @@
   object-fit: cover;
 }
 
-.layout :global(.layout-side .contact-line) {
-  font-size: var(--resume-meta);
-  list-style: disc;
-  padding-left: 1.1em;
-}
-
+/* The shared stacked contact variant handles the rail's one-per-line layout;
+   the icons replace what disc bullets used to do here. */
 .layout :global(.layout-side .contact-block) {
   gap: var(--resume-gap-inner);
-}
-
-.layout :global(.layout-side .contact-item) {
-  display: list-item;
-}
-
-.layout :global(.layout-side .contact-item + .contact-item) {
-  margin-top: var(--resume-gap-inner);
-}
-
-.layout :global(.layout-side .contact-item + .contact-item)::before {
-  content: none;
 }
 
 /* Stack item-header vertically inside the narrow rail. */

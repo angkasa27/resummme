@@ -19,9 +19,9 @@ import type {
 
 function createContactItems(draft: ResumeDraft) {
   return [
-    { kind: "text" as const, value: draft.profile.location },
-    { kind: "text" as const, value: draft.profile.phone },
-    { kind: "text" as const, value: draft.profile.email },
+    { kind: "location" as const, value: draft.profile.location },
+    { kind: "phone" as const, value: draft.profile.phone },
+    { kind: "email" as const, value: draft.profile.email },
     ...draft.profile.extraLinks
       .map((link) => sanitizeRichTextHref(link.url))
       .filter((value): value is string => Boolean(value))
