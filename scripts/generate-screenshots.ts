@@ -124,19 +124,18 @@ function buildDraft(p: Persona): ResumeDraft {
 }
 
 /**
- * Re-applies page margins and forces a single A4 page so the clipped screenshot
- * is portrait-proportioned with no flush edges (runs in the browser).
+ * Forces exactly one A4 page so the clipped screenshot is portrait-proportioned
+ * (runs in the browser). Layouts are full-bleed and own their content insets,
+ * so no extra padding is applied here.
  */
 function shapeAsA4Page() {
   const el = document.querySelector<HTMLElement>(".resume-document");
   if (!el) return;
   const cs = getComputedStyle(el);
   const paper = cs.getPropertyValue("--resume-paper-width").trim();
-  const margin = cs.getPropertyValue("--resume-page-margin").trim();
   el.style.boxSizing = "border-box";
   el.style.alignSelf = "flex-start";
   if (paper) el.style.width = paper;
-  el.style.padding = margin || "10mm";
   // Exactly one A4 page tall (210:297). Overflowing content is cropped so
   // every screenshot is the same height.
   el.style.height = `${el.offsetWidth * 1.41421}px`;
