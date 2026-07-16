@@ -10,10 +10,16 @@ export function BoldTypeHeader({ context }: LayoutHeaderProps) {
       className={`${styles.header} layout-header`}
       data-layout="bold-type"
     >
+      {/* Contacts sit inside header-top, so the rule is drawn under the whole
+          block rather than between the name and its own contact details —
+          which left the name floating above dead space beside the photo. */}
       <div className="header-top">
-        <h1 className="name" data-testid="resume-preview-full-name">
-          {draft.profile.fullName}
-        </h1>
+        <div className="header-body">
+          <h1 className="name" data-testid="resume-preview-full-name">
+            {draft.profile.fullName}
+          </h1>
+          <PreviewContactLine context={context} />
+        </div>
         {draft.profile.photo ? (
           <div className="header-photo" data-slot="photo-frame">
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -21,7 +27,6 @@ export function BoldTypeHeader({ context }: LayoutHeaderProps) {
           </div>
         ) : null}
       </div>
-      <PreviewContactLine context={context} />
     </header>
   );
 }

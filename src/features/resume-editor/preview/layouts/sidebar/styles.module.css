@@ -3,7 +3,10 @@
 .layout {
   display: flex;
   flex-direction: column;
-  gap: var(--resume-gap-section);
+  /* No gap: the rail meets the band directly. A gap here paints a white stripe
+     between the two full-bleed surfaces; the columns below already carry their
+     own top padding, so the content still breathes. */
+  gap: 0;
 }
 
 .layout :global(.layout-body) {
