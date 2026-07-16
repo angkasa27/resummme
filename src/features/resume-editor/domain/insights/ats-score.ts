@@ -2,7 +2,7 @@ import {
   getPaperDimensionsMm,
   getPageMarginMm,
   normalizePdfPresentation,
-  type PdfTemplateId,
+  type PdfLayoutId,
 } from "@/features/resume-editor/domain/presentation/pdf-presentation";
 import type { EditorPanelKey } from "@/features/resume-editor/domain/sections/section-metadata";
 import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
@@ -74,30 +74,30 @@ type ParseabilityNote = Omit<Suggestion, "fix">;
 
 type ParseabilityEntry = { score: number; note?: ParseabilityNote };
 
-const SIDEBAR_TEMPLATE_NOTE: ParseabilityNote = {
-  id: "parseability/sidebar-template",
+const SIDEBAR_LAYOUT_NOTE: ParseabilityNote = {
+  id: "parseability/sidebar-layout",
   category: "parseability",
   severity: "warn",
   message:
-    "Multi-column templates can confuse ATS parsers. Switch to a single-column template for stricter ATS reliability.",
+    "Multi-column layouts can confuse ATS parsers. Switch to a single-column layout for stricter ATS reliability.",
 };
 
-const NON_STANDARD_TEMPLATE_NOTE: ParseabilityNote = {
-  id: "parseability/non-standard-template",
+const NON_STANDARD_LAYOUT_NOTE: ParseabilityNote = {
+  id: "parseability/non-standard-layout",
   category: "parseability",
   severity: "ok",
   message:
-    "Most ATS parsers handle this template; classic / timeline score slightly higher.",
+    "Most ATS parsers handle this layout; classic / timeline score slightly higher.",
 };
 
-// Score + optional advisory note per template, driven by data instead of a
-// per-templateId `if` ladder. Preserves the exact prior notes.
-const PARSEABILITY_BY_TEMPLATE: Record<PdfTemplateId, ParseabilityEntry> = {
+// Score + optional advisory note per layout, driven by data instead of a
+// per-layoutId `if` ladder. Preserves the exact prior notes.
+const PARSEABILITY_BY_LAYOUT: Record<PdfLayoutId, ParseabilityEntry> = {
   classic: { score: 100 },
-  "modern-centered": { score: 80, note: NON_STANDARD_TEMPLATE_NOTE },
+  "modern-centered": { score: 80, note: NON_STANDARD_LAYOUT_NOTE },
   timeline: { score: 100 },
-  academic: { score: 80, note: NON_STANDARD_TEMPLATE_NOTE },
-  sidebar: { score: 55, note: SIDEBAR_TEMPLATE_NOTE },
+  academic: { score: 80, note: NON_STANDARD_LAYOUT_NOTE },
+  sidebar: { score: 55, note: SIDEBAR_LAYOUT_NOTE },
   minimal: { score: 100 },
   inset: { score: 100 },
   banner: { score: 90 },
@@ -216,7 +216,7 @@ function firstWord(text: string): string {
 
 function scoreParseability(draft: ResumeDraft): ScorerResult {
   const presentation = normalizePdfPresentation(draft.pdfPresentation);
-  const entry = PARSEABILITY_BY_TEMPLATE[presentation.templateId];
+  const entry = PARSEABILITY_BY_LAYOUT[presentation.layoutId];
   const suggestions: Suggestion[] = [];
   if (entry.note) suggestions.push(entry.note);
   return { score: entry.score, suggestions };

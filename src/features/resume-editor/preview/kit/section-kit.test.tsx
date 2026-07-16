@@ -9,9 +9,9 @@ import {
   SectionShell,
 } from "@/features/resume-editor/preview/kit/section-kit";
 
-// These primitives exist so new templates can compose their own layout while
+// These primitives exist so new layouts can compose their own layout while
 // still emitting the class/data contract the shared CSS targets. Lock that
-// contract — a drift here would silently break every template built on them.
+// contract — a drift here would silently break every layout built on them.
 describe("section-kit primitives", () => {
   it("SectionShell emits a data-section section with the standard heading", () => {
     const html = renderToStaticMarkup(

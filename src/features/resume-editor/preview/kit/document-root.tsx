@@ -29,7 +29,7 @@ export function PreviewDocumentRoot({
 
   return (
     <article
-      data-template={presentation.templateId}
+      data-layout={presentation.layoutId}
       style={{
         ...(presentation.vars as CSSProperties),
         ...rootStyle,

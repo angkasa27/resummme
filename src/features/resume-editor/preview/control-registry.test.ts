@@ -1,22 +1,22 @@
 import { describe, expect, it } from "vitest";
 
 import { previewControlDefinitions } from "@/features/resume-editor/preview/control-registry";
-import { previewTemplateDefinitions } from "@/features/resume-editor/preview/template-registry";
+import { previewLayoutDefinitions } from "@/features/resume-editor/preview/layout-registry";
 import { createDefaultPdfPresentation } from "@/features/resume-editor/domain/presentation/pdf-presentation";
 
 const photoShape = previewControlDefinitions.find((c) => c.id === "photo-shape")!;
-const templateControl = previewControlDefinitions.find(
-  (c) => c.id === "template",
+const layoutControl = previewControlDefinitions.find(
+  (c) => c.id === "layout",
 )!;
 
-describe("template control", () => {
-  it("derives its options from the template registry (single source of truth)", () => {
-    // Options must mirror the registry so adding/removing a template needs no
-    // second edit here — no separate pdfTemplateLabels enumeration.
-    expect(templateControl.options).toEqual(
-      previewTemplateDefinitions.map((template) => ({
-        value: template.id,
-        label: template.label,
+describe("layout control", () => {
+  it("derives its options from the layout registry (single source of truth)", () => {
+    // Options must mirror the registry so adding/removing a layout needs no
+    // second edit here — no separate pdfLayoutLabels enumeration.
+    expect(layoutControl.options).toEqual(
+      previewLayoutDefinitions.map((layout) => ({
+        value: layout.id,
+        label: layout.label,
       })),
     );
   });
@@ -40,7 +40,7 @@ describe("photo-shape control", () => {
     expect(photoShape.value({ ...base, photoShape: "circle" })).toBe("circle");
   });
 
-  it("selecting Default clears photoShape so the template's own style applies", () => {
+  it("selecting Default clears photoShape so the layout's own style applies", () => {
     const withShape = { ...base, photoShape: "circle" as const };
     expect(photoShape.update("default", withShape).photoShape).toBeUndefined();
     expect(photoShape.update("square", base).photoShape).toBe("square");

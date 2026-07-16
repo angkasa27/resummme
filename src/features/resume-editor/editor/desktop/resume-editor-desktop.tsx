@@ -36,14 +36,14 @@ import { DesktopSummaryForm } from "@/features/resume-editor/editor/desktop/form
 import { createPreviewRenderContext } from "@/features/resume-editor/preview/engine";
 import { PreviewDocumentRoot } from "@/features/resume-editor/preview/kit/document-root";
 import {
-  getTemplate,
-  renderTemplateHeader,
+  getLayout,
+  renderLayoutHeader,
   shouldHideSummaryHeading,
-} from "@/features/resume-editor/preview/template-registry";
-import { TemplateSection } from "@/features/resume-editor/preview/template-section";
+} from "@/features/resume-editor/preview/layout-registry";
+import { LayoutSection } from "@/features/resume-editor/preview/layout-section";
 import { SummaryView } from "@/features/resume-editor/preview/sections/summary";
 import { normalizePdfPresentation } from "@/features/resume-editor/domain/presentation/pdf-presentation";
-import type { TemplateSlots } from "@/features/resume-editor/preview/template-types";
+import type { LayoutSlots } from "@/features/resume-editor/preview/layout-types";
 import {
   getOrderedVisibleSectionKeys,
   isCollectionSectionKey,
@@ -135,7 +135,7 @@ export function ResumeEditorDesktop({
 
   const presentation = normalizePdfPresentation(draft.pdfPresentation);
   const context = createPreviewRenderContext(draft, "preview");
-  const template = getTemplate(context.presentation.templateId);
+  const layout = getLayout(context.presentation.layoutId);
   const visibleSectionKeys = getOrderedVisibleSectionKeys(draft.sections);
 
   const hiddenSectionKeys = resumeSectionKeys.filter(
@@ -219,7 +219,7 @@ export function ResumeEditorDesktop({
     // the union element across the map). Mirrors resume-document.tsx.
     function renderSectionSlot(
       sectionKey: CollectionSectionKey,
-    ): TemplateSlots["sections"][number] {
+    ): LayoutSlots["sections"][number] {
       const orderIndex = collectionKeys.indexOf(sectionKey);
       const renderable = context.sections.find((s) => s.key === sectionKey);
       const isEditing = editing === sectionKey;
@@ -248,7 +248,7 @@ export function ResumeEditorDesktop({
             canMoveDown={orderIndex < collectionKeys.length - 1}
           >
             {renderable ? (
-              <TemplateSection template={template} section={renderable} />
+              <LayoutSection layout={layout} section={renderable} />
             ) : (
               <EmptySectionPlaceholder
                 label={sectionLabels[sectionKey]}
@@ -257,17 +257,17 @@ export function ResumeEditorDesktop({
             )}
           </DesktopSectionShell>
         ),
-      } as TemplateSlots["sections"][number];
+      } as LayoutSlots["sections"][number];
     }
 
-    const slots: TemplateSlots = {
+    const slots: LayoutSlots = {
       header: (
         <DesktopSectionShell
           ariaLabel="Profile"
           isEditing={editing === "profile"}
           onEdit={startEditingProfile}
         >
-          {renderTemplateHeader(context)}
+          {renderLayoutHeader(context)}
         </DesktopSectionShell>
       ),
       summary:
@@ -280,7 +280,7 @@ export function ResumeEditorDesktop({
             <SummaryView
               content={context.summaryContent ?? ""}
               showHeading={
-                !shouldHideSummaryHeading(context.presentation.templateId)
+                !shouldHideSummaryHeading(context.presentation.layoutId)
               }
             />
           </DesktopSectionShell>
@@ -290,7 +290,7 @@ export function ResumeEditorDesktop({
 
     return (
       <PreviewDocumentRoot context={context}>
-        <template.Component context={context} slots={slots} />
+        <layout.Component context={context} slots={slots} />
 
         {hiddenSectionKeys.length > 0 ? (
           <div className="pt-6 flex flex-wrap justify-center gap-2 print:hidden border-t border-dashed">

@@ -11,7 +11,7 @@ import {
 
 export { resumeFontIds, type ResumeFontId };
 
-export const pdfTemplateIds = [
+export const pdfLayoutIds = [
   "classic",
   "sidebar",
   "modern-centered",
@@ -24,7 +24,7 @@ export const pdfTemplateIds = [
   "tinted",
   "bold-type",
 ] as const;
-export type PdfTemplateId = (typeof pdfTemplateIds)[number];
+export type PdfLayoutId = (typeof pdfLayoutIds)[number];
 
 export const pdfFontScaleIds = ["sm", "md", "lg"] as const;
 export type PdfFontScaleId = (typeof pdfFontScaleIds)[number];
@@ -45,7 +45,7 @@ export const pdfPhotoShapeIds = ["square", "rectangle", "circle"] as const;
 export type PdfPhotoShapeId = (typeof pdfPhotoShapeIds)[number];
 
 export type PdfPresentation = {
-  templateId: PdfTemplateId;
+  layoutId: PdfLayoutId;
   fontFamilyId: ResumeFontId;
   fontScale: PdfFontScaleId;
   spacing: PdfSpacingId;
@@ -56,14 +56,14 @@ export type PdfPresentation = {
   paperSize: PdfPaperSize;
   pageMargin: PdfPageMargin;
   /**
-   * Optional profile-photo shape override. When unset, each template keeps its
-   * own native photo aspect/radius; when set, it overrides every template.
+   * Optional profile-photo shape override. When unset, each layout keeps its
+   * own native photo aspect/radius; when set, it overrides every layout.
    */
   photoShape?: PdfPhotoShapeId;
 };
 
 export type ResolvedPdfPresentation = {
-  templateId: PdfTemplateId;
+  layoutId: PdfLayoutId;
   vars: Record<string, string>;
 };
 
@@ -182,7 +182,7 @@ export function getPageMarginMm(pageMargin: PdfPageMargin) {
 
 export function createDefaultPdfPresentation(): PdfPresentation {
   return {
-    templateId: "classic",
+    layoutId: "classic",
     fontFamilyId: DEFAULT_FONT_ID,
     fontScale: "md",
     spacing: "standard",
@@ -207,9 +207,9 @@ export function normalizePdfPresentation(input: unknown): PdfPresentation {
   const source = input as Record<string, unknown>;
 
   return {
-    templateId: isMember(pdfTemplateIds, source.templateId)
-      ? source.templateId
-      : defaults.templateId,
+    layoutId: isMember(pdfLayoutIds, source.layoutId)
+      ? source.layoutId
+      : defaults.layoutId,
     fontFamilyId: isMember(resumeFontIds, source.fontFamilyId)
       ? source.fontFamilyId
       : defaults.fontFamilyId,
@@ -273,10 +273,10 @@ export function resolvePdfPresentation(
   };
 
   // Photo-shape override. Only emit when the user has picked a shape so each
-  // template keeps its native look by default (via CSS var fallbacks). Both
+  // layout keeps its native look by default (via CSS var fallbacks). Both
   // aspect and radius are forced for the chosen shape: `circle` is fully round,
   // while `square`/`rectangle` use a small radius so they read as sharp-cornered
-  // even on templates whose native photo is a circle.
+  // even on layouts whose native photo is a circle.
   if (p.photoShape) {
     vars["--resume-photo-aspect"] =
       p.photoShape === "rectangle" ? "3 / 4" : "1 / 1";
@@ -284,5 +284,5 @@ export function resolvePdfPresentation(
       p.photoShape === "circle" ? "50%" : "6px";
   }
 
-  return { templateId: p.templateId, vars };
+  return { layoutId: p.layoutId, vars };
 }

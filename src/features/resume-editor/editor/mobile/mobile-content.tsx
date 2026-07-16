@@ -32,7 +32,7 @@ import {
 import { EditorControlPanel } from "@/features/resume-editor/controls/editor-control-panel";
 import { EditorDocumentActions } from "@/features/resume-editor/controls/editor-document-actions";
 import { PreviewSheet } from "@/features/resume-editor/preview/components/preview-sheet";
-import { TemplateTab } from "@/features/resume-editor/controls/template-tab";
+import { LayoutTab } from "@/features/resume-editor/controls/layout-tab";
 import { StyleTab } from "@/features/resume-editor/controls/style-tab";
 import { InsightsTab } from "@/features/resume-editor/controls/insights/insights-tab";
 import {
@@ -223,12 +223,12 @@ function DesignTabPanel({
   onPresentationChange,
 }: DesignTabPanelProps) {
   return (
-    <Tabs defaultValue="template" className="flex h-full flex-col">
+    <Tabs defaultValue="layout" className="flex h-full flex-col">
       <div className="shrink-0 px-4 pt-3">
         <TabsList className="w-full">
-          <TabsTrigger value="template">
+          <TabsTrigger value="layout">
             <LayoutTemplateIcon />
-            Template
+            Layout
           </TabsTrigger>
           <TabsTrigger value="style">
             <PaletteIcon />
@@ -237,10 +237,10 @@ function DesignTabPanel({
         </TabsList>
       </div>
       <TabsContent
-        value="template"
+        value="layout"
         className="min-h-0 flex-1 overflow-y-auto p-4 pb-24 @container/form"
       >
-        <TemplateTab
+        <LayoutTab
           presentation={presentation}
           draft={draft}
           onChange={onPresentationChange}

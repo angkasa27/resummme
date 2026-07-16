@@ -3,7 +3,7 @@ import {
   type ResumeDraft,
 } from "@/features/resume-editor/domain/schema";
 
-export const RESUME_STORAGE_KEY = "resume-editor:draft:v2";
+export const RESUME_STORAGE_KEY = "resume-editor:draft:v3";
 
 export function exportResumeDraft(draft: ResumeDraft): string {
   return JSON.stringify(draft, null, 2);

@@ -5,12 +5,12 @@ import { renderDateRange } from "@/features/resume-editor/preview/helpers/date";
 import { PreviewContactLine } from "@/features/resume-editor/preview/kit/contact-line";
 
 /**
- * Reusable primitives for authoring a template's Component or a custom
+ * Reusable primitives for authoring a layout's Component or a custom
  * `renderSection`. They emit the SAME class / `data-*` / `data-testid` contract
- * as the shared `TemplateSection` scaffold, so a template that composes its own
- * layout out of these stays consistent with the CSS every template's stylesheet
+ * as the shared `LayoutSection` scaffold, so a layout that composes its own
+ * layout out of these stays consistent with the CSS every layout's stylesheet
  * targets. Nothing existing imports these yet — they exist to make genuinely
- * distinct templates cheap to build.
+ * distinct layouts cheap to build.
  */
 
 /** `<section>` wrapper with the standard heading; caller supplies the body. */

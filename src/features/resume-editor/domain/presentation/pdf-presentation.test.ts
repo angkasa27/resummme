@@ -12,10 +12,10 @@ import {
 } from "@/features/resume-editor/domain/presentation/pdf-presentation";
 
 describe("createDefaultPdfPresentation", () => {
-  it("returns classic template with standard sizing", () => {
+  it("returns classic layout with standard sizing", () => {
     const result = createDefaultPdfPresentation();
 
-    expect(result.templateId).toBe("classic");
+    expect(result.layoutId).toBe("classic");
     expect(result.fontScale).toBe("md");
     expect(result.spacing).toBe("standard");
     expect(result.lineHeight).toBe("standard");
@@ -75,26 +75,26 @@ describe("getPageMarginMm", () => {
 
 describe("normalizePdfPresentation", () => {
   it("returns defaults for null/undefined input", () => {
-    expect(normalizePdfPresentation(null).templateId).toBe("classic");
-    expect(normalizePdfPresentation(undefined).templateId).toBe("classic");
+    expect(normalizePdfPresentation(null).layoutId).toBe("classic");
+    expect(normalizePdfPresentation(undefined).layoutId).toBe("classic");
   });
 
   it("returns defaults for non-object input", () => {
-    expect(normalizePdfPresentation("bad").templateId).toBe("classic");
+    expect(normalizePdfPresentation("bad").layoutId).toBe("classic");
   });
 
   it("passes through valid values", () => {
-    const result = normalizePdfPresentation({ templateId: "sidebar" });
-    expect(result.templateId).toBe("sidebar");
+    const result = normalizePdfPresentation({ layoutId: "sidebar" });
+    expect(result.layoutId).toBe("sidebar");
   });
 
   it("falls back to defaults for invalid values", () => {
     const result = normalizePdfPresentation({
-      templateId: "nonexistent",
+      layoutId: "nonexistent",
       fontScale: "xxl",
       paperSize: "tabloid",
     });
-    expect(result.templateId).toBe("classic");
+    expect(result.layoutId).toBe("classic");
     expect(result.fontScale).toBe("md");
     expect(result.paperSize).toBe("a4");
   });
@@ -139,10 +139,10 @@ describe("getEffectiveSecondary", () => {
 });
 
 describe("resolvePdfPresentation", () => {
-  it("returns a template ID and CSS variables", () => {
+  it("returns a layout ID and CSS variables", () => {
     const result = resolvePdfPresentation();
 
-    expect(result.templateId).toBe("classic");
+    expect(result.layoutId).toBe("classic");
     expect(result.vars).toBeDefined();
     expect(result.vars["--resume-font"]).toBeDefined();
     expect(result.vars["--resume-body"]).toBeDefined();
@@ -200,7 +200,7 @@ describe("resolvePdfPresentation", () => {
   describe("photo shape", () => {
     const base = createDefaultPdfPresentation();
 
-    it("emits no photo vars when photoShape is unset (templates keep native look)", () => {
+    it("emits no photo vars when photoShape is unset (layouts keep native look)", () => {
       const result = resolvePdfPresentation(base);
 
       expect(result.vars["--resume-photo-aspect"]).toBeUndefined();

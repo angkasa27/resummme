@@ -8,7 +8,7 @@ import {
   pdfPaperSizes,
   pdfPhotoShapeIds,
   pdfSpacingIds,
-  pdfTemplateIds,
+  pdfLayoutIds,
   resumeFontIds,
 } from "@/features/resume-editor/domain/presentation/pdf-presentation";
 import { hexColorPattern } from "@/features/resume-editor/domain/presentation/color-utils";
@@ -16,7 +16,7 @@ import { hexColorPattern } from "@/features/resume-editor/domain/presentation/co
 export const pdfPresentationSchema = z.preprocess(
   normalizePdfPresentation,
   z.object({
-    templateId: z.enum(pdfTemplateIds),
+    layoutId: z.enum(pdfLayoutIds),
     fontFamilyId: z.enum(resumeFontIds),
     fontScale: z.enum(pdfFontScaleIds),
     spacing: z.enum(pdfSpacingIds),

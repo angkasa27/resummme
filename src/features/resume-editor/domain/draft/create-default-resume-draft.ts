@@ -129,8 +129,7 @@ function createDefaultOrganizationItem() {
 
 export function createDefaultResumeDraft(): ResumeDraft {
   return {
-    schemaVersion: 2,
-    templateId: "recruiter-first-clean",
+    schemaVersion: 3,
     updatedAt: createTimestamp(),
     pdfPresentation: createDefaultPdfPresentation(),
     profile: {

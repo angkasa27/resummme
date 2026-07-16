@@ -44,12 +44,13 @@ describe("LocalDraftStorage", () => {
 
     const loaded = storage.load();
 
-    expect(loaded.templateId).toBe("recruiter-first-clean");
+    expect(loaded.schemaVersion).toBe(3);
+    expect(loaded.profile.fullName).toBeTruthy();
   });
 
   it("exports and re-imports a draft as the same contract", () => {
     const draft = createDefaultResumeDraft();
-    draft.pdfPresentation.templateId = "sidebar";
+    draft.pdfPresentation.layoutId = "sidebar";
     draft.pdfPresentation.fontScale = "lg";
     draft.pdfPresentation.lineHeight = "relaxed";
     draft.pdfPresentation.spacing = "airy";
@@ -66,8 +67,7 @@ describe("LocalDraftStorage", () => {
     expect(() =>
       importResumeDraft(
         JSON.stringify({
-          schemaVersion: 2,
-          templateId: "recruiter-first-clean",
+          schemaVersion: 3,
           profile: {},
         }),
       ),

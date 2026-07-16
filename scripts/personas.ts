@@ -1,4 +1,4 @@
-import type { PdfTemplateId } from "@/features/resume-editor/domain/presentation/pdf-presentation";
+import type { PdfLayoutId } from "@/features/resume-editor/domain/presentation/pdf-presentation";
 
 export type Job = {
   company: string;
@@ -17,7 +17,7 @@ export type Project = {
 export type Cert = { name: string; org: string; date: string };
 
 export type Persona = {
-  templateId: PdfTemplateId;
+  layoutId: PdfLayoutId;
   screenshotId: string;
   accent: string;
   secondary: string;
@@ -44,12 +44,12 @@ export type Persona = {
 };
 
 // 14 personas: 2 per template, all western male, distinct configurations.
-// The first 7 share screenshotId == templateId (top carousel row);
-// the second 7 use screenshotId == templateId + "-alt" (bottom carousel row).
+// The first 7 share screenshotId == layoutId (top carousel row);
+// the second 7 use screenshotId == layoutId + "-alt" (bottom carousel row).
 export const PERSONAS: Persona[] = [
   // ── Row 1 ──────────────────────────────────────────────────────────────────
   {
-    templateId: "classic",
+    layoutId: "classic",
     screenshotId: "classic",
     accent: "#0d9488",
     secondary: "#14b8a6",
@@ -180,7 +180,7 @@ export const PERSONAS: Persona[] = [
     },
   },
   {
-    templateId: "sidebar",
+    layoutId: "sidebar",
     screenshotId: "sidebar",
     accent: "#4f46e5",
     secondary: "#818cf8",
@@ -296,7 +296,7 @@ export const PERSONAS: Persona[] = [
     },
   },
   {
-    templateId: "modern-centered",
+    layoutId: "modern-centered",
     screenshotId: "modern-centered",
     accent: "#db2777",
     secondary: "#f472b6",
@@ -442,7 +442,7 @@ export const PERSONAS: Persona[] = [
     },
   },
   {
-    templateId: "timeline",
+    layoutId: "timeline",
     screenshotId: "timeline",
     accent: "#059669",
     secondary: "#34d399",
@@ -566,7 +566,7 @@ export const PERSONAS: Persona[] = [
     },
   },
   {
-    templateId: "academic",
+    layoutId: "academic",
     screenshotId: "academic",
     accent: "#1d4ed8",
     secondary: "#60a5fa",
@@ -686,7 +686,7 @@ export const PERSONAS: Persona[] = [
     },
   },
   {
-    templateId: "minimal",
+    layoutId: "minimal",
     screenshotId: "minimal",
     accent: "#111827",
     secondary: "#4b5563",
@@ -826,7 +826,7 @@ export const PERSONAS: Persona[] = [
     },
   },
   {
-    templateId: "inset",
+    layoutId: "inset",
     screenshotId: "inset",
     accent: "#d97706",
     secondary: "#fbbf24",
@@ -952,7 +952,7 @@ export const PERSONAS: Persona[] = [
 
   // ── Row 2: alt variants ────────────────────────────────────────────────────
   {
-    templateId: "classic",
+    layoutId: "classic",
     screenshotId: "classic-alt",
     accent: "#1e3a5f",
     secondary: "#3b82f6",
@@ -1092,7 +1092,7 @@ export const PERSONAS: Persona[] = [
     },
   },
   {
-    templateId: "sidebar",
+    layoutId: "sidebar",
     screenshotId: "sidebar-alt",
     accent: "#e11d48",
     secondary: "#fb7185",
@@ -1229,7 +1229,7 @@ export const PERSONAS: Persona[] = [
     },
   },
   {
-    templateId: "modern-centered",
+    layoutId: "modern-centered",
     screenshotId: "modern-centered-alt",
     accent: "#0891b2",
     secondary: "#22d3ee",
@@ -1354,7 +1354,7 @@ export const PERSONAS: Persona[] = [
     },
   },
   {
-    templateId: "timeline",
+    layoutId: "timeline",
     screenshotId: "timeline-alt",
     accent: "#7c3aed",
     secondary: "#a78bfa",
@@ -1478,7 +1478,7 @@ export const PERSONAS: Persona[] = [
     },
   },
   {
-    templateId: "academic",
+    layoutId: "academic",
     screenshotId: "academic-alt",
     accent: "#475569",
     secondary: "#94a3b8",
@@ -1615,7 +1615,7 @@ export const PERSONAS: Persona[] = [
     },
   },
   {
-    templateId: "minimal",
+    layoutId: "minimal",
     screenshotId: "minimal-alt",
     accent: "#292524",
     secondary: "#57534e",
@@ -1759,7 +1759,7 @@ export const PERSONAS: Persona[] = [
     },
   },
   {
-    templateId: "inset",
+    layoutId: "inset",
     screenshotId: "inset-alt",
     accent: "#be123c",
     secondary: "#e11d48",
@@ -1893,7 +1893,7 @@ export const PERSONAS: Persona[] = [
 
   // ── New templates: banner ──────────────────────────────────────────────────
   {
-    templateId: "banner",
+    layoutId: "banner",
     screenshotId: "banner",
     accent: "#8b5cf6",
     secondary: "#c4b5fd",
@@ -2038,7 +2038,7 @@ export const PERSONAS: Persona[] = [
     },
   },
   {
-    templateId: "split",
+    layoutId: "split",
     screenshotId: "split",
     accent: "#0ea5e9",
     secondary: "#7dd3fc",
@@ -2181,7 +2181,7 @@ export const PERSONAS: Persona[] = [
     },
   },
   {
-    templateId: "tinted",
+    layoutId: "tinted",
     screenshotId: "tinted",
     accent: "#84cc16",
     secondary: "#bef264",
@@ -2304,7 +2304,7 @@ export const PERSONAS: Persona[] = [
     },
   },
   {
-    templateId: "bold-type",
+    layoutId: "bold-type",
     screenshotId: "bold-type",
     accent: "#f97316",
     secondary: "#fdba74",
@@ -2451,7 +2451,7 @@ export const PERSONAS: Persona[] = [
 
   // ── New templates: banner-alt ──────────────────────────────────────────────
   {
-    templateId: "banner",
+    layoutId: "banner",
     screenshotId: "banner-alt",
     accent: "#a21caf",
     secondary: "#e879f9",
@@ -2583,7 +2583,7 @@ export const PERSONAS: Persona[] = [
     },
   },
   {
-    templateId: "split",
+    layoutId: "split",
     screenshotId: "split-alt",
     accent: "#14b8a6",
     secondary: "#5eead4",
@@ -2702,7 +2702,7 @@ export const PERSONAS: Persona[] = [
     },
   },
   {
-    templateId: "tinted",
+    layoutId: "tinted",
     screenshotId: "tinted-alt",
     accent: "#eab308",
     secondary: "#fde047",
@@ -2830,7 +2830,7 @@ export const PERSONAS: Persona[] = [
     },
   },
   {
-    templateId: "bold-type",
+    layoutId: "bold-type",
     screenshotId: "bold-type-alt",
     accent: "#06b6d4",
     secondary: "#67e8f7",

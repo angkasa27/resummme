@@ -15,7 +15,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EditorDocumentActions } from "@/features/resume-editor/controls/editor-document-actions";
 import { InsightsTab } from "@/features/resume-editor/controls/insights/insights-tab";
 import { StyleTab } from "@/features/resume-editor/controls/style-tab";
-import { TemplateTab } from "@/features/resume-editor/controls/template-tab";
+import { LayoutTab } from "@/features/resume-editor/controls/layout-tab";
 import type { PdfPresentation } from "@/features/resume-editor/domain/presentation/pdf-presentation";
 import type { EditorPanelKey } from "@/features/resume-editor/domain/sections/section-metadata";
 import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
@@ -101,7 +101,7 @@ function ZoomControls({ zoom, onZoomChange }: ZoomControlsProps) {
 
 /**
  * Editor control panel shared by the canvas and classic editors: the
- * Template/Style/Insights tabs plus document actions, and optional zoom.
+ * Layout/Style/Insights tabs plus document actions, and optional zoom.
  */
 export function EditorControlPanel({
   presentation,
@@ -144,7 +144,7 @@ export function EditorControlPanel({
 
       {/* Tabs */}
       <Tabs
-        defaultValue="template"
+        defaultValue="layout"
         className={cn("flex flex-col", isFlow ? "flex-1" : "min-h-0 flex-1")}
       >
         <div
@@ -154,9 +154,9 @@ export function EditorControlPanel({
           )}
         >
           <TabsList className="w-full shrink-0">
-            <TabsTrigger value="template">
+            <TabsTrigger value="layout">
               <LayoutTemplateIcon />
-              Template
+              Layout
             </TabsTrigger>
             <TabsTrigger value="style">
               <PaletteIcon />
@@ -168,8 +168,8 @@ export function EditorControlPanel({
           </TabsList>
         </div>
 
-        <TabsContent value="template" className={tabContentClassName}>
-          <TemplateTab
+        <TabsContent value="layout" className={tabContentClassName}>
+          <LayoutTab
             presentation={presentation}
             draft={draft}
             onChange={onPresentationChange}

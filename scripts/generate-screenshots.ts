@@ -37,7 +37,7 @@ function buildDraft(p: Persona): ResumeDraft {
   const draft = createDefaultResumeDraft();
   draft.pdfPresentation = {
     ...draft.pdfPresentation,
-    templateId: p.templateId,
+    layoutId: p.layoutId,
     accent: p.accent,
     secondary: p.secondary,
   };

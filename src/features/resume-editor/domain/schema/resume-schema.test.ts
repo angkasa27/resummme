@@ -9,9 +9,8 @@ describe("resume schema", () => {
 
     const parsed = parseResumeDraft(draft);
 
-    expect(parsed.schemaVersion).toBe(2);
-    expect(parsed.templateId).toBe("recruiter-first-clean");
-    expect(parsed.pdfPresentation.templateId).toBe("classic");
+    expect(parsed.schemaVersion).toBe(3);
+    expect(parsed.pdfPresentation.layoutId).toBe("classic");
     expect(parsed.pdfPresentation.fontScale).toBe("md");
     expect(parsed.profile.fullName).toBeTruthy();
   });
@@ -45,7 +44,7 @@ describe("resume schema", () => {
     });
 
     expect(parsed.pdfPresentation).toEqual({
-      templateId: "classic",
+      layoutId: "classic",
       fontFamilyId: "inter",
       fontScale: "md",
       spacing: "standard",

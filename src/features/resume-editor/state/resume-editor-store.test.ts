@@ -76,10 +76,10 @@ describe("resume editor store", () => {
 
       store.getState().savePdfPresentation({
         ...store.getState().draft.pdfPresentation,
-        templateId: "sidebar",
+        layoutId: "sidebar",
       });
 
-      expect(store.getState().draft.pdfPresentation.templateId).toBe("sidebar");
+      expect(store.getState().draft.pdfPresentation.layoutId).toBe("sidebar");
       expect(storage.save).toHaveBeenCalledTimes(1);
     });
 
@@ -97,7 +97,7 @@ describe("resume editor store", () => {
 
       store.getState().savePdfPresentation({
         ...store.getState().draft.pdfPresentation,
-        templateId: "sidebar",
+        layoutId: "sidebar",
       });
 
       expect(store.getState().redoStack).toHaveLength(0);

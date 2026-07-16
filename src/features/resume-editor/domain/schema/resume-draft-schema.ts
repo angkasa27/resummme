@@ -6,8 +6,7 @@ import { profileSchema } from "@/features/resume-editor/domain/schema/profile-sc
 import { sectionsSchema } from "@/features/resume-editor/domain/schema/section-schemas";
 
 const resumeDraftSchema = z.object({
-  schemaVersion: z.literal(2),
-  templateId: z.literal("recruiter-first-clean"),
+  schemaVersion: z.literal(3),
   updatedAt: z.string().min(1),
   pdfPresentation: pdfPresentationSchema
     .optional()

@@ -6,7 +6,7 @@ import type { PreviewContactItem, PreviewRenderContext } from "../types";
 /**
  * Contact details render as one list, profile links as a second
  * `.contact-links` list. Items are inline with "•" separators drawn in CSS
- * (resume-document.module.css), so templates can restyle them as stacked
+ * (resume-document.module.css), so layouts can restyle them as stacked
  * lists by overriding `.contact-item` display and its separator.
  */
 export function PreviewContactLine({

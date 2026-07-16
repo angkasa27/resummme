@@ -29,7 +29,7 @@ type PhotoCropDialogProps = {
   imageUrl: string | null;
   /** The decoded image, cropped on apply (avoids reloading). */
   image: HTMLImageElement | null;
-  /** Crop aspect ratio; 1 = square (default, works with every template frame). */
+  /** Crop aspect ratio; 1 = square (default, works with every layout frame). */
   aspect?: number;
   onApply: (dataUrl: string) => void;
   onCancel: () => void;

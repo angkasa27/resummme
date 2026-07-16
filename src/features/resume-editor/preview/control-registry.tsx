@@ -14,7 +14,7 @@ import {
   type PdfPhotoShapeId,
   type PdfPresentation,
 } from "@/features/resume-editor/domain/presentation/pdf-presentation";
-import { previewTemplateDefinitions } from "@/features/resume-editor/preview/template-registry";
+import { previewLayoutDefinitions } from "@/features/resume-editor/preview/layout-registry";
 import type { PreviewControlDefinition } from "@/features/resume-editor/preview/types";
 
 function spacingGlyph({ gap }: { gap: number }) {
@@ -30,7 +30,7 @@ function spacingGlyph({ gap }: { gap: number }) {
   );
 }
 
-/** Sentinel option value for "use the template's own photo shape". */
+/** Sentinel option value for "use the layout's own photo shape". */
 const PHOTO_SHAPE_DEFAULT = "default";
 
 function photoShapeGlyph(shape: PdfPhotoShapeId | typeof PHOTO_SHAPE_DEFAULT) {
@@ -41,7 +41,7 @@ function photoShapeGlyph(shape: PdfPhotoShapeId | typeof PHOTO_SHAPE_DEFAULT) {
       : shape === "rectangle"
         ? `h-4 w-3 rounded-[2px] ${base}`
         : shape === "default"
-          ? // Dashed = "follow the template's default".
+          ? // Dashed = "follow the layout's default".
             `size-4 rounded-[3px] border-dashed ${base}`
           : `size-4 rounded-[2px] ${base}`;
   return <span aria-hidden="true" className={className} />;
@@ -75,19 +75,19 @@ function set<K extends keyof PdfPresentation>(
 
 export const previewControlDefinitions = [
   {
-    id: "template",
+    id: "layout",
     kind: "select",
-    label: "Template",
-    value: (presentation) => presentation.templateId,
+    label: "Layout",
+    value: (presentation) => presentation.layoutId,
     update: (nextValue, presentation) =>
       set(
         presentation,
-        "templateId",
-        nextValue as PdfPresentation["templateId"],
+        "layoutId",
+        nextValue as PdfPresentation["layoutId"],
       ),
-    options: previewTemplateDefinitions.map((template) => ({
-      value: template.id,
-      label: template.label,
+    options: previewLayoutDefinitions.map((layout) => ({
+      value: layout.id,
+      label: layout.label,
     })),
   },
   {
@@ -174,7 +174,7 @@ export const previewControlDefinitions = [
     id: "photo-shape",
     kind: "toggle-group",
     label: "Photo shape",
-    // "default" → unset photoShape so each template keeps its own photo style.
+    // "default" → unset photoShape so each layout keeps its own photo style.
     value: (presentation) => presentation.photoShape ?? PHOTO_SHAPE_DEFAULT,
     update: (nextValue, presentation) =>
       set(

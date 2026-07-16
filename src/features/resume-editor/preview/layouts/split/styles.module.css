@@ -1,0 +1,117 @@
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 0.36fr) minmax(0, 1fr);
+  gap: var(--resume-gap-section);
+}
+
+.layout :global(.layout-side) {
+  background: var(--resume-secondary);
+  color: var(--resume-on-secondary);
+  --resume-text: var(--resume-on-secondary);
+  --resume-muted: color-mix(
+    in srgb,
+    var(--resume-on-secondary) 78%,
+    transparent
+  );
+  --resume-border: color-mix(
+    in srgb,
+    var(--resume-on-secondary) 35%,
+    transparent
+  );
+  border-radius: 8px;
+  padding: var(--resume-gap-section);
+  display: flex;
+  flex-direction: column;
+  gap: var(--resume-gap-section);
+  min-width: 0;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+.layout :global(.layout-main) {
+  display: flex;
+  flex-direction: column;
+  gap: var(--resume-gap-section);
+  min-width: 0;
+}
+
+.layout :global(.layout-side .section-heading) {
+  color: var(--resume-on-secondary);
+  border-bottom: 1px solid var(--resume-border);
+  padding-bottom: var(--resume-gap-inner);
+}
+
+.layout :global(.layout-side .item-title),
+.layout :global(.layout-side a) {
+  color: var(--resume-on-secondary);
+}
+
+.layout :global(.layout-side .side-photo) {
+  height: 140px;
+  aspect-ratio: var(--resume-photo-aspect, 1 / 1);
+  width: auto;
+  border-radius: var(--resume-photo-radius, 50%);
+  overflow: hidden;
+  margin: 0 auto;
+}
+
+.layout :global(.layout-side .side-photo img) {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.layout :global(.layout-side .contact-line) {
+  font-size: var(--resume-meta);
+  list-style: disc;
+  padding-left: 1.1em;
+}
+
+.layout :global(.layout-side .contact-block) {
+  gap: var(--resume-gap-inner);
+}
+
+.layout :global(.layout-side .contact-item) {
+  display: list-item;
+}
+
+.layout :global(.layout-side .contact-item + .contact-item) {
+  margin-top: var(--resume-gap-inner);
+}
+
+.layout :global(.layout-side .contact-item + .contact-item)::before {
+  content: none;
+}
+
+/* Stack item-header vertically inside the narrow rail. */
+.layout :global(.layout-side .item-header) {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 2px;
+}
+
+.layout :global(.layout-side .item-header-side) {
+  text-align: left;
+  align-items: flex-start;
+}
+
+.layout :global(.layout-side .item-date) {
+  text-align: left;
+  white-space: normal;
+}
+
+.layout :global(.layout-side .item-row) {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.layout :global(.layout-main .section-heading) {
+  border-bottom: 1px solid var(--resume-border);
+  padding-bottom: var(--resume-gap-inner);
+}
+
+.header :global(.name) {
+  color: var(--resume-accent);
+}

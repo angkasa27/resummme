@@ -64,7 +64,7 @@
   display: inline;
 }
 
-/* Inline separator dots live in CSS so templates can stack items instead. */
+/* Inline separator dots live in CSS so layouts can stack items instead. */
 .root :global(.contact-line .contact-item + .contact-item)::before {
   content: "• ";
 }
@@ -108,7 +108,7 @@
 
 .root :global(.item-header) {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-layout-columns: minmax(0, 1fr) auto;
   align-items: start;
   gap: var(--resume-gap-item);
 }
@@ -160,4 +160,4 @@
   display: none;
 }
 
-/* Each template provides its own template-scoped CSS module — see preview/templates/<name>/styles.module.css */
+/* Each layout provides its own layout-scoped CSS module — see preview/layouts/<name>/styles.module.css */

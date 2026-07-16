@@ -20,17 +20,17 @@ describe("computeAtsScore", () => {
     expect(result.breakdown.jobMatch).toBeNull();
   });
 
-  it("docks parseability when switching to the sidebar template", () => {
+  it("docks parseability when switching to the sidebar layout", () => {
     const classic = createDefaultResumeDraft();
-    classic.pdfPresentation.templateId = "classic";
+    classic.pdfPresentation.layoutId = "classic";
     const sidebar = createDefaultResumeDraft();
-    sidebar.pdfPresentation.templateId = "sidebar";
+    sidebar.pdfPresentation.layoutId = "sidebar";
 
     expect(getCategoryPct(computeAtsScore(classic), "parseability")).toBe(100);
     expect(getCategoryPct(computeAtsScore(sidebar), "parseability")).toBe(55);
     expect(
       computeAtsScore(sidebar).suggestions.some(
-        (s) => s.id === "parseability/sidebar-template",
+        (s) => s.id === "parseability/sidebar-layout",
       ),
     ).toBe(true);
   });
