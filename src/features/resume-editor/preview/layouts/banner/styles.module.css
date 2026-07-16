@@ -1,3 +1,5 @@
+/* Full-bleed: the accent band paints to the top/left/right paper edges; the
+   body below keeps the page margin. */
 .layout {
   display: flex;
   flex-direction: column;
@@ -8,15 +10,15 @@
   display: flex;
   flex-direction: column;
   gap: var(--resume-gap-section);
+  padding: 0 var(--resume-page-margin) var(--resume-page-margin);
 }
 
-/* Full-width solid accent band; text switches to the readable on-accent color. */
+/* Edge-to-edge solid accent band; text switches to the readable on-accent color. */
 .header :global(.banner-band) {
   position: relative;
   background: var(--resume-accent);
   color: var(--resume-on-accent);
-  border-radius: 8px;
-  padding: var(--resume-gap-section);
+  padding: var(--resume-page-margin);
   print-color-adjust: exact;
   -webkit-print-color-adjust: exact;
 }
@@ -24,7 +26,7 @@
 /* Reserve room for the circular photo overlapping the band's bottom edge. */
 .hasPhoto :global(.banner-band) {
   margin-bottom: 42px;
-  padding-right: calc(84px + var(--resume-gap-section) * 2);
+  padding-right: calc(84px + var(--resume-page-margin) + var(--resume-gap-section));
 }
 
 .header :global(.name) {
@@ -45,7 +47,7 @@
 
 .header :global(.header-photo) {
   position: absolute;
-  right: var(--resume-gap-section);
+  right: var(--resume-page-margin);
   bottom: -42px;
   width: 84px;
   aspect-ratio: var(--resume-photo-aspect, 1 / 1);

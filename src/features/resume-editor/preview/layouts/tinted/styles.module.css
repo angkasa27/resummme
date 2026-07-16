@@ -1,7 +1,12 @@
+/* Full-bleed: the soft tint washes the entire page (the factory's page-inset
+   padding sits on this same element, so the background reaches every edge). */
 .layout {
   display: flex;
   flex-direction: column;
   gap: var(--resume-gap-section);
+  background: var(--resume-secondary-tint);
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
 }
 
 .layout :global(.layout-body) {
@@ -32,7 +37,8 @@
 
 .layout :global(.pill) {
   display: inline-flex;
-  background: var(--resume-secondary-tint);
+  /* White pills — the page itself is tinted, so tint-on-tint would vanish. */
+  background: #ffffff;
   color: var(--resume-secondary);
   font-size: var(--resume-meta);
   border-radius: 999px;
@@ -42,13 +48,13 @@
   -webkit-print-color-adjust: exact;
 }
 
-/* Soft tinted header block — name left, photo right. */
+/* White header card — pops against the tinted page. */
 .header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--resume-gap-section);
-  background: var(--resume-secondary-tint);
+  background: #ffffff;
   border-radius: 8px;
   padding: var(--resume-gap-section);
   print-color-adjust: exact;

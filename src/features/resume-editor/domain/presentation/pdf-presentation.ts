@@ -244,7 +244,6 @@ export function resolvePdfPresentation(
   const leading = lineHeightValues[p.lineHeight];
   const paper = paperDimensions[p.paperSize];
   const margin = pageMarginMm[p.pageMargin];
-  const printContentWidth = Number((paper.widthMm - margin * 2).toFixed(3));
   const secondary = getEffectiveSecondary(p);
 
   const vars: Record<string, string> = {
@@ -268,8 +267,8 @@ export function resolvePdfPresentation(
     "--resume-gap-inner": `${innerGapPx[p.spacing]}px`,
     "--resume-indent": `${indentPx[p.spacing]}px`,
     "--resume-paper-width": `${paper.widthMm}mm`,
+    "--resume-paper-height": `${paper.heightMm}mm`,
     "--resume-page-margin": `${margin}mm`,
-    "--resume-print-content-width": `${printContentWidth}mm`,
   };
 
   // Photo-shape override. Only emit when the user has picked a shape so each

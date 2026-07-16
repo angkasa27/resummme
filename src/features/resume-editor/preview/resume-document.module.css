@@ -3,6 +3,38 @@
   color: var(--resume-text);
   font-size: var(--resume-body);
   line-height: var(--resume-leading);
+  /* Full-bleed page: the root spans the whole sheet; a short resume still
+     fills one page so edge-to-edge rails/bands reach the bottom edge. */
+  display: flex;
+  flex-direction: column;
+  min-height: var(--resume-paper-height);
+}
+
+/* The layout component is always the root's first child — stretch it so
+   full-height decorative surfaces (Split/Sidebar rails) meet the page edge.
+   Later siblings (editor-only chrome like hidden-section pills) keep their
+   natural height. */
+.root > :global(*:first-child) {
+  flex: 1 0 auto;
+}
+
+/* Shared content insets — layouts opt in per side instead of the root forcing
+   a uniform padding, so decorative surfaces can bleed to the paper edge. */
+.root :global(.page-inset) {
+  padding: var(--resume-page-margin);
+}
+
+.root :global(.page-inset-x) {
+  padding-left: var(--resume-page-margin);
+  padding-right: var(--resume-page-margin);
+}
+
+.root :global(.page-inset-t) {
+  padding-top: var(--resume-page-margin);
+}
+
+.root :global(.page-inset-b) {
+  padding-bottom: var(--resume-page-margin);
 }
 
 .root :global(a) {
@@ -89,6 +121,9 @@
   display: flex;
   flex-direction: column;
   gap: var(--resume-gap-inner);
+  /* With zero physical PDF margins, page breaks land inside section gaps
+     instead of mid-item so content keeps breathing room at page edges. */
+  break-inside: avoid;
 }
 
 .root :global(.item-row) {
@@ -108,7 +143,7 @@
 
 .root :global(.item-header) {
   display: grid;
-  grid-layout-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: start;
   gap: var(--resume-gap-item);
 }

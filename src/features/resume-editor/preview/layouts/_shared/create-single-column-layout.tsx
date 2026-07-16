@@ -18,6 +18,12 @@ type SingleColumnConfig = {
   itemViews: LayoutSectionItemMap;
   hideSummaryHeading?: boolean;
   /**
+   * Content inset strategy. `"page"` (default) applies the shared `page-inset`
+   * padding so content sits inside the page margin; `"none"` lets a layout
+   * with full-bleed surfaces (e.g. banner) manage its own per-side insets.
+   */
+  inset?: "page" | "none";
+  /**
    * Per-section override — the extension point for structural uniqueness.
    * Defaults to the plain `<div>{node}</div>` wrapper every single-column
    * layout used before this factory existed.
@@ -43,10 +49,14 @@ export function createSingleColumnLayout(
   config: SingleColumnConfig,
 ): PreviewLayoutDefinition {
   const renderSection = config.renderSection ?? defaultRenderSection;
+  const rootClassName =
+    config.inset === "none"
+      ? config.styles.layout
+      : `${config.styles.layout} page-inset`;
 
   function SingleColumnLayout({ slots }: LayoutComponentProps) {
     return (
-      <div className={config.styles.layout}>
+      <div className={rootClassName}>
         {slots.header}
         <div className="layout-body">
           {slots.summary}

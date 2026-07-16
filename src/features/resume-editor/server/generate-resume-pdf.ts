@@ -2,7 +2,6 @@ import type { Browser, Page } from "puppeteer-core";
 
 import { exportResumeDraft } from "@/features/resume-editor/domain/draft/resume-draft-storage";
 import {
-  getPageMarginMm,
   normalizePdfPresentation,
   type PdfPaperSize,
 } from "@/features/resume-editor/domain/presentation/pdf-presentation";
@@ -11,7 +10,6 @@ import { RESUME_PDF_SESSION_STORAGE_KEY } from "@/features/resume-editor/server/
 
 type PdfRenderOptions = {
   format: PdfPaperSize;
-  marginMm: number;
 };
 
 export type PdfExportProvider =
@@ -178,17 +176,14 @@ function createPuppeteerPageAdapter(page: Page): PdfPageAdapter {
         throw new Error(result.message || "PDF page reported an error state.");
       }
     },
-    async pdf({ format, marginMm }) {
-      const margin = `${marginMm}mm`;
+    async pdf({ format }) {
+      // Full-bleed: page margins are owned by the layouts themselves (via
+      // --resume-page-margin insets), so the physical PDF margin is zero and
+      // decorative surfaces can paint to the paper edge.
       return new Uint8Array(
         await page.pdf({
           format,
-          margin: {
-            top: margin,
-            right: margin,
-            bottom: margin,
-            left: margin,
-          },
+          margin: { top: "0", right: "0", bottom: "0", left: "0" },
           printBackground: true,
         }),
       );
@@ -276,7 +271,6 @@ export async function generateResumePdf({
   const presentation = normalizePdfPresentation(draft.pdfPresentation);
   const renderOptions: PdfRenderOptions = {
     format: presentation.paperSize,
-    marginMm: getPageMarginMm(presentation.pageMargin),
   };
   const session = await createPdfBrowserSession();
 

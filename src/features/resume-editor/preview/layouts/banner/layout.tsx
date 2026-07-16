@@ -10,6 +10,7 @@ export const bannerLayout = createSingleColumnLayout({
   description:
     "Bold solid-color header band with the name and contacts inside, and a circular photo overlapping its edge.",
   hideSummaryHeading: true,
+  inset: "none",
   styles,
   Header: BannerHeader,
   itemViews: bannerItemViews,

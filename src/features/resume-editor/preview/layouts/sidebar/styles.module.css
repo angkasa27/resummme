@@ -1,13 +1,22 @@
+/* Full-bleed: the header keeps the page margin while the tinted rail below it
+   paints to the left and bottom paper edges. */
 .layout {
   display: flex;
   flex-direction: column;
   gap: var(--resume-gap-section);
+  padding-top: var(--resume-page-margin);
+}
+
+.layout > *:first-child {
+  padding-left: var(--resume-page-margin);
+  padding-right: var(--resume-page-margin);
 }
 
 .layout :global(.layout-body) {
   display: grid;
   grid-template-columns: minmax(0, 0.42fr) minmax(0, 1fr);
-  gap: var(--resume-gap-section);
+  gap: 0 var(--resume-gap-section);
+  flex: 1;
 }
 
 .layout :global(.layout-side),
@@ -20,10 +29,15 @@
 
 .layout :global(.layout-side) {
   background: var(--resume-secondary-tint);
-  border-radius: 8px;
-  padding: var(--resume-gap-section);
+  padding: var(--resume-gap-section) var(--resume-gap-section)
+    var(--resume-page-margin) var(--resume-page-margin);
   print-color-adjust: exact;
   -webkit-print-color-adjust: exact;
+}
+
+.layout :global(.layout-main) {
+  padding-right: var(--resume-page-margin);
+  padding-bottom: var(--resume-page-margin);
 }
 
 .layout :global(.layout-side .section-heading) {

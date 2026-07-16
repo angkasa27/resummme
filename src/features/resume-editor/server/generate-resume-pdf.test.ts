@@ -179,18 +179,14 @@ describe("generateResumePdf", () => {
       expect.objectContaining({
         format: "a4",
         printBackground: true,
-        margin: {
-          top: "12.7mm",
-          right: "12.7mm",
-          bottom: "12.7mm",
-          left: "12.7mm",
-        },
+        // Full-bleed: layouts own the page margin, the physical margin is zero.
+        margin: { top: "0", right: "0", bottom: "0", left: "0" },
       })
     );
     expect(mockLocalPuppeteerPage.close).toHaveBeenCalled();
   });
 
-  it("passes the draft's paperSize and pageMargin into the PDF call", async () => {
+  it("passes the draft's paperSize into the PDF call with zero physical margins", async () => {
     vi.stubEnv("PDF_EXPORT_PROVIDER", "local-puppeteer");
 
     const { generateResumePdf } = await import(
@@ -208,12 +204,7 @@ describe("generateResumePdf", () => {
     expect(mockLocalPuppeteerPage.pdf).toHaveBeenCalledWith(
       expect.objectContaining({
         format: "letter",
-        margin: {
-          top: "19.05mm",
-          right: "19.05mm",
-          bottom: "19.05mm",
-          left: "19.05mm",
-        },
+        margin: { top: "0", right: "0", bottom: "0", left: "0" },
       })
     );
   });

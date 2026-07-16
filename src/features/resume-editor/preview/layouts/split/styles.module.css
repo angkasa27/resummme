@@ -1,7 +1,9 @@
+/* Full-bleed: columns own their insets, so the colored rail paints to the
+   left/top/bottom paper edges while main content keeps the page margin. */
 .layout {
   display: grid;
   grid-template-columns: minmax(0, 0.36fr) minmax(0, 1fr);
-  gap: var(--resume-gap-section);
+  gap: 0;
 }
 
 .layout :global(.layout-side) {
@@ -18,8 +20,8 @@
     var(--resume-on-secondary) 35%,
     transparent
   );
-  border-radius: 8px;
-  padding: var(--resume-gap-section);
+  padding: var(--resume-page-margin) var(--resume-gap-section)
+    var(--resume-page-margin) var(--resume-page-margin);
   display: flex;
   flex-direction: column;
   gap: var(--resume-gap-section);
@@ -33,6 +35,8 @@
   flex-direction: column;
   gap: var(--resume-gap-section);
   min-width: 0;
+  padding: var(--resume-page-margin) var(--resume-page-margin)
+    var(--resume-page-margin) var(--resume-gap-section);
 }
 
 .layout :global(.layout-side .section-heading) {

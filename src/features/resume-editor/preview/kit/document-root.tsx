@@ -16,16 +16,13 @@ export function PreviewDocumentRoot({
   style?: CSSProperties;
 }) {
   const { presentation, mode } = context;
-  const rootStyle: CSSProperties =
-    mode === "pdf"
-      ? {
-          width: "var(--resume-print-content-width)",
-          padding: "0",
-        }
-      : {
-          width: "var(--resume-paper-width)",
-          padding: "var(--resume-page-margin)",
-        };
+  // Full-bleed: the root spans the whole paper with no padding in BOTH modes
+  // (preview and pdf render identically). Layouts own their content insets via
+  // the shared `page-inset` utilities / --resume-page-margin.
+  const rootStyle: CSSProperties = {
+    width: "var(--resume-paper-width)",
+    padding: "0",
+  };
 
   return (
     <article

@@ -149,16 +149,18 @@ describe("resolvePdfPresentation", () => {
     expect(result.vars["--resume-leading"]).toBeDefined();
     expect(result.vars["--resume-accent"]).toBe(DEFAULT_ACCENT);
     expect(result.vars["--resume-paper-width"]).toBe("210mm");
+    expect(result.vars["--resume-paper-height"]).toBe("297mm");
     expect(result.vars["--resume-page-margin"]).toBe("12.7mm");
   });
 
-  it("computes print content width", () => {
+  it("emits paper dimensions for the selected paper size", () => {
     const result = resolvePdfPresentation({
       ...createDefaultPdfPresentation(),
       paperSize: "letter",
     });
 
-    expect(result.vars["--resume-print-content-width"]).toBe("190.5mm");
+    expect(result.vars["--resume-paper-width"]).toBe("215.9mm");
+    expect(result.vars["--resume-paper-height"]).toBe("279.4mm");
   });
 
   it("sets font-size based on fontScale", () => {
