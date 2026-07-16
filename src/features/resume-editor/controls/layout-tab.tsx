@@ -1,17 +1,13 @@
 "use client";
 
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import { cn } from "@/lib/utils";
-import { useElementWidth } from "@/hooks/use-element-width";
 import { previewControlDefinitions } from "@/features/resume-editor/preview/control-registry";
-import { ResumeDocument } from "@/features/resume-editor/preview/resume-document";
+import { DocumentPreviewCard } from "@/features/resume-editor/controls/document-preview-card";
 import type { PreviewControlDefinition } from "@/features/resume-editor/preview/types";
-import {
-  getPaperWidthPx,
-  paperDimensions,
-  type PdfPresentation,
-  type PdfLayoutId,
+import type {
+  PdfPresentation,
+  PdfLayoutId,
 } from "@/features/resume-editor/domain/presentation/pdf-presentation";
 import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
 
@@ -98,7 +94,7 @@ type LayoutPreviewCardProps = {
   onSelect: (id: string) => void;
 };
 
-const LayoutPreviewCard = memo(function LayoutPreviewCard({
+function LayoutPreviewCard({
   draft,
   presentation,
   layoutId,
@@ -106,53 +102,23 @@ const LayoutPreviewCard = memo(function LayoutPreviewCard({
   selected,
   onSelect,
 }: LayoutPreviewCardProps) {
-  const [ref, width] = useElementWidth<HTMLButtonElement>();
-  const paper = paperDimensions[presentation.paperSize];
-  const paperWidthPx = getPaperWidthPx(presentation.paperSize);
-  const scale = width > 0 ? width / paperWidthPx : 0;
-
-  const cardDraft = useMemo<ResumeDraft>(
-    () => ({
-      ...draft,
-      pdfPresentation: {
-        ...presentation,
-        layoutId: layoutId as PdfLayoutId,
-      },
-    }),
-    [draft, presentation, layoutId],
+  const cardPresentation = useMemo<PdfPresentation>(
+    () => ({ ...presentation, layoutId: layoutId as PdfLayoutId }),
+    [presentation, layoutId],
+  );
+  const handleSelect = useCallback(
+    () => onSelect(layoutId),
+    [onSelect, layoutId],
   );
 
   return (
-    <button
-      ref={ref}
-      type="button"
-      aria-label={`Use ${label} layout`}
-      aria-pressed={selected}
-      onClick={() => onSelect(layoutId)}
-      className={cn(
-        "relative w-full overflow-hidden rounded-md bg-white transition",
-        "hover:border-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring group",
-        selected
-          ? "border border-ring ring-2 ring-ring"
-          : "border border-border",
-      )}
-      style={{ aspectRatio: `${paper.widthMm} / ${paper.heightMm}` }}
-    >
-      <div
-        aria-hidden
-        className="pointer-events-none absolute left-0 top-0 origin-top-left text-left"
-        style={{ width: paperWidthPx, transform: `scale(${scale})` }}
-      >
-        {scale > 0 ? <ResumeDocument draft={cardDraft} mode="preview" /> : null}
-      </div>
-      <div
-        className={cn(
-          "absolute inset-x-0 bottom-0 flex items-end justify-center bg-linear-to-t from-black/65 via-black/20 to-transparent px-3 pt-10 pb-3 opacity-0 transition-opacity duration-300",
-          selected ? "opacity-100" : "group-hover:opacity-100",
-        )}
-      >
-        <span className="text-sm font-semibold text-white">{label}</span>
-      </div>
-    </button>
+    <DocumentPreviewCard
+      draft={draft}
+      presentation={cardPresentation}
+      label={label}
+      ariaLabel={`Use ${label} layout`}
+      selected={selected}
+      onSelect={handleSelect}
+    />
   );
-});
+}

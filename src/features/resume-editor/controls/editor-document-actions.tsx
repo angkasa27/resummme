@@ -1,6 +1,6 @@
 "use client";
 
-import { DownloadIcon, SparklesIcon } from "lucide-react";
+import { DownloadIcon, GalleryThumbnailsIcon, SparklesIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
@@ -11,6 +11,8 @@ export type EditorDocumentActionsProps = {
   onImportJson: () => void;
   onExport: () => void;
   onExportPdf: () => void;
+  /** When provided, renders a "Browse templates" button under Download PDF. */
+  onOpenTemplates?: () => void;
   isExportingPdf?: boolean;
   isImportingPdf?: boolean;
   className?: string;
@@ -23,6 +25,7 @@ export function EditorDocumentActions({
   onImportJson,
   onExport,
   onExportPdf,
+  onOpenTemplates,
   isExportingPdf = false,
   isImportingPdf = false,
   className,
@@ -70,6 +73,17 @@ export function EditorDocumentActions({
         <DownloadIcon data-icon="inline-start" />
         {isExportingPdf ? "Generating PDF…" : "Download PDF"}
       </Button>
+      {onOpenTemplates ? (
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          onClick={onOpenTemplates}
+        >
+          <GalleryThumbnailsIcon data-icon="inline-start" />
+          Browse templates
+        </Button>
+      ) : null}
     </div>
   );
 }

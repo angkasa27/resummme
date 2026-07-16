@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   LayoutTemplateIcon,
   MinusIcon,
@@ -16,6 +17,7 @@ import { EditorDocumentActions } from "@/features/resume-editor/controls/editor-
 import { InsightsTab } from "@/features/resume-editor/controls/insights/insights-tab";
 import { StyleTab } from "@/features/resume-editor/controls/style-tab";
 import { LayoutTab } from "@/features/resume-editor/controls/layout-tab";
+import { TemplateGalleryDialog } from "@/features/resume-editor/controls/template-gallery-dialog";
 import type { PdfPresentation } from "@/features/resume-editor/domain/presentation/pdf-presentation";
 import type { EditorPanelKey } from "@/features/resume-editor/domain/sections/section-metadata";
 import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
@@ -120,6 +122,7 @@ export function EditorControlPanel({
 }: EditorControlPanelProps) {
   const isMobile = useIsMobile();
   const isFlow = layout === "flow";
+  const [isTemplatesOpen, setIsTemplatesOpen] = useState(false);
   const tabContentClassName = cn(
     "pt-1.5 pb-3 px-4",
     !isFlow && "min-h-0 overflow-y-auto",
@@ -136,8 +139,17 @@ export function EditorControlPanel({
         onImportJson={onImportJson}
         onExport={onExport}
         onExportPdf={onExportPdf}
+        onOpenTemplates={() => setIsTemplatesOpen(true)}
         isExportingPdf={isExportingPdf}
         isImportingPdf={isImportingPdf}
+      />
+
+      <TemplateGalleryDialog
+        open={isTemplatesOpen}
+        onOpenChange={setIsTemplatesOpen}
+        draft={draft}
+        presentation={presentation}
+        onApply={onPresentationChange}
       />
 
       <Separator />

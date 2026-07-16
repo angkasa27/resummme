@@ -11,6 +11,7 @@ import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import {
   ArrowLeftIcon,
   ChevronRightIcon,
+  GalleryThumbnailsIcon,
   LayoutTemplateIcon,
   PaletteIcon,
 } from "lucide-react";
@@ -34,6 +35,7 @@ import { EditorDocumentActions } from "@/features/resume-editor/controls/editor-
 import { PreviewSheet } from "@/features/resume-editor/preview/components/preview-sheet";
 import { LayoutTab } from "@/features/resume-editor/controls/layout-tab";
 import { StyleTab } from "@/features/resume-editor/controls/style-tab";
+import { TemplateGallery } from "@/features/resume-editor/controls/template-gallery";
 import { InsightsTab } from "@/features/resume-editor/controls/insights/insights-tab";
 import {
   isCollectionSectionKey,
@@ -223,9 +225,13 @@ function DesignTabPanel({
   onPresentationChange,
 }: DesignTabPanelProps) {
   return (
-    <Tabs defaultValue="layout" className="flex h-full flex-col">
+    <Tabs defaultValue="template" className="flex h-full flex-col">
       <div className="shrink-0 px-4 pt-3">
         <TabsList className="w-full">
+          <TabsTrigger value="template">
+            <GalleryThumbnailsIcon />
+            Template
+          </TabsTrigger>
           <TabsTrigger value="layout">
             <LayoutTemplateIcon />
             Layout
@@ -236,6 +242,17 @@ function DesignTabPanel({
           </TabsTrigger>
         </TabsList>
       </div>
+      <TabsContent
+        value="template"
+        className="min-h-0 flex-1 overflow-y-auto p-4 pb-24 @container/form"
+      >
+        <TemplateGallery
+          draft={draft}
+          presentation={presentation}
+          onApply={onPresentationChange}
+          columns={2}
+        />
+      </TabsContent>
       <TabsContent
         value="layout"
         className="min-h-0 flex-1 overflow-y-auto p-4 pb-24 @container/form"
