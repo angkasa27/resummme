@@ -1,12 +1,17 @@
 "use client";
 
+import { useRef } from "react";
+
 import type { EditorControlProps } from "@/features/resume-editor/controls/control-props";
+import { SidebarResizeHandle } from "@/features/resume-editor/editor/desktop/sidebar-resize-handle";
+import { useSidebarWidth } from "@/features/resume-editor/editor/desktop/use-sidebar-width";
 import { DesignPanel } from "@/features/resume-editor/controls/design-panel";
 import { InsightsTab } from "@/features/resume-editor/controls/insights/insights-tab";
 import type { RailKey } from "@/features/resume-editor/editor/desktop/editor-rail";
 import { SectionEditPanel } from "@/features/resume-editor/editor/sections/section-edit-panel";
 import { SectionFormHeader } from "@/features/resume-editor/editor/sections/section-form-header";
 import type {
+  CollectionSectionKey,
   EditorPanelKey,
   ResumeSectionPanelKey,
 } from "@/features/resume-editor/domain/sections/section-metadata";
@@ -35,6 +40,7 @@ type EditorSidebarProps = {
     sectionKey: ResumeSectionPanelKey,
     visible: boolean,
   ) => void;
+  onAutoSortSection: (sectionKey: CollectionSectionKey) => void;
   onOpenSection: (panel: EditorPanelKey) => void;
   onBack: () => void;
 };
@@ -53,16 +59,29 @@ export function EditorSidebar({
   onSaveSection,
   onReorderSection,
   onSetSectionVisibility,
+  onAutoSortSection,
   onOpenSection,
   onBack,
 }: EditorSidebarProps) {
+  const asideRef = useRef<HTMLElement | null>(null);
+  const { width, commitWidth, resetWidth } = useSidebarWidth();
+
   return (
-    <aside className="flex w-80 shrink-0 flex-col overflow-hidden border-r bg-background print:hidden">
+    <aside
+      ref={asideRef}
+      style={{ width }}
+      className="relative flex shrink-0 flex-col overflow-hidden border-r bg-background print:hidden"
+    >
       {rail === "edit" ? (
         <>
           {/* Contextual header — only inside a section form. */}
           {openSection ? (
-            <SectionFormHeader sectionKey={openSection} onBack={onBack} />
+            <SectionFormHeader
+              sectionKey={openSection}
+              onBack={onBack}
+              onAutoSortSection={onAutoSortSection}
+              onSetSectionVisibility={onSetSectionVisibility}
+            />
           ) : null}
           <div className="min-h-0 flex-1">
             <SectionEditPanel
@@ -74,9 +93,7 @@ export function EditorSidebar({
               onSaveSection={onSaveSection}
               onReorderSection={onReorderSection}
               onSetSectionVisibility={onSetSectionVisibility}
-              onBack={onBack}
               onOpen={onOpenSection}
-              controls={controls}
               idPrefix="desktop"
             />
           </div>
@@ -96,6 +113,13 @@ export function EditorSidebar({
           <InsightsTab draft={draft} onOpenSection={onOpenSection} />
         </div>
       ) : null}
+
+      <SidebarResizeHandle
+        targetRef={asideRef}
+        width={width}
+        onCommit={commitWidth}
+        onReset={resetWidth}
+      />
     </aside>
   );
 }

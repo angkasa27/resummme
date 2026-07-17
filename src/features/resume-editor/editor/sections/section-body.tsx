@@ -23,9 +23,6 @@ type SectionBodyProps = {
   ) => void;
   /** Disambiguates input ids between the desktop and mobile surfaces. */
   idPrefix?: string;
-  /** Hides the active collection section (ignored for Profile/Summary, which
-   * are pinned and not removable). */
-  onRemoveSection?: () => void;
 };
 
 /**
@@ -38,7 +35,6 @@ export function SectionBody({
   onSaveProfile,
   onSaveSection,
   idPrefix = "section",
-  onRemoveSection,
 }: SectionBodyProps) {
   if (activeSection === "profile") {
     return (
@@ -65,7 +61,6 @@ export function SectionBody({
         draft={draft}
         sectionKey={activeSection}
         onSave={(value) => onSaveSection(activeSection, value)}
-        onRemoveSection={onRemoveSection}
       />
     );
   }

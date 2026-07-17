@@ -341,6 +341,7 @@ type RichTextEditorWithImproveProps = {
   value: string;
   ariaLabel?: string;
   invalid?: boolean;
+  placeholder?: string;
   onChange: (value: string) => void;
 };
 
@@ -348,6 +349,7 @@ export function RichTextEditorWithImprove({
   value,
   ariaLabel,
   invalid = false,
+  placeholder,
   onChange,
 }: RichTextEditorWithImproveProps) {
   const [improveOpen, setImproveOpen] = useState(false);
@@ -358,6 +360,7 @@ export function RichTextEditorWithImprove({
         value={value}
         ariaLabel={ariaLabel}
         invalid={invalid}
+        placeholder={placeholder}
         onChange={onChange}
         onImproveWithAi={() => setImproveOpen(true)}
       />

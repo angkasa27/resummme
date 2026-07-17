@@ -5,6 +5,10 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  /* Width at which a collection item's fields split into two columns. Measured
+     against the item body, not the sidebar — tuned so the sidebar's 432px
+     default lands in two columns and its 360px minimum stays in one. */
+  --container-field-2col: 21.5rem;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
@@ -154,6 +158,17 @@
 
 .ProseMirror:focus {
   outline: none;
+}
+
+/* Tiptap's Placeholder extension only tags the empty node; the hint itself is
+   ours to draw. Rich-text fields render no visible label, so this is what tells
+   you what the field is for. */
+.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: var(--muted-foreground);
+  float: left;
+  height: 0;
+  pointer-events: none;
 }
 
 .resume-document a {

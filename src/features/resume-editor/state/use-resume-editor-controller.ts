@@ -16,6 +16,7 @@ import type {
   SaveStatus,
 } from "@/features/resume-editor/domain/draft/draft-storage";
 import { LocalDraftStorage } from "@/features/resume-editor/domain/draft/local-draft-storage";
+import type { CollectionSectionKey } from "@/features/resume-editor/domain/sections/section-metadata";
 import {
   createResumeEditorStore,
   type ResumeEditorPanelKey,
@@ -57,6 +58,7 @@ export type ResumeEditorController = {
     sectionKey: ResumeSectionKey,
     visible: boolean,
   ) => void;
+  autoSortSection: (sectionKey: CollectionSectionKey) => void;
   savePdfPresentation: (pdfPresentation: PdfPresentation) => void;
   saveProfile: (profile: Profile) => void;
   saveSection: <K extends ResumeSectionKey>(
@@ -315,6 +317,11 @@ export function useResumeEditorController({
       store.getState().setSectionVisibility(sectionKey, visible),
     [store],
   );
+  const autoSortSection = useCallback(
+    (sectionKey: CollectionSectionKey) =>
+      store.getState().autoSortSection(sectionKey),
+    [store],
+  );
   const savePdfPresentation = useCallback(
     (pdfPresentation: PdfPresentation) =>
       store.getState().savePdfPresentation(pdfPresentation),
@@ -349,6 +356,7 @@ export function useResumeEditorController({
     requestSectionChange,
     reorderSection,
     setSectionVisibility,
+    autoSortSection,
     savePdfPresentation,
     saveProfile,
     saveSection,

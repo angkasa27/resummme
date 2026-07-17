@@ -3,6 +3,7 @@
 import { useEffect, useId, useState } from "react";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import { Placeholder } from "@tiptap/extensions";
 import {
   BoldIcon,
   ItalicIcon,
@@ -40,6 +41,9 @@ type RichTextEditorProps = {
   heightClassName?: string;
   invalid?: boolean;
   ariaLabel?: string;
+  /** Hint shown while the editor is empty. Carries the field's guidance, since
+   * rich-text fields render no visible label. */
+  placeholder?: string;
   onImproveWithAi?: () => void;
 };
 
@@ -101,6 +105,7 @@ export function RichTextEditor({
   heightClassName = "h-48",
   invalid = false,
   ariaLabel,
+  placeholder,
   onImproveWithAi,
 }: RichTextEditorProps) {
   const linkInputId = useId();
@@ -125,6 +130,7 @@ export function RichTextEditor({
         },
         underline: {},
       }),
+      Placeholder.configure({ placeholder: placeholder ?? "" }),
     ],
     content: value || "<p></p>",
     editorProps: {

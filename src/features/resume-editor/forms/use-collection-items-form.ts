@@ -4,11 +4,9 @@ import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { collectionSectionConfigs } from "@/features/resume-editor/domain/sections/collection-section-config";
 import type { CollectionSectionKey } from "@/features/resume-editor/domain/sections/section-metadata";
 import { normalizeCollectionItem } from "@/features/resume-editor/domain/sections/normalize-collection-item";
-import { sortResumeItems } from "@/features/resume-editor/domain/sections/sort-resume-items";
 import { collectionSectionFormSchemaMap } from "@/features/resume-editor/forms/collection-section-form-schema-map";
 import { createFormSchemaResolver } from "@/features/resume-editor/forms/schemas/create-form-schema-resolver";
 import { useSyncedFormValues } from "@/features/resume-editor/forms/use-synced-form-values";
-import { useListItemMotion } from "@/features/resume-editor/ui/list-motion";
 import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
 
 export type CollectionItemsFormValues = {
@@ -46,8 +44,9 @@ export function getCollectionItemSummary(
 /**
  * Shared state and handlers for a collection section editor: the react-hook-form
  * field array, per-item collapse tracking, pending-delete index, list motion,
- * auto-sort by date range, and save normalization. The desktop (submit-based)
- * and mobile (auto-save) surfaces own their own persistence wiring and layout.
+ * and save normalization. The surrounding surface owns persistence and layout.
+ * Auto-sort lives on the store — it fires from the section list, where no form
+ * is mounted.
  */
 export function useCollectionItemsForm(
   draft: ResumeDraft,
@@ -82,13 +81,15 @@ export function useCollectionItemsForm(
   const currentItems = useWatch({ control, name: "items" });
   const items = useFieldArray({ control, name: "items", keyName: "fieldKey" });
 
+  // Keyed by the item's own id, not react-hook-form's `fieldKey`: RHF mints a
+  // fresh fieldKey on `move()`, so tracking by it silently re-opens every card
+  // the moment you reorder.
   const [collapsedIds, setCollapsedIds] = useState<Set<string>>(
-    () => new Set(items.fields.slice(1).map((f) => f.fieldKey)),
+    () => new Set(items.fields.slice(1).map((f) => f.id)),
   );
   const [pendingDeleteIndex, setPendingDeleteIndex] = useState<number | null>(
     null,
   );
-  const itemMotion = useListItemMotion();
 
   useSyncedFormValues(form, formValues);
 
@@ -101,20 +102,8 @@ export function useCollectionItemsForm(
     });
   }
 
-  const dateRangeField = config.fields.find((f) => f.kind === "dateRange");
-
-  function autoSort() {
-    if (!dateRangeField || dateRangeField.kind !== "dateRange") return;
-    const sorted = sortResumeItems(
-      form.getValues().items as unknown as Record<string, unknown>[],
-      dateRangeField.startName,
-      dateRangeField.endName,
-    );
-    form.setValue(
-      "items",
-      sorted as unknown as CollectionItemsFormValues["items"],
-      { shouldDirty: true },
-    );
+  function collapseItem(id: string) {
+    setCollapsedIds((prev) => (prev.has(id) ? prev : new Set(prev).add(id)));
   }
 
   /** Normalizes edited form items back into a persistable section value. */
@@ -134,11 +123,9 @@ export function useCollectionItemsForm(
     items,
     collapsedIds,
     toggleCollapsed,
+    collapseItem,
     pendingDeleteIndex,
     setPendingDeleteIndex,
-    itemMotion,
-    dateRangeField,
-    autoSort,
     toSectionValue,
   };
 }

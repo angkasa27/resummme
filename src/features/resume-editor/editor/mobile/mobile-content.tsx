@@ -21,6 +21,7 @@ import { SectionEditPanel } from "@/features/resume-editor/editor/sections/secti
 import { SectionFormHeader } from "@/features/resume-editor/editor/sections/section-form-header";
 import { useDirection } from "@/features/resume-editor/editor/sections/use-direction";
 import type {
+  CollectionSectionKey,
   EditorPanelKey,
   ResumeSectionPanelKey,
 } from "@/features/resume-editor/domain/sections/section-metadata";
@@ -47,6 +48,7 @@ type SectionProps = {
     sectionKey: ResumeSectionPanelKey,
     visible: boolean,
   ) => void;
+  onAutoSortSection: (sectionKey: CollectionSectionKey) => void;
 };
 
 type ResumeEditorMobileContentProps = {
@@ -115,7 +117,12 @@ export function ResumeEditorMobileContent({
       {/* Contextual top bar — only inside a sub-form. Tab roots rely on the
           global top bar + bottom nav, so no redundant title here. */}
       {editingForm && openSection ? (
-        <SectionFormHeader sectionKey={openSection} onBack={backToList} />
+        <SectionFormHeader
+          sectionKey={openSection}
+          onBack={backToList}
+          onAutoSortSection={sectionProps.onAutoSortSection}
+          onSetSectionVisibility={onSetSectionVisibility}
+        />
       ) : null}
 
       {/* Tab content — slides horizontally between tabs (direction by order). */}
@@ -141,9 +148,7 @@ export function ResumeEditorMobileContent({
                 onSaveSection={onSaveSection}
                 onReorderSection={sectionProps.onReorderSection}
                 onSetSectionVisibility={onSetSectionVisibility}
-                onBack={backToList}
                 onOpen={openForm}
-                controls={controlPanelProps}
                 idPrefix="mobile"
                 scrollPaddingClassName={NAV_CLEARANCE}
               />

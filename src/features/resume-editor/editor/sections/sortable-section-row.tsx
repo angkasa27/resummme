@@ -1,50 +1,24 @@
 "use client";
 
-import {
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  type DragEndEvent,
-} from "@dnd-kit/core";
-import {
-  sortableKeyboardCoordinates,
-  useSortable,
-} from "@dnd-kit/sortable";
+import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GripVerticalIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import { motion } from "motion/react";
 
 import { SectionRow } from "@/features/resume-editor/editor/sections/section-row";
+import { RowDragHandle } from "@/features/resume-editor/editor/sections/row-drag-handle";
+import { useDndReorder } from "@/features/resume-editor/editor/sections/use-dnd-reorder";
 import type { ResumeSectionPanelKey } from "@/features/resume-editor/domain/sections/section-metadata";
 import { motionTokens } from "@/lib/motion-tokens";
 
-/**
- * Shared dnd-kit wiring for a section list: pointer + keyboard sensors and a
- * drag-end handler that maps the dragged key onto the key it was dropped over.
- */
+/** Section-list flavour of {@link useDndReorder} — ids are section keys. */
 export function useSectionReorder(
   onReorder: (
     sectionKey: ResumeSectionPanelKey,
     anchorKey: ResumeSectionPanelKey,
   ) => void,
 ) {
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    }),
-  );
-
-  function onDragEnd(event: DragEndEvent) {
-    const activeKey = event.active.id as ResumeSectionPanelKey;
-    const overKey = event.over?.id as ResumeSectionPanelKey | undefined;
-    if (!overKey || activeKey === overKey) return;
-    onReorder(activeKey, overKey);
-  }
-
-  return { sensors, onDragEnd };
+  return useDndReorder<ResumeSectionPanelKey>(onReorder);
 }
 
 type SortableSectionRowProps = {
@@ -53,13 +27,14 @@ type SortableSectionRowProps = {
   count?: number;
   active: boolean;
   onClick: () => void;
-  /** Trailing slot — typically the nav chevron. */
+  /** Nav chevron. */
   trailing?: ReactNode;
+  /** The row's "⋯" menu. */
+  menu?: ReactNode;
 };
 
 /**
- * A drag-sortable section row: the grip handle + `SectionRow`. Shared by the
- * desktop sidebar and the mobile section list.
+ * A drag-sortable section row: grip + `SectionRow`.
  */
 export function SortableSectionRow({
   sectionKey,
@@ -68,6 +43,7 @@ export function SortableSectionRow({
   active,
   onClick,
   trailing,
+  menu,
 }: SortableSectionRowProps) {
   const {
     attributes,
@@ -102,18 +78,10 @@ export function SortableSectionRow({
         onClick={onClick}
         count={count}
         leading={
-          <button
-            type="button"
-            aria-label={`Drag ${label}`}
-            className="flex cursor-grab touch-none items-center text-muted-foreground/40 transition-colors group-hover/row:text-muted-foreground/70 hover:text-foreground! active:cursor-grabbing"
-            onClick={(event) => event.stopPropagation()}
-            {...dragAttributes}
-            {...listeners}
-          >
-            <GripVerticalIcon className="size-4" />
-          </button>
+          <RowDragHandle label={label} {...dragAttributes} {...listeners} />
         }
         trailing={trailing}
+        menu={menu}
       />
     </motion.div>
   );

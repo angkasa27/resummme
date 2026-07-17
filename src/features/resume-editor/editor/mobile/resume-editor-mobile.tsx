@@ -53,6 +53,7 @@ export function ResumeEditorMobile({
     requestSectionChange,
     reorderSection,
     setSectionVisibility,
+    autoSortSection,
     savePdfPresentation,
     saveProfile,
     saveSection,
@@ -70,6 +71,14 @@ export function ResumeEditorMobile({
     onUndo: undo,
     onRedo: redo,
     actions: headerActions,
+    documentMenu: {
+      onExtractCv: () => setIsExtractCvOpen(true),
+      onImportJson: openJsonImportPicker,
+      onExportJson: handleExport,
+      onExportPdf: handlePrint,
+      isExportingPdf,
+      isImportingPdf,
+    },
   });
 
   useKeyboardShortcuts({
@@ -125,6 +134,7 @@ export function ResumeEditorMobile({
     onSaveSection: saveSection,
     onReorderSection: reorderSection,
     onSetSectionVisibility: setSectionVisibility,
+    onAutoSortSection: autoSortSection,
   };
 
   const controlPanelProps: EditorControlProps = {

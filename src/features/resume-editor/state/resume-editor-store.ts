@@ -1,7 +1,11 @@
 import { createStore } from "zustand/vanilla";
 
 import { collectionSectionConfigs } from "@/features/resume-editor/domain/sections/collection-section-config";
-import { isCollectionSectionKey } from "@/features/resume-editor/domain/sections/section-metadata";
+import {
+  isCollectionSectionKey,
+  type CollectionSectionKey,
+} from "@/features/resume-editor/domain/sections/section-metadata";
+import { sortResumeItems } from "@/features/resume-editor/domain/sections/sort-resume-items";
 import {
   moveSectionToAnchor,
   reorderSections,
@@ -38,6 +42,8 @@ type ResumeEditorStoreState = {
     sectionKey: ResumeSectionKey,
     visible: boolean,
   ) => void;
+  /** Sorts a dated section's items newest-first. No-op for undated sections. */
+  autoSortSection: (sectionKey: CollectionSectionKey) => void;
   requestSectionChange: (sectionKey: ResumeEditorPanelKey) => void;
   replaceDraft: (draft: ResumeDraft) => void;
   undo: () => void;
@@ -141,6 +147,30 @@ export function createResumeEditorStore(config?: {
             visible,
           ),
         })),
+      // Runs on the store rather than the item form because it fires from the
+      // section list, where no form is mounted. Bonus: it lands on the undo
+      // stack, which the old form-local version never did.
+      autoSortSection: (sectionKey) =>
+        commit((draft) => {
+          const dateRangeField = collectionSectionConfigs[sectionKey].fields.find(
+            (field) => field.kind === "dateRange",
+          );
+          if (!dateRangeField || dateRangeField.kind !== "dateRange") return {};
+
+          const sectionValue = draft.sections[sectionKey];
+          const sorted = sortResumeItems(
+            sectionValue.items as unknown as Record<string, unknown>[],
+            dateRangeField.startName,
+            dateRangeField.endName,
+          );
+
+          return {
+            sections: {
+              ...draft.sections,
+              [sectionKey]: { ...sectionValue, items: sorted },
+            } as ResumeDraft["sections"],
+          };
+        }),
       requestSectionChange: (sectionKey) => {
         set({
           activeSection: sectionKey,

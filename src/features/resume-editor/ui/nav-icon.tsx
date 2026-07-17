@@ -14,7 +14,7 @@ import type { LucideIcon } from "lucide-react";
 import type { AnimatedIconHandle } from "@/components/ui/animated-icon";
 import { motionTokens } from "@/lib/motion-tokens";
 
-export const NAV_ICON_SIZE = 20;
+export const NAV_ICON_SIZE = 18;
 
 /**
  * Fallback for lucide icons without a `@lucide-animated` equivalent (Design's

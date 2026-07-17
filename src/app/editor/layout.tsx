@@ -19,6 +19,7 @@ export default function EditorLayout({
         onUndo={controls.onUndo}
         onRedo={controls.onRedo}
         actions={controls.actions}
+        documentMenu={controls.documentMenu}
       />
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
         {children}

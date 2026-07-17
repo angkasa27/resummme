@@ -22,6 +22,7 @@ import {
   formatMonthYear,
   parseMonthYear,
 } from "@/features/resume-editor/domain/month-year";
+import { FIELD_CONTROL_CLASS } from "@/features/resume-editor/forms/fields/field-control";
 import { cn } from "@/lib/utils";
 
 type MonthYearPickerProps = {
@@ -118,7 +119,8 @@ export function MonthYearPicker({
             disabled={disabled}
             aria-invalid={ariaInvalid}
             className={cn(
-              "h-9 w-full justify-between rounded-[10px] border-input px-3 font-normal",
+              FIELD_CONTROL_CLASS,
+              "justify-between font-normal",
               !value && "text-muted-foreground",
             )}
           />

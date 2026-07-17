@@ -61,6 +61,7 @@ export function ResumeEditorDesktop({
     savePdfPresentation,
     reorderSection,
     setSectionVisibility,
+    autoSortSection,
     undo,
     redo,
     canUndo,
@@ -75,6 +76,14 @@ export function ResumeEditorDesktop({
     onUndo: undo,
     onRedo: redo,
     actions: headerActions,
+    documentMenu: {
+      onExtractCv: () => setIsExtractCvOpen(true),
+      onImportJson: openJsonImportPicker,
+      onExportJson: handleExport,
+      onExportPdf: handlePrint,
+      isExportingPdf,
+      isImportingPdf,
+    },
   });
 
   const [rail, setRail] = useState<RailKey>("edit");
@@ -206,6 +215,7 @@ export function ResumeEditorDesktop({
           onSaveSection={saveSection}
           onReorderSection={reorderSection}
           onSetSectionVisibility={setSectionVisibility}
+          onAutoSortSection={autoSortSection}
           onOpenSection={focusSection}
           onBack={backToList}
         />

@@ -14,6 +14,8 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
+import { EditorFileMenu } from "@/features/resume-editor/chrome/editor-file-menu";
+import type { EditorDocumentMenuControls } from "@/features/resume-editor/chrome/editor-header-store";
 import type { SaveStatus } from "@/features/resume-editor/domain/draft/draft-storage";
 
 const GITHUB_URL = "https://github.com/angkasa27/resume-editor";
@@ -30,6 +32,8 @@ type EditorTopBarProps = {
    * touching the editor.
    */
   actions?: ReactNode;
+  /** Document actions. `null`/omitted hides the File menu. */
+  documentMenu?: EditorDocumentMenuControls | null;
 };
 
 export function EditorTopBar({
@@ -39,6 +43,7 @@ export function EditorTopBar({
   onUndo,
   onRedo,
   actions,
+  documentMenu,
 }: EditorTopBarProps) {
   const isMobile = useIsMobile();
 
@@ -49,6 +54,8 @@ export function EditorTopBar({
           Resummme
         </h1>
       </Link>
+
+      {documentMenu ? <EditorFileMenu {...documentMenu} /> : null}
 
       <SaveStatusIndicator status={saveStatus} />
 

@@ -2,7 +2,6 @@
 
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 
-import type { EditorControlProps } from "@/features/resume-editor/controls/control-props";
 import {
   fadeVariants,
   reducedTransition,
@@ -11,10 +10,7 @@ import {
 } from "@/features/resume-editor/editor/sections/drill-in-motion";
 import { SectionBody } from "@/features/resume-editor/editor/sections/section-body";
 import { SectionList } from "@/features/resume-editor/editor/sections/section-list";
-import {
-  isCollectionSectionKey,
-  type ResumeSectionPanelKey,
-} from "@/features/resume-editor/domain/sections/section-metadata";
+import type { ResumeSectionPanelKey } from "@/features/resume-editor/domain/sections/section-metadata";
 import type {
   ResumeEditorPanelKey,
   ResumeSectionKey,
@@ -43,9 +39,7 @@ type SectionEditPanelProps = {
     sectionKey: ResumeSectionPanelKey,
     visible: boolean,
   ) => void;
-  onBack: () => void;
   onOpen: (key: ResumeEditorPanelKey) => void;
-  controls: EditorControlProps;
   /** Disambiguates input ids between the two surfaces. */
   idPrefix: string;
   /** Extra scroll padding — mobile clears its floating bottom nav. */
@@ -66,9 +60,7 @@ export function SectionEditPanel({
   onSaveSection,
   onReorderSection,
   onSetSectionVisibility,
-  onBack,
   onOpen,
-  controls,
   idPrefix,
   scrollPaddingClassName,
 }: SectionEditPanelProps) {
@@ -97,17 +89,6 @@ export function SectionEditPanel({
               activeSection={openSection}
               onSaveProfile={onSaveProfile}
               onSaveSection={onSaveSection}
-              onRemoveSection={
-                isCollectionSectionKey(openSection as ResumeSectionPanelKey)
-                  ? () => {
-                      onSetSectionVisibility(
-                        openSection as ResumeSectionPanelKey,
-                        false,
-                      );
-                      onBack();
-                    }
-                  : undefined
-              }
               idPrefix={idPrefix}
             />
           </motion.div>
@@ -127,7 +108,6 @@ export function SectionEditPanel({
               activeSection={activeSection}
               onReorderSection={onReorderSection}
               onSetSectionVisibility={onSetSectionVisibility}
-              controls={controls}
               onOpen={onOpen}
               className={scrollPaddingClassName}
             />

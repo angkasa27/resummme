@@ -27,6 +27,9 @@ importers:
       '@hookform/resolvers':
         specifier: ^5.4.0
         version: 5.4.0(react-hook-form@7.81.0(react@19.2.7))
+      '@tiptap/extensions':
+        specifier: 3.27.3
+        version: 3.27.3(@tiptap/core@3.27.3(@tiptap/pm@3.27.3))(@tiptap/pm@3.27.3)
       '@tiptap/react':
         specifier: ^3.27.3
         version: 3.27.3(@floating-ui/dom@1.8.0)(@tiptap/core@3.27.3(@tiptap/pm@3.27.3))(@tiptap/pm@3.27.3)(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -75,9 +78,6 @@ importers:
       react-hook-form:
         specifier: ^7.81.0
         version: 7.81.0(react@19.2.7)
-      react-resizable-panels:
-        specifier: ^4.12.1
-        version: 4.12.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       shadcn:
         specifier: ^4.13.0
         version: 4.13.0(typescript@5.9.3)
@@ -3654,12 +3654,6 @@ packages:
 
   react-is@17.0.2:
     resolution: {integrity: sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==}
-
-  react-resizable-panels@4.12.1:
-    resolution: {integrity: sha512-ElE/UpOvMLRWtAqbCgyizHXcbws8RPMyN3cBqmdY17Nxr5f01+DEwzOLqhgcy68GSnjtIUFgKWKl8aIgx5aypQ==}
-    peerDependencies:
-      react: ^18.0.0 || ^19.0.0
-      react-dom: ^18.0.0 || ^19.0.0
 
   react@19.2.7:
     resolution: {integrity: sha512-HNe9WslTbXmFK8o8cmwgAeJFSBvt1bPdHCVKtaaV+WlAN36mpT4hcRpwbf3fY56ar2oIXzsBpOAiIRHAdY0OlQ==}
@@ -8001,11 +7995,6 @@ snapshots:
   react-is@16.13.1: {}
 
   react-is@17.0.2: {}
-
-  react-resizable-panels@4.12.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7):
-    dependencies:
-      react: 19.2.7
-      react-dom: 19.2.7(react@19.2.7)
 
   react@19.2.7: {}
 
