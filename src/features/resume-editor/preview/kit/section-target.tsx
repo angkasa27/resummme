@@ -47,13 +47,14 @@ export function PreviewSectionTarget({
       onClick={() => onSelect(panel)}
       onKeyDown={handleKeyDown}
       className={cn(
-        "cursor-pointer rounded-sm outline-none [&_a]:pointer-events-none",
-        "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-        "data-active:ring-1 data-active:ring-ring/40",
-        "print:pointer-events-none print:ring-0",
+        "cursor-pointer outline-none [&_a]:pointer-events-none relative group/section",
+        // "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+        // "data-active:ring-1 data-active:ring-ring/40",
+        // "print:pointer-events-none print:ring-0",
       )}
     >
-      {children}
+      <div className="relative z-10">{children}</div>
+      <div className="absolute transform -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2 rounded-md bg-muted/60 opacity-0 transition-opacity group-hover/section:opacity-100 group-focus-within/section:opacity-100 [@media(hover:none)]:opacity-100 group-data-active/section:opacity-100 border border-primary w-[calc(100%+1.5rem)] h-[calc(100%+1.5rem)] z-0" />
     </div>
   );
 }
