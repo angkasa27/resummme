@@ -1,7 +1,7 @@
 "use client";
 
 import { isCollectionSectionKey } from "@/features/resume-editor/domain/sections/section-metadata";
-import { CollectionSectionBody } from "@/features/resume-editor/editor/mobile/sections/collection-section-body";
+import { CollectionSectionBody } from "@/features/resume-editor/editor/sections/collection-section-body";
 import { ProfileFields } from "@/features/resume-editor/forms/profile-fields";
 import { useProfileForm } from "@/features/resume-editor/forms/use-profile-form";
 import { SummaryFields } from "@/features/resume-editor/forms/summary-fields";
@@ -21,8 +21,7 @@ type SectionBodyProps = {
     sectionKey: K,
     sectionValue: ResumeDraft["sections"][K],
   ) => void;
-  /** Disambiguates input ids between the desktop accordion and mobile surfaces
-   * (both can mount a body at once behind responsive CSS). */
+  /** Disambiguates input ids between the desktop and mobile surfaces. */
   idPrefix?: string;
   /** Hides the active collection section (ignored for Profile/Summary, which
    * are pinned and not removable). */
@@ -31,7 +30,7 @@ type SectionBodyProps = {
 
 /**
  * Renders the active section's headerless auto-save form body. The surrounding
- * accordion row (desktop) or full-screen header (mobile) supplies the title.
+ * drill-in header supplies the title.
  */
 export function SectionBody({
   draft,

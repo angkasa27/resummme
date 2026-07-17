@@ -6,6 +6,7 @@ import type { ReactNode } from "react";
 import { Loader } from "lucide-react";
 
 import { ResumeEditorMobileContent } from "@/features/resume-editor/editor/mobile/mobile-content";
+import type { EditorControlProps } from "@/features/resume-editor/controls/control-props";
 import { useResumeEditorController } from "@/features/resume-editor/state/use-resume-editor-controller";
 import { ExtractCvDialog } from "@/features/resume-editor/controls/extract-cv-dialog";
 import { PdfImportProgress } from "@/features/resume-editor/controls/pdf-import-progress";
@@ -104,7 +105,7 @@ export function ResumeEditorMobile({
   }
 
   // Opening a section from Insights: ensure it's visible, then make it active
-  // (the accordion expands it; the mobile content opens its form).
+  // so the mobile content opens its form.
   function openSection(panel: EditorPanelKey) {
     if (
       panel !== "profile" &&
@@ -126,7 +127,7 @@ export function ResumeEditorMobile({
     onSetSectionVisibility: setSectionVisibility,
   };
 
-  const controlPanelProps = {
+  const controlPanelProps: EditorControlProps = {
     presentation,
     draft,
     onPresentationChange: savePdfPresentation,

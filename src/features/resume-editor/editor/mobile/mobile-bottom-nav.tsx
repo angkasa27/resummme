@@ -1,83 +1,21 @@
 "use client";
 
-import {
-  forwardRef,
-  useEffect,
-  useImperativeHandle,
-  useRef,
-  type ReactNode,
-  type Ref,
-} from "react";
-import { motion, useAnimationControls, useReducedMotion } from "motion/react";
-import { SwatchBookIcon, type LucideIcon } from "lucide-react";
+import type { ReactNode, Ref } from "react";
+import { SwatchBookIcon } from "lucide-react";
 
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SquarePenIcon as AnimatedSquarePen } from "@/components/ui/square-pen";
 import { EyeIcon as AnimatedEye } from "@/components/ui/eye";
 import { TelescopeIcon as AnimatedTelescope } from "@/components/ui/telescope";
 import type { AnimatedIconHandle } from "@/components/ui/animated-icon";
+import {
+  NAV_ICON_SIZE as ICON_SIZE,
+  NavIcon,
+  PopIcon,
+} from "@/features/resume-editor/ui/nav-icon";
 import { cn } from "@/lib/utils";
-import { motionTokens } from "@/lib/motion-tokens";
 
 export type EditorTab = "edit" | "preview" | "design" | "insights";
-
-const ICON_SIZE = 20;
-
-/**
- * Fallback for lucide icons without a `@lucide-animated` equivalent (Design's
- * swatch-book): a scale-pop that mirrors the animated-icon handle so every nav
- * icon shares one interface.
- */
-const PopIcon = forwardRef<
-  AnimatedIconHandle,
-  { icon: LucideIcon; size?: number }
->(({ icon: Icon, size = ICON_SIZE }, ref) => {
-  const controls = useAnimationControls();
-  useImperativeHandle(ref, () => ({
-    startAnimation: () => controls.start({ scale: [1, 0.85, 1.12, 1] }),
-    stopAnimation: () => controls.set({ scale: 1 }),
-  }));
-  return (
-    <motion.span
-      className="inline-flex"
-      animate={controls}
-      transition={{ duration: motionTokens.duration.normal }}
-    >
-      <Icon size={size} />
-    </motion.span>
-  );
-});
-PopIcon.displayName = "PopIcon";
-
-/**
- * Owns the icon handle and replays its animation when the tab becomes active.
- * Resets first so one-shot icons (e.g. telescope, which tilts and holds) replay
- * on every selection instead of only the first.
- */
-function NavIcon({
-  active,
-  render,
-}: {
-  active: boolean;
-  render: (ref: Ref<AnimatedIconHandle>) => ReactNode;
-}) {
-  const ref = useRef<AnimatedIconHandle>(null);
-  const reduceMotion = useReducedMotion();
-  useEffect(() => {
-    if (reduceMotion) return;
-    if (active) {
-      ref.current?.stopAnimation();
-      const id = requestAnimationFrame(() => ref.current?.startAnimation());
-      return () => cancelAnimationFrame(id);
-    }
-    ref.current?.stopAnimation();
-  }, [active, reduceMotion]);
-  return (
-    <span className="flex size-6 items-center justify-center">
-      {render(ref)}
-    </span>
-  );
-}
 
 type NavItem = {
   key: EditorTab;

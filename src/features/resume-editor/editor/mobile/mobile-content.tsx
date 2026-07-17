@@ -1,55 +1,34 @@
 "use client";
 
 import { useState } from "react";
-import type { ComponentProps } from "react";
-import { closestCenter, DndContext } from "@dnd-kit/core";
-import {
-  SortableContext,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import {
-  ArrowLeftIcon,
-  ChevronRightIcon,
-  GalleryThumbnailsIcon,
-  LayoutTemplateIcon,
-  PaletteIcon,
-} from "lucide-react";
 
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { SectionBody } from "@/features/resume-editor/editor/mobile/sections/section-body";
-import { AddSectionMenu } from "@/features/resume-editor/editor/mobile/add-section-menu";
-import { SectionRow } from "@/features/resume-editor/editor/mobile/section-row";
-import {
-  SortableSectionRow,
-  useSectionReorder,
-} from "@/features/resume-editor/editor/mobile/sortable-section-row";
 import {
   MobileBottomNav,
   type EditorTab,
 } from "@/features/resume-editor/editor/mobile/mobile-bottom-nav";
-import { EditorControlPanel } from "@/features/resume-editor/controls/editor-control-panel";
-import { EditorDocumentActions } from "@/features/resume-editor/controls/editor-document-actions";
+import type { EditorControlProps } from "@/features/resume-editor/controls/control-props";
+import { DesignPanel } from "@/features/resume-editor/controls/design-panel";
 import { PreviewSheet } from "@/features/resume-editor/preview/components/preview-sheet";
-import { LayoutTab } from "@/features/resume-editor/controls/layout-tab";
-import { StyleTab } from "@/features/resume-editor/controls/style-tab";
-import { TemplateGallery } from "@/features/resume-editor/controls/template-gallery";
 import { InsightsTab } from "@/features/resume-editor/controls/insights/insights-tab";
 import {
-  isCollectionSectionKey,
-  partitionCollectionKeys,
-  sectionLabels,
-  type EditorPanelKey,
-  type ResumeSectionPanelKey,
+  fadeVariants,
+  reducedTransition,
+  slideTransition,
+  slideVariants,
+} from "@/features/resume-editor/editor/sections/drill-in-motion";
+import { SectionEditPanel } from "@/features/resume-editor/editor/sections/section-edit-panel";
+import { SectionFormHeader } from "@/features/resume-editor/editor/sections/section-form-header";
+import { useDirection } from "@/features/resume-editor/editor/sections/use-direction";
+import type {
+  EditorPanelKey,
+  ResumeSectionPanelKey,
 } from "@/features/resume-editor/domain/sections/section-metadata";
 import type {
   ResumeEditorPanelKey,
   ResumeSectionKey,
 } from "@/features/resume-editor/state/resume-editor-store";
 import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
-import { motionTokens } from "@/lib/motion-tokens";
 
 type SectionProps = {
   draft: ResumeDraft;
@@ -72,206 +51,15 @@ type SectionProps = {
 
 type ResumeEditorMobileContentProps = {
   sectionProps: SectionProps;
-  controlPanelProps: ComponentProps<typeof EditorControlPanel>;
+  controlPanelProps: EditorControlProps;
   draft: ResumeDraft;
   presentation: ResumeDraft["pdfPresentation"];
 };
-
-function sectionLabelFor(key: ResumeEditorPanelKey) {
-  return key === "profile"
-    ? "Profile"
-    : sectionLabels[key as ResumeSectionPanelKey];
-}
-
-// Direction-aware "filmstrip" slide: both panels translate the full width in
-// lockstep (no overlay/parallax), like a native push or a presentation deck.
-// `dir` > 0 = forward (new in from the right), < 0 = back (new in from the left).
-const slideVariants = {
-  enter: (dir: number) => ({ x: dir >= 0 ? "100%" : "-100%" }),
-  center: { x: "0%" },
-  exit: (dir: number) => ({ x: dir >= 0 ? "-100%" : "100%" }),
-};
-
-const fadeVariants = {
-  enter: { opacity: 0 },
-  center: { opacity: 1 },
-  exit: { opacity: 0 },
-};
-
-// Tween (not spring) so the two filmstrip panels stay perfectly in sync; tokens
-// keep the timing consistent with the rest of the app.
-const slideTransition = {
-  duration: motionTokens.duration.normal,
-  ease: motionTokens.easing.smooth,
-};
-const reducedTransition = { duration: motionTokens.duration.fast };
 
 const TAB_ORDER: EditorTab[] = ["preview", "edit", "design", "insights"];
 
-// Shared +1/-1 slide-direction state for the filmstrip AnimatePresence blocks.
-function useDirection(initial = 1) {
-  const [direction, setDirection] = useState(initial);
-  return {
-    direction,
-    forward: () => setDirection(1),
-    backward: () => setDirection(-1),
-    set: setDirection,
-  };
-}
-
-type EditTabPanelProps = {
-  draft: ResumeDraft;
-  openSection: ResumeEditorPanelKey | null;
-  editingForm: boolean;
-  navDirection: number;
-  sectionVariants: typeof slideVariants | typeof fadeVariants;
-  reduceMotion: boolean | null;
-  onSaveProfile: SectionProps["onSaveProfile"];
-  onSaveSection: SectionProps["onSaveSection"];
-  onSetSectionVisibility: SectionProps["onSetSectionVisibility"];
-  backToList: () => void;
-  activeSection: ResumeEditorPanelKey;
-  onReorderSection: SectionProps["onReorderSection"];
-  controlPanelProps: ComponentProps<typeof EditorControlPanel>;
-  onOpen: (key: ResumeEditorPanelKey) => void;
-};
-
-function EditTabPanel({
-  draft,
-  openSection,
-  editingForm,
-  navDirection,
-  sectionVariants,
-  reduceMotion,
-  onSaveProfile,
-  onSaveSection,
-  onSetSectionVisibility,
-  backToList,
-  activeSection,
-  onReorderSection,
-  controlPanelProps,
-  onOpen,
-}: EditTabPanelProps) {
-  return (
-    <div className="relative h-full overflow-hidden">
-      <AnimatePresence initial={false} custom={navDirection}>
-        {editingForm && openSection ? (
-          <motion.div
-            key={openSection}
-            className="absolute inset-0 transform-gpu overflow-y-auto bg-background p-4 pb-24 @container/form"
-            custom={navDirection}
-            variants={sectionVariants}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            transition={reduceMotion ? reducedTransition : slideTransition}
-          >
-            <SectionBody
-              draft={draft}
-              activeSection={openSection}
-              onSaveProfile={onSaveProfile}
-              onSaveSection={onSaveSection}
-              onRemoveSection={
-                isCollectionSectionKey(openSection as ResumeSectionPanelKey)
-                  ? () => {
-                      onSetSectionVisibility(
-                        openSection as ResumeSectionPanelKey,
-                        false,
-                      );
-                      backToList();
-                    }
-                  : undefined
-              }
-              idPrefix="mobile"
-            />
-          </motion.div>
-        ) : (
-          <motion.div
-            key="list"
-            className="absolute inset-0 transform-gpu bg-background"
-            custom={navDirection}
-            variants={sectionVariants}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            transition={reduceMotion ? reducedTransition : slideTransition}
-          >
-            <MobileSectionList
-              draft={draft}
-              activeSection={activeSection}
-              onReorderSection={onReorderSection}
-              onSetSectionVisibility={onSetSectionVisibility}
-              controlPanelProps={controlPanelProps}
-              onOpen={onOpen}
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}
-
-type DesignTabPanelProps = {
-  presentation: ResumeDraft["pdfPresentation"];
-  draft: ResumeDraft;
-  onPresentationChange: ComponentProps<
-    typeof EditorControlPanel
-  >["onPresentationChange"];
-};
-
-function DesignTabPanel({
-  presentation,
-  draft,
-  onPresentationChange,
-}: DesignTabPanelProps) {
-  return (
-    <Tabs defaultValue="template" className="flex h-full flex-col">
-      <div className="shrink-0 px-4 pt-3">
-        <TabsList className="w-full">
-          <TabsTrigger value="template">
-            <GalleryThumbnailsIcon />
-            Template
-          </TabsTrigger>
-          <TabsTrigger value="layout">
-            <LayoutTemplateIcon />
-            Layout
-          </TabsTrigger>
-          <TabsTrigger value="style">
-            <PaletteIcon />
-            Style
-          </TabsTrigger>
-        </TabsList>
-      </div>
-      <TabsContent
-        value="template"
-        className="min-h-0 flex-1 overflow-y-auto p-4 pb-24 @container/form"
-      >
-        <TemplateGallery
-          draft={draft}
-          presentation={presentation}
-          onApply={onPresentationChange}
-          columns={2}
-        />
-      </TabsContent>
-      <TabsContent
-        value="layout"
-        className="min-h-0 flex-1 overflow-y-auto p-4 pb-24 @container/form"
-      >
-        <LayoutTab
-          presentation={presentation}
-          draft={draft}
-          onChange={onPresentationChange}
-        />
-      </TabsContent>
-      <TabsContent
-        value="style"
-        className="min-h-0 flex-1 overflow-y-auto p-4 pb-24 @container/form"
-      >
-        <StyleTab presentation={presentation} onChange={onPresentationChange} />
-      </TabsContent>
-    </Tabs>
-  );
-}
+/** Clears the floating bottom nav so the last row stays reachable. */
+const NAV_CLEARANCE = "pb-24";
 
 export function ResumeEditorMobileContent({
   sectionProps,
@@ -321,27 +109,13 @@ export function ResumeEditorMobileContent({
   }
 
   const editingForm = tab === "edit" && openSection !== null;
-  const sectionVariants = reduceMotion ? fadeVariants : slideVariants;
 
   return (
     <div className="relative flex h-full flex-col lg:hidden">
       {/* Contextual top bar — only inside a sub-form. Tab roots rely on the
           global top bar + bottom nav, so no redundant title here. */}
       {editingForm && openSection ? (
-        <header className="flex h-12 shrink-0 items-center gap-2 border-b bg-background px-3">
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon-sm"
-            aria-label="Back to sections"
-            onClick={backToList}
-          >
-            <ArrowLeftIcon />
-          </Button>
-          <h2 className="min-w-0 flex-1 truncate text-sm font-semibold">
-            {sectionLabelFor(openSection)}
-          </h2>
-        </header>
+        <SectionFormHeader sectionKey={openSection} onBack={backToList} />
       ) : null}
 
       {/* Tab content — slides horizontally between tabs (direction by order). */}
@@ -358,21 +132,20 @@ export function ResumeEditorMobileContent({
             transition={reduceMotion ? reducedTransition : slideTransition}
           >
             {tab === "edit" ? (
-              <EditTabPanel
+              <SectionEditPanel
                 draft={draft}
                 openSection={openSection}
-                editingForm={editingForm}
-                navDirection={nav.direction}
-                sectionVariants={sectionVariants}
-                reduceMotion={reduceMotion}
+                activeSection={sectionProps.activeSection}
+                direction={nav.direction}
                 onSaveProfile={onSaveProfile}
                 onSaveSection={onSaveSection}
-                onSetSectionVisibility={onSetSectionVisibility}
-                backToList={backToList}
-                activeSection={sectionProps.activeSection}
                 onReorderSection={sectionProps.onReorderSection}
-                controlPanelProps={controlPanelProps}
+                onSetSectionVisibility={onSetSectionVisibility}
+                onBack={backToList}
                 onOpen={openForm}
+                controls={controlPanelProps}
+                idPrefix="mobile"
+                scrollPaddingClassName={NAV_CLEARANCE}
               />
             ) : null}
 
@@ -383,15 +156,16 @@ export function ResumeEditorMobileContent({
             ) : null}
 
             {tab === "design" ? (
-              <DesignTabPanel
+              <DesignPanel
                 presentation={presentation}
                 draft={draft}
                 onPresentationChange={controlPanelProps.onPresentationChange}
+                scrollPaddingClassName={NAV_CLEARANCE}
               />
             ) : null}
 
             {tab === "insights" ? (
-              <div className="h-full overflow-y-auto p-4 pb-24">
+              <div className={`h-full overflow-y-auto p-4 ${NAV_CLEARANCE}`}>
                 <InsightsTab draft={draft} onOpenSection={handleInsightsOpen} />
               </div>
             ) : null}
@@ -401,105 +175,6 @@ export function ResumeEditorMobileContent({
 
       {/* Floating pill bottom navigation */}
       <MobileBottomNav value={tab} onChange={changeTab} />
-    </div>
-  );
-}
-
-type MobileSectionListProps = {
-  draft: ResumeDraft;
-  activeSection: ResumeEditorPanelKey;
-  onReorderSection: SectionProps["onReorderSection"];
-  onSetSectionVisibility: SectionProps["onSetSectionVisibility"];
-  controlPanelProps: ComponentProps<typeof EditorControlPanel>;
-  onOpen: (key: ResumeEditorPanelKey) => void;
-};
-
-function MobileSectionList({
-  draft,
-  activeSection,
-  onReorderSection,
-  onSetSectionVisibility,
-  controlPanelProps,
-  onOpen,
-}: MobileSectionListProps) {
-  const { sensors, onDragEnd } = useSectionReorder(onReorderSection);
-  const { sortableKeys, hiddenKeys } = partitionCollectionKeys(draft.sections);
-
-  const navChevron = (
-    <ChevronRightIcon className="size-4 text-muted-foreground/60" />
-  );
-
-  return (
-    <div className="h-full overflow-y-auto pb-24">
-      {/* Document actions — mirrors the desktop right panel's top block. */}
-      <div className="px-4 pt-4">
-        <EditorDocumentActions
-          onExtractCv={controlPanelProps.onExtractCv}
-          onImportJson={controlPanelProps.onImportJson}
-          onExport={controlPanelProps.onExport}
-          onExportPdf={controlPanelProps.onExportPdf}
-          isExportingPdf={controlPanelProps.isExportingPdf}
-          isImportingPdf={controlPanelProps.isImportingPdf}
-        />
-      </div>
-
-      <Separator className="my-3" />
-
-      <div className="px-2 pb-3">
-        {/* Pinned — not reorderable, not removable */}
-        <div className="flex flex-col gap-0.5">
-          <SectionRow
-            sectionKey="profile"
-            label="Profile"
-            active={activeSection === "profile"}
-            onClick={() => onOpen("profile")}
-            trailing={navChevron}
-          />
-          <SectionRow
-            sectionKey="summary"
-            label={sectionLabels.summary}
-            active={activeSection === "summary"}
-            onClick={() => onOpen("summary")}
-            trailing={navChevron}
-          />
-        </div>
-
-        <Separator className="my-2" />
-
-        {/* Collection sections — drag-sortable */}
-        <div className="flex flex-col gap-0.5">
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragEnd={onDragEnd}
-          >
-            <SortableContext
-              items={sortableKeys}
-              strategy={verticalListSortingStrategy}
-            >
-              <AnimatePresence initial={false}>
-                {sortableKeys.map((key) => (
-                  <SortableSectionRow
-                    key={key}
-                    sectionKey={key}
-                    label={sectionLabels[key]}
-                    count={draft.sections[key].items.length}
-                    active={activeSection === key}
-                    onClick={() => onOpen(key)}
-                    trailing={navChevron}
-                  />
-                ))}
-              </AnimatePresence>
-            </SortableContext>
-          </DndContext>
-
-          <AddSectionMenu
-            hiddenKeys={hiddenKeys}
-            onAdd={(key) => onSetSectionVisibility(key, true)}
-            triggerVariant="ghost"
-          />
-        </div>
-      </div>
     </div>
   );
 }

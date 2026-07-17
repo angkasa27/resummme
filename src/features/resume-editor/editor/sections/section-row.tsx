@@ -27,10 +27,9 @@ type SectionRowProps = {
 };
 
 /**
- * A fully-clickable section row shared by the desktop accordion (toggle) and
- * the mobile list (navigate). The entire row is the hit target — including the
- * chevron — so disclosure feels obvious; the drag handle and delete button
- * stop propagation.
+ * A fully-clickable section row shared by the desktop and mobile section lists.
+ * The entire row is the hit target — including the chevron — so navigation feels
+ * obvious; the drag handle stops propagation.
  */
 export function SectionRow({
   sectionKey,

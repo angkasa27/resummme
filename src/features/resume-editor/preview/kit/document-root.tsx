@@ -35,7 +35,7 @@ export function PreviewDocumentRoot({
         styles.root,
         "resume-document",
         mode === "preview"
-          ? "mx-0 max-w-none bg-white ring-1 ring-border print:min-h-0 print:max-w-none print:bg-white print:ring-0"
+          ? "mx-0 max-w-none bg-white shadow-xl ring-1 ring-border print:min-h-0 print:max-w-none print:bg-white print:shadow-none print:ring-0"
           : "mx-0 max-w-none bg-white ring-0",
         className,
       )}

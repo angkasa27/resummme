@@ -16,7 +16,7 @@ import { GripVerticalIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import { motion } from "motion/react";
 
-import { SectionRow } from "@/features/resume-editor/editor/mobile/section-row";
+import { SectionRow } from "@/features/resume-editor/editor/sections/section-row";
 import type { ResumeSectionPanelKey } from "@/features/resume-editor/domain/sections/section-metadata";
 import { motionTokens } from "@/lib/motion-tokens";
 
@@ -53,16 +53,13 @@ type SortableSectionRowProps = {
   count?: number;
   active: boolean;
   onClick: () => void;
-  /** Trailing slot — the disclosure chevron (desktop) or nav chevron (mobile). */
+  /** Trailing slot — typically the nav chevron. */
   trailing?: ReactNode;
-  /** Expanded body rendered below the row (desktop accordion only). */
-  children?: ReactNode;
 };
 
 /**
- * A drag-sortable section row: the grip handle + `SectionRow`, plus an optional
- * expanded body. Shared by the desktop accordion and the mobile section list —
- * each supplies its own `trailing` and (for desktop) `children`.
+ * A drag-sortable section row: the grip handle + `SectionRow`. Shared by the
+ * desktop sidebar and the mobile section list.
  */
 export function SortableSectionRow({
   sectionKey,
@@ -71,7 +68,6 @@ export function SortableSectionRow({
   active,
   onClick,
   trailing,
-  children,
 }: SortableSectionRowProps) {
   const {
     attributes,
@@ -119,7 +115,6 @@ export function SortableSectionRow({
         }
         trailing={trailing}
       />
-      {children}
     </motion.div>
   );
 }

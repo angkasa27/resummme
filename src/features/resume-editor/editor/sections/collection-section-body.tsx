@@ -48,7 +48,7 @@ type ItemFieldArray = UseFieldArrayReturn<
   "fieldKey"
 >;
 
-type MobileCollectionItemCardProps = {
+type CollectionItemCardProps = {
   index: number;
   config: CollectionSectionConfigMap[CollectionSectionKey];
   currentItems: CollectionItemsFormValues["items"] | undefined;
@@ -60,7 +60,7 @@ type MobileCollectionItemCardProps = {
   form: UseFormReturn<CollectionItemsFormValues>;
 };
 
-function MobileCollectionItemCard({
+function CollectionItemCard({
   index,
   config,
   currentItems,
@@ -70,7 +70,7 @@ function MobileCollectionItemCard({
   onRequestDelete,
   itemMotion,
   form,
-}: MobileCollectionItemCardProps) {
+}: CollectionItemCardProps) {
   const summary = getCollectionItemSummary(
     currentItems?.[index] as Record<string, unknown>,
     config.itemTitle,
@@ -157,8 +157,8 @@ function MobileCollectionItemCard({
 
 /**
  * Headerless collection editor (item cards with collapse/move/delete, auto-sort,
- * add, auto-save). Used inside the desktop accordion and the mobile full-screen
- * form — the surrounding row/header supplies the section title.
+ * add, auto-save). Used inside the desktop sidebar and the mobile full-screen
+ * form — the surrounding drill-in header supplies the section title.
  */
 export function CollectionSectionBody({
   draft,
@@ -234,7 +234,7 @@ export function CollectionSectionBody({
         <div className="flex flex-col gap-3">
           <AnimatePresence initial={false}>
             {items.fields.map((field, index) => (
-              <MobileCollectionItemCard
+              <CollectionItemCard
                 key={field.fieldKey}
                 index={index}
                 config={config}

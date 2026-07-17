@@ -19,7 +19,7 @@ import {
 type AddSectionMenuProps = {
   hiddenKeys: CollectionSectionKey[];
   onAdd: (sectionKey: CollectionSectionKey) => void;
-  /** Trigger button style — desktop uses "outline", mobile uses "ghost". */
+  /** Trigger button style. */
   triggerVariant?: ComponentProps<typeof Button>["variant"];
 };
 

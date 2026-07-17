@@ -1,0 +1,59 @@
+"use client";
+
+import type { KeyboardEvent, ReactNode } from "react";
+
+import type { EditorPanelKey } from "@/features/resume-editor/domain/sections/section-metadata";
+import { cn } from "@/lib/utils";
+
+/**
+ * Makes a slot on the paper open its section in the editor sidebar.
+ *
+ * Deliberately has no resting or hover chrome: the canvas is a preview of the
+ * printed document, so editing affordances live in the sidebar, not on top of
+ * the page. Only keyboard focus and the active section are marked, and both are
+ * stripped for print.
+ *
+ * A `div` rather than a `button` because sections render real anchors (contact
+ * links, linked titles) and a button may not contain them. Those anchors are
+ * made inert here so a click can't both follow the link and open the section —
+ * the canvas is for editing; links stay live in the exported PDF.
+ */
+export function PreviewSectionTarget({
+  panel,
+  label,
+  isActive,
+  onSelect,
+  children,
+}: {
+  panel: EditorPanelKey;
+  label: string;
+  isActive: boolean;
+  onSelect: (panel: EditorPanelKey) => void;
+  children: ReactNode;
+}) {
+  function handleKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      onSelect(panel);
+    }
+  }
+
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      aria-label={`Edit ${label}`}
+      data-active={isActive || undefined}
+      onClick={() => onSelect(panel)}
+      onKeyDown={handleKeyDown}
+      className={cn(
+        "cursor-pointer rounded-sm outline-none [&_a]:pointer-events-none",
+        "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+        "data-active:ring-1 data-active:ring-ring/40",
+        "print:pointer-events-none print:ring-0",
+      )}
+    >
+      {children}
+    </div>
+  );
+}

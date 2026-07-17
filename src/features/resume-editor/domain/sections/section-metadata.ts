@@ -84,7 +84,7 @@ export function getOrderedVisibleSectionKeys(
 /**
  * Splits the ordered collection sections into the visible (drag-sortable) keys
  * and the hidden keys offered by the "Add section" menu. Shared by the desktop
- * accordion and the mobile section list.
+ * and mobile section lists.
  */
 export function partitionCollectionKeys(sections: ResumeDraft["sections"]) {
   const ordered = getOrderedSectionKeys(sections);

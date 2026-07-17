@@ -17,8 +17,6 @@ type TemplateGalleryProps = {
   draft: ResumeDraft;
   presentation: PdfPresentation;
   onApply: (next: PdfPresentation) => void;
-  /** Cards per row; the dialog uses 3, the mobile tab 2. */
-  columns?: 2 | 3;
 };
 
 /**
@@ -30,7 +28,6 @@ export function TemplateGallery({
   draft,
   presentation,
   onApply,
-  columns = 3,
 }: TemplateGalleryProps) {
   // Snapshot the draft on mount — same rationale as LayoutTab: the gallery
   // remounts when opened, and live previews shouldn't re-render per keystroke.
@@ -63,13 +60,7 @@ export function TemplateGallery({
           <h3 className="text-sm font-semibold text-muted-foreground">
             {getLayout(layoutId).label}
           </h3>
-          <div
-            className={
-              columns === 3
-                ? "grid grid-cols-2 gap-3 sm:grid-cols-3"
-                : "grid grid-cols-2 gap-3"
-            }
-          >
+          <div className="grid grid-cols-2 gap-3">
             {presets.map((preset) => (
               <TemplatePresetCard
                 key={preset.id}
