@@ -1,6 +1,5 @@
 "use client";
 
-import type { ReactNode } from "react";
 import Link from "next/link";
 import {
   CheckIcon,
@@ -26,12 +25,6 @@ type EditorTopBarProps = {
   /** The primary output action — renders the Download PDF button. */
   onExportPdf: () => void;
   isExportingPdf: boolean;
-  /**
-   * Right-aligned action slot, rendered after Download. Empty by default; the
-   * SaaS fork injects its own actions (account menu, upgrade, etc.) without
-   * touching the editor.
-   */
-  actions?: ReactNode;
 };
 
 export function EditorTopBar({
@@ -42,7 +35,6 @@ export function EditorTopBar({
   onRedo,
   onExportPdf,
   isExportingPdf,
-  actions,
 }: EditorTopBarProps) {
   const isMobile = useIsMobile();
 
@@ -99,8 +91,6 @@ export function EditorTopBar({
           {isExportingPdf ? "Generating PDF…" : "Download PDF"}
         </span>
       </Button>
-
-      {actions}
     </header>
   );
 }

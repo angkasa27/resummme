@@ -96,7 +96,7 @@ export function EditorSidebar({
               onOpen={onOpenSection}
               onExtractCv={controls.onExtractCv}
               onImportJson={controls.onImportJson}
-              onExportJson={controls.onExport}
+              onExportJson={controls.onExportJson}
               isImportingPdf={controls.isImportingPdf}
               idPrefix="desktop"
             />

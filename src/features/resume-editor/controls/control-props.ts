@@ -13,7 +13,7 @@ export type EditorControlProps = {
   onPresentationChange: (next: PdfPresentation) => void;
   onImportJson: () => void;
   onExtractCv: () => void;
-  onExport: () => void;
+  onExportJson: () => void;
   onExportPdf: () => void;
   onOpenSection?: (panel: EditorPanelKey) => void;
   isExportingPdf?: boolean;

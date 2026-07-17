@@ -2,7 +2,6 @@
 
 import { Loader } from "lucide-react";
 import { useMemo, useState } from "react";
-import type { ReactNode } from "react";
 
 import { toast } from "sonner";
 import { useClientReady } from "@/hooks/use-client-ready";
@@ -36,14 +35,11 @@ type ResumeEditorDesktopProps = {
   initialDraft?: ResumeDraft;
   /** Persistence module ("batteries"). Defaults to local storage. */
   storage?: DraftStorage;
-  /** Right-aligned header slot. Defaults to the GitHub link. */
-  headerActions?: ReactNode;
 };
 
 export function ResumeEditorDesktop({
   initialDraft,
   storage,
-  headerActions,
 }: ResumeEditorDesktopProps) {
   const isClientReady = useClientReady();
   const {
@@ -75,7 +71,6 @@ export function ResumeEditorDesktop({
     canRedo,
     onUndo: undo,
     onRedo: redo,
-    actions: headerActions,
     onExportPdf: handlePrint,
     isExportingPdf,
   });
@@ -166,7 +161,7 @@ export function ResumeEditorDesktop({
     onPresentationChange: savePdfPresentation,
     onImportJson: openJsonImportPicker,
     onExtractCv: () => setIsExtractCvOpen(true),
-    onExport: handleExport,
+    onExportJson: handleExport,
     onExportPdf: handlePrint,
     onOpenSection: focusSection,
     isExportingPdf,

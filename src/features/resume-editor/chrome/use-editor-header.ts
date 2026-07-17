@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 
 import type { SaveStatus } from "@/features/resume-editor/domain/draft/draft-storage";
 import { useEditorHeaderStore } from "@/features/resume-editor/chrome/editor-header-store";
@@ -11,7 +11,6 @@ type EditorHeaderControls = {
   canRedo: boolean;
   onUndo: () => void;
   onRedo: () => void;
-  actions?: ReactNode;
   /** The top bar's Download PDF action. */
   onExportPdf: () => void;
   isExportingPdf: boolean;
@@ -20,7 +19,7 @@ type EditorHeaderControls = {
 /**
  * Publishes an editor page's header controls to the shared store so the
  * persistent top bar (rendered once in `app/editor/layout.tsx`) can drive
- * undo/redo, the save indicator, the File menu and the right-aligned actions.
+ * undo/redo, the save indicator, and the Download PDF button.
  *
  * Keeping the bar in the layout — instead of inside each page — is what lets
  * the Canvas/Classic tab pill animate across navigation: the bar instance
@@ -40,7 +39,6 @@ export function useEditorHeader(controls: EditorHeaderControls) {
     onExportPdfRef.current = controls.onExportPdf;
   });
 
-  const { actions } = controls;
   // Handlers are read through refs, so only the export *flag* belongs in the
   // dependency list — re-publishing on every render would re-render the layout
   // for nothing.
@@ -52,7 +50,6 @@ export function useEditorHeader(controls: EditorHeaderControls) {
       onRedo: () => onRedoRef.current(),
       onExportPdf: () => onExportPdfRef.current(),
       isExportingPdf,
-      actions,
     });
     return () =>
       setControls({
@@ -61,7 +58,7 @@ export function useEditorHeader(controls: EditorHeaderControls) {
         canRedo: false,
         isExportingPdf: false,
       });
-  }, [setControls, actions, isExportingPdf]);
+  }, [setControls, isExportingPdf]);
 
   const { saveStatus, canUndo, canRedo } = controls;
   useEffect(() => {

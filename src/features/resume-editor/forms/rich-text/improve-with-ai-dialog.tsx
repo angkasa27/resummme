@@ -217,7 +217,6 @@ function ImproveWithAiBody({
               value={label}
               variant="ai"
               size="sm"
-              className="rounded-full px-3 text-xs font-medium"
             >
               {label}
             </ToggleGroupItem>

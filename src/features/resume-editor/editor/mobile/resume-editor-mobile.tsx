@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import type { ReactNode } from "react";
 
 import { Loader } from "lucide-react";
 
@@ -27,14 +26,11 @@ type ResumeEditorMobileProps = {
   initialDraft?: ResumeDraft;
   /** Persistence module ("batteries"). Defaults to local storage. */
   storage?: DraftStorage;
-  /** Right-aligned header slot, identical to canvas. Defaults to the GitHub link. */
-  headerActions?: ReactNode;
 };
 
 export function ResumeEditorMobile({
   initialDraft,
   storage,
-  headerActions,
 }: ResumeEditorMobileProps) {
   const isClientReady = useClientReady();
   const isMobile = useIsMobile();
@@ -70,7 +66,6 @@ export function ResumeEditorMobile({
     canRedo,
     onUndo: undo,
     onRedo: redo,
-    actions: headerActions,
     onExportPdf: handlePrint,
     isExportingPdf,
   });
@@ -137,7 +132,7 @@ export function ResumeEditorMobile({
     onPresentationChange: savePdfPresentation,
     onImportJson: openJsonImportPicker,
     onExtractCv: () => setIsExtractCvOpen(true),
-    onExport: handleExport,
+    onExportJson: handleExport,
     onExportPdf: handlePrint,
     onOpenSection: openSection,
     isExportingPdf,

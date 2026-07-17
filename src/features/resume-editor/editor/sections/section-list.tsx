@@ -89,7 +89,7 @@ export function SectionList({
           isImportingPdf={isImportingPdf}
         />
 
-        <Separator className="my-2 -mx-2 w-[calc(100%+(var(--spacing)*4))]!" />
+        <Separator fullBleed />
 
         {/* Pinned — not reorderable, not removable */}
         <div className="flex flex-col gap-2">
@@ -109,7 +109,7 @@ export function SectionList({
           />
         </div>
 
-        <Separator className="my-2 -mx-2 w-[calc(100%+(var(--spacing)*4))]!" />
+        <Separator fullBleed />
 
         {/* Collection sections — drag-sortable */}
         <div className="flex flex-col gap-2">

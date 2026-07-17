@@ -28,7 +28,10 @@ import {
   FieldSet,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { DESTRUCTIVE_ICON_CLASS } from "@/features/resume-editor/forms/fields/field-control";
+import {
+  DESTRUCTIVE_ICON_CLASS,
+  FOCUS_RING_CLASS,
+} from "@/features/resume-editor/forms/fields/field-control";
 import { FieldLabelText } from "@/features/resume-editor/forms/fields/field-label-text";
 import { PhotoCropDialog } from "@/features/resume-editor/forms/photo-crop-dialog";
 import type { ProfileFormContext } from "@/features/resume-editor/forms/use-profile-form";
@@ -269,7 +272,7 @@ function PhotoAvatarButton({
       id={id}
       onClick={onClick}
       aria-label={hasPhoto ? "Change profile photo" : "Upload profile photo"}
-      className="group relative size-20 shrink-0 overflow-hidden rounded-full bg-muted ring-1 ring-border outline-none transition focus-visible:ring-3 focus-visible:ring-ring/50"
+      className={cn("group relative size-20 shrink-0 overflow-hidden rounded-full bg-muted ring-1 ring-border outline-none transition", FOCUS_RING_CLASS)}
     >
       {hasPhoto ? (
         // eslint-disable-next-line @next/next/no-img-element

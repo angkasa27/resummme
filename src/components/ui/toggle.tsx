@@ -11,7 +11,7 @@ const toggleVariants = cva(
         // control until pressed, then the violet→indigo gradient. Base-ui
         // reflects both `data-[state=on]` and `aria-pressed`; cover both so the
         // gradient wins over the base `aria-pressed:bg-muted`.
-        ai: "border border-input bg-transparent shadow-xs data-[state=on]:border-violet-500 data-[state=on]:bg-gradient-to-br data-[state=on]:from-violet-500 data-[state=on]:to-indigo-600 data-[state=on]:text-white aria-pressed:border-violet-500 aria-pressed:bg-gradient-to-br aria-pressed:from-violet-500 aria-pressed:to-indigo-600 aria-pressed:text-white",
+        ai: "rounded-full px-3 text-xs font-medium border border-input bg-transparent shadow-xs data-[state=on]:border-violet-500 data-[state=on]:bg-gradient-to-br data-[state=on]:from-violet-500 data-[state=on]:to-indigo-600 data-[state=on]:text-white aria-pressed:border-violet-500 aria-pressed:bg-gradient-to-br aria-pressed:from-violet-500 aria-pressed:to-indigo-600 aria-pressed:text-white",
       },
       size: {
         default:

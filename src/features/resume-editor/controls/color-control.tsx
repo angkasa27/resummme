@@ -20,6 +20,7 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group";
+import { FOCUS_RING_CLASS } from "@/features/resume-editor/forms/fields/field-control";
 
 const ACCENT_SWATCHES: ReadonlyArray<{ name: string; hex: string }> = [
   { name: "Slate", hex: "#1f2937" },
@@ -73,7 +74,8 @@ function ColorSwatchButton({
       aria-pressed={isActive}
       onClick={onSelect}
       className={cn(
-        "size-7 rounded-md border border-black/10 transition-transform hover:scale-110 focus:outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
+        "size-7 rounded-md border border-black/10 transition-transform hover:scale-110 focus:outline-none",
+        FOCUS_RING_CLASS,
         isActive && "ring-2 ring-offset-2 ring-foreground/60",
       )}
       style={{ backgroundColor: swatch.hex }}
@@ -119,7 +121,8 @@ export function ColorControl({
             aria-pressed={allowAuto.active}
             onClick={allowAuto.onSelect}
             className={cn(
-              "size-7 rounded-md border border-black/10 bg-muted text-xs font-semibold text-muted-foreground transition-transform hover:scale-110 focus:outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
+              "size-7 rounded-md border border-black/10 bg-muted text-xs font-semibold text-muted-foreground transition-transform hover:scale-110 focus:outline-none",
+              FOCUS_RING_CLASS,
               allowAuto.active && "ring-2 ring-offset-2 ring-foreground/60",
             )}
           >
@@ -149,7 +152,8 @@ export function ColorControl({
                 aria-label="Custom color"
                 aria-pressed={isCustomColorActive}
                 className={cn(
-                  "relative size-7 rounded-md transition-transform hover:scale-110 focus:outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
+                  "relative size-7 rounded-md transition-transform hover:scale-110 focus:outline-none",
+                  FOCUS_RING_CLASS,
                   isCustomColorActive &&
                     "ring-2 ring-offset-2 ring-foreground/60",
                 )}

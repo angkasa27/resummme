@@ -1,7 +1,6 @@
 "use client";
 
 import { Loader } from "lucide-react";
-import type { ReactNode } from "react";
 
 import { ResumeEditorDesktop } from "./desktop/resume-editor-desktop";
 import { ResumeEditorMobile } from "./mobile/resume-editor-mobile";
@@ -14,16 +13,12 @@ type ResumeEditorProps = {
   initialDraft?: ResumeDraft;
   /** Persistence module ("batteries"). Defaults to local storage. */
   storage?: DraftStorage;
-  /** Right-aligned header slot. Defaults to the GitHub link. */
-  headerActions?: ReactNode;
 };
 
 /**
  * Responsive entry point for the editor: desktop (>=768px) gets the
  * drag-and-drop canvas editor, mobile (<768px) gets the guided-forms classic
- * editor. This is the single seam the SaaS host and the `/editor` route
- * render through — both editors still accept the same props so the
- * injection contract (storage/headerActions) is unchanged.
+ * editor.
  */
 export function ResumeEditor(props: ResumeEditorProps) {
   const ready = useClientReady();

@@ -3,6 +3,7 @@
 import { memo, useMemo } from "react";
 
 import { cn } from "@/lib/utils";
+import { FOCUS_RING_CLASS } from "@/features/resume-editor/forms/fields/field-control";
 import { useElementWidth } from "@/hooks/use-element-width";
 import { ResumeDocument } from "@/features/resume-editor/preview/resume-document";
 import {
@@ -54,7 +55,9 @@ export const DocumentPreviewCard = memo(function DocumentPreviewCard({
       onClick={onSelect}
       className={cn(
         "relative w-full overflow-hidden rounded-md bg-white transition",
-        "hover:border-ring focus-visible:outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 group",
+        "hover:border-ring focus-visible:outline-none focus-visible:border-ring",
+        FOCUS_RING_CLASS,
+        "group",
         selected
           ? "border border-ring ring-2 ring-ring"
           : "border border-border",
