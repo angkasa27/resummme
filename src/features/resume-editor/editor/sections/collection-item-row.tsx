@@ -104,7 +104,7 @@ export function CollectionItemRow({
         {/* bg-background, not muted: the floating field labels punch a chip out
             of the control's border, and that chip has to match this surface.
             The side/bottom borders continue the row's own box. */}
-        <div className="@container/item-fields rounded-b-md border border-t bg-background p-3">
+        <div className="@container/fields rounded-b-md border border-t bg-background p-4">
           {children}
         </div>
       </Collapse>

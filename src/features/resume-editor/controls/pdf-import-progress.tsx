@@ -20,7 +20,7 @@ export function PdfImportProgress({ open }: { open: boolean }) {
 
   return (
     <Dialog open={open} onOpenChange={() => {}}>
-      <DialogContent showCloseButton={false} className="sm:max-w-sm gap-0 p-6">
+      <DialogContent showCloseButton={false} className="gap-0 sm:max-w-sm">
         <div className="flex flex-col items-center gap-4 text-center">
           <div className="relative grid size-14 place-items-center rounded-full bg-primary/10 text-primary">
             <SparklesIcon className="size-6" />

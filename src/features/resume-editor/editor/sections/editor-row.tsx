@@ -65,7 +65,7 @@ export function EditorRow({
       onClick={onActivate}
       onKeyDown={handleKeyDown}
       className={cn(
-        "group/row flex cursor-pointer select-none items-center gap-2 rounded-md border border-border bg-background py-2 pr-1.5 pl-2 outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring",
+        "group/row flex cursor-pointer select-none items-center gap-2 rounded-md border border-border bg-background py-2 pr-1.5 pl-2 outline-none transition-colors focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50",
         active ? "bg-accent" : "hover:bg-accent/60",
         className,
       )}

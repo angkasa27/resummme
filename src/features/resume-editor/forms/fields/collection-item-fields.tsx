@@ -353,10 +353,15 @@ export function CollectionItemFields({
     const endFieldState = gdfs(endFieldName);
     const isCurrent = endValue === "current";
 
+    // Spans the outer row, then splits start/end across the same grid — so the
+    // two pickers line up with the single-column fields above them.
     return (
-      <div
+      <FieldGroup
         key={`${startFieldName}-${endFieldName}`}
-        className="col-span-full grid gap-x-3 gap-y-5 @field-2col/item-fields:grid-cols-2"
+        layout="grid"
+        className={
+          fieldSpanByKind[fieldConfig.kind] === 2 ? "col-span-full" : undefined
+        }
       >
         <FloatingField
           htmlFor={startFieldName}
@@ -448,7 +453,7 @@ export function CollectionItemFields({
             )}
           />
         </FloatingField>
-      </div>
+      </FieldGroup>
     );
   }
 
@@ -509,10 +514,10 @@ export function CollectionItemFields({
   };
 
   return (
-    // `gap-y-5` (not 3) so a floated label overhanging the top border never
-    // collides with the field above. The container is the item body, not the
-    // scroll box — the grid has to measure the box it actually lives in.
-    <FieldGroup className="grid grid-cols-1 gap-x-3 gap-y-5 @field-2col/item-fields:grid-cols-2">
+    // Spacing comes from FieldGroup, not from here — see ui/field.tsx. The
+    // container it queries is the item body, not the scroll box: the grid has
+    // to measure the box it actually lives in.
+    <FieldGroup layout="grid">
       {config.fields.map((fieldConfig) => {
         const renderFn = renderField[fieldConfig.kind];
         if (renderFn) return renderFn(fieldConfig, index);

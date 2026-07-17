@@ -73,6 +73,7 @@ export function MobileBottomNav({ value, onChange }: MobileBottomNavProps) {
               key={key}
               value={key}
               className={cn(
+                // eslint-disable-next-line no-restricted-syntax
                 "h-auto flex-none flex-col rounded-full px-4 pt-0.5 pb-1.5 text-[10px] leading-none gap-0",
                 "text-muted-foreground hover:text-foreground",
                 "data-active:text-primary-foreground! dark:data-active:text-primary-foreground!",

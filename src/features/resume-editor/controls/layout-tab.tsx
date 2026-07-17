@@ -68,7 +68,7 @@ export function LayoutTab({
   const previewPresentation = useMemo(() => presentation, [styleKey]);
 
   return (
-    <div className="grid grid-cols-2 gap-3">
+    <div className="grid grid-cols-2 gap-4">
       {layoutControl.options.map((option) => (
         <LayoutPreviewCard
           key={option.value}

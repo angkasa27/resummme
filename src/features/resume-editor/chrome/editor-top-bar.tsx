@@ -4,21 +4,18 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import {
   CheckIcon,
+  DownloadIcon,
   Loader,
   Redo2Icon,
   TriangleAlert,
   Undo2Icon,
 } from "lucide-react";
 
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
-import { EditorFileMenu } from "@/features/resume-editor/chrome/editor-file-menu";
-import type { EditorDocumentMenuControls } from "@/features/resume-editor/chrome/editor-header-store";
 import type { SaveStatus } from "@/features/resume-editor/domain/draft/draft-storage";
-
-const GITHUB_URL = "https://github.com/angkasa27/resume-editor";
 
 type EditorTopBarProps = {
   saveStatus: SaveStatus;
@@ -26,14 +23,15 @@ type EditorTopBarProps = {
   canRedo: boolean;
   onUndo: () => void;
   onRedo: () => void;
+  /** The primary output action — renders the Download PDF button. */
+  onExportPdf: () => void;
+  isExportingPdf: boolean;
   /**
-   * Right-aligned action slot. Defaults to the GitHub link. The SaaS fork
-   * replaces this with its own actions (account menu, upgrade, etc.) without
+   * Right-aligned action slot, rendered after Download. Empty by default; the
+   * SaaS fork injects its own actions (account menu, upgrade, etc.) without
    * touching the editor.
    */
   actions?: ReactNode;
-  /** Document actions. `null`/omitted hides the File menu. */
-  documentMenu?: EditorDocumentMenuControls | null;
 };
 
 export function EditorTopBar({
@@ -42,8 +40,9 @@ export function EditorTopBar({
   canRedo,
   onUndo,
   onRedo,
+  onExportPdf,
+  isExportingPdf,
   actions,
-  documentMenu,
 }: EditorTopBarProps) {
   const isMobile = useIsMobile();
 
@@ -54,8 +53,6 @@ export function EditorTopBar({
           Resummme
         </h1>
       </Link>
-
-      {documentMenu ? <EditorFileMenu {...documentMenu} /> : null}
 
       <SaveStatusIndicator status={saveStatus} />
 
@@ -86,7 +83,24 @@ export function EditorTopBar({
         </Button>
       </ButtonGroup>
 
-      {actions ?? <EditorGithubAction />}
+      <Button
+        type="button"
+        onClick={onExportPdf}
+        disabled={isExportingPdf}
+        aria-label="Download PDF"
+        size={isMobile ? "icon-sm" : "sm"}
+      >
+        {isExportingPdf ? (
+          <Loader className="size-4 animate-spin" />
+        ) : (
+          <DownloadIcon className="size-4" />
+        )}
+        <span className="hidden md:flex">
+          {isExportingPdf ? "Generating PDF…" : "Download PDF"}
+        </span>
+      </Button>
+
+      {actions}
     </header>
   );
 }
@@ -122,36 +136,5 @@ function SaveStatusIndicator({ status }: { status: SaveStatus }) {
       {config.icon}
       <span className="hidden sm:inline">{config.label}</span>
     </span>
-  );
-}
-
-function EditorGithubAction() {
-  const isMobile = useIsMobile();
-
-  return (
-    <a
-      href={GITHUB_URL}
-      target="_blank"
-      rel="noopener noreferrer"
-      aria-label="Open project on GitHub"
-      className={cn(
-        buttonVariants({
-          variant: "outline",
-          size: isMobile ? "icon-sm" : "sm",
-        }),
-        "ml-auto bg-foreground text-background hover:bg-foreground/80! hover:text-background!",
-      )}
-    >
-      <GithubMarkIcon data-icon="inline-start" />
-      <span className="hidden md:flex">GitHub</span>
-    </a>
-  );
-}
-
-function GithubMarkIcon(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}>
-      <path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.52-1.32-1.27-1.67-1.27-1.67-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.02 1.75 2.68 1.24 3.34.95.1-.74.4-1.24.72-1.53-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.18-3.09-.12-.29-.51-1.46.11-3.04 0 0 .96-.31 3.15 1.18.91-.25 1.89-.38 2.86-.38.97 0 1.95.13 2.86.38 2.19-1.49 3.15-1.18 3.15-1.18.62 1.58.23 2.75.11 3.04.74.8 1.18 1.83 1.18 3.09 0 4.42-2.69 5.39-5.25 5.68.41.36.78 1.06.78 2.13v3.16c0 .31.21.67.8.55C20.21 21.39 23.5 17.08 23.5 12 23.5 5.65 18.35.5 12 .5z" />
-    </svg>
   );
 }

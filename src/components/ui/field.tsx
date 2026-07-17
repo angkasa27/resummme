@@ -5,14 +5,26 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
 
+/**
+ * Form spacing lives here, not at call sites.
+ *
+ * The scale is 4 / 8 / 16 / 24:
+ *   4px  — inside a field: control → error/description (`Field`, `FieldContent`)
+ *   8px  — attached meta: a legend and the fields it heads (`FieldSet`)
+ *   16px — between fields (`FieldGroup`)
+ *   24px — between groups (owned by the surface, e.g. `flex flex-col gap-6`)
+ *
+ * 16px between fields is a floor, not a preference: a floated label is 16.5px
+ * tall and hangs 8.25px above its control's border, so 12px collides with the
+ * field above.
+ */
 function FieldSet({ className, ...props }: React.ComponentProps<"fieldset">) {
   return (
     <fieldset
       data-slot="field-set"
       className={cn(
-        "flex flex-col gap-6 has-[>[data-slot=checkbox-group]]:gap-3 has-[>[data-slot=radio-group]]:gap-3",
+        "flex flex-col gap-2 has-[>[data-slot=checkbox-group]]:gap-3 has-[>[data-slot=radio-group]]:gap-3",
         className,
       )}
       {...props}
@@ -20,6 +32,15 @@ function FieldSet({ className, ...props }: React.ComponentProps<"fieldset">) {
   );
 }
 
+/**
+ * Heads a group of related controls.
+ *
+ * Defaults to `legend` (16px semibold) — one step above a `FieldLabel` (14px
+ * medium) in both size and weight. Weight alone was tried and isn't enough: at
+ * the same size, a 600 heading sitting 8px above a 500 label reads as two
+ * labels, not a hierarchy. `label` (14px semibold) exists for a nested subgroup;
+ * nothing needs it yet.
+ */
 function FieldLegend({
   className,
   variant = "legend",
@@ -30,7 +51,8 @@ function FieldLegend({
       data-slot="field-legend"
       data-variant={variant}
       className={cn(
-        "mb-3 font-medium data-[variant=label]:text-sm data-[variant=legend]:text-base",
+        // No margin: FieldSet's gap owns the distance to the fields below.
+        "flex items-center gap-2 font-semibold data-[variant=label]:text-sm data-[variant=legend]:text-base",
         className,
       )}
       {...props}
@@ -38,14 +60,34 @@ function FieldLegend({
   );
 }
 
-function FieldGroup({ className, ...props }: React.ComponentProps<"div">) {
+const fieldGroupVariants = cva(
+  "group/field-group @container/field-group w-full gap-4 data-[slot=checkbox-group]:gap-3",
+  {
+    variants: {
+      layout: {
+        stack: "flex flex-col",
+        // One gap on both axes — see the scale note above. Splits to two
+        // columns against the nearest `@container/fields`, so each surface
+        // measures the box its fields actually sit in (an item card's body is
+        // inset further than the panel's scroll box).
+        grid: "grid grid-cols-1 @field-2col/fields:grid-cols-2",
+      },
+    },
+    defaultVariants: {
+      layout: "stack",
+    },
+  },
+);
+
+function FieldGroup({
+  className,
+  layout,
+  ...props
+}: React.ComponentProps<"div"> & VariantProps<typeof fieldGroupVariants>) {
   return (
     <div
       data-slot="field-group"
-      className={cn(
-        "group/field-group @container/field-group flex w-full flex-col gap-7 data-[slot=checkbox-group]:gap-3 *:data-[slot=field-group]:gap-4",
-        className,
-      )}
+      className={cn(fieldGroupVariants({ layout }), className)}
       {...props}
     />
   );
@@ -115,19 +157,6 @@ function FieldLabel({
   );
 }
 
-function FieldTitle({ className, ...props }: React.ComponentProps<"div">) {
-  return (
-    <div
-      data-slot="field-label"
-      className={cn(
-        "flex w-fit items-center gap-2 text-sm font-medium group-data-[disabled=true]/field:opacity-50",
-        className,
-      )}
-      {...props}
-    />
-  );
-}
-
 function FieldDescription({ className, ...props }: React.ComponentProps<"p">) {
   return (
     <p
@@ -143,35 +172,6 @@ function FieldDescription({ className, ...props }: React.ComponentProps<"p">) {
   );
 }
 
-function FieldSeparator({
-  children,
-  className,
-  ...props
-}: React.ComponentProps<"div"> & {
-  children?: React.ReactNode;
-}) {
-  return (
-    <div
-      data-slot="field-separator"
-      data-content={!!children}
-      className={cn(
-        "relative -my-2 h-5 text-sm group-data-[variant=outline]/field-group:-mb-2",
-        className,
-      )}
-      {...props}
-    >
-      <Separator className="absolute inset-0 top-1/2" />
-      {children && (
-        <span
-          className="relative mx-auto block w-fit bg-background px-2 text-muted-foreground"
-          data-slot="field-separator-content"
-        >
-          {children}
-        </span>
-      )}
-    </div>
-  );
-}
 
 function computeFieldErrorContent(
   children: React.ReactNode,
@@ -239,8 +239,6 @@ export {
   FieldError,
   FieldGroup,
   FieldLegend,
-  FieldSeparator,
   FieldSet,
   FieldContent,
-  FieldTitle,
 };

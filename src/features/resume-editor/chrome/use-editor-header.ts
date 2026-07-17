@@ -3,10 +3,7 @@
 import { useEffect, useLayoutEffect, useRef, type ReactNode } from "react";
 
 import type { SaveStatus } from "@/features/resume-editor/domain/draft/draft-storage";
-import {
-  useEditorHeaderStore,
-  type EditorDocumentMenuControls,
-} from "@/features/resume-editor/chrome/editor-header-store";
+import { useEditorHeaderStore } from "@/features/resume-editor/chrome/editor-header-store";
 
 type EditorHeaderControls = {
   saveStatus: SaveStatus;
@@ -15,8 +12,9 @@ type EditorHeaderControls = {
   onUndo: () => void;
   onRedo: () => void;
   actions?: ReactNode;
-  /** Handlers behind the top bar's File menu. Omit to hide it. */
-  documentMenu?: EditorDocumentMenuControls;
+  /** The top bar's Download PDF action. */
+  onExportPdf: () => void;
+  isExportingPdf: boolean;
 };
 
 /**
@@ -35,45 +33,35 @@ export function useEditorHeader(controls: EditorHeaderControls) {
   // stored controls don't need re-publishing on each keystroke.
   const onUndoRef = useRef(controls.onUndo);
   const onRedoRef = useRef(controls.onRedo);
-  const documentMenuRef = useRef(controls.documentMenu);
+  const onExportPdfRef = useRef(controls.onExportPdf);
   useLayoutEffect(() => {
     onUndoRef.current = controls.onUndo;
     onRedoRef.current = controls.onRedo;
-    documentMenuRef.current = controls.documentMenu;
+    onExportPdfRef.current = controls.onExportPdf;
   });
 
   const { actions } = controls;
-  // The menu's handlers are read through the ref, so only its *flags* belong in
-  // the dependency list — publishing the object itself would re-fire on every
-  // render and re-render the layout for nothing.
-  const hasDocumentMenu = Boolean(controls.documentMenu);
-  const isExportingPdf = controls.documentMenu?.isExportingPdf ?? false;
-  const isImportingPdf = controls.documentMenu?.isImportingPdf ?? false;
+  // Handlers are read through refs, so only the export *flag* belongs in the
+  // dependency list — re-publishing on every render would re-render the layout
+  // for nothing.
+  const isExportingPdf = controls.isExportingPdf;
 
   useEffect(() => {
     setControls({
       onUndo: () => onUndoRef.current(),
       onRedo: () => onRedoRef.current(),
+      onExportPdf: () => onExportPdfRef.current(),
+      isExportingPdf,
       actions,
-      documentMenu: hasDocumentMenu
-        ? {
-            onExtractCv: () => documentMenuRef.current?.onExtractCv(),
-            onImportJson: () => documentMenuRef.current?.onImportJson(),
-            onExportJson: () => documentMenuRef.current?.onExportJson(),
-            onExportPdf: () => documentMenuRef.current?.onExportPdf(),
-            isExportingPdf,
-            isImportingPdf,
-          }
-        : null,
     });
     return () =>
       setControls({
         saveStatus: "idle",
         canUndo: false,
         canRedo: false,
-        documentMenu: null,
+        isExportingPdf: false,
       });
-  }, [setControls, actions, hasDocumentMenu, isExportingPdf, isImportingPdf]);
+  }, [setControls, actions, isExportingPdf]);
 
   const { saveStatus, canUndo, canRedo } = controls;
   useEffect(() => {

@@ -48,7 +48,7 @@ export function ExtractCvDialog({
         <SheetContent
           side="bottom"
           showCloseButton={false}
-          className="flex max-h-[92dvh] flex-col rounded-t-xl p-4 pt-3 gap-3"
+          className="flex max-h-[92dvh] flex-col rounded-t-xl gap-4 p-4 pt-3"
         >
           <div className="mx-auto h-1 w-10 shrink-0 rounded-full bg-border" />
           <DialogHeaderSection
@@ -65,7 +65,7 @@ export function ExtractCvDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent showCloseButton={false} className="sm:max-w-lg gap-4">
+      <DialogContent showCloseButton={false} className="sm:max-w-lg">
         <DialogHeaderRow
           icon={<SparklesIcon className="size-4 text-primary" />}
           title="Extract from PDF"
@@ -113,7 +113,7 @@ function ExtractCvBody({ onSubmit, onClose }: ExtractCvBodyProps) {
   }
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-4">
       <label
         htmlFor={inputId}
         onDragOver={(event) => {
@@ -130,7 +130,7 @@ function ExtractCvBody({ onSubmit, onClose }: ExtractCvBodyProps) {
         )}
       >
         <UploadCloudIcon className="size-7" />
-        <div className="flex flex-col gap-0.5">
+        <div className="flex flex-col gap-1">
           <span className="font-medium text-foreground">
             Drop your PDF here, or click to browse
           </span>
@@ -182,7 +182,7 @@ function SelectedFileRow({
       ? `${(sizeKb / 1024).toFixed(1)} MB`
       : `${Math.round(sizeKb)} KB`;
   return (
-    <div className="flex items-center gap-3 rounded-md border bg-muted/30 px-3 py-2 text-sm">
+    <div className="flex items-center gap-2 rounded-md border bg-muted/30 px-3 py-2 text-sm">
       <FileTextIcon className="size-4 shrink-0 text-muted-foreground" />
       <div className="flex min-w-0 flex-1 flex-col">
         <span className="truncate font-medium">{file.name}</span>

@@ -40,6 +40,11 @@ type SectionEditPanelProps = {
     visible: boolean,
   ) => void;
   onOpen: (key: ResumeEditorPanelKey) => void;
+  /** Document-level actions shown above the section list. */
+  onExtractCv: () => void;
+  onImportJson: () => void;
+  onExportJson: () => void;
+  isImportingPdf?: boolean;
   /** Disambiguates input ids between the two surfaces. */
   idPrefix: string;
   /** Extra scroll padding — mobile clears its floating bottom nav. */
@@ -61,6 +66,10 @@ export function SectionEditPanel({
   onReorderSection,
   onSetSectionVisibility,
   onOpen,
+  onExtractCv,
+  onImportJson,
+  onExportJson,
+  isImportingPdf,
   idPrefix,
   scrollPaddingClassName,
 }: SectionEditPanelProps) {
@@ -109,6 +118,10 @@ export function SectionEditPanel({
               onReorderSection={onReorderSection}
               onSetSectionVisibility={onSetSectionVisibility}
               onOpen={onOpen}
+              onExtractCv={onExtractCv}
+              onImportJson={onImportJson}
+              onExportJson={onExportJson}
+              isImportingPdf={isImportingPdf}
               className={scrollPaddingClassName}
             />
           </motion.div>

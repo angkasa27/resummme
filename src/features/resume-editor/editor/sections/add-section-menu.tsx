@@ -30,7 +30,7 @@ type AddSectionMenuProps = {
 export function AddSectionMenu({
   hiddenKeys,
   onAdd,
-  triggerVariant = "ghost",
+  triggerVariant = "default",
 }: AddSectionMenuProps) {
   if (hiddenKeys.length === 0) return null;
 
@@ -38,11 +38,7 @@ export function AddSectionMenu({
     <DropdownMenu>
       <DropdownMenuTrigger
         render={
-          <Button
-            type="button"
-            variant={triggerVariant}
-            className="mt-1 w-full justify-start"
-          >
+          <Button type="button" variant={triggerVariant} className="w-full">
             <PlusIcon data-icon="inline-start" />
             Add section
           </Button>

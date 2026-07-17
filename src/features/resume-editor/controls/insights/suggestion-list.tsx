@@ -75,14 +75,15 @@ function SuggestionGroup({
 
   return (
     <section className="rounded-md border bg-background">
-      <button
+      <Button
         type="button"
+        variant="ghost"
         onClick={() => setOpen((value) => !value)}
-        className="flex w-full items-center justify-between gap-3 px-3 py-2 text-left text-xs font-medium"
+        className="h-auto w-full justify-between gap-2 px-4 py-2 text-left font-medium"
       >
         <span className="flex items-center gap-2">
           {ATS_CATEGORY_LABELS[category]}
-          <span className="flex items-center gap-1 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+          <span className="flex items-center gap-1 text-xs font-medium text-muted-foreground">
             {failCount > 0 ? (
               <span className="text-red-600 dark:text-red-400">
                 {failCount} fail
@@ -97,13 +98,13 @@ function SuggestionGroup({
         </span>
         <ChevronDownIcon
           className={cn(
-            "size-3.5 text-muted-foreground transition-transform",
+            "text-muted-foreground transition-transform",
             !open && "-rotate-90",
           )}
         />
-      </button>
+      </Button>
       <Collapse open={open}>
-        <ul className="flex flex-col gap-1 border-t bg-muted/20 px-2 py-2">
+        <ul className="flex flex-col gap-1 border-t bg-muted/20 p-2">
           {items.map((item) => {
             const Icon = SEVERITY_ICONS[item.severity];
             return (
@@ -122,8 +123,8 @@ function SuggestionGroup({
                   {item.fix && onFix ? (
                     <Button
                       type="button"
-                      size="sm"
-                      className="h-6 w-fit px-2 text-[11px]"
+                      size="xs"
+                      className="w-fit"
                       onClick={() => onFix(item.fix!.panel)}
                     >
                       Fix

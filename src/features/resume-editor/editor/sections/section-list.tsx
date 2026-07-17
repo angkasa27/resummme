@@ -12,6 +12,7 @@ import { useState } from "react";
 import { ConfirmDeleteDialog } from "@/components/ui/confirm-delete-dialog";
 import { Separator } from "@/components/ui/separator";
 import { AddSectionMenu } from "@/features/resume-editor/editor/sections/add-section-menu";
+import { DocumentActions } from "@/features/resume-editor/editor/sections/document-actions";
 import { RowDeleteButton } from "@/features/resume-editor/editor/sections/row-delete-button";
 import { SectionRow } from "@/features/resume-editor/editor/sections/section-row";
 import {
@@ -41,6 +42,11 @@ type SectionListProps = {
     visible: boolean,
   ) => void;
   onOpen: (key: ResumeEditorPanelKey) => void;
+  /** Document-level actions shown above the list. */
+  onExtractCv: () => void;
+  onImportJson: () => void;
+  onExportJson: () => void;
+  isImportingPdf?: boolean;
   /** Scroll padding. Mobile clears its floating bottom nav; desktop doesn't. */
   className?: string;
 };
@@ -56,6 +62,10 @@ export function SectionList({
   onReorderSection,
   onSetSectionVisibility,
   onOpen,
+  onExtractCv,
+  onImportJson,
+  onExportJson,
+  isImportingPdf,
   className,
 }: SectionListProps) {
   const { sensors, onDragEnd } = useSectionReorder(onReorderSection);
@@ -69,9 +79,20 @@ export function SectionList({
 
   return (
     <div className={cn("h-full overflow-y-auto", className)}>
-      <div className="px-2 py-3">
+      {/* p-2, not p-4: this is a nav list, not a form. A 16px inset around rows
+          that are themselves py-2 reads heavy. */}
+      <div className="p-2">
+        <DocumentActions
+          onExtractCv={onExtractCv}
+          onImportJson={onImportJson}
+          onExportJson={onExportJson}
+          isImportingPdf={isImportingPdf}
+        />
+
+        <Separator className="my-2 -mx-2 w-[calc(100%+(var(--spacing)*4))]!" />
+
         {/* Pinned — not reorderable, not removable */}
-        <div className="flex flex-col gap-0.5">
+        <div className="flex flex-col gap-2">
           <SectionRow
             sectionKey="profile"
             label="Profile"
@@ -88,10 +109,10 @@ export function SectionList({
           />
         </div>
 
-        <Separator className="my-2" />
+        <Separator className="my-2 -mx-2 w-[calc(100%+(var(--spacing)*4))]!" />
 
         {/* Collection sections — drag-sortable */}
-        <div className="flex flex-col gap-0.5">
+        <div className="flex flex-col gap-2">
           <DndContext
             sensors={sensors}
             collisionDetection={closestCenter}
@@ -126,7 +147,6 @@ export function SectionList({
           <AddSectionMenu
             hiddenKeys={hiddenKeys}
             onAdd={(key) => onSetSectionVisibility(key, true)}
-            triggerVariant="ghost"
           />
         </div>
       </div>

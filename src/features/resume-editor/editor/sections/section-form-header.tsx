@@ -61,15 +61,11 @@ function HeaderAction({
         render={
           <Button
             type="button"
-            variant={destructive ? "ghost" : "outline"}
+            variant={destructive ? "destructive" : "outline"}
             size="sm"
             aria-label={label}
             onClick={onClick}
-            className={
-              destructive
-                ? "shrink-0 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
-                : "shrink-0"
-            }
+            className="shrink-0"
           >
             {icon}
             {/* Label appears only once the header can spare the width. */}

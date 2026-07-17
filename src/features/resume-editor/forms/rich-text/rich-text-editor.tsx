@@ -245,7 +245,7 @@ export function RichTextEditor({
     <div
       className={cn(
         "overflow-hidden rounded-md border border-input bg-background",
-        invalid && "border-destructive ring-2 ring-destructive/20",
+        invalid && "border-destructive ring-3 ring-destructive/20",
         className,
       )}
     >
@@ -293,7 +293,7 @@ export function RichTextEditor({
               <Button
                 type="button"
                 variant="outline"
-                size="icon"
+                size="icon-sm"
                 title="Edit link"
               />
             }
@@ -355,7 +355,7 @@ export function RichTextEditor({
         <Button
           type="button"
           variant="outline"
-          size="icon"
+          size="icon-sm"
           title="Remove link"
           aria-label="Remove link"
           onClick={() => activeEditor.chain().focus().unsetLink().run()}
@@ -368,7 +368,7 @@ export function RichTextEditor({
             <Button
               type="button"
               variant="ai"
-              size="icon"
+              size="icon-sm"
               title="Improve with AI"
               aria-label="Improve with AI"
               onClick={onImproveWithAi}
@@ -377,7 +377,7 @@ export function RichTextEditor({
             </Button>
           </>
         ) : null}
-        <span className="ml-auto text-[10px] tabular-nums text-muted-foreground select-none">
+        <span className="ml-auto text-xs tabular-nums text-muted-foreground select-none">
           {wordCount}w · {charCount}c
         </span>
       </div>

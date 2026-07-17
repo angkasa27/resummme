@@ -6,6 +6,10 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 <!-- END:nextjs-agent-rules -->
 
+# Design system
+
+Read `DESIGN.md` before touching any form, control surface, or spacing/typography in `src/features` or `src/components/ui`. It defines the spacing scale (4/8/16/24), the type ramp, the label recipes, the button table, and the Field API — and two ESLint rules enforce parts of it. Landing page is exempt.
+
 <!-- rtk-instructions v2 -->
 
 # RTK (Rust Token Killer) - Token-Optimized Commands

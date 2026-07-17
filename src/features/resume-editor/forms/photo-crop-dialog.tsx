@@ -130,7 +130,7 @@ function CropEditor({
         />
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2">
         <span className="text-xs font-medium text-muted-foreground">Zoom</span>
         <Slider
           aria-label="Zoom"
@@ -145,10 +145,10 @@ function CropEditor({
       </div>
 
       <DialogFooter>
-        <Button type="button" variant="outline" onClick={onCancel}>
+        <Button type="button" variant="outline" size="sm" onClick={onCancel}>
           Cancel
         </Button>
-        <Button type="button" onClick={handleApply} disabled={!areaPixels}>
+        <Button type="button" size="sm" onClick={handleApply} disabled={!areaPixels}>
           Apply
         </Button>
       </DialogFooter>

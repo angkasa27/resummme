@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import { FieldLegend, FieldSet } from "@/components/ui/field";
 import { DocumentPreviewCard } from "@/features/resume-editor/controls/document-preview-card";
 import {
   applyTemplatePreset,
@@ -56,11 +57,9 @@ export function TemplateGallery({
   return (
     <div className="flex flex-col gap-6">
       {[...groups.entries()].map(([layoutId, presets]) => (
-        <section key={layoutId} className="flex flex-col gap-3">
-          <h3 className="text-sm font-semibold text-muted-foreground">
-            {getLayout(layoutId).label}
-          </h3>
-          <div className="grid grid-cols-2 gap-3">
+        <FieldSet key={layoutId}>
+          <FieldLegend>{getLayout(layoutId).label}</FieldLegend>
+          <div className="grid grid-cols-2 gap-4">
             {presets.map((preset) => (
               <TemplatePresetCard
                 key={preset.id}
@@ -72,7 +71,7 @@ export function TemplateGallery({
               />
             ))}
           </div>
-        </section>
+        </FieldSet>
       ))}
     </div>
   );

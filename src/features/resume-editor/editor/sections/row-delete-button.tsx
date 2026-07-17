@@ -8,6 +8,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { DESTRUCTIVE_ICON_CLASS } from "@/features/resume-editor/forms/fields/field-control";
 
 type RowDeleteButtonProps = {
   /** Announced as "Remove <label>". */
@@ -45,7 +46,7 @@ export function RowDeleteButton({
               event.stopPropagation();
               onDelete();
             }}
-            className="shrink-0 text-muted-foreground/60 hover:bg-destructive/10 hover:text-destructive"
+            className={DESTRUCTIVE_ICON_CLASS}
           >
             <Trash2Icon />
           </Button>

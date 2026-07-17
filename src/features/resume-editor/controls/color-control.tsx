@@ -10,6 +10,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import { Field, FieldLabel } from "@/components/ui/field";
 import {
   DEFAULT_ACCENT,
   isValidAccentHex,
@@ -37,6 +38,8 @@ type ColorControlProps = {
   value: string;
   onChange: (next: string) => void;
   label?: string;
+  /** Columns this control takes in the surrounding field grid. */
+  span?: 1 | 2;
   /** Renders an "Auto" swatch ahead of the presets; used to clear the value. */
   allowAuto?: {
     active: boolean;
@@ -70,7 +73,7 @@ function ColorSwatchButton({
       aria-pressed={isActive}
       onClick={onSelect}
       className={cn(
-        "size-7 rounded-md border border-black/10 transition-transform hover:scale-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
+        "size-7 rounded-md border border-black/10 transition-transform hover:scale-110 focus:outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
         isActive && "ring-2 ring-offset-2 ring-foreground/60",
       )}
       style={{ backgroundColor: swatch.hex }}
@@ -82,6 +85,7 @@ export function ColorControl({
   value,
   onChange,
   label = "Color",
+  span,
   allowAuto,
 }: ColorControlProps) {
   const [pickerOpen, setPickerOpen] = useState(false);
@@ -104,9 +108,10 @@ export function ColorControl({
   const isCustomColorActive = !allowAuto?.active && !matchedSwatch;
 
   return (
-    <div className="flex flex-col gap-2">
-      <span className="text-xs font-medium text-muted-foreground">{label}</span>
-      <div className="flex gap-1.5 flex-wrap">
+    <Field className={span === 2 ? "col-span-full" : undefined}>
+      {/* No htmlFor: the swatches are a group, each with its own aria-label. */}
+      <FieldLabel>{label}</FieldLabel>
+      <div className="flex flex-wrap gap-2">
         {allowAuto ? (
           <button
             type="button"
@@ -114,7 +119,7 @@ export function ColorControl({
             aria-pressed={allowAuto.active}
             onClick={allowAuto.onSelect}
             className={cn(
-              "size-7 rounded-md border border-black/10 bg-muted text-[10px] font-semibold text-muted-foreground transition-transform hover:scale-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
+              "size-7 rounded-md border border-black/10 bg-muted text-xs font-semibold text-muted-foreground transition-transform hover:scale-110 focus:outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
               allowAuto.active && "ring-2 ring-offset-2 ring-foreground/60",
             )}
           >
@@ -144,7 +149,7 @@ export function ColorControl({
                 aria-label="Custom color"
                 aria-pressed={isCustomColorActive}
                 className={cn(
-                  "relative size-7 rounded-md transition-transform hover:scale-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
+                  "relative size-7 rounded-md transition-transform hover:scale-110 focus:outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
                   isCustomColorActive &&
                     "ring-2 ring-offset-2 ring-foreground/60",
                 )}
@@ -156,11 +161,7 @@ export function ColorControl({
               />
             }
           />
-          <PopoverContent
-            align="end"
-            sideOffset={8}
-            className="w-auto p-3 gap-3"
-          >
+          <PopoverContent align="end" sideOffset={8} className="w-auto gap-4 p-4">
             <HexColorPicker
               color={value}
               onChange={onChange}
@@ -188,6 +189,6 @@ export function ColorControl({
           </PopoverContent>
         </Popover>
       </div>
-    </div>
+    </Field>
   );
 }

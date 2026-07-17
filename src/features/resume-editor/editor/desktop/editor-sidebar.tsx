@@ -94,6 +94,10 @@ export function EditorSidebar({
               onReorderSection={onReorderSection}
               onSetSectionVisibility={onSetSectionVisibility}
               onOpen={onOpenSection}
+              onExtractCv={controls.onExtractCv}
+              onImportJson={controls.onImportJson}
+              onExportJson={controls.onExport}
+              isImportingPdf={controls.isImportingPdf}
               idPrefix="desktop"
             />
           </div>

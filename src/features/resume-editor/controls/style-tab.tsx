@@ -11,6 +11,12 @@ import {
 } from "@/components/ui/select";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import {
+  Field,
+  FieldContent,
+  FieldGroup,
+  FieldLabel,
+} from "@/components/ui/field";
+import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
@@ -40,51 +46,56 @@ function getControl(id: string): PreviewControlDefinition {
   return def;
 }
 
-function FieldLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="mb-1.5 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-      {children}
-    </span>
-  );
+/** Columns a control takes in the tab's field grid. Mirrors FloatingField. */
+type SpanProps = { span?: 1 | 2 };
+
+function spanClass(span: 1 | 2 = 1) {
+  return span === 2 ? "col-span-full" : undefined;
 }
 
 function SelectField({
   control,
   presentation,
   onChange,
-  className,
+  span,
 }: {
   control: PreviewControlDefinition;
   presentation: PdfPresentation;
   onChange: (next: PdfPresentation) => void;
-  className?: string;
-}) {
+} & SpanProps) {
   return (
-    <div className={className}>
-      <FieldLabel>{control.label}</FieldLabel>
-      <Select
-        value={control.value(presentation)}
-        onValueChange={(value) => {
-          if (!value) return;
-          onChange(control.update(value, presentation));
-        }}
-      >
-        <SelectTrigger size="sm" aria-label={control.label} className="w-full">
-          <SelectValue>
-            {control.options.find(
-              (option) => option.value === control.value(presentation),
-            )?.label ?? control.value(presentation)}
-          </SelectValue>
-        </SelectTrigger>
-        <SelectContent align="start">
-          {control.options.map((option) => (
-            <SelectItem key={option.value} value={option.value}>
-              {option.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-    </div>
+    <Field className={spanClass(span)}>
+      <FieldLabel htmlFor={control.id}>{control.label}</FieldLabel>
+      <FieldContent>
+        <Select
+          value={control.value(presentation)}
+          onValueChange={(value) => {
+            if (!value) return;
+            onChange(control.update(value, presentation));
+          }}
+        >
+          <SelectTrigger
+            id={control.id}
+            size="sm"
+            aria-label={control.label}
+            className="w-full"
+          >
+            <SelectValue>
+              {control.options.find(
+                (option) => option.value === control.value(presentation),
+              )?.label ?? control.value(presentation)}
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent align="start">
+            {control.options.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </FieldContent>
+    </Field>
   );
 }
 
@@ -92,42 +103,45 @@ function ToggleField({
   control,
   presentation,
   onChange,
-  className,
+  span,
 }: {
   control: PreviewControlDefinition;
   presentation: PdfPresentation;
   onChange: (next: PdfPresentation) => void;
-  className?: string;
-}) {
+} & SpanProps) {
   const value = control.value(presentation);
   return (
-    <div className={className}>
+    <Field className={spanClass(span)}>
+      {/* No htmlFor: a toggle group has no single focusable target, so the
+          group carries its own aria-label. */}
       <FieldLabel>{control.label}</FieldLabel>
-      <ToggleGroup
-        multiple
-        aria-label={control.label}
-        value={[value]}
-        variant="outline"
-        size="sm"
-        className={cn(
-          "grid w-full",
-          control.options.length === 4 ? "grid-cols-4" : "grid-cols-3",
-        )}
-        onValueChange={(nextValue) => {
-          const next = nextValue.at(-1);
-          if (!next) return;
-          onChange(control.update(next, presentation));
-        }}
-      >
-        {control.options.map((option) => (
-          <ToggleFieldItem
-            key={option.value}
-            ariaLabel={`${control.label} ${option.label}`}
-            option={option}
-          />
-        ))}
-      </ToggleGroup>
-    </div>
+      <FieldContent>
+        <ToggleGroup
+          multiple
+          aria-label={control.label}
+          value={[value]}
+          variant="outline"
+          size="sm"
+          className={cn(
+            "grid w-full",
+            control.options.length === 4 ? "grid-cols-4" : "grid-cols-3",
+          )}
+          onValueChange={(nextValue) => {
+            const next = nextValue.at(-1);
+            if (!next) return;
+            onChange(control.update(next, presentation));
+          }}
+        >
+          {control.options.map((option) => (
+            <ToggleFieldItem
+              key={option.value}
+              ariaLabel={`${control.label} ${option.label}`}
+              option={option}
+            />
+          ))}
+        </ToggleGroup>
+      </FieldContent>
+    </Field>
   );
 }
 
@@ -164,48 +178,56 @@ const serifOptions = RESUME_FONTS.filter((f) => f.category === "serif");
 function FontFamilyField({
   presentation,
   onChange,
+  span,
 }: {
   presentation: PdfPresentation;
   onChange: (next: PdfPresentation) => void;
-}) {
+} & SpanProps) {
   const selectedFont = getFont(presentation.fontFamilyId);
 
   return (
-    <div>
-      <FieldLabel>Font family</FieldLabel>
-      <Select
-        value={presentation.fontFamilyId}
-        onValueChange={(id) =>
-          onChange({ ...presentation, fontFamilyId: id as ResumeFontId })
-        }
-      >
-        <SelectTrigger size="sm" aria-label="Font family" className="w-full">
-          <SelectValue>
-            <span style={{ fontFamily: selectedFont.stack }}>
-              {selectedFont.name}
-            </span>
-          </SelectValue>
-        </SelectTrigger>
-        <SelectContent>
-          <SelectGroup>
-            <SelectLabel>Sans-serif</SelectLabel>
-            {sansOptions.map((font) => (
-              <SelectItem key={font.id} value={font.id}>
-                <span style={{ fontFamily: font.stack }}>{font.name}</span>
-              </SelectItem>
-            ))}
-          </SelectGroup>
-          <SelectGroup>
-            <SelectLabel>Serif</SelectLabel>
-            {serifOptions.map((font) => (
-              <SelectItem key={font.id} value={font.id}>
-                <span style={{ fontFamily: font.stack }}>{font.name}</span>
-              </SelectItem>
-            ))}
-          </SelectGroup>
-        </SelectContent>
-      </Select>
-    </div>
+    <Field className={spanClass(span)}>
+      <FieldLabel htmlFor="font-family">Font family</FieldLabel>
+      <FieldContent>
+        <Select
+          value={presentation.fontFamilyId}
+          onValueChange={(id) =>
+            onChange({ ...presentation, fontFamilyId: id as ResumeFontId })
+          }
+        >
+          <SelectTrigger
+            id="font-family"
+            size="sm"
+            aria-label="Font family"
+            className="w-full"
+          >
+            <SelectValue>
+              <span style={{ fontFamily: selectedFont.stack }}>
+                {selectedFont.name}
+              </span>
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <SelectLabel>Sans-serif</SelectLabel>
+              {sansOptions.map((font) => (
+                <SelectItem key={font.id} value={font.id}>
+                  <span style={{ fontFamily: font.stack }}>{font.name}</span>
+                </SelectItem>
+              ))}
+            </SelectGroup>
+            <SelectGroup>
+              <SelectLabel>Serif</SelectLabel>
+              {serifOptions.map((font) => (
+                <SelectItem key={font.id} value={font.id}>
+                  <span style={{ fontFamily: font.stack }}>{font.name}</span>
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+      </FieldContent>
+    </Field>
   );
 }
 
@@ -217,7 +239,7 @@ export function StyleTab({ presentation, onChange }: StyleTabProps) {
   const photoShape = getControl("photo-shape");
 
   return (
-    <div className="grid grid-cols-2 gap-x-3 gap-y-3">
+    <FieldGroup layout="grid" className="@container/fields">
       <SelectField
         control={paperSize}
         presentation={presentation}
@@ -228,11 +250,11 @@ export function StyleTab({ presentation, onChange }: StyleTabProps) {
         presentation={presentation}
         onChange={onChange}
       />
-
-      <div className="col-span-2">
-        <FontFamilyField presentation={presentation} onChange={onChange} />
-      </div>
-
+      <FontFamilyField
+        span={2}
+        presentation={presentation}
+        onChange={onChange}
+      />
       <ToggleField
         control={lineHeight}
         presentation={presentation}
@@ -243,33 +265,28 @@ export function StyleTab({ presentation, onChange }: StyleTabProps) {
         presentation={presentation}
         onChange={onChange}
       />
-
       <ToggleField
-        className="col-span-2"
+        span={2}
         control={photoShape}
         presentation={presentation}
         onChange={onChange}
       />
-
-      <div className="col-span-2 pt-1">
-        <ColorControl
-          label="Accent"
-          value={presentation.accent}
-          onChange={(accent) => onChange({ ...presentation, accent })}
-        />
-      </div>
-
-      <div className="col-span-2 pt-1">
-        <ColorControl
-          label="Secondary"
-          value={presentation.secondary ?? presentation.accent}
-          onChange={(secondary) => onChange({ ...presentation, secondary })}
-          allowAuto={{
-            active: presentation.secondary === undefined,
-            onSelect: () => onChange({ ...presentation, secondary: undefined }),
-          }}
-        />
-      </div>
-    </div>
+      <ColorControl
+        span={2}
+        label="Accent"
+        value={presentation.accent}
+        onChange={(accent) => onChange({ ...presentation, accent })}
+      />
+      <ColorControl
+        span={2}
+        label="Secondary"
+        value={presentation.secondary ?? presentation.accent}
+        onChange={(secondary) => onChange({ ...presentation, secondary })}
+        allowAuto={{
+          active: presentation.secondary === undefined,
+          onSelect: () => onChange({ ...presentation, secondary: undefined }),
+        }}
+      />
+    </FieldGroup>
   );
 }

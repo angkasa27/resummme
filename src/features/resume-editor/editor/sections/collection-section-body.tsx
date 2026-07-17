@@ -87,7 +87,8 @@ export function CollectionSectionBody({
             items={items.fields.map((field) => field.id)}
             strategy={verticalListSortingStrategy}
           >
-            <div className="flex flex-col gap-1">
+            {/* Row list — 8px, same as the section list. */}
+            <div className="flex flex-col gap-2">
               <AnimatePresence initial={false}>
                 {items.fields.map((field, index) => (
                   <CollectionItemRow
@@ -119,7 +120,6 @@ export function CollectionSectionBody({
 
       <Button
         type="button"
-        variant="outline"
         className="w-full"
         onClick={() => items.append(config.createItem() as never)}
       >

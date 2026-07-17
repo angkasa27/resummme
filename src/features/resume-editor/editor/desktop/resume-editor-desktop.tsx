@@ -76,14 +76,8 @@ export function ResumeEditorDesktop({
     onUndo: undo,
     onRedo: redo,
     actions: headerActions,
-    documentMenu: {
-      onExtractCv: () => setIsExtractCvOpen(true),
-      onImportJson: openJsonImportPicker,
-      onExportJson: handleExport,
-      onExportPdf: handlePrint,
-      isExportingPdf,
-      isImportingPdf,
-    },
+    onExportPdf: handlePrint,
+    isExportingPdf,
   });
 
   const [rail, setRail] = useState<RailKey>("edit");

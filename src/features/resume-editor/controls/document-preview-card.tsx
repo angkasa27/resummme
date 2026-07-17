@@ -54,7 +54,7 @@ export const DocumentPreviewCard = memo(function DocumentPreviewCard({
       onClick={onSelect}
       className={cn(
         "relative w-full overflow-hidden rounded-md bg-white transition",
-        "hover:border-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring group",
+        "hover:border-ring focus-visible:outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 group",
         selected
           ? "border border-ring ring-2 ring-ring"
           : "border border-border",

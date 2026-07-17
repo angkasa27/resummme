@@ -78,7 +78,7 @@ export function EditorRail({ value, collapsed, onSelect }: EditorRailProps) {
                   onClick={() => onSelect(key)}
                   className={cn(
                     "flex size-10 cursor-pointer flex-col items-center justify-center rounded-md outline-none transition-colors",
-                    "focus-visible:ring-2 focus-visible:ring-ring",
+                    "focus-visible:ring-3 focus-visible:ring-ring/50",
                     isActive
                       ? "bg-accent text-foreground"
                       : "text-muted-foreground hover:bg-accent/60 hover:text-foreground",

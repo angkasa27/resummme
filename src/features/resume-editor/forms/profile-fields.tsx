@@ -24,8 +24,11 @@ import {
   FieldError,
   FieldGroup,
   FieldLabel,
+  FieldLegend,
+  FieldSet,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { DESTRUCTIVE_ICON_CLASS } from "@/features/resume-editor/forms/fields/field-control";
 import { FieldLabelText } from "@/features/resume-editor/forms/fields/field-label-text";
 import { PhotoCropDialog } from "@/features/resume-editor/forms/photo-crop-dialog";
 import type { ProfileFormContext } from "@/features/resume-editor/forms/use-profile-form";
@@ -51,13 +54,13 @@ export function ProfileFields({ ctx, idPrefix }: ProfileFieldsProps) {
     getFieldState(name, formState).error;
 
   return (
-    <>
-      <FieldGroup className="grid gap-3 @sm/form:grid-cols-2">
+    <div className="@container/fields">
+      <FieldGroup layout="grid">
         <PhotoField
           photo={photo}
           id={`${idPrefix}-photo`}
           error={error("photo")}
-          className="@sm/form:col-span-2"
+          className="col-span-full"
         />
 
         <Field data-invalid={invalid("fullName")}>
@@ -147,21 +150,22 @@ export function ProfileFields({ ctx, idPrefix }: ProfileFieldsProps) {
         </Field>
       </FieldGroup>
 
-      <div className="mt-4 flex flex-col gap-3 border-t pt-4">
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-medium">Links</span>
+      {/* pt-6 to match the 24px between-groups step above the rule. */}
+      <FieldSet className="mt-6 border-t pt-6">
+        <FieldLegend>
+          Links
           <Badge variant="secondary">
             {extraLinks.fields.length} item
             {extraLinks.fields.length === 1 ? "" : "s"}
           </Badge>
-        </div>
+        </FieldLegend>
 
         {extraLinks.fields.length === 0 ? (
-          <div className="py-2 text-sm text-muted-foreground">
-            No links added.
-          </div>
+          <div className="text-sm text-muted-foreground">No links added.</div>
         ) : (
-          <div className="flex flex-col gap-2.5">
+          // A row list, not a form — 8px. The labels here are sr-only, so
+          // there's no floated label needing the 16px clearance.
+          <div className="flex flex-col gap-2">
             {extraLinks.fields.map((field, index) => {
               const urlFieldName = `extraLinks.${index}.url` as const;
               const inputId = `${idPrefix}-link-url-${field.id}`;
@@ -206,11 +210,12 @@ export function ProfileFields({ ctx, idPrefix }: ProfileFieldsProps) {
                   </Field>
                   <Button
                     type="button"
-                    variant="destructive"
-                    size="icon"
+                    variant="ghost"
+                    size="icon-sm"
                     aria-label={`Remove link ${index + 1}`}
                     title={`Remove link ${index + 1}`}
                     onClick={() => links.requestDelete(index)}
+                    className={DESTRUCTIVE_ICON_CLASS}
                   >
                     <Trash2Icon />
                   </Button>
@@ -224,7 +229,7 @@ export function ProfileFields({ ctx, idPrefix }: ProfileFieldsProps) {
           <PlusIcon data-icon="inline-start" />
           Add Link
         </Button>
-      </div>
+      </FieldSet>
 
       <ConfirmDeleteDialog
         open={links.pendingDeleteIndex !== null}
@@ -243,7 +248,7 @@ export function ProfileFields({ ctx, idPrefix }: ProfileFieldsProps) {
         onApply={photo.applyCrop}
         onCancel={photo.cancelCrop}
       />
-    </>
+    </div>
   );
 }
 
@@ -264,7 +269,7 @@ function PhotoAvatarButton({
       id={id}
       onClick={onClick}
       aria-label={hasPhoto ? "Change profile photo" : "Upload profile photo"}
-      className="group relative size-20 shrink-0 overflow-hidden rounded-full bg-muted ring-1 ring-border outline-none transition focus-visible:ring-2 focus-visible:ring-ring"
+      className="group relative size-20 shrink-0 overflow-hidden rounded-full bg-muted ring-1 ring-border outline-none transition focus-visible:ring-3 focus-visible:ring-ring/50"
     >
       {hasPhoto ? (
         // eslint-disable-next-line @next/next/no-img-element

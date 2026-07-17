@@ -129,7 +129,7 @@ export function MonthYearPicker({
         <span>{value || placeholder}</span>
         <CalendarIcon className="size-4 text-muted-foreground" />
       </PopoverTrigger>
-      <PopoverContent align="start" className="w-[320px] gap-3 rounded-[12px]">
+      <PopoverContent align="start" className="w-[320px] gap-4 rounded-md">
         {/* <PopoverHeader>
           <PopoverTitle>Month and year</PopoverTitle>
           <PopoverDescription>
@@ -141,7 +141,7 @@ export function MonthYearPicker({
           <Button
             type="button"
             variant="ghost"
-            size="icon"
+            size="icon-sm"
             disabled={isPreviousYearDisabled}
             onClick={() =>
               setDisplayMonth((currentMonth) => addYears(currentMonth, -1))
@@ -154,7 +154,7 @@ export function MonthYearPicker({
           <Button
             type="button"
             variant="ghost"
-            size="icon"
+            size="icon-sm"
             onClick={() =>
               setDisplayMonth((currentMonth) => addYears(currentMonth, 1))
             }

@@ -80,14 +80,14 @@ export function ScoreRing({
           <span className={cn("text-2xl font-semibold tabular-nums", tone.text)}>
             {clamped}
           </span>
-          <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs text-muted-foreground">
             {label ?? "ATS score"}
           </span>
         </div>
       </div>
       <span
         className={cn(
-          "rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide",
+          "rounded-full px-2 py-0.5 text-xs font-medium",
           score >= 80
             ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
             : score >= 60

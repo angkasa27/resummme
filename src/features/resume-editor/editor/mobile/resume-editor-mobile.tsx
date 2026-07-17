@@ -71,14 +71,8 @@ export function ResumeEditorMobile({
     onUndo: undo,
     onRedo: redo,
     actions: headerActions,
-    documentMenu: {
-      onExtractCv: () => setIsExtractCvOpen(true),
-      onImportJson: openJsonImportPicker,
-      onExportJson: handleExport,
-      onExportPdf: handlePrint,
-      isExportingPdf,
-      isImportingPdf,
-    },
+    onExportPdf: handlePrint,
+    isExportingPdf,
   });
 
   useKeyboardShortcuts({

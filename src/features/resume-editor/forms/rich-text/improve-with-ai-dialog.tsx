@@ -11,11 +11,19 @@ import {
 } from "@/features/resume-editor/ui/dialog-header";
 import { RichTextEditor } from "@/features/resume-editor/forms/rich-text/rich-text-editor";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import {
+  Field,
+  FieldContent,
+  FieldLabel,
+  FieldLegend,
+  FieldSet,
+} from "@/components/ui/field";
+import { FieldLabelText } from "@/features/resume-editor/forms/fields/field-label-text";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useRotatingMessage } from "@/features/resume-editor/ui/use-rotating-message";
-import { cn } from "@/lib/utils";
 
 const QUICK_ACTIONS = [
   { label: "Add a metric" },
@@ -72,7 +80,7 @@ function ImproveWithAiDialog({
         <SheetContent
           side="bottom"
           showCloseButton={false}
-          className="flex max-h-[92dvh] min-h-0 flex-col gap-3 rounded-t-xl p-4 pt-3"
+          className="flex max-h-[92dvh] min-h-0 flex-col gap-4 rounded-t-xl p-4 pt-3"
         >
           <div className="mx-auto h-1 w-10 shrink-0 rounded-full bg-border" />
           <DialogHeaderSection
@@ -148,17 +156,6 @@ function ImproveWithAiBody({
   const [customInstruction, setCustomInstruction] = useState("");
   const [phase, setPhase] = useState<Phase>({ kind: "idle" });
 
-  function toggleChip(label: QuickActionLabel) {
-    setSelectedChips((prev) => {
-      const next = new Set(prev);
-      if (next.has(label)) {
-        next.delete(label);
-      } else {
-        next.add(label);
-      }
-      return next;
-    });
-  }
 
   async function handleImprove() {
     setPhase({ kind: "loading" });
@@ -200,46 +197,49 @@ function ImproveWithAiBody({
     selectedChips.size > 0 || customInstruction.trim().length > 0;
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-4">
-      <div className="flex flex-col gap-2">
-        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-          Quick actions
-        </p>
-        <div className="flex flex-wrap gap-1.5">
-          {QUICK_ACTIONS.map(({ label }) => {
-            const selected = selectedChips.has(label);
-            return (
-              <button
-                key={label}
-                type="button"
-                onClick={() => toggleChip(label)}
-                className={cn(
-                  "rounded-full border px-3 py-1 text-xs font-medium transition-colors cursor-pointer",
-                  selected
-                    ? "border-violet-500 bg-gradient-to-br from-violet-500 to-indigo-600 text-white"
-                    : "border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground",
-                )}
-              >
-                {label}
-              </button>
-            );
-          })}
-        </div>
-      </div>
+    <div className="flex min-h-0 flex-1 flex-col gap-6">
+      <FieldSet>
+        <FieldLegend>Quick actions</FieldLegend>
+        {/* A real toggle group: these are multi-select and were previously bare
+            <button>s with no aria-pressed, so selection was invisible to AT. */}
+        <ToggleGroup
+          multiple
+          aria-label="Quick actions"
+          value={[...selectedChips]}
+          onValueChange={(next) =>
+            setSelectedChips(new Set(next as QuickActionLabel[]))
+          }
+          className="flex flex-wrap gap-2"
+        >
+          {QUICK_ACTIONS.map(({ label }) => (
+            <ToggleGroupItem
+              key={label}
+              value={label}
+              variant="ai"
+              size="sm"
+              className="rounded-full px-3 text-xs font-medium"
+            >
+              {label}
+            </ToggleGroupItem>
+          ))}
+        </ToggleGroup>
+      </FieldSet>
 
-      <div className="flex min-h-0 flex-1 flex-col gap-1.5">
-        <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-          Additional instructions{" "}
-          <span className="normal-case font-normal">(optional)</span>
-        </label>
-        <Textarea
-          value={customInstruction}
-          onChange={(e) => setCustomInstruction(e.target.value)}
-          placeholder={`e.g. "Add experience in React Native"\n"Emphasize the team leadership aspect"\n"Remove the comma after the first line"`}
-          rows={4}
-          className="resize-none text-sm"
-        />
-      </div>
+      <Field className="min-h-0 flex-1">
+        <FieldLabel htmlFor="improve-instructions">
+          <FieldLabelText label="Additional instructions" optional />
+        </FieldLabel>
+        <FieldContent className="min-h-0 flex-1">
+          <Textarea
+            id="improve-instructions"
+            value={customInstruction}
+            onChange={(e) => setCustomInstruction(e.target.value)}
+            placeholder={`e.g. "Add experience in React Native"\n"Emphasize the team leadership aspect"\n"Remove the comma after the first line"`}
+            rows={4}
+            className="resize-none"
+          />
+        </FieldContent>
+      </Field>
 
       <div className="flex justify-end gap-2 shrink-0">
         <Button type="button" variant="outline" size="sm" onClick={onCancel}>
@@ -295,21 +295,17 @@ function ResultPhase({
   onCancel,
 }: ResultPhaseProps) {
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-3">
-      <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto">
+    <div className="flex min-h-0 flex-1 flex-col gap-4">
+      <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto">
         <div className="flex flex-col gap-1">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-            Before
-          </p>
+          <p className="text-xs font-semibold text-muted-foreground">Before</p>
           <div
             className="prose prose-sm max-w-none rounded-md border bg-muted/40 px-3 py-2 text-sm text-muted-foreground line-through decoration-muted-foreground/40 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5"
             dangerouslySetInnerHTML={{ __html: beforeHtml }}
           />
         </div>
         <div className="flex flex-col gap-1">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-violet-500">
-            After
-          </p>
+          <p className="text-xs font-semibold text-violet-500">After</p>
           <div
             className="prose prose-sm max-w-none rounded-md border border-violet-500/20 bg-violet-500/5 px-3 py-2 text-sm [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5"
             dangerouslySetInnerHTML={{ __html: afterHtml }}
@@ -318,7 +314,7 @@ function ResultPhase({
       </div>
 
       <div className="flex justify-end gap-2 shrink-0 pt-1">
-        <Button type="button" variant="ghost" size="sm" onClick={onCancel}>
+        <Button type="button" variant="outline" size="sm" onClick={onCancel}>
           Cancel
         </Button>
         <Button type="button" variant="outline" size="sm" onClick={onTryAgain}>

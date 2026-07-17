@@ -13,7 +13,7 @@ export function FieldLabelText({
   className,
 }: FieldLabelTextProps) {
   return (
-    <span className={cn("inline-flex items-center gap-1.5", className)}>
+    <span className={cn("inline-flex items-center gap-1", className)}>
       <span>{label}</span>
       {optional ? (
         <span className="text-muted-foreground/70">(optional)</span>

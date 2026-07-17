@@ -5,9 +5,12 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  /* Width at which a collection item's fields split into two columns. Measured
-     against the item body, not the sidebar — tuned so the sidebar's 432px
-     default lands in two columns and its 360px minimum stays in one. */
+  /* Width at which a collection item's fields split into two columns.
+     Container queries measure the *content* box of the nearest
+     `@container/fields` — for an item card that's the sidebar minus 67px (the
+     panel's p-4, the card's border, and the body's own p-4). Measured, not
+     derived: a 344px threshold flips at a ~411px sidebar, so the 432px default
+     lands in two columns and the 360px minimum stays in one. */
   --container-field-2col: 21.5rem;
   --color-background: var(--background);
   --color-foreground: var(--foreground);

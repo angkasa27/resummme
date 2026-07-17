@@ -48,7 +48,7 @@ export function JdAnalyzeDialog({
         <SheetContent
           side="bottom"
           showCloseButton={false}
-          className="flex max-h-[92dvh] min-h-0 flex-col gap-3 rounded-t-xl p-4 pt-3"
+          className="flex max-h-[92dvh] min-h-0 flex-col gap-4 rounded-t-xl p-4 pt-3"
         >
           <div className="mx-auto h-1 w-10 shrink-0 rounded-full bg-border" />
           <DialogHeaderSection
@@ -67,7 +67,7 @@ export function JdAnalyzeDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         showCloseButton={false}
-        className="flex max-h-[85dvh] min-h-0 flex-col gap-4 sm:max-w-xl"
+        className="flex max-h-[85dvh] min-h-0 flex-col sm:max-w-xl"
       >
         <DialogHeaderRow
           icon={<TelescopeIcon className="size-4 text-primary" />}
@@ -98,7 +98,7 @@ function JdAnalyzeBody({
   const overLimit = trimmed.length > charLimit;
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-3">
+    <div className="flex min-h-0 flex-1 flex-col gap-4">
       <Textarea
         value={draft}
         onChange={(event) => setDraft(event.target.value)}
@@ -110,7 +110,7 @@ function JdAnalyzeBody({
         className="min-h-0 flex-1 resize-none overflow-y-auto text-sm field-sizing-fixed"
         autoFocus
       />
-      <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+      <div className="flex items-center justify-between text-xs text-muted-foreground">
         <span>
           {trimmed.length.toLocaleString()} / {charLimit.toLocaleString()}{" "}
           characters

@@ -35,8 +35,8 @@ export function CategoryBreakdown({ breakdown }: CategoryBreakdownProps) {
               </span>
               <span className="tabular-nums text-muted-foreground">
                 {pct}
-                <span className="text-[10px]">/100</span>
-                <span className="ml-1 text-[10px] uppercase tracking-wide">
+                <span className="text-xs">/100</span>
+                <span className="ml-1 text-xs">
                   · {cat.weight}%
                 </span>
               </span>

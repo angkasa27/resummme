@@ -33,15 +33,13 @@ export function JobDescriptionPanel({
 
   if (!jobMatch) {
     return (
-      <section className="flex flex-col gap-2 rounded-md border border-dashed bg-muted/30 p-3 text-center">
+      <section className="flex flex-col gap-2 rounded-md border border-dashed bg-muted/30 p-4 text-center">
         <div className="mx-auto grid size-9 place-items-center rounded-full bg-primary/10 text-primary">
           <TelescopeIcon className="size-4" />
         </div>
-        <div className="flex flex-col gap-0.5">
-          <h3 className="text-xs font-semibold uppercase tracking-wider">
-            Tailor to a role
-          </h3>
-          <p className="text-[11px] text-muted-foreground">
+        <div className="flex flex-col gap-1">
+          <h3 className="text-sm font-semibold">Tailor to a role</h3>
+          <p className="text-xs text-muted-foreground">
             Paste a job description to see how well your resume covers it.
           </p>
         </div>
@@ -62,12 +60,10 @@ export function JobDescriptionPanel({
   const coveragePct = Math.round(jobMatch.coverage * 100);
 
   return (
-    <section className="flex flex-col gap-2 rounded-md border bg-background p-3">
+    <section className="flex flex-col gap-2 rounded-md border bg-background p-4">
       <header className="flex items-baseline justify-between gap-2">
-        <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          Job match
-        </h3>
-        <span className="text-[11px] tabular-nums text-muted-foreground">
+        <h3 className="text-sm font-semibold">Job match</h3>
+        <span className="text-xs tabular-nums text-muted-foreground">
           {jobMatch.matched.length}/{jobMatch.keywords.length} keywords
           <span className="ml-1 font-semibold text-foreground">
             ({coveragePct}%)
@@ -76,8 +72,8 @@ export function JobDescriptionPanel({
       </header>
 
       {jobMatch.missing.length > 0 ? (
-        <div className="flex flex-col gap-1.5">
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+        <div className="flex flex-col gap-2">
+          <span className="text-xs font-semibold text-muted-foreground">
             Missing from your resume
           </span>
           <ul className="flex flex-wrap gap-1">
@@ -86,7 +82,7 @@ export function JobDescriptionPanel({
               .sort((a, b) => b.weight - a.weight)
               .map((kw) => (
                 <li key={`${kw.term}-${kw.category}`}>
-                  <Badge variant="outline" className="text-[11px]">
+                  <Badge variant="outline" className="text-xs">
                     {kw.term}
                   </Badge>
                 </li>
@@ -94,12 +90,12 @@ export function JobDescriptionPanel({
           </ul>
         </div>
       ) : (
-        <p className="text-[11px] text-emerald-600 dark:text-emerald-400">
+        <p className="text-xs text-emerald-600 dark:text-emerald-400">
           Every JD keyword is present — nicely done.
         </p>
       )}
 
-      <div className="flex gap-1.5 pt-1">
+      <div className="flex gap-2">
         <Button
           type="button"
           variant="outline"
@@ -113,7 +109,7 @@ export function JobDescriptionPanel({
         <Button
           type="button"
           variant="ghost"
-          size="sm"
+          size="icon-sm"
           aria-label="Clear job description"
           onClick={() => setIsResetConfirmOpen(true)}
         >
