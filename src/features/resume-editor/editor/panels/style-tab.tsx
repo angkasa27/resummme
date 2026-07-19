@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import {
   Select,
   SelectContent,
@@ -23,66 +24,68 @@ import {
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { ColorControl } from "@/features/resume-editor/editor/panels/color-control";
-import { previewControlDefinitions } from "@/features/resume-editor/preview/control-registry";
-import type {
-  PreviewControlDefinition,
-  PreviewControlOption,
-} from "@/features/resume-editor/preview/types";
+import {
+  pdfFontScaleIds,
+  pdfFontScaleLabels,
+  pdfLineHeightIds,
+  pdfLineHeightLabels,
+  pdfPaperSizes,
+  pdfPaperSizeLabels,
+  pdfPhotoShapeIds,
+  pdfPhotoShapeLabels,
+  pdfSpacingIds,
+  pdfSpacingLabels,
+  type PdfPhotoShapeId,
+  type PdfPresentation,
+} from "@/features/resume-editor/domain/presentation/pdf-presentation";
 import {
   RESUME_FONTS,
   getFont,
   type ResumeFontId,
 } from "@/features/resume-editor/domain/presentation/font-collection";
-import type { PdfPresentation } from "@/features/resume-editor/domain/presentation/pdf-presentation";
 
 type StyleTabProps = {
   presentation: PdfPresentation;
   onChange: (next: PdfPresentation) => void;
 };
 
-function getControl(id: string): PreviewControlDefinition {
-  const def = previewControlDefinitions.find((d) => d.id === id);
-  if (!def) throw new Error(`Missing control "${id}"`);
-  return def;
-}
-
 type SpanProps = { span?: 1 | 2 };
 
+type SelectOption = { value: string; label: string };
+
 function SelectField({
-  control,
-  presentation,
+  id,
+  label,
+  value,
+  options,
   onChange,
   span,
 }: {
-  control: PreviewControlDefinition;
-  presentation: PdfPresentation;
-  onChange: (next: PdfPresentation) => void;
+  id: string;
+  label: string;
+  value: string;
+  options: ReadonlyArray<SelectOption>;
+  onChange: (value: string) => void;
 } & SpanProps) {
   return (
     <Field className={span === 2 ? "col-span-full" : undefined}>
-      <FieldLabel htmlFor={control.id}>{control.label}</FieldLabel>
+      <FieldLabel htmlFor={id}>{label}</FieldLabel>
       <FieldContent>
         <Select
-          value={control.value(presentation)}
-          onValueChange={(value) => {
-            if (!value) return;
-            onChange(control.update(value, presentation));
+          value={value}
+          onValueChange={(next) => {
+            if (!next) return;
+            onChange(next);
           }}
         >
-          <SelectTrigger
-            id={control.id}
-            size="sm"
-            aria-label={control.label}
-            className="w-full"
-          >
+          <SelectTrigger id={id} size="sm" aria-label={label} className="w-full">
             <SelectValue>
-              {control.options.find(
-                (option) => option.value === control.value(presentation),
-              )?.label ?? control.value(presentation)}
+              {options.find((option) => option.value === value)?.label ??
+                value}
             </SelectValue>
           </SelectTrigger>
           <SelectContent align="start">
-            {control.options.map((option) => (
+            {options.map((option) => (
               <SelectItem key={option.value} value={option.value}>
                 {option.label}
               </SelectItem>
@@ -94,43 +97,51 @@ function SelectField({
   );
 }
 
+type ToggleOption = {
+  value: string;
+  label: string;
+  renderOption?: () => ReactNode;
+  renderTooltip?: () => ReactNode;
+};
+
 function ToggleField({
-  control,
-  presentation,
+  label,
+  value,
+  options,
   onChange,
   span,
 }: {
-  control: PreviewControlDefinition;
-  presentation: PdfPresentation;
-  onChange: (next: PdfPresentation) => void;
+  label: string;
+  value: string;
+  options: ReadonlyArray<ToggleOption>;
+  onChange: (value: string) => void;
 } & SpanProps) {
-  const value = control.value(presentation);
   return (
     <Field className={span === 2 ? "col-span-full" : undefined}>
       {/* No htmlFor: a toggle group has no single focusable target, so the
           group carries its own aria-label. */}
-      <FieldLabel>{control.label}</FieldLabel>
+      <FieldLabel>{label}</FieldLabel>
       <FieldContent>
         <ToggleGroup
           multiple
-          aria-label={control.label}
+          aria-label={label}
           value={[value]}
           variant="outline"
           size="sm"
           className={cn(
             "grid w-full",
-            control.options.length === 4 ? "grid-cols-4" : "grid-cols-3",
+            options.length === 4 ? "grid-cols-4" : "grid-cols-3",
           )}
           onValueChange={(nextValue) => {
             const next = nextValue.at(-1);
             if (!next) return;
-            onChange(control.update(next, presentation));
+            onChange(next);
           }}
         >
-          {control.options.map((option) => (
+          {options.map((option) => (
             <ToggleFieldItem
               key={option.value}
-              ariaLabel={`${control.label} ${option.label}`}
+              ariaLabel={`${label} ${option.label}`}
               option={option}
             />
           ))}
@@ -145,7 +156,7 @@ function ToggleFieldItem({
   option,
 }: {
   ariaLabel: string;
-  option: PreviewControlOption;
+  option: ToggleOption;
 }) {
   return (
     <Tooltip>
@@ -226,62 +237,184 @@ function FontFamilyField({
   );
 }
 
-export function StyleTab({ presentation, onChange }: StyleTabProps) {
-  const fontScale = getControl("font-scale");
-  const paperSize = getControl("paper-size");
-  const lineHeight = getControl("line-height");
-  const spacing = getControl("spacing");
-  const photoShape = getControl("photo-shape");
-
+function spacingGlyph({ gap }: { gap: number }) {
   return (
-    <FieldGroup layout="grid" className="@container/fields">
-      <SelectField
-        control={paperSize}
-        presentation={presentation}
-        onChange={onChange}
-      />
-      <SelectField
-        control={fontScale}
-        presentation={presentation}
-        onChange={onChange}
-      />
-      <FontFamilyField
-        span={2}
-        presentation={presentation}
-        onChange={onChange}
-      />
-      <ToggleField
-        control={lineHeight}
-        presentation={presentation}
-        onChange={onChange}
-      />
-      <ToggleField
-        control={spacing}
-        presentation={presentation}
-        onChange={onChange}
-      />
-      <ToggleField
-        span={2}
-        control={photoShape}
-        presentation={presentation}
-        onChange={onChange}
-      />
-      <ColorControl
-        span={2}
-        label="Accent"
-        value={presentation.accent}
-        onChange={(accent) => onChange({ ...presentation, accent })}
-      />
-      <ColorControl
-        span={2}
-        label="Secondary"
-        value={presentation.secondary ?? presentation.accent}
-        onChange={(secondary) => onChange({ ...presentation, secondary })}
-        allowAuto={{
-          active: presentation.secondary === undefined,
-          onSelect: () => onChange({ ...presentation, secondary: undefined }),
-        }}
-      />
-    </FieldGroup>
+    <span
+      aria-hidden="true"
+      className="flex flex-col items-center"
+      style={{ gap: `${gap}px` }}
+    >
+      <span className="h-0.5 w-4 rounded-full bg-current" />
+      <span className="h-0.5 w-4 rounded-full bg-current" />
+    </span>
+  );
+}
+
+/** Sentinel option value for "use the layout's own photo shape". */
+const PHOTO_SHAPE_DEFAULT = "default";
+
+function photoShapeGlyph(shape: PdfPhotoShapeId | typeof PHOTO_SHAPE_DEFAULT) {
+  const base = "border-[1.5px] border-current";
+  const className =
+    shape === "circle"
+      ? `size-4 rounded-full ${base}`
+      : shape === "rectangle"
+        ? `h-4 w-3 rounded-[2px] ${base}`
+        : shape === "default"
+          ? // Dashed = "follow the layout's default".
+            `size-4 rounded-[3px] border-dashed ${base}`
+          : `size-4 rounded-[2px] ${base}`;
+  return <span aria-hidden="true" className={className} />;
+}
+
+function listSpacingGlyph({ gap }: { gap: number }) {
+  const rowKeys = ["first", "second", "third"] as const;
+  return (
+    <span
+      aria-hidden="true"
+      className="flex flex-col"
+      style={{ gap: `${gap}px` }}
+    >
+      {rowKeys.map((rowKey) => (
+        <span key={rowKey} className="flex items-center gap-1">
+          <span className="size-1 rounded-full bg-current" />
+          <span className="h-0.5 w-3.5 rounded-full bg-current" />
+        </span>
+      ))}
+    </span>
+  );
+}
+
+const paperSizeOptions = pdfPaperSizes.map((value) => ({
+  value,
+  label: pdfPaperSizeLabels[value],
+}));
+
+const fontScaleOptions = pdfFontScaleIds.map((value) => ({
+  value,
+  label: pdfFontScaleLabels[value],
+}));
+
+const lineHeightOptions = pdfLineHeightIds.map((value) => ({
+  value,
+  label: pdfLineHeightLabels[value],
+  renderOption: () =>
+    value === "tight"
+      ? spacingGlyph({ gap: 2 })
+      : value === "relaxed"
+        ? spacingGlyph({ gap: 6 })
+        : spacingGlyph({ gap: 4 }),
+}));
+
+const spacingOptions = pdfSpacingIds.map((value) => ({
+  value,
+  label: pdfSpacingLabels[value],
+  renderOption: () =>
+    value === "compact"
+      ? listSpacingGlyph({ gap: 2 })
+      : value === "airy"
+        ? listSpacingGlyph({ gap: 4 })
+        : listSpacingGlyph({ gap: 3 }),
+}));
+
+const photoShapeOptions = [
+  {
+    value: PHOTO_SHAPE_DEFAULT,
+    label: "Default",
+    renderOption: () => photoShapeGlyph(PHOTO_SHAPE_DEFAULT),
+  },
+  ...pdfPhotoShapeIds.map((value) => ({
+    value,
+    label: pdfPhotoShapeLabels[value],
+    renderOption: () => photoShapeGlyph(value),
+  })),
+];
+
+export function StyleTab({ presentation, onChange }: StyleTabProps) {
+  return (
+    <div className="@container/fields">
+      <FieldGroup layout="grid">
+        <SelectField
+          span={2}
+          id="paper-size"
+          label="Paper size"
+          value={presentation.paperSize}
+          options={paperSizeOptions}
+          onChange={(value) =>
+            onChange({
+              ...presentation,
+              paperSize: value as PdfPresentation["paperSize"],
+            })
+          }
+        />
+        <FontFamilyField presentation={presentation} onChange={onChange} />
+        <SelectField
+          id="font-scale"
+          label="Font size"
+          value={presentation.fontScale}
+          options={fontScaleOptions}
+          onChange={(value) =>
+            onChange({
+              ...presentation,
+              fontScale: value as PdfPresentation["fontScale"],
+            })
+          }
+        />
+        <ToggleField
+          label="Line height"
+          value={presentation.lineHeight}
+          options={lineHeightOptions}
+          onChange={(value) =>
+            onChange({
+              ...presentation,
+              lineHeight: value as PdfPresentation["lineHeight"],
+            })
+          }
+        />
+        <ToggleField
+          label="Spacing"
+          value={presentation.spacing}
+          options={spacingOptions}
+          onChange={(value) =>
+            onChange({
+              ...presentation,
+              spacing: value as PdfPresentation["spacing"],
+            })
+          }
+        />
+        <ToggleField
+          span={2}
+          label="Photo shape"
+          // "default" → unset photoShape so each layout keeps its own photo style.
+          value={presentation.photoShape ?? PHOTO_SHAPE_DEFAULT}
+          options={photoShapeOptions}
+          onChange={(value) =>
+            onChange({
+              ...presentation,
+              photoShape:
+                value === PHOTO_SHAPE_DEFAULT
+                  ? undefined
+                  : (value as PdfPresentation["photoShape"]),
+            })
+          }
+        />
+        <ColorControl
+          span={2}
+          label="Accent"
+          value={presentation.accent}
+          onChange={(accent) => onChange({ ...presentation, accent })}
+        />
+        <ColorControl
+          span={2}
+          label="Secondary"
+          value={presentation.secondary ?? presentation.accent}
+          onChange={(secondary) => onChange({ ...presentation, secondary })}
+          allowAuto={{
+            active: presentation.secondary === undefined,
+            onSelect: () => onChange({ ...presentation, secondary: undefined }),
+          }}
+        />
+      </FieldGroup>
+    </div>
   );
 }

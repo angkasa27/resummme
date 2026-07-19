@@ -1,10 +1,6 @@
 import type { CollectionSectionKey } from "@/features/resume-editor/domain/sections/section-metadata";
-import type {
-  PdfPresentation,
-  ResolvedPdfPresentation,
-} from "@/features/resume-editor/domain/presentation/pdf-presentation";
+import type { ResolvedPdfPresentation } from "@/features/resume-editor/domain/presentation/pdf-presentation";
 import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
-import type { ReactNode } from "react";
 
 export type PreviewMode = "preview" | "pdf";
 
@@ -44,24 +40,6 @@ export type PreviewRenderContext = {
   contactItems: PreviewContactItem[];
   summaryContent: string | null;
   sections: AnyPreviewRenderableSection[];
-};
-
-export type PreviewControlKind = "select" | "toggle-group";
-
-export type PreviewControlOption = {
-  value: string;
-  label: string;
-  renderOption?: () => ReactNode;
-  renderTooltip?: () => ReactNode;
-};
-
-export type PreviewControlDefinition = {
-  id: string;
-  kind: PreviewControlKind;
-  label: string;
-  value: (presentation: PdfPresentation) => string;
-  update: (nextValue: string, presentation: PdfPresentation) => PdfPresentation;
-  options: ReadonlyArray<PreviewControlOption>;
 };
 
 /** Document-level actions rendered on the right of the preview toolbar. */
