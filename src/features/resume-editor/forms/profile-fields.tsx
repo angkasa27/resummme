@@ -67,7 +67,7 @@ export function ProfileFields({ ctx, idPrefix }: ProfileFieldsProps) {
         />
 
         <Field data-invalid={invalid("fullName")}>
-          <FieldLabel htmlFor={`${idPrefix}-full-name`}>
+          <FieldLabel htmlFor={`${idPrefix}-full-name`} className="sr-only">
             <FieldLabelText label="Full name" />
           </FieldLabel>
           <FieldContent>
@@ -83,7 +83,7 @@ export function ProfileFields({ ctx, idPrefix }: ProfileFieldsProps) {
         </Field>
 
         <Field data-invalid={invalid("location")}>
-          <FieldLabel htmlFor={`${idPrefix}-location`}>
+          <FieldLabel htmlFor={`${idPrefix}-location`} className="sr-only">
             <FieldLabelText label="Location" />
           </FieldLabel>
           <FieldContent>
@@ -105,7 +105,7 @@ export function ProfileFields({ ctx, idPrefix }: ProfileFieldsProps) {
         </Field>
 
         <Field data-invalid={invalid("phone")}>
-          <FieldLabel htmlFor={`${idPrefix}-phone`}>
+          <FieldLabel htmlFor={`${idPrefix}-phone`} className="sr-only">
             <FieldLabelText label="Phone number" />
           </FieldLabel>
           <FieldContent>
@@ -129,7 +129,7 @@ export function ProfileFields({ ctx, idPrefix }: ProfileFieldsProps) {
         </Field>
 
         <Field data-invalid={invalid("email")}>
-          <FieldLabel htmlFor={`${idPrefix}-email`}>
+          <FieldLabel htmlFor={`${idPrefix}-email`} className="sr-only">
             <FieldLabelText label="Email address" />
           </FieldLabel>
           <FieldContent>
@@ -313,7 +313,7 @@ function PhotoField({
 
   return (
     <Field className={className} data-invalid={error ? true : undefined}>
-      <FieldLabel htmlFor={id}>
+      <FieldLabel htmlFor={id} className="sr-only">
         <FieldLabelText label="Profile photo" />
       </FieldLabel>
       <FieldContent>

@@ -24,32 +24,3 @@ export const fieldSpanByKind: Record<FieldKind, 1 | 2> = {
   dateRange: 2,
 };
 
-/**
- * Where the label sits. Rule: float it into the control when the control's
- * *empty* height is a single line; stack it above otherwise — a floating label
- * over a 3-row textarea or a rich-text toolbar has nowhere sensible to rest and
- * animates across the chrome.
- *
- * `richText` is the exception: it draws its own in-editor placeholder and takes
- * an `ariaLabel`, so a visible label would just repeat what the hint already
- * says above a control that's tall enough to be unmistakable.
- */
-export const fieldLabelVariantByKind: Record<
-  FieldKind,
-  "float" | "stacked" | "none"
-> = {
-  text: "float",
-  email: "float",
-  url: "float",
-  monthYear: "float",
-  proficiency: "float",
-  stringArray: "float",
-  dateRange: "float",
-  textarea: "stacked",
-  richText: "none",
-};
-
-/** `Field`'s `className` for a control taking `span` columns in the item grid. */
-export function spanClassName(span?: 1 | 2): string | undefined {
-  return span === 2 ? "col-span-full" : undefined;
-}

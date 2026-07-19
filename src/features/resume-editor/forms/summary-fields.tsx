@@ -22,7 +22,7 @@ export function SummaryFields({ ctx }: { ctx: SummaryFormContext }) {
       <Field
         data-invalid={getFieldState("content", formState).invalid || undefined}
       >
-        <FieldLabel>
+        <FieldLabel className="sr-only">
           <FieldLabelText label="Summary content" />
         </FieldLabel>
         <FieldContent>

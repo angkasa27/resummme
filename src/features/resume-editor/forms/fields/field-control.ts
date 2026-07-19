@@ -1,12 +1,11 @@
 /**
  * The single box every form control in an item form wears.
  *
- * Exists because the floating label punches a `bg-background` chip out of the
- * control's top border: the moment a control drifts to any other background —
- * `hover:bg-muted`, `aria-expanded:bg-muted`, `bg-transparent` — the chip reads
- * as a white pill stuck on a grey box. So the background is pinned across every
- * state, and hover feedback is carried by the border/ring instead, exactly like
- * `Input` (which has no hover background at all).
+ * The background is pinned across every state — hover, expanded, dark — so the
+ * control box stays visually consistent instead of drifting to `hover:bg-muted`
+ * or similar per-state backgrounds; hover feedback is carried by the
+ * border/ring instead, exactly like `Input` (which has no hover background at
+ * all).
  */
 export const FIELD_CONTROL_CLASS = [
   "h-9 w-full rounded-md border border-input px-2.5 py-1 text-base shadow-xs md:text-sm",

@@ -23,7 +23,6 @@ import {
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { ColorControl } from "@/features/resume-editor/controls/color-control";
-import { spanClassName } from "@/features/resume-editor/forms/fields/field-layout";
 import { previewControlDefinitions } from "@/features/resume-editor/preview/control-registry";
 import type {
   PreviewControlDefinition,
@@ -60,7 +59,7 @@ function SelectField({
   onChange: (next: PdfPresentation) => void;
 } & SpanProps) {
   return (
-    <Field className={spanClassName(span)}>
+    <Field className={span === 2 ? "col-span-full" : undefined}>
       <FieldLabel htmlFor={control.id}>{control.label}</FieldLabel>
       <FieldContent>
         <Select
@@ -107,7 +106,7 @@ function ToggleField({
 } & SpanProps) {
   const value = control.value(presentation);
   return (
-    <Field className={spanClassName(span)}>
+    <Field className={span === 2 ? "col-span-full" : undefined}>
       {/* No htmlFor: a toggle group has no single focusable target, so the
           group carries its own aria-label. */}
       <FieldLabel>{control.label}</FieldLabel>
@@ -182,7 +181,7 @@ function FontFamilyField({
   const selectedFont = getFont(presentation.fontFamilyId);
 
   return (
-    <Field className={spanClassName(span)}>
+    <Field className={span === 2 ? "col-span-full" : undefined}>
       <FieldLabel htmlFor="font-family">Font family</FieldLabel>
       <FieldContent>
         <Select
