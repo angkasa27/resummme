@@ -33,6 +33,7 @@ export function SummaryFields({ ctx }: { ctx: SummaryFormContext }) {
               <RichTextEditorWithImprove
                 value={field.value}
                 ariaLabel="Summary content"
+                placeholder="Summarize your experience, key skills, and career focus in 2-3 sentences."
                 invalid={getFieldState("content", formState).invalid}
                 onChange={(value) =>
                   form.setValue("content", value, {

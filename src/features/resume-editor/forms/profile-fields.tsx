@@ -74,7 +74,7 @@ export function ProfileFields({ ctx, idPrefix }: ProfileFieldsProps) {
             <Input
               id={`${idPrefix}-full-name`}
               autoComplete="name"
-              placeholder="Fulan bin Fulan"
+              placeholder="Full name"
               aria-invalid={invalid("fullName")}
               {...register("fullName")}
             />
@@ -94,7 +94,7 @@ export function ProfileFields({ ctx, idPrefix }: ProfileFieldsProps) {
               <InputGroupInput
                 id={`${idPrefix}-location`}
                 autoComplete="address-level2"
-                placeholder="Jakarta, Indonesia"
+                placeholder="City, country"
                 aria-invalid={invalid("location")}
                 {...register("location")}
               />
