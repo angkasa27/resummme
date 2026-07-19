@@ -18,7 +18,7 @@ The rule behind every rule here: **spacing and type live in the primitives, not 
 
 Nothing else. No `gap-0.5`, `gap-1.5`, `gap-2.5`, `gap-3`, `gap-5`, `gap-7`, and no `gap-x-*`/`gap-y-*` split.
 
-**16px between fields is a floor, not taste.** A floated label is 16.5px tall and hangs **8.25px** above its control's top border. 16px leaves ~8px clearance (measured: 8px, zero overlaps at 360px and 640px sidebar). 12px collides with the field above. Don't "tighten" it.
+**16px between fields is a floor, not taste.** It was measured against the old floated label (16.5px tall, hanging 8.25px over its control's top border — 16px gave ~8px clearance, zero overlaps at 360px and 640px sidebar). The floating label is gone, but 12px still collides with the field above at the row heights in use. Don't "tighten" it.
 
 **`p-4` is a *form* rule.** A nav list is not a form: `section-list` uses `p-2` with `gap-2` rows, because a 16px inset around rows that are themselves `py-2` reads heavy. If you're laying out rows, you're on the 8px step.
 
@@ -31,7 +31,7 @@ Nothing else. No `gap-0.5`, `gap-1.5`, `gap-2.5`, `gap-3`, `gap-5`, `gap-7`, and
 | `text-2xl` | display — the Insights score number, and nothing else |
 | `text-base` | dialog titles, `FieldLegend` (group heading) |
 | `text-sm` | **default** — body, labels, values, buttons, errors, descriptions, rows |
-| `text-xs` | meta — floated labels, badges, captions, counters, helper text |
+| `text-xs` | meta — `sr-only` field labels, badges, captions, counters, helper text |
 
 **`text-[Npx]` is banned** (lint-enforced). There is no micro step: de-emphasis is `text-muted-foreground`'s job, not a 5th size. The panel scrolls, so vertical room is not scarce enough to justify 10px text.
 
@@ -39,23 +39,20 @@ Nothing else. No `gap-0.5`, `gap-1.5`, `gap-2.5`, `gap-3`, `gap-5`, `gap-7`, and
 
 ---
 
-## Labels — one language, three roles
+## Labels — placeholder carries the field
 
-| role | recipe | component |
-|---|---|---|
-| Group heading | 16px semibold | `<FieldLegend>` (default `variant="legend"`) |
-| Field label | 14px medium | `<FieldLabel>` |
-| Floated / meta | 12px | `FloatingField` (automatic) |
+**Field labels are not shown.** The input's placeholder carries the field name: `placeholder = config.placeholder ?? config.label`. No visible label sits above or floats over a control.
 
-Weight alone doesn't carry a hierarchy: a 14/600 heading sitting 8px above a 14/500 label reads as *two labels*. Size **and** weight both step. `FieldLegend variant="label"` (14px semibold) exists for a nested subgroup — nothing needs it yet.
+**Accessibility is preserved regardless** — every field still has an accessible name, just not a painted one:
 
-**Which label style a field gets is derived from its kind**, never hand-picked — see `forms/fields/field-layout.ts`:
+- `Input` / `Textarea` / `Select` get an `aria-label`, or a `<FieldLabel htmlFor>` wrapped in `sr-only`.
+- Button-triggered controls with no native `placeholder` (`MonthYearPicker`, and Profile/Summary fields built on `Field`) use the `sr-only FieldLabel` route — see `profile-fields.tsx` for the pattern.
 
-- `float` — text, email, url, monthYear, proficiency, stringArray, dateRange
-- `stacked` — textarea
-- `none` — richText (it draws its own in-editor placeholder and takes an `ariaLabel`; a visible label would just repeat the hint)
+**A leading icon can reinforce scanning** where the placeholder alone is ambiguous at a glance — Profile's location (pin), phone, and email each get one via `InputGroup` / `InputGroupAddon`. It's an addition, not a requirement: most fields need no icon.
 
-Rule: float when the control's **empty** height is one line; stack otherwise.
+**Group headings are unchanged.** `<FieldLegend>` (16px semibold) still visibly labels a `FieldSet` — only the per-field label was removed, not the group heading.
+
+This replaces the old three-role float/stacked/none recipe (`FloatingField` + `field-layout.ts`'s label-variant table) — both are deleted. `field-layout.ts` still exists, but only for `fieldSpanByKind` (column span), unrelated to labels now.
 
 ---
 
@@ -125,16 +122,21 @@ focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50
   <FieldLegend>Page &amp; type</FieldLegend>
   <FieldGroup layout="grid">
     <Field className={span === 2 ? "col-span-full" : undefined}>
-      <FieldLabel htmlFor={id}>Paper size</FieldLabel>
-      <FieldContent>{/* control */}<FieldError errors={[error]} /></FieldContent>
+      <FieldLabel htmlFor={id} className="sr-only">Paper size</FieldLabel>
+      <FieldContent>
+        {/* control — placeholder="Paper size", or aria-label if it has no placeholder prop */}
+        <FieldError errors={[error]} />
+      </FieldContent>
     </Field>
   </FieldGroup>
 </FieldSet>
 ```
 
+No visible `FieldLabel` sits over a control anymore — the placeholder carries the name, and `FieldLabel` stays for its accessible name only (`sr-only`, or omitted in favour of `aria-label` on the control itself when there's no single focusable target to attach `htmlFor` to).
+
 `FieldLabel` with no `htmlFor` is correct for controls with no single focusable target (ToggleGroup, colour swatches) — the group carries its own `aria-label`.
 
-`span === 2` → `col-span-full`. That's the convention across `FloatingField`, the Style tab, and item fields.
+`span === 2` → `col-span-full`. That's the convention across the Style tab and item fields.
 
 ---
 
@@ -156,7 +158,7 @@ Container queries measure the **content** box, so the inset differs per surface.
 
 Every control in an item form wears **`FIELD_CONTROL_CLASS`** (`forms/fields/field-control.ts`) — Input, Textarea, MonthYearPicker, Select.
 
-It pins `bg-background` across *every* state (`hover:`, `aria-expanded:`, `data-popup-open:`, and `dark:`). **This is load-bearing.** The floating label paints a `bg-background` chip over the control's top border; the moment the control drifts to any other background, the chip reads as a white pill on a grey box. `Button variant="outline"` carries `aria-expanded:bg-muted`, which is exactly how the date picker broke once.
+It pins `bg-background` across *every* state (`hover:`, `aria-expanded:`, `data-popup-open:`, and `dark:`). **This is load-bearing.** The pin keeps the control box's background consistent across hover/expanded/dark states instead of drifting per-state. `Button variant="outline"` carries `aria-expanded:bg-muted`, which is exactly how the date picker broke once.
 
 The dark pin is deliberate too: `Input`/`Textarea`/`SelectTrigger`/`Button outline` each carry `dark:bg-input/30`, twMerge keeps it (different modifier), and it outranks a bare `bg-background` on specificity.
 
