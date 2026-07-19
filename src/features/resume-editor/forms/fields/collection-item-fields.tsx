@@ -1,7 +1,7 @@
 "use client";
 
 import { type ReactNode } from "react";
-import { Controller, type UseFormReturn } from "react-hook-form";
+import { Controller, useWatch, type UseFormReturn } from "react-hook-form";
 
 import { FieldDescription, FieldGroup } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -29,6 +29,7 @@ import { FIELD_CONTROL_CLASS } from "@/features/resume-editor/forms/fields/field
 import {
   fieldLabelVariantByKind,
   fieldSpanByKind,
+  spanClassName,
 } from "@/features/resume-editor/forms/fields/field-layout";
 import { FloatingField } from "@/features/resume-editor/forms/fields/floating-field";
 import { MonthYearPicker } from "@/features/resume-editor/forms/fields/month-year-picker";
@@ -110,7 +111,13 @@ export function CollectionItemFields({
   form,
   index,
 }: RenderCollectionItemFieldsProps) {
-  const { control, formState, getFieldState, register, setValue, watch } = form;
+  const { control, formState, getFieldState, register, setValue } = form;
+
+  // One subscription for the whole item instead of a `watch()` per field —
+  // every renderer below reads its value(s) off this instead of resubscribing.
+  const itemValues = useWatch({ control, name: `items.${index}` as const }) as
+    | Record<string, unknown>
+    | undefined;
 
   function getDynamicFieldState(fieldName: string) {
     return getFieldState(fieldName as never, formState);
@@ -142,7 +149,7 @@ export function CollectionItemFields({
       fieldState,
       span: fieldSpanByKind[fieldConfig.kind],
       variant: fieldLabelVariantByKind[fieldConfig.kind],
-      filled: isFilled(watch(fieldName as never)),
+      filled: isFilled(itemValues?.[fieldConfig.name]),
     };
   }
 
@@ -347,8 +354,8 @@ export function CollectionItemFields({
     >;
     const startFieldName = `items.${fieldIndex}.${startName}` as const;
     const endFieldName = `items.${fieldIndex}.${endName}` as const;
-    const startValue = watch(startFieldName as never) as unknown as string;
-    const endValue = watch(endFieldName as never) as unknown as string;
+    const startValue = itemValues?.[startName] as unknown as string;
+    const endValue = itemValues?.[endName] as unknown as string;
     const startFieldState = gdfs(startFieldName);
     const endFieldState = gdfs(endFieldName);
     const isCurrent = endValue === "current";
@@ -359,9 +366,7 @@ export function CollectionItemFields({
       <FieldGroup
         key={`${startFieldName}-${endFieldName}`}
         layout="grid"
-        className={
-          fieldSpanByKind[fieldConfig.kind] === 2 ? "col-span-full" : undefined
-        }
+        className={spanClassName(fieldSpanByKind[fieldConfig.kind])}
       >
         <FloatingField
           htmlFor={startFieldName}

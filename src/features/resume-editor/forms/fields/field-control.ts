@@ -25,16 +25,16 @@ export const FIELD_CONTROL_CLASS = [
 ].join(" ");
 
 /**
- * Destructive icon buttons (delete a row, delete a link). Paired with
- * `variant="ghost" size="icon-sm"` — a filled `destructive` button repeated
- * down a list shouts; the intent only needs to show on hover.
- */
-/**
  * The focus-ring every interactive element in the editor wears. Extracted to a
  * constant after a ring-width rename required a manual multi-file sweep.
  */
 export const FOCUS_RING_CLASS =
   "focus-visible:ring-3 focus-visible:ring-ring/50";
 
+/**
+ * Destructive icon buttons (delete a row, delete a link). Paired with
+ * `variant="ghost" size="icon-sm"` — a filled `destructive` button repeated
+ * down a list shouts; the intent only needs to show on hover.
+ */
 export const DESTRUCTIVE_ICON_CLASS =
   "shrink-0 text-muted-foreground/60 hover:bg-destructive/10 hover:text-destructive";

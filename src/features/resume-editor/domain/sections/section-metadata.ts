@@ -67,6 +67,22 @@ export function isCollectionSectionKey(
   return collectionSectionKeys.includes(sectionKey as CollectionSectionKey);
 }
 
+/**
+ * A hidden collection section must be revealed before it's opened for
+ * editing, otherwise the form edits something the paper can't show. Shared by
+ * desktop and mobile's "open a panel" entry points.
+ */
+export function needsSectionReveal(
+  sections: ResumeDraft["sections"],
+  panel: EditorPanelKey,
+): panel is CollectionSectionKey {
+  return (
+    panel !== "profile" &&
+    isCollectionSectionKey(panel as ResumeSectionPanelKey) &&
+    !sections[panel].visible
+  );
+}
+
 export function getOrderedSectionKeys(sections: ResumeDraft["sections"]) {
   return [...resumeSectionKeys].sort(
     (left, right) => sections[left].order - sections[right].order,

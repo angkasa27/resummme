@@ -9,6 +9,7 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { FieldLabelText } from "@/features/resume-editor/forms/fields/field-label-text";
+import { spanClassName } from "@/features/resume-editor/forms/fields/field-layout";
 import { cn } from "@/lib/utils";
 
 type FloatingFieldProps = {
@@ -63,7 +64,7 @@ export function FloatingField({
     return (
       <Field
         data-invalid={invalid || undefined}
-        className={span === 2 ? "col-span-full" : undefined}
+        className={spanClassName(span)}
       >
         <FieldContent>
           {children}
@@ -78,7 +79,7 @@ export function FloatingField({
     return (
       <Field
         data-invalid={invalid || undefined}
-        className={span === 2 ? "col-span-full" : undefined}
+        className={spanClassName(span)}
       >
         <FieldLabel htmlFor={htmlFor}>{labelNode}</FieldLabel>
         <FieldContent>
@@ -93,7 +94,7 @@ export function FloatingField({
   return (
     <Field
       data-invalid={invalid || undefined}
-      className={span === 2 ? "col-span-full" : undefined}
+      className={spanClassName(span)}
     >
       <FieldContent>
         {/* The label must not be a direct child of `Field` — that applies

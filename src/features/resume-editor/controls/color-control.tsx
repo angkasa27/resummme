@@ -21,6 +21,7 @@ import {
   InputGroupInput,
 } from "@/components/ui/input-group";
 import { FOCUS_RING_CLASS } from "@/features/resume-editor/forms/fields/field-control";
+import { spanClassName } from "@/features/resume-editor/forms/fields/field-layout";
 
 const ACCENT_SWATCHES: ReadonlyArray<{ name: string; hex: string }> = [
   { name: "Slate", hex: "#1f2937" },
@@ -110,7 +111,7 @@ export function ColorControl({
   const isCustomColorActive = !allowAuto?.active && !matchedSwatch;
 
   return (
-    <Field className={span === 2 ? "col-span-full" : undefined}>
+    <Field className={spanClassName(span)}>
       {/* No htmlFor: the swatches are a group, each with its own aria-label. */}
       <FieldLabel>{label}</FieldLabel>
       <div className="flex flex-wrap gap-2">
@@ -165,7 +166,11 @@ export function ColorControl({
               />
             }
           />
-          <PopoverContent align="end" sideOffset={8} className="w-auto gap-4 p-4">
+          <PopoverContent
+            align="end"
+            sideOffset={8}
+            className="w-auto gap-4 p-4"
+          >
             <HexColorPicker
               color={value}
               onChange={onChange}

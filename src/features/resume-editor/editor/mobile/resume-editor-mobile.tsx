@@ -2,8 +2,6 @@
 
 import React, { useMemo, useState } from "react";
 
-import { Loader } from "lucide-react";
-
 import { ResumeEditorMobileContent } from "@/features/resume-editor/editor/mobile/mobile-content";
 import type { EditorControlProps } from "@/features/resume-editor/controls/control-props";
 import { useResumeEditorController } from "@/features/resume-editor/state/use-resume-editor-controller";
@@ -12,10 +10,9 @@ import { PdfImportProgress } from "@/features/resume-editor/controls/pdf-import-
 import { useEditorHeader } from "@/features/resume-editor/chrome/use-editor-header";
 import { normalizePdfPresentation } from "@/features/resume-editor/domain/presentation/pdf-presentation";
 import {
-  isCollectionSectionKey,
+  needsSectionReveal,
   type EditorPanelKey,
 } from "@/features/resume-editor/domain/sections/section-metadata";
-import { useClientReady } from "@/hooks/use-client-ready";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { toast } from "sonner";
@@ -32,7 +29,6 @@ export function ResumeEditorMobile({
   initialDraft,
   storage,
 }: ResumeEditorMobileProps) {
-  const isClientReady = useClientReady();
   const isMobile = useIsMobile();
   const [isExtractCvOpen, setIsExtractCvOpen] = useState(false);
   const {
@@ -84,32 +80,10 @@ export function ResumeEditorMobile({
     [draft.pdfPresentation],
   );
 
-  if (!isClientReady) {
-    return (
-      <div className="flex h-dvh items-center justify-center bg-background">
-        <div className="flex flex-col items-center gap-3 text-center">
-          <Loader className="size-8 animate-spin" />
-          <div className="space-y-1">
-            <p className="text-sm font-semibold tracking-tight">
-              Loading editor
-            </p>
-            <p className="text-sm text-muted-foreground">
-              Preparing your resume draft...
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   // Opening a section from Insights: ensure it's visible, then make it active
   // so the mobile content opens its form.
   function openSection(panel: EditorPanelKey) {
-    if (
-      panel !== "profile" &&
-      isCollectionSectionKey(panel) &&
-      !draft.sections[panel].visible
-    ) {
+    if (needsSectionReveal(draft.sections, panel)) {
       setSectionVisibility(panel, true);
     }
     requestSectionChange(panel);

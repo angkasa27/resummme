@@ -48,3 +48,8 @@ export const fieldLabelVariantByKind: Record<
   textarea: "stacked",
   richText: "none",
 };
+
+/** `Field`'s `className` for a control taking `span` columns in the item grid. */
+export function spanClassName(span?: 1 | 2): string | undefined {
+  return span === 2 ? "col-span-full" : undefined;
+}

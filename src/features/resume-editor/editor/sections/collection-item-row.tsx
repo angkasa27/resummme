@@ -1,7 +1,5 @@
 "use client";
 
-import { useSortable } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
 import { ChevronRightIcon } from "lucide-react";
 import { motion } from "motion/react";
 import type { ReactNode } from "react";
@@ -10,7 +8,7 @@ import { Collapse } from "@/features/resume-editor/ui/collapse";
 import { EditorRow } from "@/features/resume-editor/editor/sections/editor-row";
 import { RowDragHandle } from "@/features/resume-editor/editor/sections/row-drag-handle";
 import { RowDeleteButton } from "@/features/resume-editor/editor/sections/row-delete-button";
-import { motionTokens } from "@/lib/motion-tokens";
+import { useSortableRow } from "@/features/resume-editor/editor/sections/use-sortable-row";
 import { cn } from "@/lib/utils";
 
 type CollectionItemRowProps = {
@@ -43,32 +41,15 @@ export function CollectionItemRow({
   deleteDisabled,
   children,
 }: CollectionItemRowProps) {
-  const {
-    attributes,
-    isDragging,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-  } = useSortable({ id: itemId });
-  const { role: _role, tabIndex: _tabIndex, ...dragAttributes } = attributes;
-  void _role;
-  void _tabIndex;
+  const { setNodeRef, isDragging, dragAttributes, listeners, motionProps } =
+    useSortableRow(itemId);
 
   return (
-    // Opacity-only enter/exit, matching the section rows: dnd-kit owns
-    // `transform` for the reorder, so motion must not animate `y` or it
-    // clobbers the drag's positioning and the keyboard sensor stops resolving a
-    // drop target.
     <motion.div
       ref={setNodeRef}
       data-testid="collection-item-card"
       data-open={open || undefined}
-      style={{ transform: CSS.Transform.toString(transform), transition }}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: isDragging ? 0.8 : 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: motionTokens.duration.fast }}
+      {...motionProps}
       // No border here: the row now carries its own, and an expanded card
       // continues it down the body — a wrapper border would double the line.
       className={cn(

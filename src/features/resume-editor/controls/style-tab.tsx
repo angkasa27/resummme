@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { ColorControl } from "@/features/resume-editor/controls/color-control";
+import { spanClassName } from "@/features/resume-editor/forms/fields/field-layout";
 import { previewControlDefinitions } from "@/features/resume-editor/preview/control-registry";
 import type {
   PreviewControlDefinition,
@@ -46,12 +47,7 @@ function getControl(id: string): PreviewControlDefinition {
   return def;
 }
 
-/** Columns a control takes in the tab's field grid. Mirrors FloatingField. */
 type SpanProps = { span?: 1 | 2 };
-
-function spanClass(span: 1 | 2 = 1) {
-  return span === 2 ? "col-span-full" : undefined;
-}
 
 function SelectField({
   control,
@@ -64,7 +60,7 @@ function SelectField({
   onChange: (next: PdfPresentation) => void;
 } & SpanProps) {
   return (
-    <Field className={spanClass(span)}>
+    <Field className={spanClassName(span)}>
       <FieldLabel htmlFor={control.id}>{control.label}</FieldLabel>
       <FieldContent>
         <Select
@@ -111,7 +107,7 @@ function ToggleField({
 } & SpanProps) {
   const value = control.value(presentation);
   return (
-    <Field className={spanClass(span)}>
+    <Field className={spanClassName(span)}>
       {/* No htmlFor: a toggle group has no single focusable target, so the
           group carries its own aria-label. */}
       <FieldLabel>{control.label}</FieldLabel>
@@ -186,7 +182,7 @@ function FontFamilyField({
   const selectedFont = getFont(presentation.fontFamilyId);
 
   return (
-    <Field className={spanClass(span)}>
+    <Field className={spanClassName(span)}>
       <FieldLabel htmlFor="font-family">Font family</FieldLabel>
       <FieldContent>
         <Select

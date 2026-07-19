@@ -1,10 +1,8 @@
 "use client";
 
-import { Loader } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { toast } from "sonner";
-import { useClientReady } from "@/hooks/use-client-ready";
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 
 import { useResumeEditorController } from "@/features/resume-editor/state/use-resume-editor-controller";
@@ -22,9 +20,8 @@ import { useDirection } from "@/features/resume-editor/editor/sections/use-direc
 import { ResumeDocument } from "@/features/resume-editor/preview/resume-document";
 import { normalizePdfPresentation } from "@/features/resume-editor/domain/presentation/pdf-presentation";
 import {
-  isCollectionSectionKey,
+  needsSectionReveal,
   type EditorPanelKey,
-  type ResumeSectionPanelKey,
 } from "@/features/resume-editor/domain/sections/section-metadata";
 import type { ResumeEditorPanelKey } from "@/features/resume-editor/state/resume-editor-store";
 import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
@@ -41,7 +38,6 @@ export function ResumeEditorDesktop({
   initialDraft,
   storage,
 }: ResumeEditorDesktopProps) {
-  const isClientReady = useClientReady();
   const {
     jsonFileInputRef,
     draft,
@@ -131,28 +127,13 @@ export function ResumeEditorDesktop({
    * back first, otherwise the form would edit something the paper can't show.
    */
   function focusSection(panel: EditorPanelKey) {
-    if (
-      panel !== "profile" &&
-      isCollectionSectionKey(panel as ResumeSectionPanelKey) &&
-      !draft.sections[panel].visible
-    ) {
+    if (needsSectionReveal(draft.sections, panel)) {
       setSectionVisibility(panel, true);
     }
     nav.forward();
     setRail("edit");
     setIsSidebarCollapsed(false);
     setOpenSection(panel);
-  }
-
-  if (!isClientReady) {
-    return (
-      <div className="flex h-dvh items-center justify-center bg-background">
-        <div className="flex flex-col items-center gap-3 text-center">
-          <Loader className="size-8 animate-spin" />
-          <p className="text-sm font-semibold tracking-tight">Loading editor</p>
-        </div>
-      </div>
-    );
   }
 
   const controls: EditorControlProps = {
@@ -163,7 +144,6 @@ export function ResumeEditorDesktop({
     onExtractCv: () => setIsExtractCvOpen(true),
     onExportJson: handleExport,
     onExportPdf: handlePrint,
-    onOpenSection: focusSection,
     isExportingPdf,
     isImportingPdf,
   };
