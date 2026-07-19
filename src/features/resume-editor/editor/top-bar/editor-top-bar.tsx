@@ -80,16 +80,14 @@ export function EditorTopBar({
         onClick={onExportPdf}
         disabled={isExportingPdf}
         aria-label="Download PDF"
-        size={isMobile ? "icon-sm" : "sm"}
+        size="sm"
       >
         {isExportingPdf ? (
           <Loader className="size-4 animate-spin" />
         ) : (
           <DownloadIcon className="size-4" />
         )}
-        <span className="hidden md:flex">
-          {isExportingPdf ? "Generating PDF…" : "Download PDF"}
-        </span>
+        <span>{isExportingPdf ? "Generating PDF…" : "Download PDF"}</span>
       </Button>
     </header>
   );

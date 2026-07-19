@@ -23,6 +23,17 @@ import {
 import type { PdfPresentation } from "@/features/resume-editor/domain/presentation/pdf-presentation";
 import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
 
+function layoutLabel(preset: ResumeTemplatePreset): string {
+  return preset.layoutId
+    .split("-")
+    .map((word) => word[0].toUpperCase() + word.slice(1))
+    .join(" ");
+}
+
+function templateLabel(preset: ResumeTemplatePreset): string {
+  return `${layoutLabel(preset)} ${preset.label}`;
+}
+
 type TemplateGalleryProps = {
   draft: ResumeDraft;
   presentation: PdfPresentation;
@@ -93,14 +104,20 @@ export function TemplateGallery({
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Apply &quot;{pending?.label}&quot; template?</DialogTitle>
+            <DialogTitle>
+              Apply &quot;{pending ? templateLabel(pending) : ""}&quot;
+              template?
+            </DialogTitle>
             <DialogDescription>
-              This template has its own colors and fonts that will replace
-              your current custom style.
+              This template has its own colors and fonts that will replace your
+              current custom style.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <DialogClose render={<Button variant="ghost" size="sm" />}>
+            <DialogClose
+              render={<Button variant="ghost" size="sm" />}
+              className="mr-auto"
+            >
               Cancel
             </DialogClose>
             <Button
@@ -158,12 +175,14 @@ function TemplatePresetCard({
   );
   const handleSelect = useCallback(() => onApply(preset), [onApply, preset]);
 
+  const label = templateLabel(preset);
+
   return (
     <DocumentPreviewCard
       draft={draft}
       presentation={cardPresentation}
-      label={preset.label}
-      ariaLabel={`Use ${preset.label} template`}
+      label={label}
+      ariaLabel={`Use ${label} template`}
       selected={selected}
       onSelect={handleSelect}
     />
