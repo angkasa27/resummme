@@ -3,7 +3,14 @@
 import { type ReactNode } from "react";
 import { Controller, useWatch, type UseFormReturn } from "react-hook-form";
 
-import { FieldDescription, FieldGroup } from "@/components/ui/field";
+import {
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -26,12 +33,7 @@ import {
 } from "@/features/resume-editor/domain/sections/section-metadata";
 import { RichTextEditorWithImprove } from "@/features/resume-editor/forms/rich-text/improve-with-ai-dialog";
 import { FIELD_CONTROL_CLASS } from "@/features/resume-editor/forms/fields/field-control";
-import {
-  fieldLabelVariantByKind,
-  fieldSpanByKind,
-  spanClassName,
-} from "@/features/resume-editor/forms/fields/field-layout";
-import { FloatingField } from "@/features/resume-editor/forms/fields/floating-field";
+import { fieldSpanByKind } from "@/features/resume-editor/forms/fields/field-layout";
 import { MonthYearPicker } from "@/features/resume-editor/forms/fields/month-year-picker";
 import { parseMonthYear } from "@/features/resume-editor/domain/month-year";
 import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
@@ -93,19 +95,6 @@ function getTextInputAttrs(kind: "text" | "email" | "url") {
   } as const;
 }
 
-/**
- * A resting label sits where the placeholder would, so the placeholder only
- * appears once the label has floated out of the way. Keeping the attribute (vs
- * dropping it) means the hint still shows at the one moment it helps.
- */
-const HIDE_PLACEHOLDER_UNTIL_FOCUS =
-  "placeholder:text-transparent focus:placeholder:text-muted-foreground";
-
-function isFilled(value: unknown) {
-  if (Array.isArray(value)) return value.length > 0;
-  return value !== undefined && value !== null && value !== "";
-}
-
 export function CollectionItemFields({
   config,
   form,
@@ -148,39 +137,37 @@ export function CollectionItemFields({
       fieldName,
       fieldState,
       span: fieldSpanByKind[fieldConfig.kind],
-      variant: fieldLabelVariantByKind[fieldConfig.kind],
-      filled: isFilled(itemValues?.[fieldConfig.name]),
     };
   }
 
   function renderTextField(_fieldConfig: ItemFieldConfig, fieldIndex: number) {
-    const { fieldConfig, fieldName, fieldState, span, variant, filled } =
-      resolveField(_fieldConfig, fieldIndex);
+    const { fieldConfig, fieldName, fieldState, span } = resolveField(
+      _fieldConfig,
+      fieldIndex,
+    );
     const inputAttrs = getTextInputAttrs(
       fieldConfig.kind as "text" | "email" | "url",
     );
 
     return (
-      <FloatingField
+      <Field
         key={fieldName}
-        htmlFor={fieldName}
-        label={fieldConfig.label}
-        optional={fieldConfig.optional}
-        invalid={fieldState.invalid}
-        error={fieldState.error}
-        span={span}
-        variant={variant}
-        filled={filled}
+        className={span === 2 ? "col-span-full" : undefined}
+        data-invalid={fieldState.invalid || undefined}
       >
-        <Input
-          id={fieldName}
-          {...inputAttrs}
-          placeholder={fieldConfig.placeholder}
-          aria-invalid={fieldState.invalid || undefined}
-          className={cn(FIELD_CONTROL_CLASS, HIDE_PLACEHOLDER_UNTIL_FOCUS)}
-          {...reg(fieldName as never)}
-        />
-      </FloatingField>
+        <FieldContent>
+          <Input
+            id={fieldName}
+            {...inputAttrs}
+            placeholder={fieldConfig.placeholder ?? fieldConfig.label}
+            aria-label={fieldConfig.label}
+            aria-invalid={fieldState.invalid || undefined}
+            className={FIELD_CONTROL_CLASS}
+            {...reg(fieldName as never)}
+          />
+          <FieldError errors={[fieldState.error]} />
+        </FieldContent>
+      </Field>
     );
   }
 
@@ -188,41 +175,44 @@ export function CollectionItemFields({
     _fieldConfig: ItemFieldConfig,
     fieldIndex: number,
   ) {
-    const { fieldConfig, fieldName, fieldState, span, variant, filled } =
-      resolveField(_fieldConfig, fieldIndex);
+    const { fieldConfig, fieldName, fieldState, span } = resolveField(
+      _fieldConfig,
+      fieldIndex,
+    );
 
     return (
-      <FloatingField
+      <Field
         key={fieldName}
-        htmlFor={fieldName}
-        label={fieldConfig.label}
-        optional={fieldConfig.optional}
-        invalid={fieldState.invalid}
-        error={fieldState.error}
-        span={span}
-        variant={variant}
-        filled={filled}
+        className={span === 2 ? "col-span-full" : undefined}
+        data-invalid={fieldState.invalid || undefined}
       >
-        <Controller
-          control={ctrl}
-          name={fieldName as never}
-          render={({ field }) => (
-            <MonthYearPicker
-              id={fieldName}
-              value={field.value}
-              // The label owns the empty state for button-triggered controls.
-              placeholder=""
-              ariaInvalid={fieldState.invalid}
-              onChange={(value) =>
-                sv(fieldName as never, value as never, {
-                  shouldDirty: true,
-                  shouldValidate: fs.isSubmitted,
-                })
-              }
-            />
-          )}
-        />
-      </FloatingField>
+        {/* MonthYearPicker's trigger is a plain button with no aria-label prop
+            of its own, so an sr-only label carries the accessible name. */}
+        <FieldLabel htmlFor={fieldName} className="sr-only">
+          {fieldConfig.label}
+        </FieldLabel>
+        <FieldContent>
+          <Controller
+            control={ctrl}
+            name={fieldName as never}
+            render={({ field }) => (
+              <MonthYearPicker
+                id={fieldName}
+                value={field.value}
+                placeholder={fieldConfig.label}
+                ariaInvalid={fieldState.invalid}
+                onChange={(value) =>
+                  sv(fieldName as never, value as never, {
+                    shouldDirty: true,
+                    shouldValidate: fs.isSubmitted,
+                  })
+                }
+              />
+            )}
+          />
+          <FieldError errors={[fieldState.error]} />
+        </FieldContent>
+      </Field>
     );
   }
 
@@ -230,31 +220,31 @@ export function CollectionItemFields({
     _fieldConfig: ItemFieldConfig,
     fieldIndex: number,
   ) {
-    const { fieldConfig, fieldName, fieldState, span, variant, filled } =
-      resolveField(_fieldConfig, fieldIndex);
+    const { fieldConfig, fieldName, fieldState, span } = resolveField(
+      _fieldConfig,
+      fieldIndex,
+    );
 
     return (
-      <FloatingField
+      <Field
         key={fieldName}
-        htmlFor={fieldName}
-        label={fieldConfig.label}
-        optional={fieldConfig.optional}
-        invalid={fieldState.invalid}
-        error={fieldState.error}
-        span={span}
-        variant={variant}
-        filled={filled}
+        className={span === 2 ? "col-span-full" : undefined}
+        data-invalid={fieldState.invalid || undefined}
       >
-        <Textarea
-          id={fieldName}
-          rows={3}
-          placeholder={fieldConfig.placeholder}
-          aria-invalid={fieldState.invalid || undefined}
-          // Same box as the rest, minus the single-line height.
-          className={cn(FIELD_CONTROL_CLASS, "h-auto py-2")}
-          {...reg(fieldName as never)}
-        />
-      </FloatingField>
+        <FieldContent>
+          <Textarea
+            id={fieldName}
+            rows={3}
+            placeholder={fieldConfig.placeholder ?? fieldConfig.label}
+            aria-label={fieldConfig.label}
+            aria-invalid={fieldState.invalid || undefined}
+            // Same box as the rest, minus the single-line height.
+            className={cn(FIELD_CONTROL_CLASS, "h-auto py-2")}
+            {...reg(fieldName as never)}
+          />
+          <FieldError errors={[fieldState.error]} />
+        </FieldContent>
+      </Field>
     );
   }
 
@@ -262,41 +252,41 @@ export function CollectionItemFields({
     _fieldConfig: ItemFieldConfig,
     fieldIndex: number,
   ) {
-    const { fieldConfig, fieldName, fieldState, span, variant, filled } =
-      resolveField(_fieldConfig, fieldIndex);
+    const { fieldConfig, fieldName, fieldState, span } = resolveField(
+      _fieldConfig,
+      fieldIndex,
+    );
 
     return (
-      <FloatingField
+      <Field
         key={fieldName}
-        label={fieldConfig.label}
-        optional={fieldConfig.optional}
-        invalid={fieldState.invalid}
-        error={fieldState.error}
-        span={span}
-        variant={variant}
-        filled={filled}
+        className={span === 2 ? "col-span-full" : undefined}
+        data-invalid={fieldState.invalid || undefined}
       >
-        <Controller
-          control={ctrl}
-          name={fieldName as never}
-          render={({ field }) => (
-            <RichTextEditorWithImprove
-              value={field.value}
-              // No visible label: the guidance lives inside the empty editor
-              // and `ariaLabel` carries the accessible name.
-              ariaLabel={fieldConfig.label}
-              placeholder={fieldConfig.placeholder}
-              invalid={fieldState.invalid}
-              onChange={(value) =>
-                sv(fieldName as never, value as never, {
-                  shouldDirty: true,
-                  shouldValidate: fs.isSubmitted,
-                })
-              }
-            />
-          )}
-        />
-      </FloatingField>
+        <FieldContent>
+          <Controller
+            control={ctrl}
+            name={fieldName as never}
+            render={({ field }) => (
+              <RichTextEditorWithImprove
+                value={field.value}
+                // No visible label: the guidance lives inside the empty editor
+                // and `ariaLabel` carries the accessible name.
+                ariaLabel={fieldConfig.label}
+                placeholder={fieldConfig.placeholder ?? fieldConfig.label}
+                invalid={fieldState.invalid}
+                onChange={(value) =>
+                  sv(fieldName as never, value as never, {
+                    shouldDirty: true,
+                    shouldValidate: fs.isSubmitted,
+                  })
+                }
+              />
+            )}
+          />
+          <FieldError errors={[fieldState.error]} />
+        </FieldContent>
+      </Field>
     );
   }
 
@@ -304,43 +294,41 @@ export function CollectionItemFields({
     _fieldConfig: ItemFieldConfig,
     fieldIndex: number,
   ) {
-    const { fieldConfig, fieldName, fieldState, span, variant, filled } =
-      resolveField(_fieldConfig, fieldIndex);
+    const { fieldConfig, fieldName, fieldState, span } = resolveField(
+      _fieldConfig,
+      fieldIndex,
+    );
 
     return (
-      <FloatingField
+      <Field
         key={fieldName}
-        htmlFor={fieldName}
-        label={fieldConfig.label}
-        optional={fieldConfig.optional}
-        invalid={fieldState.invalid}
-        error={fieldState.error}
-        span={span}
-        variant={variant}
-        filled={filled}
-        description={
-          <FieldDescription>
-            Press Enter or comma to add a skill. Backspace removes the last one.
-          </FieldDescription>
-        }
+        className={span === 2 ? "col-span-full" : undefined}
+        data-invalid={fieldState.invalid || undefined}
       >
-        <Controller
-          control={ctrl}
-          name={fieldName as never}
-          render={({ field }) => (
-            <TagInput
-              id={fieldName}
-              value={
-                Array.isArray(field.value) ? (field.value as string[]) : []
-              }
-              onChange={(next) => field.onChange(next)}
-              placeholder={filled ? fieldConfig.placeholder : ""}
-              ariaInvalid={fieldState.invalid}
-              ariaLabel={fieldConfig.label}
-            />
-          )}
-        />
-      </FloatingField>
+        <FieldContent>
+          <Controller
+            control={ctrl}
+            name={fieldName as never}
+            render={({ field }) => (
+              <TagInput
+                id={fieldName}
+                value={
+                  Array.isArray(field.value) ? (field.value as string[]) : []
+                }
+                onChange={(next) => field.onChange(next)}
+                placeholder={fieldConfig.placeholder ?? fieldConfig.label}
+                ariaInvalid={fieldState.invalid}
+                ariaLabel={fieldConfig.label}
+              />
+            )}
+          />
+          <FieldDescription>
+            Press Enter or comma to add a skill. Backspace removes the last
+            one.
+          </FieldDescription>
+          <FieldError errors={[fieldState.error]} />
+        </FieldContent>
+      </Field>
     );
   }
 
@@ -366,59 +354,77 @@ export function CollectionItemFields({
       <FieldGroup
         key={`${startFieldName}-${endFieldName}`}
         layout="grid"
-        className={spanClassName(fieldSpanByKind[fieldConfig.kind])}
+        className={
+          fieldSpanByKind[fieldConfig.kind] === 2 ? "col-span-full" : undefined
+        }
       >
-        <FloatingField
-          htmlFor={startFieldName}
-          label="Start date"
-          invalid={startFieldState.invalid}
-          error={startFieldState.error}
-          filled={isFilled(startValue)}
-        >
-          <Controller
-            control={ctrl}
-            name={startFieldName as never}
-            render={({ field }) => (
-              <MonthYearPicker
-                id={startFieldName}
-                value={field.value}
-                placeholder=""
-                ariaInvalid={startFieldState.invalid}
-                onChange={(value) => {
-                  const nextStartDate = parseMonthYear(value);
-                  const currentEndDate = parseMonthYear(endValue);
+        <Field data-invalid={startFieldState.invalid || undefined}>
+          <FieldLabel htmlFor={startFieldName} className="sr-only">
+            Start date
+          </FieldLabel>
+          <FieldContent>
+            <Controller
+              control={ctrl}
+              name={startFieldName as never}
+              render={({ field }) => (
+                <MonthYearPicker
+                  id={startFieldName}
+                  value={field.value}
+                  placeholder="Start date"
+                  ariaInvalid={startFieldState.invalid}
+                  onChange={(value) => {
+                    const nextStartDate = parseMonthYear(value);
+                    const currentEndDate = parseMonthYear(endValue);
 
-                  sv(startFieldName as never, value as never, {
-                    shouldDirty: true,
-                    shouldValidate: fs.isSubmitted,
-                  });
-
-                  if (
-                    endValue !== "current" &&
-                    nextStartDate &&
-                    currentEndDate &&
-                    currentEndDate.getTime() <= nextStartDate.getTime()
-                  ) {
-                    sv(endFieldName as never, "" as never, {
+                    sv(startFieldName as never, value as never, {
                       shouldDirty: true,
                       shouldValidate: fs.isSubmitted,
                     });
-                  }
-                }}
-              />
-            )}
-          />
-        </FloatingField>
 
-        <FloatingField
-          htmlFor={endFieldName}
-          label="End date"
-          invalid={endFieldState.invalid}
-          error={endFieldState.error}
-          // "Current" renders as the picker's placeholder with an empty value,
-          // so float the label off it explicitly.
-          filled={isCurrent || isFilled(endValue)}
-          description={
+                    if (
+                      endValue !== "current" &&
+                      nextStartDate &&
+                      currentEndDate &&
+                      currentEndDate.getTime() <= nextStartDate.getTime()
+                    ) {
+                      sv(endFieldName as never, "" as never, {
+                        shouldDirty: true,
+                        shouldValidate: fs.isSubmitted,
+                      });
+                    }
+                  }}
+                />
+              )}
+            />
+            <FieldError errors={[startFieldState.error]} />
+          </FieldContent>
+        </Field>
+
+        <Field data-invalid={endFieldState.invalid || undefined}>
+          <FieldLabel htmlFor={endFieldName} className="sr-only">
+            End date
+          </FieldLabel>
+          <FieldContent>
+            <Controller
+              control={ctrl}
+              name={endFieldName as never}
+              render={({ field }) => (
+                <MonthYearPicker
+                  id={endFieldName}
+                  value={isCurrent ? "" : field.value}
+                  placeholder={isCurrent ? "Current" : "End date"}
+                  disabled={isCurrent}
+                  ariaInvalid={endFieldState.invalid}
+                  minValueExclusive={startValue}
+                  onChange={(value) =>
+                    sv(endFieldName as never, value as never, {
+                      shouldDirty: true,
+                      shouldValidate: fs.isSubmitted,
+                    })
+                  }
+                />
+              )}
+            />
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Switch
                 checked={isCurrent}
@@ -435,29 +441,9 @@ export function CollectionItemFields({
               />
               <span>Mark this role as current</span>
             </div>
-          }
-        >
-          <Controller
-            control={ctrl}
-            name={endFieldName as never}
-            render={({ field }) => (
-              <MonthYearPicker
-                id={endFieldName}
-                value={isCurrent ? "" : field.value}
-                placeholder={isCurrent ? "Current" : ""}
-                disabled={isCurrent}
-                ariaInvalid={endFieldState.invalid}
-                minValueExclusive={startValue}
-                onChange={(value) =>
-                  sv(endFieldName as never, value as never, {
-                    shouldDirty: true,
-                    shouldValidate: fs.isSubmitted,
-                  })
-                }
-              />
-            )}
-          />
-        </FloatingField>
+            <FieldError errors={[endFieldState.error]} />
+          </FieldContent>
+        </Field>
       </FieldGroup>
     );
   }
@@ -466,43 +452,45 @@ export function CollectionItemFields({
     _fieldConfig: ItemFieldConfig,
     fieldIndex: number,
   ) {
-    const { fieldConfig, fieldName, fieldState, span, variant, filled } =
-      resolveField(_fieldConfig, fieldIndex);
+    const { fieldConfig, fieldName, fieldState, span } = resolveField(
+      _fieldConfig,
+      fieldIndex,
+    );
 
     return (
-      <FloatingField
+      <Field
         key={fieldName}
-        label={fieldConfig.label}
-        invalid={fieldState.invalid}
-        error={fieldState.error}
-        span={span}
-        variant={variant}
-        filled={filled}
+        className={span === 2 ? "col-span-full" : undefined}
+        data-invalid={fieldState.invalid || undefined}
       >
-        <Controller
-          control={ctrl}
-          name={fieldName as never}
-          render={({ field }) => (
-            <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger
-                className={FIELD_CONTROL_CLASS}
-                aria-invalid={fieldState.invalid || undefined}
-              >
-                <SelectValue placeholder="" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  {languageProficiencyOptions.map((option) => (
-                    <SelectItem key={option} value={option}>
-                      {option}
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-          )}
-        />
-      </FloatingField>
+        <FieldContent>
+          <Controller
+            control={ctrl}
+            name={fieldName as never}
+            render={({ field }) => (
+              <Select value={field.value} onValueChange={field.onChange}>
+                <SelectTrigger
+                  className={FIELD_CONTROL_CLASS}
+                  aria-label={fieldConfig.label}
+                  aria-invalid={fieldState.invalid || undefined}
+                >
+                  <SelectValue placeholder={fieldConfig.label} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    {languageProficiencyOptions.map((option) => (
+                      <SelectItem key={option} value={option}>
+                        {option}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            )}
+          />
+          <FieldError errors={[fieldState.error]} />
+        </FieldContent>
+      </Field>
     );
   }
 
