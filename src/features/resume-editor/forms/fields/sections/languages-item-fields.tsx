@@ -22,7 +22,7 @@ export function LanguagesItemFields({
         form={form}
         name={`${prefix}.language`}
         label="Language"
-        placeholder="English"
+        placeholder="Language name"
       />
       <ProficiencyField
         form={form}

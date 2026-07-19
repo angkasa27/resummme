@@ -7,6 +7,7 @@ import {
   RichTextField,
   TextField,
 } from "@/features/resume-editor/forms/fields/item-field-atoms";
+import { Building2 } from "lucide-react";
 
 export function AwardsItemFields({
   form,
@@ -23,13 +24,15 @@ export function AwardsItemFields({
         form={form}
         name={`${prefix}.title`}
         label="Title"
-        placeholder="Best Innovation Award"
+        placeholder="Award title"
+        className="col-span-full"
       />
       <TextField
         form={form}
         name={`${prefix}.issuer`}
         label="Issuer"
-        placeholder="Tech Conference Asia"
+        prefix={<Building2 />}
+        placeholder="Issuer organization or event"
       />
       <MonthYearField
         form={form}
@@ -40,7 +43,7 @@ export function AwardsItemFields({
         form={form}
         name={`${prefix}.description`}
         label="Description"
-        placeholder="State the achievement and selection context."
+        placeholder="State the achievement and selection context"
         className="col-span-full"
       />
     </FieldGroup>

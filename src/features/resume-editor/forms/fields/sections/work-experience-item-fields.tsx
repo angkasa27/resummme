@@ -7,6 +7,7 @@ import {
   RichTextField,
   TextField,
 } from "@/features/resume-editor/forms/fields/item-field-atoms";
+import { BriefcaseBusiness, MapPin } from "lucide-react";
 
 export function WorkExperienceItemFields({
   form,
@@ -23,24 +24,28 @@ export function WorkExperienceItemFields({
         form={form}
         name={`${prefix}.companyName`}
         label="Company name"
-        placeholder="PT Example Indonesia"
+        placeholder="Company or employer name"
+        className="col-span-full"
       />
       <TextField
         form={form}
         name={`${prefix}.position`}
         label="Position"
-        placeholder="Senior Frontend Engineer"
+        prefix={<BriefcaseBusiness />}
+        placeholder="Job title"
       />
       <TextField
         form={form}
         name={`${prefix}.location`}
         label="Location"
-        placeholder="Jakarta, Indonesia"
+        prefix={<MapPin />}
+        placeholder="City, country"
       />
       <MonthYearRangeField
         form={form}
         startName={`${prefix}.startDate`}
         endName={`${prefix}.endDate`}
+        currentLabel="Mark this role as current"
         className="col-span-full"
       />
       <RichTextField

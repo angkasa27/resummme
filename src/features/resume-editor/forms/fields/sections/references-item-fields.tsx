@@ -23,14 +23,14 @@ export function ReferencesItemFields({
         form={form}
         name={`${prefix}.background`}
         label="Background"
-        placeholder="Engineering Manager at Example Corp"
+        placeholder="Their role and company"
         className="col-span-full"
       />
       <TextareaField
         form={form}
         name={`${prefix}.contactDetails`}
         label="Contact details"
-        placeholder="name@example.com | +62 812-3456-7890"
+        placeholder="Email, phone, or how to reach them"
         className="col-span-full"
       />
     </FieldGroup>

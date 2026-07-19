@@ -22,13 +22,14 @@ export function SkillsItemFields({
         form={form}
         name={`${prefix}.categoryName`}
         label="Category name"
-        placeholder="Frontend Engineering"
+        placeholder="Category name"
+        className="col-span-full"
       />
       <TagInputField
         form={form}
         name={`${prefix}.skills`}
         label="Skills"
-        placeholder="React, Next.js, TypeScript"
+        placeholder="Skills in this category"
         className="col-span-full"
       />
     </FieldGroup>

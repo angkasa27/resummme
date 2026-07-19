@@ -7,6 +7,7 @@ import {
   RichTextField,
   TextField,
 } from "@/features/resume-editor/forms/fields/item-field-atoms";
+import { BriefcaseBusiness, MapPin } from "lucide-react";
 
 export function OrganizationItemFields({
   form,
@@ -23,24 +24,28 @@ export function OrganizationItemFields({
         form={form}
         name={`${prefix}.organizationName`}
         label="Organization name"
-        placeholder="Frontend Jakarta Community"
+        placeholder="Community or organization name"
+        className="col-span-full"
       />
       <TextField
         form={form}
         name={`${prefix}.position`}
         label="Position"
-        placeholder="Volunteer Mentor"
+        prefix={<BriefcaseBusiness />}
+        placeholder="Role or title"
       />
       <TextField
         form={form}
         name={`${prefix}.location`}
         label="Location"
-        placeholder="Jakarta, Indonesia"
+        prefix={<MapPin />}
+        placeholder="City, country"
       />
       <MonthYearRangeField
         form={form}
         startName={`${prefix}.startDate`}
         endName={`${prefix}.endDate`}
+        currentLabel="Mark as a current membership"
         className="col-span-full"
       />
       <RichTextField

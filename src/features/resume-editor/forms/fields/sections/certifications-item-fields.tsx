@@ -6,6 +6,7 @@ import {
   MonthYearField,
   TextField,
 } from "@/features/resume-editor/forms/fields/item-field-atoms";
+import { BadgeCheck, Building2, Link } from "lucide-react";
 
 export function CertificationsItemFields({
   form,
@@ -22,13 +23,15 @@ export function CertificationsItemFields({
         form={form}
         name={`${prefix}.certificationName`}
         label="Certification name"
-        placeholder="AWS Certified Developer - Associate"
+        placeholder="Certification name"
+        className="col-span-full"
       />
       <TextField
         form={form}
         name={`${prefix}.issuingOrganization`}
         label="Issuing organization"
-        placeholder="Amazon Web Services"
+        prefix={<Building2 />}
+        placeholder="Issuing organization"
       />
       <MonthYearField
         form={form}
@@ -41,13 +44,16 @@ export function CertificationsItemFields({
         name={`${prefix}.certificationLink`}
         label="Certification link"
         placeholder="https://example.com/certification"
+        prefix={<Link />}
         className="col-span-full"
       />
       <TextField
         form={form}
         name={`${prefix}.credentialId`}
         label="Credential ID"
-        placeholder="ABC-123-XYZ"
+        prefix={<BadgeCheck />}
+        placeholder="Credential or license number"
+        className="col-span-full"
       />
     </FieldGroup>
   );

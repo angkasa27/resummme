@@ -7,6 +7,7 @@ import {
   RichTextField,
   TextField,
 } from "@/features/resume-editor/forms/fields/item-field-atoms";
+import { Link } from "lucide-react";
 
 export function ProjectsItemFields({
   form,
@@ -23,7 +24,8 @@ export function ProjectsItemFields({
         form={form}
         name={`${prefix}.projectName`}
         label="Project name"
-        placeholder="Internal Design System"
+        placeholder="Project name"
+        className="col-span-full"
       />
       <TextField
         form={form}
@@ -31,12 +33,14 @@ export function ProjectsItemFields({
         name={`${prefix}.projectLink`}
         label="Project link"
         placeholder="https://example.com/project"
+        prefix={<Link />}
         className="col-span-full"
       />
       <MonthYearRangeField
         form={form}
         startName={`${prefix}.startDate`}
         endName={`${prefix}.endDate`}
+        currentLabel="Mark as an ongoing project"
         className="col-span-full"
       />
       <RichTextField

@@ -7,6 +7,7 @@ import {
   RichTextField,
   TextField,
 } from "@/features/resume-editor/forms/fields/item-field-atoms";
+import { Building2, Link } from "lucide-react";
 
 export function PublicationsItemFields({
   form,
@@ -23,26 +24,29 @@ export function PublicationsItemFields({
         form={form}
         name={`${prefix}.title`}
         label="Title"
-        placeholder="Designing Maintainable Frontend Platforms"
+        placeholder="Publication title"
+        className="col-span-full"
       />
       <TextField
         form={form}
         name={`${prefix}.publisher`}
         label="Publisher"
+        prefix={<Building2 />}
         placeholder="Medium, IEEE, or conference name"
+      />
+      <MonthYearField
+        form={form}
+        name={`${prefix}.publicationDate`}
+        label="Publication date"
       />
       <TextField
         form={form}
         type="url"
         name={`${prefix}.publicationUrl`}
         label="Publication URL"
+        prefix={<Link />}
         placeholder="https://example.com/publication"
         className="col-span-full"
-      />
-      <MonthYearField
-        form={form}
-        name={`${prefix}.publicationDate`}
-        label="Publication date"
       />
       <RichTextField
         form={form}
