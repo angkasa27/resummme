@@ -12,7 +12,7 @@ import {
   NAV_ICON_SIZE as ICON_SIZE,
   NavIcon,
   PopIcon,
-} from "@/features/resume-editor/ui/nav-icon";
+} from "@/features/resume-editor/editor/shared/nav-icon";
 import { cn } from "@/lib/utils";
 
 export type EditorTab = "edit" | "preview" | "design" | "insights";

@@ -4,7 +4,7 @@ import { ChevronRightIcon } from "lucide-react";
 import { motion } from "motion/react";
 import type { ReactNode } from "react";
 
-import { Collapse } from "@/features/resume-editor/ui/collapse";
+import { Collapse } from "@/features/resume-editor/editor/shared/collapse";
 import { EditorRow } from "@/features/resume-editor/editor/sections/editor-row";
 import { RowDragHandle } from "@/features/resume-editor/editor/sections/row-drag-handle";
 import { RowDeleteButton } from "@/features/resume-editor/editor/sections/row-delete-button";

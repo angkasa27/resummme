@@ -7,9 +7,9 @@ import {
 } from "lucide-react";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LayoutTab } from "@/features/resume-editor/controls/layout-tab";
-import { StyleTab } from "@/features/resume-editor/controls/style-tab";
-import { TemplateGallery } from "@/features/resume-editor/controls/template-gallery";
+import { LayoutTab } from "@/features/resume-editor/editor/panels/layout-tab";
+import { StyleTab } from "@/features/resume-editor/editor/panels/style-tab";
+import { TemplateGallery } from "@/features/resume-editor/editor/panels/template-gallery";
 import type { PdfPresentation } from "@/features/resume-editor/domain/presentation/pdf-presentation";
 import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
 import { cn } from "@/lib/utils";

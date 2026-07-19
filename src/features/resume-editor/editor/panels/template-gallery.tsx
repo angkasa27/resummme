@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { FieldLegend, FieldSet } from "@/components/ui/field";
-import { DocumentPreviewCard } from "@/features/resume-editor/controls/document-preview-card";
+import { DocumentPreviewCard } from "@/features/resume-editor/editor/panels/document-preview-card";
 import {
   applyTemplatePreset,
   getActiveTemplatePresetId,

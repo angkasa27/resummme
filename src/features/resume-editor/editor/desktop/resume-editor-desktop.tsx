@@ -6,9 +6,9 @@ import { toast } from "sonner";
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 
 import { useResumeEditorController } from "@/features/resume-editor/state/use-resume-editor-controller";
-import type { EditorControlProps } from "@/features/resume-editor/controls/control-props";
-import { ExtractCvDialog } from "@/features/resume-editor/controls/extract-cv-dialog";
-import { PdfImportProgress } from "@/features/resume-editor/controls/pdf-import-progress";
+import type { EditorControlProps } from "@/features/resume-editor/editor/panels/control-props";
+import { ExtractCvDialog } from "@/features/resume-editor/editor/panels/extract-cv-dialog";
+import { PdfImportProgress } from "@/features/resume-editor/editor/panels/pdf-import-progress";
 import { EditorCanvas } from "@/features/resume-editor/editor/desktop/editor-canvas";
 import {
   EditorRail,
@@ -26,7 +26,7 @@ import {
 import type { ResumeEditorPanelKey } from "@/features/resume-editor/state/resume-editor-store";
 import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
 import type { DraftStorage } from "@/features/resume-editor/domain/draft/draft-storage";
-import { useEditorHeader } from "@/features/resume-editor/chrome/use-editor-header";
+import { useEditorHeader } from "@/features/resume-editor/editor/top-bar/use-editor-header";
 
 type ResumeEditorDesktopProps = {
   initialDraft?: ResumeDraft;

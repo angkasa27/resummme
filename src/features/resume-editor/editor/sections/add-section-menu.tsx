@@ -10,7 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { SectionIcon } from "@/features/resume-editor/ui/section-icons";
+import { SectionIcon } from "@/features/resume-editor/editor/shared/section-icons";
 import {
   sectionLabels,
   type CollectionSectionKey,

@@ -3,11 +3,11 @@
 import React, { useMemo, useState } from "react";
 
 import { ResumeEditorMobileContent } from "@/features/resume-editor/editor/mobile/mobile-content";
-import type { EditorControlProps } from "@/features/resume-editor/controls/control-props";
+import type { EditorControlProps } from "@/features/resume-editor/editor/panels/control-props";
 import { useResumeEditorController } from "@/features/resume-editor/state/use-resume-editor-controller";
-import { ExtractCvDialog } from "@/features/resume-editor/controls/extract-cv-dialog";
-import { PdfImportProgress } from "@/features/resume-editor/controls/pdf-import-progress";
-import { useEditorHeader } from "@/features/resume-editor/chrome/use-editor-header";
+import { ExtractCvDialog } from "@/features/resume-editor/editor/panels/extract-cv-dialog";
+import { PdfImportProgress } from "@/features/resume-editor/editor/panels/pdf-import-progress";
+import { useEditorHeader } from "@/features/resume-editor/editor/top-bar/use-editor-header";
 import { normalizePdfPresentation } from "@/features/resume-editor/domain/presentation/pdf-presentation";
 import {
   needsSectionReveal,

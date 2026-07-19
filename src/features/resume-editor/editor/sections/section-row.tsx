@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { EditorRow } from "@/features/resume-editor/editor/sections/editor-row";
-import { SectionIcon } from "@/features/resume-editor/ui/section-icons";
+import { SectionIcon } from "@/features/resume-editor/editor/shared/section-icons";
 import type {
   CollectionSectionKey,
   EditorPanelKey,

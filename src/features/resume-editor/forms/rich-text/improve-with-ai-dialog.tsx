@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import {
   DialogHeaderRow,
   DialogHeaderSection,
-} from "@/features/resume-editor/ui/dialog-header";
+} from "@/features/resume-editor/editor/shared/dialog-header";
 import { RichTextEditor } from "@/features/resume-editor/forms/rich-text/rich-text-editor";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import {
@@ -23,7 +23,7 @@ import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useRotatingMessage } from "@/features/resume-editor/ui/use-rotating-message";
+import { useRotatingMessage } from "@/features/resume-editor/editor/shared/use-rotating-message";
 
 const QUICK_ACTIONS = [
   { label: "Add a metric" },

@@ -22,7 +22,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import { ColorControl } from "@/features/resume-editor/controls/color-control";
+import { ColorControl } from "@/features/resume-editor/editor/panels/color-control";
 import { previewControlDefinitions } from "@/features/resume-editor/preview/control-registry";
 import type {
   PreviewControlDefinition,

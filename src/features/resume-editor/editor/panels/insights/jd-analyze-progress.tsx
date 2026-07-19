@@ -3,7 +3,7 @@
 import { Loader2Icon, TelescopeIcon } from "lucide-react";
 
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { useRotatingMessage } from "@/features/resume-editor/ui/use-rotating-message";
+import { useRotatingMessage } from "@/features/resume-editor/editor/shared/use-rotating-message";
 
 const PROGRESS_MESSAGES = [
   "Reading the job description…",

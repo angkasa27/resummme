@@ -16,7 +16,7 @@ import { Sheet, SheetContent } from "@/components/ui/sheet";
 import {
   DialogHeaderRow,
   DialogHeaderSection,
-} from "@/features/resume-editor/ui/dialog-header";
+} from "@/features/resume-editor/editor/shared/dialog-header";
 import { cn } from "@/lib/utils";
 
 type ExtractCvDialogProps = {

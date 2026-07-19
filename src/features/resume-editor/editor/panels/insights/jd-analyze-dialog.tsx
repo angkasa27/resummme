@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import {
   DialogHeaderRow,
   DialogHeaderSection,
-} from "@/features/resume-editor/ui/dialog-header";
+} from "@/features/resume-editor/editor/shared/dialog-header";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";

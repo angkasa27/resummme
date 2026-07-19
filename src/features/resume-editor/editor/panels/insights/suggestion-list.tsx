@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Collapse } from "@/features/resume-editor/ui/collapse";
+import { Collapse } from "@/features/resume-editor/editor/shared/collapse";
 import {
   ATS_CATEGORIES,
   ATS_CATEGORY_LABELS,

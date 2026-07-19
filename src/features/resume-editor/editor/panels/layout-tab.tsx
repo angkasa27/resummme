@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { previewControlDefinitions } from "@/features/resume-editor/preview/control-registry";
-import { DocumentPreviewCard } from "@/features/resume-editor/controls/document-preview-card";
+import { DocumentPreviewCard } from "@/features/resume-editor/editor/panels/document-preview-card";
 import type { PreviewControlDefinition } from "@/features/resume-editor/preview/types";
 import type {
   PdfPresentation,

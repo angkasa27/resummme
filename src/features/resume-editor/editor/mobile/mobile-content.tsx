@@ -7,10 +7,10 @@ import {
   MobileBottomNav,
   type EditorTab,
 } from "@/features/resume-editor/editor/mobile/mobile-bottom-nav";
-import type { EditorControlProps } from "@/features/resume-editor/controls/control-props";
-import { DesignPanel } from "@/features/resume-editor/controls/design-panel";
+import type { EditorControlProps } from "@/features/resume-editor/editor/panels/control-props";
+import { DesignPanel } from "@/features/resume-editor/editor/panels/design-panel";
 import { PreviewSheet } from "@/features/resume-editor/preview/components/preview-sheet";
-import { InsightsTab } from "@/features/resume-editor/controls/insights/insights-tab";
+import { InsightsTab } from "@/features/resume-editor/editor/panels/insights/insights-tab";
 import {
   fadeVariants,
   reducedTransition,

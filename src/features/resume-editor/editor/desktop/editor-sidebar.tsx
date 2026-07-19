@@ -2,11 +2,11 @@
 
 import { useRef } from "react";
 
-import type { EditorControlProps } from "@/features/resume-editor/controls/control-props";
+import type { EditorControlProps } from "@/features/resume-editor/editor/panels/control-props";
 import { SidebarResizeHandle } from "@/features/resume-editor/editor/desktop/sidebar-resize-handle";
 import { useSidebarWidth } from "@/features/resume-editor/editor/desktop/use-sidebar-width";
-import { DesignPanel } from "@/features/resume-editor/controls/design-panel";
-import { InsightsTab } from "@/features/resume-editor/controls/insights/insights-tab";
+import { DesignPanel } from "@/features/resume-editor/editor/panels/design-panel";
+import { InsightsTab } from "@/features/resume-editor/editor/panels/insights/insights-tab";
 import type { RailKey } from "@/features/resume-editor/editor/desktop/editor-rail";
 import { SectionEditPanel } from "@/features/resume-editor/editor/sections/section-edit-panel";
 import { SectionFormHeader } from "@/features/resume-editor/editor/sections/section-form-header";
