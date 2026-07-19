@@ -83,7 +83,7 @@ export function SectionEditPanel({
           <motion.div
             key={openSection}
             className={cn(
-              "absolute inset-0 transform-gpu overflow-y-auto bg-background p-4 @container/form",
+              "absolute inset-0 transform-gpu overflow-y-auto bg-background p-3 @container/form",
               scrollPaddingClassName,
             )}
             custom={direction}

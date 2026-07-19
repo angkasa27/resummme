@@ -174,7 +174,7 @@ export function ResumeEditorMobileContent({
             ) : null}
 
             {tab === "insights" ? (
-              <div className={`h-full overflow-y-auto p-4 ${NAV_CLEARANCE}`}>
+              <div className={`h-full overflow-y-auto p-3 ${NAV_CLEARANCE}`}>
                 <InsightsTab draft={draft} onOpenSection={handleInsightsOpen} />
               </div>
             ) : null}

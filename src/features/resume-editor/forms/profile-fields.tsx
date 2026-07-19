@@ -153,8 +153,9 @@ export function ProfileFields({ ctx, idPrefix }: ProfileFieldsProps) {
         </Field>
       </FieldGroup>
 
-      {/* pt-6 to match the 24px between-groups step above the rule. */}
-      <FieldSet className="mt-6 border-t pt-6">
+      {/* Divider rule between groups: 16px above and below, the between-groups
+          step. A flex gap can't space a visible rule, so it's margin+padding. */}
+      <FieldSet className="mt-4 border-t pt-4">
         <FieldLegend>
           Links
           <Badge variant="secondary">
@@ -330,7 +331,7 @@ function PhotoField({
             if (file) void photo.handleFile(file);
           }}
           className={cn(
-            "flex items-center gap-4 rounded-lg border border-dashed p-4 transition-colors",
+            "flex items-center gap-4 rounded-lg border border-dashed p-3 transition-colors",
             dragging ? "border-ring bg-accent/50" : "border-input",
           )}
         >

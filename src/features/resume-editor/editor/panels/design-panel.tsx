@@ -28,13 +28,13 @@ export function DesignPanel({
   scrollPaddingClassName,
 }: DesignPanelProps) {
   const tabContentClassName = cn(
-    "min-h-0 flex-1 overflow-y-auto p-4 @container/form",
+    "min-h-0 flex-1 overflow-y-auto p-3 @container/form",
     scrollPaddingClassName,
   );
 
   return (
     <Tabs defaultValue="template" className="flex h-full flex-col">
-      <div className="shrink-0 px-4 pt-3">
+      <div className="shrink-0 px-3 pt-3">
         <TabsList className="w-full">
           <TabsTrigger value="template">
             <GalleryThumbnailsIcon />

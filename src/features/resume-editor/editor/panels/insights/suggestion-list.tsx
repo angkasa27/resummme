@@ -79,7 +79,7 @@ function SuggestionGroup({
         type="button"
         variant="ghost"
         onClick={() => setOpen((value) => !value)}
-        className="h-auto w-full justify-between gap-2 px-4 py-2 text-left font-medium"
+        className="h-auto w-full justify-between gap-2 px-3 py-2 text-left font-medium"
       >
         <span className="flex items-center gap-2">
           {ATS_CATEGORY_LABELS[category]}
@@ -110,7 +110,7 @@ function SuggestionGroup({
             return (
               <li
                 key={item.id}
-                className="flex items-start gap-2 rounded-sm px-2 py-1.5 text-xs"
+                className="flex items-start gap-2 rounded-sm px-1 py-1.5 text-xs"
               >
                 <Icon
                   className={cn(

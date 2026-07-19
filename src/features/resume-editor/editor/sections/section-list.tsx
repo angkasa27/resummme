@@ -6,7 +6,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { AnimatePresence } from "motion/react";
-import { ChevronRightIcon } from "lucide-react";
+import { ChevronRightIcon, PinIcon } from "lucide-react";
 import { useState } from "react";
 
 import { ConfirmDeleteDialog } from "@/components/ui/confirm-delete-dialog";
@@ -79,8 +79,8 @@ export function SectionList({
 
   return (
     <div className={cn("h-full overflow-y-auto", className)}>
-      {/* p-2, not p-4: this is a nav list, not a form. A 16px inset around rows
-          that are themselves py-2 reads heavy. */}
+      {/* p-2 (8px): a nav list stays a step tighter than a form (p-3). A 12px
+          inset around rows that are themselves py-2 reads heavy. */}
       <div className="p-2">
         <DocumentActions
           onExtractCv={onExtractCv}
@@ -99,6 +99,7 @@ export function SectionList({
             active={activeSection === "profile"}
             onClick={() => onOpen("profile")}
             trailing={navChevron}
+            className="h-12.5 pl-3"
           />
           <SectionRow
             sectionKey="summary"
@@ -106,6 +107,7 @@ export function SectionList({
             active={activeSection === "summary"}
             onClick={() => onOpen("summary")}
             trailing={navChevron}
+            className="h-12.5 pl-3"
           />
         </div>
 

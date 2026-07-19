@@ -91,7 +91,7 @@ export function useProfileForm(draft: ResumeDraft) {
   }
 
   function addLink() {
-    extraLinks.append({ id: createLocalId("extra-link"), url: "https://" });
+    extraLinks.append({ id: createLocalId("extra-link"), url: "" });
   }
 
   function confirmDeleteLink() {

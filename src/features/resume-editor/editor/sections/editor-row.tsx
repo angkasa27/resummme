@@ -66,15 +66,17 @@ export function EditorRow({
       onClick={onActivate}
       onKeyDown={handleKeyDown}
       className={cn(
-        "group/row flex cursor-pointer select-none items-center gap-2 rounded-md border border-border bg-background py-2 pr-1.5 pl-2 outline-none transition-colors focus-visible:border-ring",
+        "group/row flex cursor-pointer select-none items-center gap-2 rounded-md border border-border bg-background p-2 outline-none transition-colors focus-visible:border-ring",
         FOCUS_RING_CLASS,
         active ? "bg-accent" : "hover:bg-accent/60",
         className,
       )}
     >
-      <span className="flex w-4 shrink-0 items-center justify-center">
-        {handle}
-      </span>
+      {handle ? (
+        <span className="flex w-4 shrink-0 items-center justify-center">
+          {handle}
+        </span>
+      ) : null}
       {leading ? (
         <span
           className={cn(

@@ -48,7 +48,7 @@ export function ExtractCvDialog({
         <SheetContent
           side="bottom"
           showCloseButton={false}
-          className="flex max-h-[92dvh] flex-col rounded-t-xl gap-4 p-4 pt-3"
+          className="flex max-h-[92dvh] flex-col rounded-t-xl gap-4 p-3"
         >
           <div className="mx-auto h-1 w-10 shrink-0 rounded-full bg-border" />
           <DialogHeaderSection

@@ -33,7 +33,7 @@ export function JobDescriptionPanel({
 
   if (!jobMatch) {
     return (
-      <section className="flex flex-col gap-2 rounded-md border border-dashed bg-muted/30 p-4 text-center">
+      <section className="flex flex-col gap-2 rounded-md border border-dashed bg-muted/30 p-3 text-center">
         <div className="mx-auto grid size-9 place-items-center rounded-full bg-primary/10 text-primary">
           <TelescopeIcon className="size-4" />
         </div>
@@ -60,7 +60,7 @@ export function JobDescriptionPanel({
   const coveragePct = Math.round(jobMatch.coverage * 100);
 
   return (
-    <section className="flex flex-col gap-2 rounded-md border bg-background p-4">
+    <section className="flex flex-col gap-2 rounded-md border bg-background p-3">
       <header className="flex items-baseline justify-between gap-2">
         <h3 className="text-sm font-semibold">Job match</h3>
         <span className="text-xs tabular-nums text-muted-foreground">

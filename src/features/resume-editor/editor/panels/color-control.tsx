@@ -168,7 +168,7 @@ export function ColorControl({
           <PopoverContent
             align="end"
             sideOffset={8}
-            className="w-auto gap-4 p-4"
+            className="w-auto gap-4 p-3"
           >
             <HexColorPicker
               color={value}

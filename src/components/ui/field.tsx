@@ -9,15 +9,15 @@ import { Label } from "@/components/ui/label";
 /**
  * Form spacing lives here, not at call sites.
  *
- * The scale is 4 / 8 / 16 / 24:
+ * The scale is 4 / 8 / 12 / 16 (the compact editor standard — see DESIGN.md):
  *   4px  — inside a field: control → error/description (`Field`, `FieldContent`)
  *   8px  — attached meta: a legend and the fields it heads (`FieldSet`)
- *   16px — between fields (`FieldGroup`)
- *   24px — between groups (owned by the surface, e.g. `flex flex-col gap-6`)
+ *   12px — between fields (`FieldGroup`)
+ *   16px — between groups (owned by the surface, e.g. `flex flex-col gap-4`)
  *
- * 16px between fields is a floor, not a preference: a floated label is 16.5px
- * tall and hangs 8.25px above its control's border, so 12px collides with the
- * field above.
+ * 12px between fields is the floor. The old 16px floor guarded a floated label
+ * (16.5px tall, hanging over the control's top border); that label is gone, so
+ * the control box no longer overhangs and 12px clears at the row heights in use.
  */
 function FieldSet({ className, ...props }: React.ComponentProps<"fieldset">) {
   return (
@@ -61,7 +61,7 @@ function FieldLegend({
 }
 
 const fieldGroupVariants = cva(
-  "group/field-group @container/field-group w-full gap-4 data-[slot=checkbox-group]:gap-3",
+  "group/field-group @container/field-group w-full gap-3",
   {
     variants: {
       layout: {

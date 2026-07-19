@@ -113,7 +113,7 @@ export function EditorSidebar({
       ) : null}
 
       {rail === "insights" ? (
-        <div className="min-h-0 flex-1 overflow-y-auto p-4">
+        <div className="min-h-0 flex-1 overflow-y-auto p-3">
           <InsightsTab draft={draft} onOpenSection={onOpenSection} />
         </div>
       ) : null}

@@ -6,21 +6,23 @@ The rule behind every rule here: **spacing and type live in the primitives, not 
 
 ---
 
-## Spacing — 4 / 8 / 16 / 24
+## Spacing — 4 / 8 / 12 / 16
 
 | step | role | who owns it |
 |---|---|---|
 | **4px** `gap-1` | inside a field: control → error/description | `Field`, `FieldContent` |
 | **8px** `gap-2` | attached meta: a legend and the fields it heads; row lists | `FieldSet`; row lists set it directly |
-| **16px** `gap-4` | between fields, **both axes** | `FieldGroup` |
-| **24px** `gap-6` | between groups | the surface (`flex flex-col gap-6`) |
-| **16px** `p-4` | **form** container padding | the surface |
+| **12px** `gap-3` | between fields, **both axes** | `FieldGroup` |
+| **16px** `gap-4` | between groups | the surface (`flex flex-col gap-4`) |
+| **12px** `p-3` | **form / card** container padding | the surface |
 
-Nothing else. No `gap-0.5`, `gap-1.5`, `gap-2.5`, `gap-3`, `gap-5`, `gap-7`, and no `gap-x-*`/`gap-y-*` split.
+Nothing else. No `gap-0.5`, `gap-1.5`, `gap-2.5`, `gap-5`, `gap-6`, `gap-7`, and no `gap-x-*`/`gap-y-*` split.
 
-**16px between fields is a floor, not taste.** It was measured against the old floated label (16.5px tall, hanging 8.25px over its control's top border — 16px gave ~8px clearance, zero overlaps at 360px and 640px sidebar). The floating label is gone, but 12px still collides with the field above at the row heights in use. Don't "tighten" it.
+**This is the compact standard.** The editor lives in a sidebar, so density is the point — dense but organized, like a Figma inspector. It replaces the older, looser 4/8/16/24 scale; every editor surface (forms, Design, Insights, dialogs, cards) sits on this one scale.
 
-**`p-4` is a *form* rule.** A nav list is not a form: `section-list` uses `p-2` with `gap-2` rows, because a 16px inset around rows that are themselves `py-2` reads heavy. If you're laying out rows, you're on the 8px step.
+**12px between fields is the floor.** The old 16px floor guarded a floated label (16.5px tall, hanging 8.25px over its control's top border). That label is gone — the control box no longer overhangs — so 12px clears the field above at the row heights in use (verified at 360px and 640px sidebar, 375px mobile). Don't drop below it.
+
+**`p-3` is a *form / card* rule.** A nav list is a step tighter: `section-list` uses `p-2` with `gap-2` rows, because even a 12px inset around rows that are themselves `py-2` reads heavy. If you're laying out rows, you're on the 8px step.
 
 ---
 
@@ -114,7 +116,7 @@ focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50
 **Deleted:** `FieldTitle` (a div duplicating `FieldLabel`) and `FieldSeparator` (an "or" divider with no role here). Don't re-add them from upstream shadcn without a real use.
 
 `FieldGroup` takes `layout`:
-- `stack` (default) — vertical, 16px
+- `stack` (default) — vertical, 12px
 - `grid` — 1 column, splitting to 2 against the nearest `@container/fields`
 
 ```tsx
@@ -150,7 +152,7 @@ The grid splits against **`@container/fields`**, which each surface declares on 
 
 Threshold: `--container-field-2col` in `globals.css` (**21.5rem / 344px**).
 
-Container queries measure the **content** box, so the inset differs per surface. Measured for an item card: sidebar − 67px (panel `p-4`, card border, body `p-4`) → flips at a **~411px** sidebar. The 432px default gets two columns; the 360px minimum gets one. **Measure before changing this** — the arithmetic is easy to get wrong, and `@theme` edits need a dev-server restart to recompile.
+Container queries measure the **content** box, so the inset differs per surface. Measured for an item card: sidebar − ~51px (panel `p-3`, card border, body `p-3`) → flips at a **~395px** sidebar. Both insets dropped `p-4`→`p-3` under the compact standard, widening the content box ~16px and moving the flip ~16px earlier (was ~411px). The 432px default still gets two columns; the 360px minimum still gets one, so `--container-field-2col` (**21.5rem / 344px**) is unchanged. **Measure before changing this** — the arithmetic is easy to get wrong, and `@theme` edits need a dev-server restart to recompile.
 
 ---
 
@@ -181,7 +183,7 @@ Both codify a regression that already happened. If a rule blocks you, the answer
 
 ## Adding a surface — checklist
 
-- [ ] Groups get `<FieldSet>` + `<FieldLegend>`; 24px between them.
+- [ ] Groups get `<FieldSet>` + `<FieldLegend>`; 16px between them.
 - [ ] Fields go in `<FieldGroup>`; declare `@container/fields` on the box they sit in if you want 2-col.
 - [ ] Don't pass `gap-*`. Don't pass `text-[Npx]`.
 - [ ] Item-form controls get `FIELD_CONTROL_CLASS`.
@@ -202,5 +204,5 @@ rtk tsc && rtk lint && rtk vitest run
 ```bash
 rtk grep -rn "text-\[[0-9]*px\]" src/features src/components/ui
 rtk grep -rn "uppercase tracking-wid" src/features
-rtk grep -rn "gap-y-5\|gap-x-3\|gap-7\|gap-2\.5\|gap-0\.5" src/features src/components/ui
+rtk grep -rn "gap-6\|gap-y-5\|gap-x-3\|gap-7\|gap-2\.5\|gap-0\.5" src/features src/components/ui
 ```

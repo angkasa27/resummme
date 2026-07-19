@@ -29,7 +29,7 @@ export function InsightsTab({ draft, onOpenSection }: InsightsTabProps) {
 
   return (
     <div className="flex flex-col gap-4">
-      <section className="flex flex-col gap-4 rounded-md border bg-background p-4">
+      <section className="flex flex-col gap-4 rounded-md border bg-background p-3">
         <div className="flex flex-col items-center gap-2">
           <ScoreRing score={score.score} />
         </div>

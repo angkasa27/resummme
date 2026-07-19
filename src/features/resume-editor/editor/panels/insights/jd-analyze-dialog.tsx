@@ -48,7 +48,7 @@ export function JdAnalyzeDialog({
         <SheetContent
           side="bottom"
           showCloseButton={false}
-          className="flex max-h-[92dvh] min-h-0 flex-col gap-4 rounded-t-xl p-4 pt-3"
+          className="flex max-h-[92dvh] min-h-0 flex-col gap-4 rounded-t-xl p-3"
         >
           <div className="mx-auto h-1 w-10 shrink-0 rounded-full bg-border" />
           <DialogHeaderSection
