@@ -1,21 +1,17 @@
 "use client";
 
-import type { ReactNode, Ref } from "react";
-import { SwatchBookIcon } from "lucide-react";
+import {
+  SquarePenIcon,
+  SwatchBookIcon,
+  TelescopeIcon,
+  type LucideIcon,
+} from "lucide-react";
 
-import { SquarePenIcon as AnimatedSquarePen } from "@/components/ui/square-pen";
-import { TelescopeIcon as AnimatedTelescope } from "@/components/ui/telescope";
-import type { AnimatedIconHandle } from "@/components/ui/animated-icon";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import {
-  NAV_ICON_SIZE as ICON_SIZE,
-  NavIcon,
-  PopIcon,
-} from "@/features/resume-editor/editor/shared/nav-icon";
 import { cn } from "@/lib/utils";
 import { FOCUS_RING_CLASS } from "@/features/resume-editor/forms/fields/field-control";
 
@@ -24,27 +20,15 @@ export type RailKey = "edit" | "design" | "insights";
 type RailItem = {
   key: RailKey;
   label: string;
-  render: (ref: Ref<AnimatedIconHandle>) => ReactNode;
+  icon: LucideIcon;
 };
 
 // Mirrors the mobile bottom nav's icon choices so both surfaces read as one
 // family; Preview has no rail entry because the desktop canvas is always shown.
 const ITEMS: RailItem[] = [
-  {
-    key: "edit",
-    label: "Edit",
-    render: (ref) => <AnimatedSquarePen ref={ref} size={ICON_SIZE} />,
-  },
-  {
-    key: "design",
-    label: "Design",
-    render: (ref) => <PopIcon ref={ref} icon={SwatchBookIcon} />,
-  },
-  {
-    key: "insights",
-    label: "Insights",
-    render: (ref) => <AnimatedTelescope ref={ref} size={ICON_SIZE} />,
-  },
+  { key: "edit", label: "Edit", icon: SquarePenIcon },
+  { key: "design", label: "Design", icon: SwatchBookIcon },
+  { key: "insights", label: "Insights", icon: TelescopeIcon },
 ];
 
 type EditorRailProps = {
@@ -65,7 +49,7 @@ export function EditorRail({ value, collapsed, onSelect }: EditorRailProps) {
       aria-label="Editor panels"
       className="flex w-14 shrink-0 flex-col items-center gap-1 border-r bg-background py-3 print:hidden"
     >
-      {ITEMS.map(({ key, label, render }) => {
+      {ITEMS.map(({ key, label, icon: Icon }) => {
         const isSelected = value === key;
         const isActive = isSelected && !collapsed;
         return (
@@ -81,11 +65,11 @@ export function EditorRail({ value, collapsed, onSelect }: EditorRailProps) {
                     "flex size-10 cursor-pointer flex-col items-center justify-center rounded-md outline-none transition-colors",
                     FOCUS_RING_CLASS,
                     isActive
-                      ? "bg-accent text-foreground"
-                      : "text-muted-foreground hover:bg-accent/60 hover:text-foreground",
+                      ? "bg-primary/10 text-primary"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground",
                   )}
                 >
-                  <NavIcon active={isActive} render={render} />
+                  <Icon className="size-5" />
                 </button>
               }
             />
