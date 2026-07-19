@@ -136,7 +136,7 @@ export function RichTextEditor({
     editorProps: {
       attributes: {
         class:
-          "prose prose-sm max-w-none rounded-b-md bg-background px-3 py-3 outline-none [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5",
+          "prose prose-sm max-w-none rounded-b-md bg-background px-3 py-3 outline-none text-sm [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5",
         "aria-label": ariaLabel ?? "Rich text editor",
       },
     },

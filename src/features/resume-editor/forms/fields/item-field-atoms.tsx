@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { Controller, useWatch, type UseFormReturn } from "react-hook-form";
 
 import {
@@ -11,6 +12,11 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group";
 import {
   Select,
   SelectContent,
@@ -92,7 +98,15 @@ export function TextField({
   placeholder,
   className,
   type = "text",
-}: FieldAtomProps & { type?: "text" | "email" | "url" }) {
+  prefix,
+  suffix,
+}: FieldAtomProps & {
+  type?: "text" | "email" | "url";
+  /** Leading icon or text — switches the control to `InputGroup` when set. */
+  prefix?: ReactNode;
+  /** Trailing icon or text — switches the control to `InputGroup` when set. */
+  suffix?: ReactNode;
+}) {
   const { register, formState, getFieldState } = form;
   const fieldState = getFieldState(name as never, formState);
   const inputAttrs = getTextInputAttrs(type);
@@ -100,15 +114,32 @@ export function TextField({
   return (
     <Field className={className} data-invalid={fieldState.invalid || undefined}>
       <FieldContent>
-        <Input
-          id={name}
-          {...inputAttrs}
-          placeholder={placeholder ?? label}
-          aria-label={label}
-          aria-invalid={fieldState.invalid || undefined}
-          className={FIELD_CONTROL_CLASS}
-          {...register(name as never)}
-        />
+        {prefix != null || suffix != null ? (
+          <InputGroup>
+            {prefix != null && <InputGroupAddon>{prefix}</InputGroupAddon>}
+            <InputGroupInput
+              id={name}
+              {...inputAttrs}
+              placeholder={placeholder ?? label}
+              aria-label={label}
+              aria-invalid={fieldState.invalid || undefined}
+              {...register(name as never)}
+            />
+            {suffix != null && (
+              <InputGroupAddon align="inline-end">{suffix}</InputGroupAddon>
+            )}
+          </InputGroup>
+        ) : (
+          <Input
+            id={name}
+            {...inputAttrs}
+            placeholder={placeholder ?? label}
+            aria-label={label}
+            aria-invalid={fieldState.invalid || undefined}
+            className={FIELD_CONTROL_CLASS}
+            {...register(name as never)}
+          />
+        )}
         <FieldError errors={[fieldState.error]} />
       </FieldContent>
     </Field>
@@ -254,8 +285,7 @@ export function TagInputField({
           )}
         />
         <FieldDescription>
-          Press Enter or comma to add a skill. Backspace removes the last
-          one.
+          Press Enter or comma to add a skill. Backspace removes the last one.
         </FieldDescription>
         <FieldError errors={[fieldState.error]} />
       </FieldContent>
@@ -319,10 +349,13 @@ export function MonthYearRangeField({
   className,
 }: MonthYearRangeFieldProps) {
   const { control, setValue, formState, getFieldState } = form;
-  const startValue = useWatch({ control, name: startName as never }) as
-    unknown as string | undefined;
-  const endValue = useWatch({ control, name: endName as never }) as
-    unknown as string | undefined;
+  const startValue = useWatch({
+    control,
+    name: startName as never,
+  }) as unknown as string | undefined;
+  const endValue = useWatch({ control, name: endName as never }) as unknown as
+    | string
+    | undefined;
   const startFieldState = getFieldState(startName as never, formState);
   const endFieldState = getFieldState(endName as never, formState);
   const isCurrent = endValue === "current";

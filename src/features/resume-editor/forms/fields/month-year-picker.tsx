@@ -120,14 +120,14 @@ export function MonthYearPicker({
             aria-invalid={ariaInvalid}
             className={cn(
               FIELD_CONTROL_CLASS,
-              "justify-between font-normal",
+              "justify-start font-normal",
               !value && "text-muted-foreground",
             )}
           />
         }
       >
-        <span>{value || placeholder}</span>
         <CalendarIcon className="size-4 text-muted-foreground" />
+        <span>{value || placeholder}</span>
       </PopoverTrigger>
       <PopoverContent align="start" className="w-[320px] gap-4 rounded-md">
         {/* <PopoverHeader>
