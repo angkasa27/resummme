@@ -13,42 +13,6 @@ import type {
 import { createLocalId } from "@/features/resume-editor/domain/create-local-id";
 import type { CollectionSectionKey } from "@/features/resume-editor/domain/sections/section-metadata";
 
-export type ItemFieldConfig =
-  | {
-      kind: "text" | "email" | "url" | "monthYear";
-      name: string;
-      label: string;
-      placeholder?: string;
-      optional?: boolean;
-    }
-  | {
-      kind: "textarea" | "richText";
-      name: string;
-      label: string;
-      placeholder?: string;
-      optional?: boolean;
-    }
-  | {
-      kind: "stringArray";
-      name: string;
-      label: string;
-      placeholder?: string;
-      optional?: boolean;
-    }
-  | {
-      kind: "dateRange";
-      startName: string;
-      endName: string;
-      label: string;
-      startPlaceholder?: string;
-      endPlaceholder?: string;
-    }
-  | {
-      kind: "proficiency";
-      name: string;
-      label: string;
-    };
-
 type CollectionSectionConfig<TItem> = {
   key: CollectionSectionKey;
   title: string;
@@ -58,7 +22,10 @@ type CollectionSectionConfig<TItem> = {
   emptyTitle: string;
   emptyDescription: string;
   createItem: () => TItem;
-  fields: ItemFieldConfig[];
+  /** Set only on sections whose items carry a date range, for auto-sort and
+   * the header's "sort" action — the field components themselves render the
+   * range unconditionally via `MonthYearRangeField`. */
+  dateRange?: { startName: string; endName: string };
 };
 
 export const collectionSectionConfigs: Record<
@@ -93,40 +60,7 @@ export const collectionSectionConfigs: Record<
       endDate: "current",
       description: "<p></p>",
     }),
-    fields: [
-      {
-        kind: "text",
-        name: "companyName",
-        label: "Company name",
-        placeholder: "PT Example Indonesia",
-      },
-      {
-        kind: "text",
-        name: "position",
-        label: "Position",
-        placeholder: "Senior Frontend Engineer",
-      },
-      {
-        kind: "text",
-        name: "location",
-        label: "Location",
-        placeholder: "Jakarta, Indonesia",
-      },
-      {
-        kind: "dateRange",
-        startName: "startDate",
-        endName: "endDate",
-        label: "Date range",
-        startPlaceholder: "Jan 2022",
-        endPlaceholder: "Mar 2024",
-      },
-      {
-        kind: "richText",
-        name: "description",
-        label: "Description",
-        placeholder: "Summarize scope, ownership, and measurable impact.",
-      },
-    ],
+    dateRange: { startName: "startDate", endName: "endDate" },
   },
   skills: {
     key: "skills",
@@ -141,20 +75,6 @@ export const collectionSectionConfigs: Record<
       categoryName: "",
       skills: [],
     }),
-    fields: [
-      {
-        kind: "text",
-        name: "categoryName",
-        label: "Category name",
-        placeholder: "Frontend Engineering",
-      },
-      {
-        kind: "stringArray",
-        name: "skills",
-        label: "Skills",
-        placeholder: "React, Next.js, TypeScript",
-      },
-    ],
   },
   projects: {
     key: "projects",
@@ -173,35 +93,7 @@ export const collectionSectionConfigs: Record<
       endDate: "current",
       description: "<p></p>",
     }),
-    fields: [
-      {
-        kind: "text",
-        name: "projectName",
-        label: "Project name",
-        placeholder: "Internal Design System",
-      },
-      {
-        kind: "url",
-        name: "projectLink",
-        label: "Project link",
-        placeholder: "https://example.com/project",
-        optional: true,
-      },
-      {
-        kind: "dateRange",
-        startName: "startDate",
-        endName: "endDate",
-        label: "Date range",
-        startPlaceholder: "Feb 2024",
-        endPlaceholder: "Current",
-      },
-      {
-        kind: "richText",
-        name: "description",
-        label: "Description",
-        placeholder: "Describe the problem, your role, and the outcome.",
-      },
-    ],
+    dateRange: { startName: "startDate", endName: "endDate" },
   },
   education: {
     key: "education",
@@ -221,47 +113,7 @@ export const collectionSectionConfigs: Record<
       gpa: "",
       description: "<p></p>",
     }),
-    fields: [
-      {
-        kind: "text",
-        name: "name",
-        label: "Institution name",
-        placeholder: "Universitas Indonesia",
-      },
-      {
-        kind: "text",
-        name: "location",
-        label: "Location",
-        placeholder: "Depok, Indonesia",
-      },
-      {
-        kind: "dateRange",
-        startName: "startDate",
-        endName: "endDate",
-        label: "Date range",
-        startPlaceholder: "Aug 2018",
-        endPlaceholder: "Jun 2022",
-      },
-      {
-        kind: "text",
-        name: "degree",
-        label: "Degree / major",
-        placeholder: "B.Sc. in Computer Science",
-      },
-      {
-        kind: "text",
-        name: "gpa",
-        label: "GPA",
-        placeholder: "3.78 / 4.00",
-        optional: true,
-      },
-      {
-        kind: "richText",
-        name: "description",
-        label: "Description",
-        placeholder: "Add honors, thesis topic, or relevant coursework.",
-      },
-    ],
+    dateRange: { startName: "startDate", endName: "endDate" },
   },
   publications: {
     key: "publications",
@@ -279,39 +131,6 @@ export const collectionSectionConfigs: Record<
       publicationDate: "Jan 2024",
       description: "<p></p>",
     }),
-    fields: [
-      {
-        kind: "text",
-        name: "title",
-        label: "Title",
-        placeholder: "Designing Maintainable Frontend Platforms",
-      },
-      {
-        kind: "text",
-        name: "publisher",
-        label: "Publisher",
-        placeholder: "Medium, IEEE, or conference name",
-      },
-      {
-        kind: "url",
-        name: "publicationUrl",
-        label: "Publication URL",
-        placeholder: "https://example.com/publication",
-        optional: true,
-      },
-      {
-        kind: "monthYear",
-        name: "publicationDate",
-        label: "Publication date",
-        placeholder: "Apr 2025",
-      },
-      {
-        kind: "richText",
-        name: "description",
-        label: "Description",
-        placeholder: "Explain the topic and why it matters.",
-      },
-    ],
   },
   certifications: {
     key: "certifications",
@@ -330,40 +149,6 @@ export const collectionSectionConfigs: Record<
       certificationLink: "",
       credentialId: "",
     }),
-    fields: [
-      {
-        kind: "text",
-        name: "certificationName",
-        label: "Certification name",
-        placeholder: "AWS Certified Developer - Associate",
-      },
-      {
-        kind: "text",
-        name: "issuingOrganization",
-        label: "Issuing organization",
-        placeholder: "Amazon Web Services",
-      },
-      {
-        kind: "monthYear",
-        name: "issuedDate",
-        label: "Issued date",
-        placeholder: "Jan 2025",
-      },
-      {
-        kind: "url",
-        name: "certificationLink",
-        label: "Certification link",
-        placeholder: "https://example.com/certification",
-        optional: true,
-      },
-      {
-        kind: "text",
-        name: "credentialId",
-        label: "Credential ID",
-        placeholder: "ABC-123-XYZ",
-        optional: true,
-      },
-    ],
   },
   awards: {
     key: "awards",
@@ -380,32 +165,6 @@ export const collectionSectionConfigs: Record<
       issuedDate: "Jan 2024",
       description: "<p></p>",
     }),
-    fields: [
-      {
-        kind: "text",
-        name: "title",
-        label: "Title",
-        placeholder: "Best Innovation Award",
-      },
-      {
-        kind: "text",
-        name: "issuer",
-        label: "Issuer",
-        placeholder: "Tech Conference Asia",
-      },
-      {
-        kind: "monthYear",
-        name: "issuedDate",
-        label: "Issued date",
-        placeholder: "Nov 2024",
-      },
-      {
-        kind: "richText",
-        name: "description",
-        label: "Description",
-        placeholder: "State the achievement and selection context.",
-      },
-    ],
   },
   languages: {
     key: "languages",
@@ -420,15 +179,6 @@ export const collectionSectionConfigs: Record<
       language: "",
       proficiency: "Professional working proficiency",
     }),
-    fields: [
-      {
-        kind: "text",
-        name: "language",
-        label: "Language",
-        placeholder: "English",
-      },
-      { kind: "proficiency", name: "proficiency", label: "Proficiency" },
-    ],
   },
   references: {
     key: "references",
@@ -445,21 +195,6 @@ export const collectionSectionConfigs: Record<
       background: "",
       contactDetails: "",
     }),
-    fields: [
-      { kind: "text", name: "name", label: "Name" },
-      {
-        kind: "textarea",
-        name: "background",
-        label: "Background",
-        placeholder: "Engineering Manager at Example Corp",
-      },
-      {
-        kind: "textarea",
-        name: "contactDetails",
-        label: "Contact details",
-        placeholder: "name@example.com | +62 812-3456-7890",
-      },
-    ],
   },
   organizationVolunteering: {
     key: "organizationVolunteering",
@@ -480,40 +215,7 @@ export const collectionSectionConfigs: Record<
       endDate: "current",
       description: "<p></p>",
     }),
-    fields: [
-      {
-        kind: "text",
-        name: "organizationName",
-        label: "Organization name",
-        placeholder: "Frontend Jakarta Community",
-      },
-      {
-        kind: "text",
-        name: "position",
-        label: "Position",
-        placeholder: "Volunteer Mentor",
-      },
-      {
-        kind: "text",
-        name: "location",
-        label: "Location",
-        placeholder: "Jakarta, Indonesia",
-      },
-      {
-        kind: "dateRange",
-        startName: "startDate",
-        endName: "endDate",
-        label: "Date range",
-        startPlaceholder: "Jan 2024",
-        endPlaceholder: "Current",
-      },
-      {
-        kind: "richText",
-        name: "description",
-        label: "Description",
-        placeholder: "Describe the responsibility, audience, and contribution.",
-      },
-    ],
+    dateRange: { startName: "startDate", endName: "endDate" },
   },
 };
 

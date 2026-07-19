@@ -152,16 +152,14 @@ export function createResumeEditorStore(config?: {
       // stack, which the old form-local version never did.
       autoSortSection: (sectionKey) =>
         commit((draft) => {
-          const dateRangeField = collectionSectionConfigs[sectionKey].fields.find(
-            (field) => field.kind === "dateRange",
-          );
-          if (!dateRangeField || dateRangeField.kind !== "dateRange") return {};
+          const dateRange = collectionSectionConfigs[sectionKey].dateRange;
+          if (!dateRange) return {};
 
           const sectionValue = draft.sections[sectionKey];
           const sorted = sortResumeItems(
             sectionValue.items as unknown as Record<string, unknown>[],
-            dateRangeField.startName,
-            dateRangeField.endName,
+            dateRange.startName,
+            dateRange.endName,
           );
 
           return {

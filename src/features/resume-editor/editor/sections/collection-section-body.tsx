@@ -11,7 +11,7 @@ import { PlusIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { CollectionSectionKey } from "@/features/resume-editor/domain/sections/section-metadata";
 import { useAutoSave } from "@/features/resume-editor/forms/use-auto-save";
-import { CollectionItemFields } from "@/features/resume-editor/forms/fields/collection-item-fields";
+import { collectionItemFieldsByKey } from "@/features/resume-editor/forms/fields/sections";
 import { CollectionItemDeleteDialog } from "@/features/resume-editor/forms/collection-item-delete-dialog";
 import {
   getCollectionItemSummary,
@@ -66,6 +66,8 @@ export function CollectionSectionBody({
     items.move(from, to);
   });
 
+  const Fields = collectionItemFieldsByKey[sectionKey];
+
   return (
     <div className="flex flex-col gap-2">
       {items.fields.length === 0 ? (
@@ -105,11 +107,7 @@ export function CollectionSectionBody({
                     onRequestDelete={() => setPendingDeleteIndex(index)}
                     deleteDisabled={items.fields.length === 1}
                   >
-                    <CollectionItemFields
-                      config={config}
-                      form={form}
-                      index={index}
-                    />
+                    <Fields form={form as never} index={index} />
                   </CollectionItemRow>
                 ))}
               </AnimatePresence>

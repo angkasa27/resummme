@@ -33,8 +33,8 @@ export function sectionLabelFor(key: ResumeEditorPanelKey) {
 function canAutoSort(key: ResumeEditorPanelKey) {
   if (key === "profile" || !isCollectionSectionKey(key as ResumeSectionPanelKey))
     return false;
-  return collectionSectionConfigs[key as CollectionSectionKey].fields.some(
-    (field) => field.kind === "dateRange",
+  return Boolean(
+    collectionSectionConfigs[key as CollectionSectionKey].dateRange,
   );
 }
 
