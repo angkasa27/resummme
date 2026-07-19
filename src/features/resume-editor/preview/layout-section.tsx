@@ -1,25 +1,10 @@
 import type { CollectionSectionKey } from "@/features/resume-editor/domain/sections/section-metadata";
 
-import type {
-  AnyPreviewRenderableSection,
-  PreviewRenderableSection,
-} from "./types";
+import type { PreviewRenderableSection } from "./types";
 import type { SectionItem } from "./descriptors/types";
-import type {
-  PreviewLayoutDefinition,
-  LayoutSectionItemMap,
-} from "./layout-types";
+import type { LayoutSectionItemMap } from "./layout-types";
 
-type LayoutSectionProps = {
-  layout: PreviewLayoutDefinition;
-  section: AnyPreviewRenderableSection;
-};
-
-export function LayoutSection({ layout, section }: LayoutSectionProps) {
-  return renderSectionBody(layout.itemViews, section);
-}
-
-function renderSectionBody<K extends CollectionSectionKey>(
+export function renderSectionBody<K extends CollectionSectionKey>(
   itemViews: LayoutSectionItemMap,
   section: PreviewRenderableSection<K>,
 ) {

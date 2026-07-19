@@ -8,7 +8,7 @@ import {
   renderLayoutHeader,
   shouldHideSummaryHeading,
 } from "@/features/resume-editor/preview/layout-registry";
-import { LayoutSection } from "@/features/resume-editor/preview/layout-section";
+import { renderSectionBody } from "@/features/resume-editor/preview/layout-section";
 import { SummaryView } from "@/features/resume-editor/preview/descriptors/summary";
 import type { PreviewRendererProps } from "@/features/resume-editor/preview/types";
 import type { LayoutSlots } from "@/features/resume-editor/preview/layout-types";
@@ -80,7 +80,7 @@ export function ResumeDocument({
           node: target(
             section.key,
             section.label,
-            <LayoutSection layout={layout} section={section} />,
+            renderSectionBody(layout.itemViews, section),
           ),
         }) as LayoutSlots["sections"][number],
     ),
