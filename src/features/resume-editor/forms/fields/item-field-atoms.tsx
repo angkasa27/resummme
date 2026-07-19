@@ -340,6 +340,7 @@ type MonthYearRangeFieldProps = {
   startName: string;
   endName: string;
   className?: string;
+  currentLabel?: string;
 };
 
 export function MonthYearRangeField({
@@ -347,6 +348,7 @@ export function MonthYearRangeField({
   startName,
   endName,
   className,
+  currentLabel = "Mark this as current",
 }: MonthYearRangeFieldProps) {
   const { control, setValue, formState, getFieldState } = form;
   const startValue = useWatch({
@@ -431,25 +433,21 @@ export function MonthYearRangeField({
               />
             )}
           />
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Switch
-              checked={isCurrent}
-              onCheckedChange={(checked) =>
-                setValue(
-                  endName as never,
-                  (checked ? "current" : "") as never,
-                  {
-                    shouldDirty: true,
-                    shouldValidate: formState.isSubmitted,
-                  },
-                )
-              }
-            />
-            <span>Mark this role as current</span>
-          </div>
           <FieldError errors={[endFieldState.error]} />
         </FieldContent>
       </Field>
+      <div className="flex items-center gap-2 text-sm text-muted-foreground col-span-full">
+        <Switch
+          checked={isCurrent}
+          onCheckedChange={(checked) =>
+            setValue(endName as never, (checked ? "current" : "") as never, {
+              shouldDirty: true,
+              shouldValidate: formState.isSubmitted,
+            })
+          }
+        />
+        <span>{currentLabel}</span>
+      </div>
     </FieldGroup>
   );
 }
