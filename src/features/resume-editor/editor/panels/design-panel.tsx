@@ -1,13 +1,8 @@
 "use client";
 
-import {
-  GalleryThumbnailsIcon,
-  LayoutTemplateIcon,
-  PaletteIcon,
-} from "lucide-react";
+import { GalleryThumbnailsIcon, PaletteIcon } from "lucide-react";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LayoutTab } from "@/features/resume-editor/editor/panels/layout-tab";
 import { StyleTab } from "@/features/resume-editor/editor/panels/style-tab";
 import { TemplateGallery } from "@/features/resume-editor/editor/panels/template-gallery";
 import type { PdfPresentation } from "@/features/resume-editor/domain/presentation/pdf-presentation";
@@ -23,7 +18,7 @@ type DesignPanelProps = {
 };
 
 /**
- * The Design surface: Template / Layout / Style over the shared control tabs.
+ * The Design surface: Template / Style over the shared control tabs.
  * Identical on the desktop sidebar and the mobile Design tab.
  */
 export function DesignPanel({
@@ -45,10 +40,6 @@ export function DesignPanel({
             <GalleryThumbnailsIcon />
             Template
           </TabsTrigger>
-          <TabsTrigger value="layout">
-            <LayoutTemplateIcon />
-            Layout
-          </TabsTrigger>
           <TabsTrigger value="style">
             <PaletteIcon />
             Style
@@ -60,13 +51,6 @@ export function DesignPanel({
           draft={draft}
           presentation={presentation}
           onApply={onPresentationChange}
-        />
-      </TabsContent>
-      <TabsContent value="layout" className={tabContentClassName}>
-        <LayoutTab
-          presentation={presentation}
-          draft={draft}
-          onChange={onPresentationChange}
         />
       </TabsContent>
       <TabsContent value="style" className={tabContentClassName}>

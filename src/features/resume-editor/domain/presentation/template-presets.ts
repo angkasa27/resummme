@@ -390,23 +390,6 @@ export const resumeTemplatePresets: ReadonlyArray<ResumeTemplatePreset> = [
   },
 ];
 
-/** Presets grouped by layout, in registry order of first appearance. */
-export function getTemplatePresetsByLayout(): Map<
-  PdfLayoutId,
-  ResumeTemplatePreset[]
-> {
-  const groups = new Map<PdfLayoutId, ResumeTemplatePreset[]>();
-  for (const preset of resumeTemplatePresets) {
-    const group = groups.get(preset.layoutId);
-    if (group) {
-      group.push(preset);
-    } else {
-      groups.set(preset.layoutId, [preset]);
-    }
-  }
-  return groups;
-}
-
 /**
  * Applies a template in one shot: layout + curated style. Preserves the
  * user's paperSize and clears photoShape so the layout's native photo look
@@ -427,6 +410,14 @@ export function applyTemplatePreset(
     paperSize: current.paperSize,
     photoShape: undefined,
   };
+}
+
+/** Applies only the preset's layout, preserving all of the user's style. */
+export function applyTemplatePresetLayoutOnly(
+  preset: ResumeTemplatePreset,
+  current: PdfPresentation,
+): PdfPresentation {
+  return { ...current, layoutId: preset.layoutId };
 }
 
 /**

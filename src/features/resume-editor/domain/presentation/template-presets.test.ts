@@ -6,8 +6,8 @@ import {
 } from "@/features/resume-editor/domain/presentation/pdf-presentation";
 import {
   applyTemplatePreset,
+  applyTemplatePresetLayoutOnly,
   getActiveTemplatePresetId,
-  getTemplatePresetsByLayout,
   resumeTemplatePresets,
 } from "@/features/resume-editor/domain/presentation/template-presets";
 import { pdfPresentationSchema } from "@/features/resume-editor/domain/schema/presentation-schemas";
@@ -35,12 +35,6 @@ describe("resumeTemplatePresets", () => {
       const applied = applyTemplatePreset(preset, current);
       expect(() => pdfPresentationSchema.parse(applied)).not.toThrow();
     }
-  });
-
-  it("groups presets by layout preserving order", () => {
-    const groups = getTemplatePresetsByLayout();
-    const flattened = [...groups.values()].flat();
-    expect(flattened).toEqual([...resumeTemplatePresets]);
   });
 
   it("curates secondary only for the layouts that render it", () => {
@@ -106,6 +100,38 @@ describe("applyTemplatePreset", () => {
     expect(
       applyTemplatePreset(noSecondary!, current).secondary,
     ).toBeUndefined();
+  });
+});
+
+describe("applyTemplatePresetLayoutOnly", () => {
+  it("swaps only layoutId, preserving the rest of the current style", () => {
+    const current = {
+      ...createDefaultPdfPresentation(),
+      accent: "#facade",
+      secondary: "#123456",
+      fontFamilyId: "georgia" as const,
+      fontScale: "lg" as const,
+      spacing: "airy" as const,
+      lineHeight: "relaxed" as const,
+      paperSize: "letter" as const,
+      photoShape: "circle" as const,
+    };
+    const preset = resumeTemplatePresets.find(
+      (p) => p.layoutId !== current.layoutId,
+    );
+    expect(preset).toBeDefined();
+
+    const applied = applyTemplatePresetLayoutOnly(preset!, current);
+
+    expect(applied.layoutId).toBe(preset!.layoutId);
+    expect(applied.accent).toBe(current.accent);
+    expect(applied.secondary).toBe(current.secondary);
+    expect(applied.fontFamilyId).toBe(current.fontFamilyId);
+    expect(applied.fontScale).toBe(current.fontScale);
+    expect(applied.spacing).toBe(current.spacing);
+    expect(applied.lineHeight).toBe(current.lineHeight);
+    expect(applied.paperSize).toBe(current.paperSize);
+    expect(applied.photoShape).toBe(current.photoShape);
   });
 });
 

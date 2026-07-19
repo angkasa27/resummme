@@ -2,16 +2,25 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import { FieldLegend, FieldSet } from "@/components/ui/field";
 import { DocumentPreviewCard } from "@/features/resume-editor/editor/panels/document-preview-card";
 import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import {
   applyTemplatePreset,
+  applyTemplatePresetLayoutOnly,
   getActiveTemplatePresetId,
-  getTemplatePresetsByLayout,
+  resumeTemplatePresets,
   type ResumeTemplatePreset,
 } from "@/features/resume-editor/domain/presentation/template-presets";
 import type { PdfPresentation } from "@/features/resume-editor/domain/presentation/pdf-presentation";
-import { getLayout } from "@/features/resume-editor/preview/layout-registry";
 import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
 
 type TemplateGalleryProps = {
@@ -21,29 +30,37 @@ type TemplateGalleryProps = {
 };
 
 /**
- * Curated template picker: presets grouped by layout, each card a live scaled
+ * Curated template picker: a flat grid of presets, each card a live scaled
  * preview of the user's own resume with the preset's layout + style applied.
- * Applying is one presentation commit (a single undo step).
+ * Applying is one presentation commit (a single undo step) — unless the user
+ * has hand-tweaked their style, in which case a dialog offers to keep it.
  */
 export function TemplateGallery({
   draft,
   presentation,
   onApply,
 }: TemplateGalleryProps) {
-  // Snapshot the draft on mount — same rationale as LayoutTab: the gallery
-  // remounts when opened, and live previews shouldn't re-render per keystroke.
+  // Snapshot the draft on mount: the gallery remounts when opened, and live
+  // previews shouldn't re-render per keystroke.
   const [snapshot] = useState(draft);
   const activePresetId = getActiveTemplatePresetId(presentation);
-  const groups = useMemo(() => getTemplatePresetsByLayout(), []);
+  const [pending, setPending] = useState<ResumeTemplatePreset | null>(null);
 
   // Stable handler so preset cards don't re-render on every apply.
   const presentationRef = useRef(presentation);
   useEffect(() => {
     presentationRef.current = presentation;
   }, [presentation]);
-  const handleApply = useCallback(
+  const handleSelect = useCallback(
     (preset: ResumeTemplatePreset) => {
-      onApply(applyTemplatePreset(preset, presentationRef.current));
+      const current = presentationRef.current;
+      if (getActiveTemplatePresetId(current) === null) {
+        // User has custom style on top of a template — confirm before
+        // overwriting it.
+        setPending(preset);
+      } else {
+        onApply(applyTemplatePreset(preset, current));
+      }
     },
     [onApply],
   );
@@ -55,25 +72,68 @@ export function TemplateGallery({
   const basePresentation = useMemo(() => presentation, [paperKey]);
 
   return (
-    <div className="flex flex-col gap-6">
-      {[...groups.entries()].map(([layoutId, presets]) => (
-        <FieldSet key={layoutId}>
-          <FieldLegend>{getLayout(layoutId).label}</FieldLegend>
-          <div className="grid grid-cols-2 gap-4">
-            {presets.map((preset) => (
-              <TemplatePresetCard
-                key={preset.id}
-                draft={snapshot}
-                basePresentation={basePresentation}
-                preset={preset}
-                selected={preset.id === activePresetId}
-                onApply={handleApply}
-              />
-            ))}
-          </div>
-        </FieldSet>
-      ))}
-    </div>
+    <>
+      <div className="grid grid-cols-2 gap-4">
+        {resumeTemplatePresets.map((preset) => (
+          <TemplatePresetCard
+            key={preset.id}
+            draft={snapshot}
+            basePresentation={basePresentation}
+            preset={preset}
+            selected={preset.id === activePresetId}
+            onApply={handleSelect}
+          />
+        ))}
+      </div>
+      <Dialog
+        open={pending !== null}
+        onOpenChange={(open) => {
+          if (!open) setPending(null);
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Apply &quot;{pending?.label}&quot; template?</DialogTitle>
+            <DialogDescription>
+              This template has its own colors and fonts that will replace
+              your current custom style.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <DialogClose render={<Button variant="ghost" size="sm" />}>
+              Cancel
+            </DialogClose>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                if (!pending) return;
+                onApply(
+                  applyTemplatePresetLayoutOnly(
+                    pending,
+                    presentationRef.current,
+                  ),
+                );
+                setPending(null);
+              }}
+            >
+              Layout only
+            </Button>
+            <Button
+              variant="default"
+              size="sm"
+              onClick={() => {
+                if (!pending) return;
+                onApply(applyTemplatePreset(pending, presentationRef.current));
+                setPending(null);
+              }}
+            >
+              Replace style
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 
