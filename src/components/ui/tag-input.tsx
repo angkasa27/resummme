@@ -105,7 +105,7 @@ export function TagInput({
       data-invalid={ariaInvalid || undefined}
       className={cn(
         "flex min-h-9 flex-wrap items-center gap-1.5 rounded-md border border-input bg-background px-2 py-1.5 text-sm shadow-xs transition-[color,box-shadow] outline-none",
-        "focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50",
+        "focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/40",
         "data-invalid:border-destructive data-invalid:ring-destructive/20 dark:data-invalid:ring-destructive/40",
       )}
       onClick={(event) => {
@@ -128,7 +128,7 @@ export function TagInput({
           <button
             type="button"
             aria-label={`Remove ${tag}`}
-            className="grid size-3.5 place-items-center rounded-full text-muted-foreground transition-colors hover:bg-muted-foreground/15 hover:text-foreground focus:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+            className="grid size-3.5 place-items-center rounded-full text-muted-foreground transition-colors hover:bg-muted-foreground/15 hover:text-foreground outline-none focus-visible:ring-3 focus-visible:ring-ring/40"
             onClick={(event) => {
               event.stopPropagation();
               removeTagAt(index);

@@ -18,7 +18,7 @@ export const FIELD_CONTROL_CLASS = [
   // `bg-background` on specificity — which would put every control back on grey
   // under a `bg-background` chip: the exact artifact this file prevents.
   "dark:bg-background dark:hover:bg-background",
-  "focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50",
+  "focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/40",
   "aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20",
   "disabled:pointer-events-none disabled:opacity-50",
 ].join(" ");
@@ -28,7 +28,7 @@ export const FIELD_CONTROL_CLASS = [
  * constant after a ring-width rename required a manual multi-file sweep.
  */
 export const FOCUS_RING_CLASS =
-  "focus-visible:ring-3 focus-visible:ring-ring/50";
+  "outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/40";
 
 /**
  * Destructive icon buttons (delete a row, delete a link). Paired with

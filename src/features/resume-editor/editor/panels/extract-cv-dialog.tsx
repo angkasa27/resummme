@@ -116,6 +116,7 @@ function ExtractCvBody({ onSubmit, onClose }: ExtractCvBodyProps) {
     <div className="flex flex-col gap-4">
       <label
         htmlFor={inputId}
+        data-dragging={isDragOver || undefined}
         onDragOver={(event) => {
           event.preventDefault();
           setIsDragOver(true);
@@ -123,10 +124,9 @@ function ExtractCvBody({ onSubmit, onClose }: ExtractCvBodyProps) {
         onDragLeave={() => setIsDragOver(false)}
         onDrop={onDrop}
         className={cn(
-          "flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed px-4 py-8 text-center text-sm transition-colors",
-          isDragOver
-            ? "border-primary bg-primary/5 text-foreground"
-            : "border-border bg-muted/30 text-muted-foreground hover:border-foreground/30 hover:bg-muted/50",
+          "flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border bg-muted/30 px-4 py-8 text-center text-sm text-muted-foreground transition-colors",
+          "hover:border-foreground/30 hover:bg-muted/50",
+          "data-[dragging]:border-primary data-[dragging]:bg-primary/5 data-[dragging]:text-foreground",
         )}
       >
         <UploadCloudIcon className="size-7" />

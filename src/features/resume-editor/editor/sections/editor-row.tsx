@@ -63,12 +63,13 @@ export function EditorRow({
     <div
       role="button"
       tabIndex={0}
+      aria-pressed={active}
       onClick={onActivate}
       onKeyDown={handleKeyDown}
       className={cn(
-        "group/row flex cursor-pointer select-none items-center gap-2 rounded-md border border-border bg-background p-2 outline-none transition-colors focus-visible:border-ring",
+        "group/row flex cursor-pointer select-none items-center gap-2 rounded-md border border-border bg-background p-2 outline-none transition-colors",
         FOCUS_RING_CLASS,
-        active ? "bg-accent" : "hover:bg-accent/60",
+        "aria-pressed:bg-muted aria-[pressed=false]:hover:bg-muted/60",
         className,
       )}
     >
@@ -80,8 +81,7 @@ export function EditorRow({
       {leading ? (
         <span
           className={cn(
-            "flex shrink-0 [&_svg]:size-4",
-            active ? "text-foreground" : "text-muted-foreground",
+            "flex shrink-0 text-muted-foreground group-aria-pressed/row:text-foreground [&_svg]:size-4",
           )}
         >
           {leading}

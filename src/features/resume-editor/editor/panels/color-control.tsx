@@ -74,9 +74,9 @@ function ColorSwatchButton({
       aria-pressed={isActive}
       onClick={onSelect}
       className={cn(
-        "size-7 rounded-md border border-black/10 transition-transform hover:scale-110 focus:outline-none",
+        "size-7 rounded-md border border-black/10 transition-transform hover:scale-110",
         FOCUS_RING_CLASS,
-        isActive && "ring-2 ring-offset-2 ring-foreground/60",
+        "aria-pressed:ring-2 aria-pressed:ring-offset-2 aria-pressed:ring-offset-background aria-pressed:ring-foreground/60",
       )}
       style={{ backgroundColor: swatch.hex }}
     />
@@ -121,9 +121,9 @@ export function ColorControl({
             aria-pressed={allowAuto.active}
             onClick={allowAuto.onSelect}
             className={cn(
-              "size-7 rounded-md border border-black/10 bg-muted text-xs font-semibold text-muted-foreground transition-transform hover:scale-110 focus:outline-none",
+              "size-7 rounded-md border border-black/10 bg-muted text-xs font-semibold text-muted-foreground transition-transform hover:scale-110",
               FOCUS_RING_CLASS,
-              allowAuto.active && "ring-2 ring-offset-2 ring-foreground/60",
+              "aria-pressed:ring-2 aria-pressed:ring-offset-2 aria-pressed:ring-offset-background aria-pressed:ring-foreground/60",
             )}
           >
             A
@@ -152,10 +152,9 @@ export function ColorControl({
                 aria-label="Custom color"
                 aria-pressed={isCustomColorActive}
                 className={cn(
-                  "relative size-7 rounded-md transition-transform hover:scale-110 focus:outline-none",
+                  "relative size-7 rounded-md transition-transform hover:scale-110",
                   FOCUS_RING_CLASS,
-                  isCustomColorActive &&
-                    "ring-2 ring-offset-2 ring-foreground/60",
+                  "aria-pressed:ring-2 aria-pressed:ring-offset-2 aria-pressed:ring-offset-background aria-pressed:ring-foreground/60",
                 )}
                 style={{
                   background: matchedSwatch

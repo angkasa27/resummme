@@ -24,7 +24,7 @@ type ZoomPillProps = {
 export function ZoomPill({ zoom, onZoomChange }: ZoomPillProps) {
   return (
     <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 flex justify-center pb-4 print:hidden">
-      <ButtonGroup className="pointer-events-auto rounded-md shadow-lg">
+      <ButtonGroup className="pointer-events-auto rounded-md shadow-lg bg-muted">
         <Button
           type="button"
           variant="outline"

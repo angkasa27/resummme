@@ -7,7 +7,7 @@ import {
   RichTextField,
   TextField,
 } from "@/features/resume-editor/forms/fields/item-field-atoms";
-import { Award, GraduationCap, MapPin, School } from "lucide-react";
+import { Award, GraduationCap, MapPin } from "lucide-react";
 
 export function EducationItemFields({
   form,

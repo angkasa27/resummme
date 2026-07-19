@@ -6,7 +6,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { AnimatePresence } from "motion/react";
-import { ChevronRightIcon, PinIcon } from "lucide-react";
+import { ChevronRightIcon } from "lucide-react";
 import { useState } from "react";
 
 import { ConfirmDeleteDialog } from "@/components/ui/confirm-delete-dialog";

@@ -55,12 +55,10 @@ export const DocumentPreviewCard = memo(function DocumentPreviewCard({
       onClick={onSelect}
       className={cn(
         "relative w-full overflow-hidden rounded-md bg-white transition",
-        "hover:border-ring focus-visible:outline-none focus-visible:border-ring",
+        "hover:border-ring",
         FOCUS_RING_CLASS,
-        "group",
-        selected
-          ? "border border-ring ring-2 ring-ring"
-          : "border border-border",
+        "group border border-border",
+        "aria-pressed:ring-2 aria-pressed:ring-offset-2 aria-pressed:ring-offset-background aria-pressed:ring-primary",
       )}
       style={{ aspectRatio: `${paper.widthMm} / ${paper.heightMm}` }}
     >
@@ -74,7 +72,7 @@ export const DocumentPreviewCard = memo(function DocumentPreviewCard({
       <div
         className={cn(
           "absolute inset-x-0 bottom-0 flex items-end justify-center bg-linear-to-t from-black/65 via-black/20 to-transparent px-3 pt-10 pb-3 opacity-0 transition-opacity duration-300",
-          selected ? "opacity-100" : "group-hover:opacity-100",
+          "group-hover:opacity-100 group-aria-pressed:opacity-100",
         )}
       >
         <span className="text-sm font-semibold text-white">{label}</span>

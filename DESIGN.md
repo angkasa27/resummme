@@ -2,19 +2,19 @@
 
 Scope: the editor's form and control surfaces (item forms, profile, summary, Style/Layout/Template tabs, Insights, dialogs) and the primitives they share. **The landing page is exempt** — it's marketing with its own display treatments, and the lint guards below skip it.
 
-The rule behind every rule here: **spacing and type live in the primitives, not at call sites.** A token or a constant only *renames* a choice — an author can still type `gap-3`. A primitive removes the choice. This whole system exists because the old one drifted to 11 label recipes and 10 gap values, and every one of those was a call-site override.
+The rule behind every rule here: **spacing and type live in the primitives, not at call sites.** A token or a constant only _renames_ a choice — an author can still type `gap-3`. A primitive removes the choice. This whole system exists because the old one drifted to 11 label recipes and 10 gap values, and every one of those was a call-site override.
 
 ---
 
 ## Spacing — 4 / 8 / 12 / 16
 
-| step | role | who owns it |
-|---|---|---|
-| **4px** `gap-1` | inside a field: control → error/description | `Field`, `FieldContent` |
-| **8px** `gap-2` | attached meta: a legend and the fields it heads; row lists | `FieldSet`; row lists set it directly |
-| **12px** `gap-3` | between fields, **both axes** | `FieldGroup` |
-| **16px** `gap-4` | between groups | the surface (`flex flex-col gap-4`) |
-| **12px** `p-3` | **form / card** container padding | the surface |
+| step             | role                                                       | who owns it                           |
+| ---------------- | ---------------------------------------------------------- | ------------------------------------- |
+| **4px** `gap-1`  | inside a field: control → error/description                | `Field`, `FieldContent`               |
+| **8px** `gap-2`  | attached meta: a legend and the fields it heads; row lists | `FieldSet`; row lists set it directly |
+| **12px** `gap-3` | between fields, **both axes**                              | `FieldGroup`                          |
+| **16px** `gap-4` | between groups                                             | the surface (`flex flex-col gap-4`)   |
+| **12px** `p-3`   | **form / card** container padding                          | the surface                           |
 
 Nothing else. No `gap-0.5`, `gap-1.5`, `gap-2.5`, `gap-5`, `gap-6`, `gap-7`, and no `gap-x-*`/`gap-y-*` split.
 
@@ -22,18 +22,18 @@ Nothing else. No `gap-0.5`, `gap-1.5`, `gap-2.5`, `gap-5`, `gap-6`, `gap-7`, and
 
 **12px between fields is the floor.** The old 16px floor guarded a floated label (16.5px tall, hanging 8.25px over its control's top border). That label is gone — the control box no longer overhangs — so 12px clears the field above at the row heights in use (verified at 360px and 640px sidebar, 375px mobile). Don't drop below it.
 
-**`p-3` is a *form / card* rule.** A nav list is a step tighter: `section-list` uses `p-2` with `gap-2` rows, because even a 12px inset around rows that are themselves `py-2` reads heavy. If you're laying out rows, you're on the 8px step.
+**`p-3` is a _form / card_ rule.** A nav list is a step tighter: `section-list` uses `p-2` with `gap-2` rows, because even a 12px inset around rows that are themselves `py-2` reads heavy. If you're laying out rows, you're on the 8px step.
 
 ---
 
 ## Typography — 4 steps, no arbitraries
 
-| step | for |
-|---|---|
-| `text-2xl` | display — the Insights score number, and nothing else |
-| `text-base` | dialog titles, `FieldLegend` (group heading) |
-| `text-sm` | **default** — body, labels, values, buttons, errors, descriptions, rows |
-| `text-xs` | meta — `sr-only` field labels, badges, captions, counters, helper text |
+| step        | for                                                                     |
+| ----------- | ----------------------------------------------------------------------- |
+| `text-2xl`  | display — the Insights score number, and nothing else                   |
+| `text-base` | dialog titles, `FieldLegend` (group heading)                            |
+| `text-sm`   | **default** — body, labels, values, buttons, errors, descriptions, rows |
+| `text-xs`   | meta — `sr-only` field labels, badges, captions, counters, helper text  |
 
 **`text-[Npx]` is banned** (lint-enforced). There is no micro step: de-emphasis is `text-muted-foreground`'s job, not a 5th size. The panel scrolls, so vertical room is not scarce enough to justify 10px text.
 
@@ -60,28 +60,28 @@ This replaces the old three-role float/stacked/none recipe (`FloatingField` + `f
 
 ## Buttons — role decides variant + size
 
-| role | variant | size |
-|---|---|---|
-| Primary add (Add item, Add section, Add link) | `default` | `default` + `w-full` |
-| Primary output (Download PDF, top bar) | `default` | `sm` |
-| Document action — AI (Extract from PDF) | `ai` | `default` + `w-full` |
-| Document action — plain (Import/Export JSON) | `outline` | `default` |
-| Dialog confirm — AI | `ai` | `sm` |
-| Dialog confirm — plain | `default` | `sm` |
-| Secondary / cancel | `outline` | `sm` |
-| Section-level remove (labeled, one per header) | `destructive` | `sm` |
-| Destructive icon, repeated in a list (delete row/link) | `ghost` + `DESTRUCTIVE_ICON_CLASS` | `icon-sm` |
-| Icon-only (clear, toolbar) | `ghost` | `icon-sm` |
-| In-card micro (Fix) | `default` | `xs` |
-| Segmented control / stepper (zoom) | `ButtonGroup` of `outline` | `icon-sm` / `sm` |
-| Toolbar format toggles | `ToggleGroup variant="outline"` | `sm` |
-| AI multi-select chips | `ToggleGroup` item `variant="ai"` | `sm` |
+| role                                                   | variant                            | size                 |
+| ------------------------------------------------------ | ---------------------------------- | -------------------- |
+| Primary add (Add item, Add section, Add link)          | `default`                          | `default` + `w-full` |
+| Primary output (Download PDF, top bar)                 | `default`                          | `sm`                 |
+| Document action — AI (Extract from PDF)                | `ai`                               | `default` + `w-full` |
+| Document action — plain (Import/Export JSON)           | `outline`                          | `default`            |
+| Dialog confirm — AI                                    | `ai`                               | `sm`                 |
+| Dialog confirm — plain                                 | `default`                          | `sm`                 |
+| Secondary / cancel                                     | `outline`                          | `sm`                 |
+| Section-level remove (labeled, one per header)         | `destructive`                      | `sm`                 |
+| Destructive icon, repeated in a list (delete row/link) | `ghost` + `DESTRUCTIVE_ICON_CLASS` | `icon-sm`            |
+| Icon-only (clear, toolbar)                             | `ghost`                            | `icon-sm`            |
+| In-card micro (Fix)                                    | `default`                          | `xs`                 |
+| Segmented control / stepper (zoom)                     | `ButtonGroup` of `outline`         | `icon-sm` / `sm`     |
+| Toolbar format toggles                                 | `ToggleGroup variant="outline"`    | `sm`                 |
+| AI multi-select chips                                  | `ToggleGroup` item `variant="ai"`  | `sm`                 |
 
 **The size ramp already exists — use it.** `xs` = `h-6 px-2 text-xs`, `sm` = `h-8`, `default` = `h-9`, `icon-xs/sm/lg` = `size-6/8/10`. Hand-writing `size="sm" className="h-6 px-2 text-[11px]"` is reinventing `size="xs"`; that exact line was in the codebase and is why this table exists.
 
 **Icon-only buttons take an `icon-*` size**, not `sm` and not `icon` (`h-9`). The editor default is `icon-sm`.
 
-**Destructive has two treatments, chosen by prominence.** A *labeled* section-level action that appears **once** in a header — "Remove Experience" — is the `destructive` Button variant (soft-filled red). A destructive *icon* repeated **down a list** — the row delete — is the quieter `ghost` + `DESTRUCTIVE_ICON_CLASS`, whose intent only shows on hover; a filled red button on every row shouts. Rule: singular labeled → `destructive` variant; repeated icon → subtle ghost.
+**Destructive has two treatments, chosen by prominence.** A _labeled_ section-level action that appears **once** in a header — "Remove Experience" — is the `destructive` Button variant (soft-filled red). A destructive _icon_ repeated **down a list** — the row delete — is the quieter `ghost` + `DESTRUCTIVE_ICON_CLASS`, whose intent only shows on hover; a filled red button on every row shouts. Rule: singular labeled → `destructive` variant; repeated icon → subtle ghost.
 
 **Segmented / stepper controls are a `ButtonGroup`, never a hand-rolled pill.** The zoom control is a `ButtonGroup` of `outline` buttons with the standard `rounded-md` corners. Don't rebuild one from `variant="ghost"` buttons each overriding `rounded-full` inside a `rounded-full` container — that was the old zoom control and is why this row exists.
 
@@ -97,15 +97,23 @@ This replaces the old three-role float/stacked/none recipe (`FloatingField` + `f
 
 ---
 
-## Focus rings — one recipe
+## Interaction states — one recipe each
+
+**Focus — a light-primary ring.**
 
 ```
-focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50
+outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/40
 ```
 
-`ring-[3px]` ≡ `ring-3` — don't reintroduce the arbitrary spelling.
+`border-ring`/`ring-ring` resolve to `--ring`, which is a **light primary** (`--color-ring: var(--ring)`, retinted in `globals.css`) — a soft blue border + halo, not the vivid `--primary`. `ring-[3px]` ≡ `ring-3` — don't reintroduce the arbitrary spelling; the halo is `/40` (not `/10`, not `/50`). The full string lives in `FOCUS_RING_CLASS` (`field-control.ts`) — feature code spreads it; `ui/*` inline the identical string by shadcn convention (color is token-driven, so a re-tint is one edit). Semantic overrides keep their own color: destructive `ring-destructive/20`, ai `ring-violet-400/40`, and every `aria-invalid:ring-destructive/*`.
 
-**Selection is not focus.** The selected swatch keeps `ring-2 ring-offset-2 ring-foreground/60` and the selected template card keeps `ring-2 ring-ring`. Different job, deliberately different look.
+**Selection is not focus.** Focus is transient and soft (light `--ring`); selection is persistent and **vivid** (`--primary`). Recipe: `ring-2 ring-offset-2 ring-offset-background ring-<color>` — `ring-primary` for neutral cards (selected template/paper), `ring-foreground/60` for colored swatches (contrast against arbitrary fills). Applied via the element's `aria-pressed:` selector, never a JS branch.
+
+**Hover — one surface.** Hoverable surfaces go to `bg-muted` (+ `hover:text-foreground` where the label should emphasize). `--accent` ≡ `--muted` today, so prefer `bg-muted`. Cards use `hover:border-ring`; the 28px colour swatches use `hover:scale-110`. shadcn menus keep their `focus:bg-accent` highlight idiom.
+
+**Disabled — one recipe.** `disabled:pointer-events-none disabled:opacity-50` (Base-UI controls: `data-disabled:pointer-events-none data-disabled:opacity-50`). **No `cursor-not-allowed`** — `pointer-events-none` makes it moot.
+
+**Interaction state is attribute-driven.** State that has a semantic attribute (`aria-pressed`, `aria-invalid`, `aria-checked`, `data-state`, …) is styled off that attribute via a CSS selector — never a `cn(cond && "…")` branch. State with no semantic attribute (drag) exposes a `data-*` (`data-dragging`) and is styled off it. A control that shows a visual state **must** expose the matching attribute, so a11y and styling come from one source. (`role="button"` toggles carry `aria-pressed`; the drag dropzones carry `data-dragging`.)
 
 ---
 
@@ -116,6 +124,7 @@ focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50
 **Deleted:** `FieldTitle` (a div duplicating `FieldLabel`) and `FieldSeparator` (an "or" divider with no role here). Don't re-add them from upstream shadcn without a real use.
 
 `FieldGroup` takes `layout`:
+
 - `stack` (default) — vertical, 12px
 - `grid` — 1 column, splitting to 2 against the nearest `@container/fields`
 
@@ -124,7 +133,9 @@ focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50
   <FieldLegend>Page &amp; type</FieldLegend>
   <FieldGroup layout="grid">
     <Field className={span === 2 ? "col-span-full" : undefined}>
-      <FieldLabel htmlFor={id} className="sr-only">Paper size</FieldLabel>
+      <FieldLabel htmlFor={id} className="sr-only">
+        Paper size
+      </FieldLabel>
       <FieldContent>
         {/* control — placeholder="Paper size", or aria-label if it has no placeholder prop */}
         <FieldError errors={[error]} />
@@ -160,7 +171,7 @@ Container queries measure the **content** box, so the inset differs per surface.
 
 Every control in an item form wears **`FIELD_CONTROL_CLASS`** (`forms/fields/field-control.ts`) — Input, Textarea, MonthYearPicker, Select.
 
-It pins `bg-background` across *every* state (`hover:`, `aria-expanded:`, `data-popup-open:`, and `dark:`). **This is load-bearing.** The pin keeps the control box's background consistent across hover/expanded/dark states instead of drifting per-state. `Button variant="outline"` carries `aria-expanded:bg-muted`, which is exactly how the date picker broke once.
+It pins `bg-background` across _every_ state (`hover:`, `aria-expanded:`, `data-popup-open:`, and `dark:`). **This is load-bearing.** The pin keeps the control box's background consistent across hover/expanded/dark states instead of drifting per-state. `Button variant="outline"` carries `aria-expanded:bg-muted`, which is exactly how the date picker broke once.
 
 The dark pin is deliberate too: `Input`/`Textarea`/`SelectTrigger`/`Button outline` each carry `dark:bg-input/30`, twMerge keeps it (different modifier), and it outranks a bare `bg-background` on specificity.
 
@@ -205,4 +216,6 @@ rtk tsc && rtk lint && rtk vitest run
 rtk grep -rn "text-\[[0-9]*px\]" src/features src/components/ui
 rtk grep -rn "uppercase tracking-wid" src/features
 rtk grep -rn "gap-6\|gap-y-5\|gap-x-3\|gap-7\|gap-2\.5\|gap-0\.5" src/features src/components/ui
+rtk grep -rn "ring-ring/10\|ring-ring/50" src/features src/components/ui
+rtk grep -rn "disabled:cursor-not-allowed" src/features src/components/ui
 ```

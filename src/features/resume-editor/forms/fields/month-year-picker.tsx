@@ -172,6 +172,7 @@ export function MonthYearPicker({
               <Button
                 key={monthLabel}
                 type="button"
+                aria-pressed={isMonthSelected(monthDate, selectedDate)}
                 variant={
                   isMonthSelected(monthDate, selectedDate)
                     ? "default"

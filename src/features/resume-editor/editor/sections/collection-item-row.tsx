@@ -79,7 +79,7 @@ export function CollectionItemRow({
             disabled={deleteDisabled}
           />
         }
-        className={open ? "rounded-b-none border-b-0" : undefined}
+        className="aria-pressed:rounded-b-none aria-pressed:border-b-0"
       />
       <Collapse open={open}>
         {/* bg-background, not muted: the floating field labels punch a chip out

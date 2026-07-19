@@ -71,7 +71,9 @@
   --destructive: oklch(0.577 0.245 27.325);
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  /* Light primary — the focus ring is a soft blue, not the vivid --primary.
+     Selection uses --primary (vivid) instead, so the two never blur together. */
+  --ring: oklch(0.72 0.14 264);
   --chart-1: oklch(0.828 0.111 230.318);
   --chart-2: oklch(0.685 0.169 237.323);
   --chart-3: oklch(0.588 0.158 241.966);
@@ -108,7 +110,7 @@
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
+  --ring: oklch(0.65 0.15 264);
   --chart-1: oklch(0.828 0.111 230.318);
   --chart-2: oklch(0.685 0.169 237.323);
   --chart-3: oklch(0.588 0.158 241.966);
@@ -126,7 +128,7 @@
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border outline-ring/10;
   }
   body {
     @apply bg-background text-foreground;

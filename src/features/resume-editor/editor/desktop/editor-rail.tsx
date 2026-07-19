@@ -64,9 +64,8 @@ export function EditorRail({ value, collapsed, onSelect }: EditorRailProps) {
                   className={cn(
                     "flex size-10 cursor-pointer flex-col items-center justify-center rounded-md outline-none transition-colors",
                     FOCUS_RING_CLASS,
-                    isActive
-                      ? "bg-primary/10 text-primary"
-                      : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                    "text-muted-foreground aria-[pressed=false]:hover:bg-muted aria-[pressed=false]:hover:text-foreground",
+                    "aria-pressed:bg-primary/10 aria-pressed:text-primary",
                   )}
                 >
                   <Icon className="size-5" />

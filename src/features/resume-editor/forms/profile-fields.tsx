@@ -322,6 +322,7 @@ function PhotoField({
       </FieldLabel>
       <FieldContent>
         <div
+          data-dragging={dragging || undefined}
           onDragOver={(event) => {
             event.preventDefault();
             setDragging(true);
@@ -334,9 +335,9 @@ function PhotoField({
             if (file) void photo.handleFile(file);
           }}
           className={cn(
-            "flex flex-col items-center gap-3 rounded-lg border border-dashed p-4 text-center transition-colors",
+            "flex flex-col items-center gap-3 rounded-lg border border-dashed border-input p-4 text-center transition-colors",
             "@field-2col/fields:flex-row @field-2col/fields:items-center @field-2col/fields:gap-4 @field-2col/fields:p-3 @field-2col/fields:text-left",
-            dragging ? "border-ring bg-accent/50" : "border-input",
+            "data-[dragging]:border-ring data-[dragging]:bg-muted/50",
           )}
         >
           <PhotoAvatarButton

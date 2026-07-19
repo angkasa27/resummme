@@ -131,9 +131,10 @@ export function RichTextEditor({
 
   return (
     <div
+      aria-invalid={invalid || undefined}
       className={cn(
         "overflow-hidden rounded-md border border-input bg-background",
-        invalid && "border-destructive ring-3 ring-destructive/20",
+        "aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20",
         className,
       )}
     >
