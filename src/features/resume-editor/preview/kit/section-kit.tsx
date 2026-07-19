@@ -2,7 +2,6 @@ import type { ReactNode } from "react";
 
 import type { CollectionSectionKey } from "@/features/resume-editor/domain/sections/section-metadata";
 import { renderDateRange } from "@/features/resume-editor/preview/helpers/date";
-import { PreviewContactLine } from "@/features/resume-editor/preview/kit/contact-line";
 
 /**
  * Reusable primitives for authoring a layout's Component or a custom
@@ -72,5 +71,3 @@ export function DateRange({
 }) {
   return <>{renderDateRange(startDate, endDate)}</>;
 }
-
-export { PreviewContactLine };

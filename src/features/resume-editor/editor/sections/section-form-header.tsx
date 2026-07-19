@@ -23,7 +23,7 @@ import {
 } from "@/features/resume-editor/domain/sections/section-metadata";
 import type { ResumeEditorPanelKey } from "@/features/resume-editor/state/resume-editor-store";
 
-export function sectionLabelFor(key: ResumeEditorPanelKey) {
+function sectionLabelFor(key: ResumeEditorPanelKey) {
   return key === "profile"
     ? "Profile"
     : sectionLabels[key as ResumeSectionPanelKey];
@@ -31,7 +31,10 @@ export function sectionLabelFor(key: ResumeEditorPanelKey) {
 
 /** Only sections whose items carry a date range can be sorted newest-first. */
 function canAutoSort(key: ResumeEditorPanelKey) {
-  if (key === "profile" || !isCollectionSectionKey(key as ResumeSectionPanelKey))
+  if (
+    key === "profile" ||
+    !isCollectionSectionKey(key as ResumeSectionPanelKey)
+  )
     return false;
   return Boolean(
     collectionSectionConfigs[key as CollectionSectionKey].dateRange,

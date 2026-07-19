@@ -42,17 +42,6 @@ export type PreviewRenderContext = {
   sections: AnyPreviewRenderableSection[];
 };
 
-/** Document-level actions rendered on the right of the preview toolbar. */
-export type PreviewDocumentActions = {
-  /** Open the AI "Extract from PDF" flow. */
-  onExtractCv: () => void;
-  onImportJson: () => void;
-  onExportJson: () => void;
-  onExportPdf: () => void;
-  isExportingPdf?: boolean;
-  isImportingPdf?: boolean;
-};
-
 export type PreviewRendererProps = {
   draft: ResumeDraft;
   mode?: PreviewMode;

@@ -157,7 +157,7 @@ export function createResumeEditorStore(config?: {
 
           const sectionValue = draft.sections[sectionKey];
           const sorted = sortResumeItems(
-            sectionValue.items as unknown as Record<string, unknown>[],
+            sectionValue.items as Record<string, unknown>[],
             dateRange.startName,
             dateRange.endName,
           );

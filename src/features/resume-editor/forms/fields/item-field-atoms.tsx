@@ -26,14 +26,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Textarea } from "@/components/ui/textarea";
 import { TagInput } from "@/components/ui/tag-input";
 import { languageProficiencyOptions } from "@/features/resume-editor/domain/sections/section-metadata";
 import { RichTextEditorWithImprove } from "@/features/resume-editor/forms/rich-text/improve-with-ai-dialog";
 import { FIELD_CONTROL_CLASS } from "@/features/resume-editor/forms/fields/field-control";
 import { MonthYearPicker } from "@/features/resume-editor/forms/fields/month-year-picker";
 import { parseMonthYear } from "@/features/resume-editor/domain/month-year";
-import { cn } from "@/lib/utils";
 
 /**
  * Reusable field atoms for a collection item form — one per control type,
@@ -60,7 +58,7 @@ type FieldAtomProps = {
 };
 
 /** Attributes for `TextField`'s `<Input>` that vary by type. */
-export function getTextInputAttrs(type: "text" | "email" | "url") {
+function getTextInputAttrs(type: "text" | "email" | "url") {
   if (type === "email") {
     return {
       type: "email",
@@ -109,7 +107,14 @@ export function TextField({
 }) {
   const { register, formState, getFieldState } = form;
   const fieldState = getFieldState(name as never, formState);
-  const inputAttrs = getTextInputAttrs(type);
+  const sharedProps = {
+    id: name,
+    ...getTextInputAttrs(type),
+    placeholder: placeholder ?? label,
+    "aria-label": label,
+    "aria-invalid": fieldState.invalid || undefined,
+    ...register(name as never),
+  };
 
   return (
     <Field className={className} data-invalid={fieldState.invalid || undefined}>
@@ -117,58 +122,14 @@ export function TextField({
         {prefix != null || suffix != null ? (
           <InputGroup>
             {prefix != null && <InputGroupAddon>{prefix}</InputGroupAddon>}
-            <InputGroupInput
-              id={name}
-              {...inputAttrs}
-              placeholder={placeholder ?? label}
-              aria-label={label}
-              aria-invalid={fieldState.invalid || undefined}
-              {...register(name as never)}
-            />
+            <InputGroupInput {...sharedProps} />
             {suffix != null && (
               <InputGroupAddon align="inline-end">{suffix}</InputGroupAddon>
             )}
           </InputGroup>
         ) : (
-          <Input
-            id={name}
-            {...inputAttrs}
-            placeholder={placeholder ?? label}
-            aria-label={label}
-            aria-invalid={fieldState.invalid || undefined}
-            className={FIELD_CONTROL_CLASS}
-            {...register(name as never)}
-          />
+          <Input {...sharedProps} className={FIELD_CONTROL_CLASS} />
         )}
-        <FieldError errors={[fieldState.error]} />
-      </FieldContent>
-    </Field>
-  );
-}
-
-export function TextareaField({
-  form,
-  name,
-  label,
-  placeholder,
-  className,
-}: FieldAtomProps) {
-  const { register, formState, getFieldState } = form;
-  const fieldState = getFieldState(name as never, formState);
-
-  return (
-    <Field className={className} data-invalid={fieldState.invalid || undefined}>
-      <FieldContent>
-        <Textarea
-          id={name}
-          rows={3}
-          placeholder={placeholder ?? label}
-          aria-label={label}
-          aria-invalid={fieldState.invalid || undefined}
-          // Same box as the rest, minus the single-line height.
-          className={cn(FIELD_CONTROL_CLASS, "h-auto py-2")}
-          {...register(name as never)}
-        />
         <FieldError errors={[fieldState.error]} />
       </FieldContent>
     </Field>

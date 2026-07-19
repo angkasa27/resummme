@@ -20,7 +20,7 @@ export type ContactPresentation = {
   icons: boolean;
 };
 
-export const DEFAULT_CONTACT_PRESENTATION: ContactPresentation = {
+const DEFAULT_CONTACT_PRESENTATION: ContactPresentation = {
   variant: "inline",
   icons: true,
 };
@@ -69,7 +69,10 @@ export function PreviewContactLine({
       {details.length > 0 ? (
         <ul className={listClass}>
           {details.map((item, index) => (
-            <li key={`${item.kind}-${item.value}-${index}`} className="contact-item">
+            <li
+              key={`${item.kind}-${item.value}-${index}`}
+              className="contact-item"
+            >
               <PreviewContactItemText item={item} icons={presentation.icons} />
             </li>
           ))}
@@ -78,7 +81,10 @@ export function PreviewContactLine({
       {links.length > 0 ? (
         <ul className={cn(listClass, "contact-links")}>
           {links.map((item, index) => (
-            <li key={`${item.kind}-${item.value}-${index}`} className="contact-item">
+            <li
+              key={`${item.kind}-${item.value}-${index}`}
+              className="contact-item"
+            >
               <PreviewContactItemText item={item} icons={presentation.icons} />
             </li>
           ))}
