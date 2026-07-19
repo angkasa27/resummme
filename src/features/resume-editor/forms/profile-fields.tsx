@@ -215,7 +215,7 @@ export function ProfileFields({ ctx, idPrefix }: ProfileFieldsProps) {
                   <Button
                     type="button"
                     variant="ghost"
-                    size="icon-sm"
+                    size="icon"
                     aria-label={`Remove link ${index + 1}`}
                     title={`Remove link ${index + 1}`}
                     onClick={() => links.requestDelete(index)}
@@ -273,7 +273,10 @@ function PhotoAvatarButton({
       id={id}
       onClick={onClick}
       aria-label={hasPhoto ? "Change profile photo" : "Upload profile photo"}
-      className={cn("group relative size-20 shrink-0 overflow-hidden rounded-full bg-muted ring-1 ring-border outline-none transition", FOCUS_RING_CLASS)}
+      className={cn(
+        "group relative size-20 shrink-0 overflow-hidden rounded-full bg-muted ring-1 ring-border outline-none transition",
+        FOCUS_RING_CLASS,
+      )}
     >
       {hasPhoto ? (
         // eslint-disable-next-line @next/next/no-img-element
@@ -331,7 +334,8 @@ function PhotoField({
             if (file) void photo.handleFile(file);
           }}
           className={cn(
-            "flex items-center gap-4 rounded-lg border border-dashed p-3 transition-colors",
+            "flex flex-col items-center gap-3 rounded-lg border border-dashed p-4 text-center transition-colors",
+            "@field-2col/fields:flex-row @field-2col/fields:items-center @field-2col/fields:gap-4 @field-2col/fields:p-3 @field-2col/fields:text-left",
             dragging ? "border-ring bg-accent/50" : "border-input",
           )}
         >
@@ -342,8 +346,8 @@ function PhotoField({
             onClick={photo.openPicker}
           />
 
-          <div className="flex min-w-0 flex-1 flex-col gap-2">
-            <div className="flex flex-wrap gap-2">
+          <div className="flex w-full min-w-0 flex-col items-center gap-2 @field-2col/fields:w-auto @field-2col/fields:flex-1 @field-2col/fields:items-start">
+            <div className="flex flex-wrap justify-center gap-2 @field-2col/fields:justify-start">
               <Button
                 type="button"
                 variant="outline"
@@ -358,8 +362,8 @@ function PhotoField({
                   type="button"
                   variant="ghost"
                   size="sm"
-                  className="text-muted-foreground"
                   onClick={photo.remove}
+                  className={DESTRUCTIVE_ICON_CLASS}
                 >
                   <Trash2Icon data-icon="inline-start" />
                   Remove
