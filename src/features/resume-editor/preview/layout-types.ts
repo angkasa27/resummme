@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 
 import type { CollectionSectionKey } from "@/features/resume-editor/domain/sections/section-metadata";
 import type { PdfLayoutId } from "@/features/resume-editor/domain/presentation/pdf-presentation";
-import type { SectionItem } from "@/features/resume-editor/preview/sections/types";
+import type { SectionItem } from "@/features/resume-editor/preview/descriptors/types";
 import type {
   PreviewRenderableSection,
   PreviewRenderContext,

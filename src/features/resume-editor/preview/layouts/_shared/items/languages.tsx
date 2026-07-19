@@ -1,4 +1,4 @@
-import type { SectionItem } from "@/features/resume-editor/preview/sections/types";
+import type { SectionItem } from "@/features/resume-editor/preview/descriptors/types";
 
 export function LanguagesItem({ item }: { item: SectionItem<"languages"> }) {
   return (

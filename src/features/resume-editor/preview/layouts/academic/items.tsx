@@ -5,7 +5,7 @@ import {
   commaJoin,
   joinParts,
 } from "@/features/resume-editor/preview/helpers/string";
-import type { SectionItem } from "@/features/resume-editor/preview/sections/types";
+import type { SectionItem } from "@/features/resume-editor/preview/descriptors/types";
 import type { LayoutSectionItemMap } from "@/features/resume-editor/preview/layout-types";
 
 function WorkExperienceItem({ item }: { item: SectionItem<"workExperience"> }) {

@@ -9,7 +9,7 @@ import { sanitizeRichTextHref } from "@/features/resume-editor/domain/rich-text/
 import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
 
 import { richTextHasContent } from "./rich-text-utils";
-import { sectionDescriptors } from "./sections";
+import { sectionDescriptors } from "./descriptors";
 import type {
   AnyPreviewRenderableSection,
   PreviewMode,

@@ -1,5 +1,5 @@
 import { PreviewLinkedTitle } from "@/features/resume-editor/preview/kit/linked-title";
-import type { SectionItem } from "@/features/resume-editor/preview/sections/types";
+import type { SectionItem } from "@/features/resume-editor/preview/descriptors/types";
 
 export function CertificationsItem({
   item,

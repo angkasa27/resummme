@@ -4,7 +4,7 @@ import type {
   AnyPreviewRenderableSection,
   PreviewRenderableSection,
 } from "./types";
-import type { SectionItem } from "./sections/types";
+import type { SectionItem } from "./descriptors/types";
 import type {
   PreviewLayoutDefinition,
   LayoutSectionItemMap,

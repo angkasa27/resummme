@@ -9,7 +9,7 @@ import {
   shouldHideSummaryHeading,
 } from "@/features/resume-editor/preview/layout-registry";
 import { LayoutSection } from "@/features/resume-editor/preview/layout-section";
-import { SummaryView } from "@/features/resume-editor/preview/sections/summary";
+import { SummaryView } from "@/features/resume-editor/preview/descriptors/summary";
 import type { PreviewRendererProps } from "@/features/resume-editor/preview/types";
 import type { LayoutSlots } from "@/features/resume-editor/preview/layout-types";
 import {

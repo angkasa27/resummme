@@ -1,5 +1,5 @@
 import { commaJoin } from "@/features/resume-editor/preview/helpers/string";
-import type { SectionItem } from "@/features/resume-editor/preview/sections/types";
+import type { SectionItem } from "@/features/resume-editor/preview/descriptors/types";
 
 export function SkillsItem({ item }: { item: SectionItem<"skills"> }) {
   return (
