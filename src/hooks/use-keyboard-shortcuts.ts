@@ -69,6 +69,8 @@ function modifiersMatch(event: KeyboardEvent, combo: ParsedCombo): boolean {
 }
 
 function matchesCombo(event: KeyboardEvent, combo: string): boolean {
+  // Some autofill/extension-dispatched KeyboardEvents omit `key` entirely.
+  if (!event.key) return false;
   const parsed = parseCombo(combo);
   if (event.key.toLowerCase() !== parsed.key) return false;
   return modifiersMatch(event, parsed);
