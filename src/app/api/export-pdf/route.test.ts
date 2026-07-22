@@ -63,7 +63,11 @@ describe("POST /api/export-pdf", () => {
     expect(generateResumePdf).not.toHaveBeenCalled();
   });
 
-  it("rejects malformed formatted fields before invoking Chromium", async () => {
+  it("renders lenient (advisory-invalid) fields as-is instead of rejecting them", async () => {
+    // Persistence is lenient: format validity is advisory in the editor, not a
+    // hard gate. A draft with a not-yet-valid URL still exports (rendered as-is).
+    generateResumePdf.mockResolvedValue(new Uint8Array([1, 2, 3]));
+
     const draft = createDefaultResumeDraft();
     draft.sections.projects.items[0].projectLink = "not-a-url";
 
@@ -78,9 +82,8 @@ describe("POST /api/export-pdf", () => {
       })
     );
 
-    expect(response.status).toBe(400);
-    expect(response.headers.get("content-type")).toContain("application/json");
-    expect(generateResumePdf).not.toHaveBeenCalled();
+    expect(response.status).toBe(200);
+    expect(generateResumePdf).toHaveBeenCalled();
   });
 
   it("returns a controlled error when PDF generation fails", async () => {

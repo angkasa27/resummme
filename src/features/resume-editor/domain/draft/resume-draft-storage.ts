@@ -13,5 +13,3 @@ export function importResumeDraft(serializedDraft: string): ResumeDraft {
   const parsedJson = JSON.parse(serializedDraft) as unknown;
   return parseResumeDraft(parsedJson);
 }
-
-

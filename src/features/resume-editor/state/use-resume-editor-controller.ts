@@ -70,6 +70,8 @@ export type ResumeEditorController = {
   canUndo: boolean;
   canRedo: boolean;
   saveStatus: SaveStatus;
+  /** Generation counter for external draft replacements (import/undo/redo). */
+  revision: number;
 };
 
 function useJsonImport(store: ResumeEditorStore) {
@@ -294,6 +296,7 @@ export function useResumeEditorController({
 
   const draft = useStore(store, (state) => state.draft);
   const activeSection = useStore(store, (state) => state.activeSection);
+  const revision = useStore(store, (state) => state.revision);
 
   const jsonImport = useJsonImport(store);
   const pdfImport = usePdfImport(store);
@@ -365,6 +368,7 @@ export function useResumeEditorController({
     canUndo: undoRedo.canUndo,
     canRedo: undoRedo.canRedo,
     saveStatus,
+    revision,
   };
 }
 

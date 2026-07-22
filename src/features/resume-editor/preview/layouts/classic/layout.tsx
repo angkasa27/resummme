@@ -1,7 +1,8 @@
 import { createSingleColumnLayout } from "@/features/resume-editor/preview/layouts/_shared/create-single-column-layout";
 
+import { defaultItemViews } from "@/features/resume-editor/preview/layouts/_shared/default-item-views";
+
 import { ClassicHeader } from "./header";
-import { classicItemViews } from "./items";
 import styles from "./styles.module.css";
 
 export const classicLayout = createSingleColumnLayout({
@@ -11,5 +12,5 @@ export const classicLayout = createSingleColumnLayout({
   hideSummaryHeading: true,
   styles,
   Header: ClassicHeader,
-  itemViews: classicItemViews,
+  itemViews: defaultItemViews,
 });

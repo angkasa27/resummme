@@ -1,7 +1,8 @@
 import { createSingleColumnLayout } from "@/features/resume-editor/preview/layouts/_shared/create-single-column-layout";
 
+import { defaultItemViews } from "@/features/resume-editor/preview/layouts/_shared/default-item-views";
+
 import { BoldTypeHeader } from "./header";
-import { boldTypeItemViews } from "./items";
 import styles from "./styles.module.css";
 
 export const boldTypeLayout = createSingleColumnLayout({
@@ -12,5 +13,5 @@ export const boldTypeLayout = createSingleColumnLayout({
   styles,
   hideSummaryHeading: true,
   Header: BoldTypeHeader,
-  itemViews: boldTypeItemViews,
+  itemViews: defaultItemViews,
 });

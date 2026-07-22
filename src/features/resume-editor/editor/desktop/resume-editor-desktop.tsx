@@ -27,6 +27,7 @@ import type { ResumeEditorPanelKey } from "@/features/resume-editor/state/resume
 import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
 import type { DraftStorage } from "@/features/resume-editor/domain/draft/draft-storage";
 import { useEditorHeader } from "@/features/resume-editor/editor/top-bar/use-editor-header";
+import { EditorRevisionContext } from "@/features/resume-editor/state/editor-revision";
 
 type ResumeEditorDesktopProps = {
   initialDraft?: ResumeDraft;
@@ -59,6 +60,7 @@ export function ResumeEditorDesktop({
     canUndo,
     canRedo,
     saveStatus,
+    revision,
   } = useResumeEditorController({ initialDraft, storage });
 
   useEditorHeader({
@@ -149,6 +151,7 @@ export function ResumeEditorDesktop({
   };
 
   return (
+    <EditorRevisionContext.Provider value={revision}>
     <div className="flex h-[calc(100dvh-3rem)]">
       <input
         ref={jsonFileInputRef}
@@ -198,5 +201,6 @@ export function ResumeEditorDesktop({
         />
       </EditorCanvas>
     </div>
+    </EditorRevisionContext.Provider>
   );
 }

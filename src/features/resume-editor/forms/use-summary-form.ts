@@ -5,7 +5,6 @@ import { useForm } from "react-hook-form";
 
 import { summaryContentSchema } from "@/features/resume-editor/domain/schema";
 import { createFormSchemaResolver } from "@/features/resume-editor/forms/schemas/create-form-schema-resolver";
-import { useSyncedFormValues } from "@/features/resume-editor/forms/use-synced-form-values";
 import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
 
 export type SummaryFormValues = {
@@ -30,9 +29,7 @@ export function useSummaryForm(draft: ResumeDraft) {
     reValidateMode: "onChange",
   });
 
-  useSyncedFormValues(form, formValues);
-
-  return { form, sectionValue };
+  return { form, formValues, sectionValue };
 }
 
 export type SummaryFormContext = ReturnType<typeof useSummaryForm>;

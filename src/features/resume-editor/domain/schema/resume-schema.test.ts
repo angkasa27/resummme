@@ -86,20 +86,15 @@ describe("resume schema", () => {
     ).toThrow(/schemaVersion/i);
   });
 
-  it("rejects malformed profile links", () => {
+  it("stores a not-yet-valid profile link leniently (format is advisory)", () => {
     const draft = createDefaultResumeDraft();
 
-    expect(() =>
-      profileSchema.parse({
-        ...draft.profile,
-        extraLinks: [
-          {
-            id: "link-1",
-            url: "not-a-url",
-          },
-        ],
-      })
-    ).toThrow(/url/i);
+    const parsed = profileSchema.parse({
+      ...draft.profile,
+      extraLinks: [{ id: "link-1", url: "not-a-url" }],
+    });
+
+    expect(parsed.extraLinks[0].url).toBe("not-a-url");
   });
 
   it("allows blank profile fields in stored drafts", () => {
@@ -123,15 +118,15 @@ describe("resume schema", () => {
     ).not.toThrow();
   });
 
-  it("rejects malformed profile email addresses", () => {
+  it("stores a not-yet-valid email leniently (format is advisory)", () => {
     const draft = createDefaultResumeDraft();
 
-    expect(() =>
-      profileSchema.parse({
-        ...draft.profile,
-        email: "not-an-email",
-      }),
-    ).toThrow(/email/i);
+    const parsed = profileSchema.parse({
+      ...draft.profile,
+      email: "not-an-email",
+    });
+
+    expect(parsed.email).toBe("not-an-email");
   });
 
   it("rejects legacy profile link objects that still include labels", () => {
@@ -171,48 +166,42 @@ describe("resume schema", () => {
     ).not.toThrow();
   });
 
-  it("rejects malformed project links in stored drafts", () => {
+  it("stores a not-yet-valid project link leniently (format is advisory)", () => {
     const draft = createDefaultResumeDraft();
 
-    expect(() =>
-      parseResumeDraft({
-        ...draft,
-        sections: {
-          ...draft.sections,
-          projects: {
-            ...draft.sections.projects,
-            items: [
-              {
-                ...draft.sections.projects.items[0],
-                projectLink: "not-a-url",
-              },
-            ],
-          },
+    const parsed = parseResumeDraft({
+      ...draft,
+      sections: {
+        ...draft.sections,
+        projects: {
+          ...draft.sections.projects,
+          items: [
+            { ...draft.sections.projects.items[0], projectLink: "not-a-url" },
+          ],
         },
-      }),
-    ).toThrow(/project link/i);
+      },
+    });
+
+    expect(parsed.sections.projects.items[0].projectLink).toBe("not-a-url");
   });
 
-  it("rejects malformed month-year values in stored drafts", () => {
+  it("stores a free-form month-year value leniently", () => {
     const draft = createDefaultResumeDraft();
 
-    expect(() =>
-      parseResumeDraft({
-        ...draft,
-        sections: {
-          ...draft.sections,
-          workExperience: {
-            ...draft.sections.workExperience,
-            items: [
-              {
-                ...draft.sections.workExperience.items[0],
-                startDate: "2024-01",
-              },
-            ],
-          },
+    const parsed = parseResumeDraft({
+      ...draft,
+      sections: {
+        ...draft.sections,
+        workExperience: {
+          ...draft.sections.workExperience,
+          items: [
+            { ...draft.sections.workExperience.items[0], startDate: "2024-01" },
+          ],
         },
-      }),
-    ).toThrow(/start date/i);
+      },
+    });
+
+    expect(parsed.sections.workExperience.items[0].startDate).toBe("2024-01");
   });
 
   it("keeps default visible sections focused on the core resume flow", () => {

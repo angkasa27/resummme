@@ -28,6 +28,13 @@ type ResumeEditorStoreState = {
   activeSection: ResumeEditorPanelKey;
   undoStack: ResumeDraft[];
   redoStack: ResumeDraft[];
+  /**
+   * Bumps only on an external draft replacement (import via `replaceDraft`,
+   * `undo`, `redo`) — never on a section's own `saveSection`/`saveProfile`. An
+   * open form watches this to tell a genuine replace (must hard-reset) from the
+   * echo of its own autosave (must not clobber in-flight keystrokes).
+   */
+  revision: number;
   saveProfile: (profile: Profile) => void;
   savePdfPresentation: (pdfPresentation: PdfPresentation) => void;
   saveSection: <K extends ResumeSectionKey>(
@@ -124,6 +131,7 @@ export function createResumeEditorStore(config?: {
       activeSection: "profile",
       undoStack: [],
       redoStack: [],
+      revision: 0,
       saveProfile: (profile) => commit(() => ({ profile })),
       savePdfPresentation: (pdfPresentation) =>
         commit(() => ({ pdfPresentation })),
@@ -176,12 +184,13 @@ export function createResumeEditorStore(config?: {
       },
       replaceDraft: (draft) => {
         const nextDraft = storage.save(draft);
-        set({
+        set((state) => ({
           draft: nextDraft,
           activeSection: "profile",
           undoStack: [],
           redoStack: [],
-        });
+          revision: state.revision + 1,
+        }));
       },
       undo: () => {
         const state = get();
@@ -192,6 +201,7 @@ export function createResumeEditorStore(config?: {
           draft: nextDraft,
           undoStack: state.undoStack.slice(0, -1),
           redoStack: [...state.redoStack, state.draft],
+          revision: state.revision + 1,
         });
       },
       redo: () => {
@@ -203,6 +213,7 @@ export function createResumeEditorStore(config?: {
           draft: persistedDraft,
           redoStack: state.redoStack.slice(0, -1),
           undoStack: [...state.undoStack, state.draft],
+          revision: state.revision + 1,
         });
       },
     };

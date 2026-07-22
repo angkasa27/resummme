@@ -1,7 +1,8 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createDefaultResumeDraft } from "@/features/resume-editor/domain/draft/create-default-resume-draft";
 import { LocalDraftStorage } from "@/features/resume-editor/domain/draft/local-draft-storage";
+import type { SaveStatus } from "@/features/resume-editor/domain/draft/draft-storage";
 import {
   RESUME_STORAGE_KEY,
   exportResumeDraft,
@@ -39,13 +40,14 @@ describe("LocalDraftStorage", () => {
     );
   });
 
-  it("falls back to the default draft when storage is malformed", () => {
+  it("falls back to the default draft and reports an error status when storage is malformed", () => {
     window.localStorage.setItem(RESUME_STORAGE_KEY, "{");
 
     const loaded = storage.load();
 
     expect(loaded.schemaVersion).toBe(3);
     expect(loaded.profile.fullName).toBeTruthy();
+    expect(storage.getSaveStatus()).toBe("error");
   });
 
   it("exports and re-imports a draft as the same contract", () => {
@@ -73,20 +75,40 @@ describe("LocalDraftStorage", () => {
     ).toThrow(/profile/i);
   });
 
-  it("rejects malformed imported field formats", () => {
+  it("stores lenient field formats — a malformed email/URL is persisted, not rejected", () => {
     const draft = createDefaultResumeDraft();
 
-    expect(() =>
-      importResumeDraft(
-        JSON.stringify({
-          ...draft,
-          profile: {
-            ...draft.profile,
-            email: "not-an-email",
-          },
-        }),
-      ),
-    ).toThrow(/email/i);
+    const imported = importResumeDraft(
+      JSON.stringify({
+        ...draft,
+        profile: { ...draft.profile, email: "not-an-email" },
+      }),
+    );
+
+    // Format validation is advisory (form-only); persistence keeps the raw value.
+    expect(imported.profile.email).toBe("not-an-email");
+  });
+
+  it("reports a saved status on a successful write", () => {
+    expect(storage.getSaveStatus()).toBe("idle");
+    storage.save(createDefaultResumeDraft());
+    expect(storage.getSaveStatus()).toBe("saved");
+  });
+
+  it("surfaces a write failure as an error status instead of throwing", () => {
+    const setItem = vi
+      .spyOn(Storage.prototype, "setItem")
+      .mockImplementation(() => {
+        throw new Error("QuotaExceededError");
+      });
+    const seen: SaveStatus[] = [];
+    storage.subscribeSaveStatus((status) => seen.push(status));
+
+    expect(() => storage.save(createDefaultResumeDraft())).not.toThrow();
+    expect(storage.getSaveStatus()).toBe("error");
+    expect(seen).toContain("error");
+
+    setItem.mockRestore();
   });
 
   it("sanitizes imported rich text content", () => {

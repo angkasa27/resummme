@@ -3,17 +3,19 @@ import { z } from "zod";
 import type { CollectionSectionKey } from "@/features/resume-editor/domain/sections/section-metadata";
 import {
   awardItemSchema,
-  certificationItemSchema,
   educationItemSchema,
   languageItemSchema,
   organizationItemSchema,
-  projectItemSchema,
-  publicationItemSchema,
   referenceItemSchema,
   skillCategoryItemSchema,
   type ResumeDraft,
   workExperienceItemSchema,
 } from "@/features/resume-editor/domain/schema";
+import {
+  certificationFormItemSchema,
+  projectFormItemSchema,
+  publicationFormItemSchema,
+} from "@/features/resume-editor/forms/schemas/collection-form-item-schemas";
 import { createCollectionSectionFormSchema } from "@/features/resume-editor/forms/schemas/create-collection-section-form-schema";
 
 type CollectionSectionFormSchema<K extends CollectionSectionKey> = z.ZodType<{
@@ -25,10 +27,10 @@ export const collectionSectionFormSchemaMap: {
 } = {
   workExperience: createCollectionSectionFormSchema(workExperienceItemSchema),
   skills: createCollectionSectionFormSchema(skillCategoryItemSchema),
-  projects: createCollectionSectionFormSchema(projectItemSchema),
+  projects: createCollectionSectionFormSchema(projectFormItemSchema),
   education: createCollectionSectionFormSchema(educationItemSchema),
-  publications: createCollectionSectionFormSchema(publicationItemSchema),
-  certifications: createCollectionSectionFormSchema(certificationItemSchema),
+  publications: createCollectionSectionFormSchema(publicationFormItemSchema),
+  certifications: createCollectionSectionFormSchema(certificationFormItemSchema),
   awards: createCollectionSectionFormSchema(awardItemSchema),
   languages: createCollectionSectionFormSchema(languageItemSchema),
   references: createCollectionSectionFormSchema(referenceItemSchema),

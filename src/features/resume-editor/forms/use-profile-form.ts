@@ -5,9 +5,8 @@ import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 
 import { createLocalId } from "@/features/resume-editor/domain/create-local-id";
-import { profileSchema } from "@/features/resume-editor/domain/schema";
 import { createFormSchemaResolver } from "@/features/resume-editor/forms/schemas/create-form-schema-resolver";
-import { useSyncedFormValues } from "@/features/resume-editor/forms/use-synced-form-values";
+import { profileFormSchema } from "@/features/resume-editor/forms/schemas/profile-form-schema";
 import { loadImageFile, ProfilePhotoError } from "@/lib/image-to-data-url";
 import type { Profile, ResumeDraft } from "@/features/resume-editor/domain/schema";
 
@@ -27,14 +26,12 @@ const CLOSED_CROP: CropState = { open: false, imageUrl: null, image: null };
  */
 export function useProfileForm(draft: ResumeDraft) {
   const form = useForm<Profile>({
-    resolver: createFormSchemaResolver<Profile>(profileSchema),
+    resolver: createFormSchemaResolver<Profile>(profileFormSchema),
     defaultValues: draft.profile,
     mode: "onBlur",
     reValidateMode: "onChange",
   });
   const { control, setValue } = form;
-
-  useSyncedFormValues(form, draft.profile);
 
   const extraLinks = useFieldArray({
     control,
@@ -102,6 +99,7 @@ export function useProfileForm(draft: ResumeDraft) {
 
   return {
     form,
+    formValues: draft.profile,
     extraLinks,
     photo: {
       url: photoUrl,

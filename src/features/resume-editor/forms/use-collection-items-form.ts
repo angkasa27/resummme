@@ -6,7 +6,6 @@ import type { CollectionSectionKey } from "@/features/resume-editor/domain/secti
 import { normalizeCollectionItem } from "@/features/resume-editor/domain/sections/normalize-collection-item";
 import { collectionSectionFormSchemaMap } from "@/features/resume-editor/forms/collection-section-form-schema-map";
 import { createFormSchemaResolver } from "@/features/resume-editor/forms/schemas/create-form-schema-resolver";
-import { useSyncedFormValues } from "@/features/resume-editor/forms/use-synced-form-values";
 import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
 
 export type CollectionItemsFormValues = {
@@ -91,8 +90,6 @@ export function useCollectionItemsForm(
     null,
   );
 
-  useSyncedFormValues(form, formValues);
-
   function toggleCollapsed(id: string) {
     setCollapsedIds((prev) => {
       const next = new Set(prev);
@@ -119,6 +116,7 @@ export function useCollectionItemsForm(
   return {
     config,
     form,
+    formValues,
     currentItems,
     items,
     collapsedIds,

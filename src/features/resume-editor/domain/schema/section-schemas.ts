@@ -1,18 +1,19 @@
 import { z } from "zod";
 
 import {
-  monthYearField,
-  monthYearOrCurrentField,
   optionalText,
   requiredText,
   richTextField,
   textField,
-  urlField,
 } from "@/features/resume-editor/domain/schema/shared";
 
+// Persisted schema is lenient: dates, URLs, and other free-typed fields are
+// stored as plain strings so an in-progress edit is never rejected or lost.
+// Format validation (valid URL, MMM YYYY date) is advisory and lives in the
+// form resolver (forms/schemas), not here. See DESIGN/plan: lenient persistence.
 const datedRangeShape = {
-  startDate: monthYearField("Start date"),
-  endDate: monthYearOrCurrentField("End date"),
+  startDate: textField(),
+  endDate: textField(),
 } as const;
 
 const summarySectionSchema = z.object({
@@ -43,7 +44,7 @@ export const skillCategoryItemSchema = z.object({
 export const projectItemSchema = z.object({
   id: requiredText("Project ID"),
   projectName: textField(),
-  projectLink: urlField("Project link"),
+  projectLink: textField(),
   ...datedRangeShape,
   description: richTextField(),
 });
@@ -62,8 +63,8 @@ export const publicationItemSchema = z.object({
   id: requiredText("Publication ID"),
   title: textField(),
   publisher: textField(),
-  publicationUrl: urlField("Publication URL"),
-  publicationDate: monthYearField("Publication date"),
+  publicationUrl: textField(),
+  publicationDate: textField(),
   description: richTextField(),
 });
 
@@ -71,8 +72,8 @@ export const certificationItemSchema = z.object({
   id: requiredText("Certification ID"),
   certificationName: textField(),
   issuingOrganization: textField(),
-  issuedDate: monthYearField("Issued date"),
-  certificationLink: urlField("Certification link"),
+  issuedDate: textField(),
+  certificationLink: textField(),
   credentialId: optionalText(),
 });
 
@@ -80,7 +81,7 @@ export const awardItemSchema = z.object({
   id: requiredText("Award ID"),
   title: textField(),
   issuer: textField(),
-  issuedDate: monthYearField("Issued date"),
+  issuedDate: textField(),
   description: richTextField(),
 });
 

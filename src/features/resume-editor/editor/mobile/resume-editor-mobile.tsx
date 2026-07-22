@@ -18,6 +18,7 @@ import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { toast } from "sonner";
 import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
 import type { DraftStorage } from "@/features/resume-editor/domain/draft/draft-storage";
+import { EditorRevisionContext } from "@/features/resume-editor/state/editor-revision";
 
 type ResumeEditorMobileProps = {
   initialDraft?: ResumeDraft;
@@ -54,6 +55,7 @@ export function ResumeEditorMobile({
     canUndo,
     canRedo,
     saveStatus,
+    revision,
   } = useResumeEditorController({ initialDraft, storage });
 
   useEditorHeader({
@@ -114,6 +116,7 @@ export function ResumeEditorMobile({
   };
 
   return (
+    <EditorRevisionContext.Provider value={revision}>
     <div
       className="flex h-full flex-col overflow-hidden"
       style={{ "--header-height": "3rem" } as React.CSSProperties}
@@ -146,5 +149,6 @@ export function ResumeEditorMobile({
         />
       </div>
     </div>
+    </EditorRevisionContext.Provider>
   );
 }

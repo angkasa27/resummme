@@ -78,7 +78,7 @@ function ProfileBody({
   idPrefix: string;
 }) {
   const ctx = useProfileForm(draft);
-  useAutoSave(ctx.form, onSave);
+  useAutoSave(ctx.form, ctx.formValues, onSave);
   return <ProfileFields ctx={ctx} idPrefix={idPrefix} />;
 }
 
@@ -90,7 +90,7 @@ function SummaryBody({
   onSave: (summary: ResumeDraft["sections"]["summary"]) => void;
 }) {
   const ctx = useSummaryForm(draft);
-  useAutoSave(ctx.form, (values) =>
+  useAutoSave(ctx.form, ctx.formValues, (values) =>
     onSave({ ...ctx.sectionValue, content: values.content }),
   );
   return <SummaryFields ctx={ctx} />;

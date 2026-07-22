@@ -40,6 +40,7 @@ export function CollectionSectionBody({
   const {
     config,
     form,
+    formValues,
     currentItems,
     items,
     collapsedIds,
@@ -50,15 +51,15 @@ export function CollectionSectionBody({
     toSectionValue,
   } = useCollectionItemsForm(draft, sectionKey);
 
-  useAutoSave(form, (values) => {
+  useAutoSave(form, formValues, (values) => {
     onSave(toSectionValue(values));
   });
 
-  // Reorder stays in react-hook-form. Routing it through the store would feed
-  // `useSyncedFormValues` a changed draft, which resets the form: that drops
-  // keystrokes still inside the autosave debounce, regenerates every fieldKey
-  // (losing collapse state and churning the dnd-kit ids mid-drop). `items.move`
-  // marks the form dirty, so autosave commits it and undo still covers it.
+  // Reorder stays in react-hook-form (`items.move`), not the store: the form
+  // owns its state while open, so a store-side reorder wouldn't show here, and
+  // forcing it to (via remount) would regenerate every fieldKey — losing
+  // collapse state and churning the dnd-kit ids mid-drop. `items.move` changes
+  // the form, so autosave commits the new order and undo still covers it.
   const { sensors, onDragEnd } = useDndReorder<string>((activeId, overId) => {
     const from = items.fields.findIndex((f) => f.id === activeId);
     const to = items.fields.findIndex((f) => f.id === overId);

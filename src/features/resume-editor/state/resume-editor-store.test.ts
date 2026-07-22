@@ -292,4 +292,46 @@ describe("resume editor store", () => {
       expect(store.getState().draft.profile.fullName).toBe("Provided");
     });
   });
+
+  describe("revision", () => {
+    it("starts at 0 and does not bump on a section's own save", () => {
+      const store = createResumeEditorStore({
+        initialDraft: createDefaultResumeDraft(),
+      });
+
+      expect(store.getState().revision).toBe(0);
+
+      store.getState().saveProfile({
+        ...store.getState().draft.profile,
+        fullName: "Edited",
+      });
+      store.getState().saveSection("summary", {
+        ...store.getState().draft.sections.summary,
+        content: "<p>hi</p>",
+      });
+
+      expect(store.getState().revision).toBe(0);
+    });
+
+    it("bumps on replaceDraft, undo, and redo", () => {
+      const store = createResumeEditorStore({
+        initialDraft: createDefaultResumeDraft(),
+      });
+
+      store.getState().saveProfile({
+        ...store.getState().draft.profile,
+        fullName: "A",
+      });
+      expect(store.getState().revision).toBe(0);
+
+      store.getState().undo();
+      expect(store.getState().revision).toBe(1);
+
+      store.getState().redo();
+      expect(store.getState().revision).toBe(2);
+
+      store.getState().replaceDraft(createDefaultResumeDraft());
+      expect(store.getState().revision).toBe(3);
+    });
+  });
 });
