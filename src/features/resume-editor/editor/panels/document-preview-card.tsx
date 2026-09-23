@@ -22,18 +22,16 @@ type DocumentPreviewCardProps = {
   draft: ResumeDraft;
   /** The full presentation this card previews (layout + style already applied). */
   presentation: PdfPresentation;
-  label: string;
   ariaLabel: string;
   selected: boolean;
   onSelect: () => void;
 };
 
 /** A selectable card rendering a scaled-down preview of the user's resume under a
- * presentation. Shared by the Layout tab and the Template gallery. */
+ * presentation. The Template gallery's card; its name sits in the caption below. */
 export const DocumentPreviewCard = memo(function DocumentPreviewCard({
   draft,
   presentation,
-  label,
   ariaLabel,
   selected,
   onSelect,
@@ -95,14 +93,6 @@ export const DocumentPreviewCard = memo(function DocumentPreviewCard({
         )}
       >
         <CheckIcon className="size-3" />
-      </div>
-      <div
-        className={cn(
-          "absolute inset-x-0 bottom-0 flex items-end justify-center bg-linear-to-t from-black/65 via-black/20 to-transparent px-3 pt-10 pb-3 opacity-0 transition-opacity duration-300",
-          "group-hover:opacity-100 group-aria-pressed:opacity-100",
-        )}
-      >
-        <span className="text-sm font-semibold text-white">{label}</span>
       </div>
     </button>
   );

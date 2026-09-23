@@ -563,8 +563,9 @@ export const resumeTemplatePresets: ReadonlyArray<ResumeTemplatePreset> = [
       lineHeight: "relaxed",
     },
   },
-  // harvard — the MCS format is monochrome by construction: the accent only inks
-  // the centered headings, so it stays near-black or it stops being the format.
+  // harvard — the MCS format is monochrome by construction and never reads the
+  // accent. Sans takes a lighter slate only so the two presets' gallery swatches
+  // tell apart; it changes nothing on the page.
   {
     id: "harvard-serif",
     label: "Serif",
@@ -582,7 +583,7 @@ export const resumeTemplatePresets: ReadonlyArray<ResumeTemplatePreset> = [
     label: "Sans",
     layoutId: "harvard",
     style: {
-      accent: "#111827",
+      accent: "#64748b",
       fontFamilyId: "lato",
       fontScale: "sm",
       spacing: "standard",
@@ -590,9 +591,10 @@ export const resumeTemplatePresets: ReadonlyArray<ResumeTemplatePreset> = [
     },
   },
 
-  // rirekisho — a printed form, so the accent only inks the section rows and
-  // stays near-black. Both fonts are system stacks: their generic fallback is
-  // what picks up a Japanese face (gothic for sans, mincho for serif).
+  // rirekisho — a printed form, so the accent only inks the section rows: dark
+  // for Gothic, a lighter slate for Mincho, so the gallery swatches tell apart.
+  // Both fonts are system stacks: their generic fallback is what picks up a
+  // Japanese face (gothic for sans, mincho for serif).
   {
     id: "rirekisho-gothic",
     label: "Gothic",
@@ -610,7 +612,7 @@ export const resumeTemplatePresets: ReadonlyArray<ResumeTemplatePreset> = [
     label: "Mincho",
     layoutId: "rirekisho",
     style: {
-      accent: "#111827",
+      accent: "#64748b",
       fontFamilyId: "times-new-roman",
       fontScale: "md",
       spacing: "compact",
@@ -884,12 +886,28 @@ export function templateCategories(
 }
 
 /** "Bold Type Citrus" — the layout id titled, then the preset's own label. */
-export function templateLabel(preset: ResumeTemplatePreset): string {
-  const layout = preset.layoutId
+/** "bold-type" → "Bold Type". */
+export function layoutLabel(layoutId: PdfLayoutId): string {
+  return layoutId
     .split("-")
     .map((word) => word[0].toUpperCase() + word.slice(1))
     .join(" ");
-  return `${layout} ${preset.label}`;
+}
+
+/** One entry per layout, its presets in curation order, sorted by layout name.
+ * The editor gallery and /templates both show a card per entry. */
+export const resumeTemplateLayouts: ReadonlyArray<{
+  layoutId: PdfLayoutId;
+  presets: ReadonlyArray<ResumeTemplatePreset>;
+}> = Object.values(
+  Object.groupBy(resumeTemplatePresets, (preset) => preset.layoutId),
+)
+  .filter((presets) => presets !== undefined)
+  .map((presets) => ({ layoutId: presets[0].layoutId, presets }))
+  .sort((a, b) => layoutLabel(a.layoutId).localeCompare(layoutLabel(b.layoutId)));
+
+export function templateLabel(preset: ResumeTemplatePreset): string {
+  return `${layoutLabel(preset.layoutId)} ${preset.label}`;
 }
 
 /** Applies layout + curated style in one shot; preserves paperSize, clears photoShape. */
