@@ -2,7 +2,18 @@
 
 All notable changes to this project will be documented in this file. Dates are displayed in UTC.
 
+#### [v1.10.0](https://github.com/angkasa27/resummme/compare/v1.9.0...v1.10.0)
+
+- Link the footer wordmark home and stop clipping its last e [`#24`](https://github.com/angkasa27/resummme/pull/24)
+- Show one template card per layout, with its presets as swatches [`#23`](https://github.com/angkasa27/resummme/pull/23)
+- Re-judge the layout ATS verdicts against the rendered pages [`#22`](https://github.com/angkasa27/resummme/pull/22)
+- Add a browsable templates page [`#21`](https://github.com/angkasa27/resummme/pull/21)
+- Re-rasterise the paper sharp once a gesture settles [`#20`](https://github.com/angkasa27/resummme/pull/20)
+- Drop cloneDraft; normalizeSectionOrder needs only a shallow copy [`b141f14`](https://github.com/angkasa27/resummme/commit/b141f14c56e806109dbda16fb0ab0cdaee14fa8f)
+
 #### [v1.9.0](https://github.com/angkasa27/resummme/compare/v1.8.0...v1.9.0)
+
+> 4 September 2026
 
 - Reconcile the docs with the 25 layouts actually in the repo [`#18`](https://github.com/angkasa27/resummme/pull/18)
 - Add lintel, a layout headed by tinted bands [`#16`](https://github.com/angkasa27/resummme/pull/16)
