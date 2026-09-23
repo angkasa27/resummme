@@ -7,11 +7,12 @@ export function SiteFooter() {
   return (
     <footer className="border-t">
       <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 py-8 text-sm text-muted-foreground sm:flex-row">
-        <div>
-          <span className="font-bold italic bg-linear-to-r from-violet-500 to-indigo-600 bg-clip-text text-transparent">
-            Resummme
-          </span>
-        </div>
+        <Link
+          href="/"
+          className="font-bold italic pr-1 bg-linear-to-r from-violet-500 to-indigo-600 bg-clip-text text-transparent"
+        >
+          {brand.name}
+        </Link>
         <nav className="flex items-center gap-5">
           <Link href="/templates" className="hover:text-foreground">
             Templates
