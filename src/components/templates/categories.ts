@@ -1,9 +1,7 @@
 import {
-  resumeTemplatePresets,
+  resumeTemplateLayouts,
   templateCategories,
   templateCategoryIds,
-  templateLabel,
-  type ResumeTemplatePreset,
   type TemplateCategoryId,
 } from "@/features/resume-editor/domain/presentation/template-presets";
 
@@ -30,15 +28,11 @@ export function categoryHref(filter: CategoryFilter): string {
   return filter === "all" ? "/templates" : `/templates?category=${filter}`;
 }
 
-/** Sorted by card name like the editor gallery, so a chip only removes cards
- *  rather than reshuffling the ones that stay. */
-export function presetsInCategory(
-  filter: CategoryFilter,
-): ResumeTemplatePreset[] {
-  return resumeTemplatePresets
-    .filter(
-      (preset) =>
-        filter === "all" || templateCategories(preset).includes(filter),
-    )
-    .toSorted((a, b) => templateLabel(a).localeCompare(templateLabel(b)));
+/** One card per layout, sorted by layout name like the editor gallery, so a
+ *  chip only removes cards rather than reshuffling the ones that stay. */
+export function layoutsInCategory(filter: CategoryFilter) {
+  return resumeTemplateLayouts.filter(
+    ({ presets }) =>
+      filter === "all" || templateCategories(presets[0]).includes(filter),
+  );
 }

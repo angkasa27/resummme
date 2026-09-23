@@ -140,7 +140,7 @@ Where a surface can be selected, hover sits one step *below* selected and is gua
 
 **Disabled — one recipe.** `disabled:pointer-events-none disabled:opacity-50` (Base-UI controls: `data-disabled:pointer-events-none data-disabled:opacity-50`). **No `cursor-not-allowed`** — `pointer-events-none` makes it moot.
 
-**Transitions — one duration.** `transition-[color,box-shadow]` for colour/ring states, `transition-transform` for scale/translate, Tailwind's default 150ms. No ad-hoc `duration-*` on a state; the 300ms template-card scrim is a reveal, not a state.
+**Transitions — one duration.** `transition-[color,box-shadow]` for colour/ring states, `transition-transform` for scale/translate, Tailwind's default 150ms. No ad-hoc `duration-*` on a state; the 300ms fade-in of a template card's preview is a reveal, not a state.
 
 **Interaction state is attribute-driven.** State that has a semantic attribute (`aria-pressed`, `aria-invalid`, `aria-checked`, `data-active`, …) is styled off that attribute via a CSS selector — never a `cn(cond && "…")` branch. State with no semantic attribute (drag) exposes a `data-*` (`data-dragging`) and is styled off it. A control that shows a visual state **must** expose the matching attribute, so a11y and styling come from one source.
 

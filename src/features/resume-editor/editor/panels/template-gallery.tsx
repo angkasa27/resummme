@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { DocumentPreviewCard } from "@/features/resume-editor/editor/panels/document-preview-card";
+import { PresetSwatch } from "@/features/resume-editor/editor/panels/preset-swatch";
 import {
   Dialog,
   DialogClose,
@@ -18,13 +19,17 @@ import {
   applyTemplatePreset,
   applyTemplatePresetLayoutOnly,
   getActiveTemplatePresetId,
-  resumeTemplatePresets,
+  layoutLabel,
+  resumeTemplateLayouts,
   templateCategories,
   templateLabel,
   type ResumeTemplatePreset,
   type TemplateCategoryId,
 } from "@/features/resume-editor/domain/presentation/template-presets";
-import type { PdfPresentation } from "@/features/resume-editor/domain/presentation/pdf-presentation";
+import type {
+  PdfLayoutId,
+  PdfPresentation,
+} from "@/features/resume-editor/domain/presentation/pdf-presentation";
 import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
 import { cn } from "@/lib/utils";
 
@@ -59,16 +64,15 @@ export function TemplateGallery({
   const [pending, setPending] = useState<ResumeTemplatePreset | null>(null);
   const [filter, setFilter] = useState<FilterValue>("all");
 
-  // Sort by the card name, so the grid reads alphabetically and a chip only
-  // removes cards, never reshuffles the ones that stay.
-  const visiblePresets = useMemo(
+  // One card per layout, its presets as swatches. Sorted by layout name, so a
+  // chip only removes cards, never reshuffles the ones that stay.
+  const visibleLayouts = useMemo(
     () =>
-      resumeTemplatePresets
+      resumeTemplateLayouts
         .filter(
-          (preset) =>
-            filter === "all" || templateCategories(preset).includes(filter),
-        )
-        .sort((a, b) => templateLabel(a).localeCompare(templateLabel(b))),
+          ({ presets }) =>
+            filter === "all" || templateCategories(presets[0]).includes(filter),
+        ),
     [filter],
   );
 
@@ -133,13 +137,15 @@ export function TemplateGallery({
           )}
         >
           <div className="grid grid-cols-2 gap-4">
-            {visiblePresets.map((preset) => (
-              <TemplatePresetCard
-                key={preset.id}
+            {visibleLayouts.map(({ layoutId, presets }) => (
+              <TemplateLayoutCard
+                key={layoutId}
                 draft={snapshot}
                 basePresentation={basePresentation}
-                preset={preset}
-                selected={preset.id === activePresetId}
+                layoutId={layoutId}
+                presets={presets}
+                current={layoutId === presentation.layoutId}
+                activePresetId={activePresetId}
                 onApply={handleSelect}
               />
             ))}
@@ -199,37 +205,71 @@ export function TemplateGallery({
   );
 }
 
-type TemplatePresetCardProps = {
+type TemplateLayoutCardProps = {
   draft: ResumeDraft;
   basePresentation: PdfPresentation;
-  preset: ResumeTemplatePreset;
-  selected: boolean;
+  layoutId: PdfLayoutId;
+  presets: ReadonlyArray<ResumeTemplatePreset>;
+  /** The draft is on this layout, whether or not its style still matches a preset. */
+  current: boolean;
+  activePresetId: string | null;
   onApply: (preset: ResumeTemplatePreset) => void;
 };
 
-function TemplatePresetCard({
+function TemplateLayoutCard({
   draft,
   basePresentation,
-  preset,
-  selected,
+  layoutId,
+  presets,
+  current,
+  activePresetId,
   onApply,
-}: TemplatePresetCardProps) {
-  const cardPresentation = useMemo(
-    () => applyTemplatePreset(preset, basePresentation),
-    [preset, basePresentation],
-  );
-  const handleSelect = useCallback(() => onApply(preset), [onApply, preset]);
+}: TemplateLayoutCardProps) {
+  const [hovered, setHovered] = useState<number | null>(null);
+  const activeIndex = presets.findIndex((preset) => preset.id === activePresetId);
+  const restingIndex = Math.max(activeIndex, 0);
+  // Hovering a swatch previews it on the card; the card itself applies the resting preset.
+  const shown = presets[hovered ?? restingIndex];
 
-  const label = templateLabel(preset);
+  const cardPresentation = useMemo(
+    () => applyTemplatePreset(shown, basePresentation),
+    [shown, basePresentation],
+  );
+  const handleSelect = useCallback(
+    () => onApply(presets[restingIndex]),
+    [onApply, presets, restingIndex],
+  );
+
+  const name = layoutLabel(layoutId);
 
   return (
-    <DocumentPreviewCard
-      draft={draft}
-      presentation={cardPresentation}
-      label={label}
-      ariaLabel={`Use ${label} template`}
-      selected={selected}
-      onSelect={handleSelect}
-    />
+    <div className="flex min-w-0 flex-col gap-2">
+      <DocumentPreviewCard
+        draft={draft}
+        presentation={cardPresentation}
+        ariaLabel={`Use ${name} template`}
+        selected={current}
+        onSelect={handleSelect}
+      />
+      <div className="flex items-center justify-between gap-2">
+        <span className="min-w-0 truncate text-sm font-medium">{name}</span>
+        <div
+          role="group"
+          aria-label={`${name} styles`}
+          className="flex shrink-0 items-center gap-1.5"
+          onPointerLeave={() => setHovered(null)}
+        >
+          {presets.map((preset, index) => (
+            <PresetSwatch
+              key={preset.id}
+              preset={preset}
+              active={index === activeIndex}
+              onPreview={(on) => setHovered(on ? index : null)}
+              onApply={onApply}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }
