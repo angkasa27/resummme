@@ -144,10 +144,11 @@ Where a surface can be selected, hover sits one step *below* selected and is gua
 
 **Interaction state is attribute-driven.** State that has a semantic attribute (`aria-pressed`, `aria-invalid`, `aria-checked`, `data-active`, …) is styled off that attribute via a CSS selector — never a `cn(cond && "…")` branch. State with no semantic attribute (drag) exposes a `data-*` (`data-dragging`) and is styled off it. A control that shows a visual state **must** expose the matching attribute, so a11y and styling come from one source.
 
-**Three blessed exceptions**, each commented at its site — don't "fix" them:
+**Four blessed exceptions**, each commented at its site — don't "fix" them:
 
 - `sidebar-resize-handle.tsx` takes no focus ring. A 3px halo around a 1px full-height column reads as a rendering artifact, so the bar itself lights up primary instead.
 - `tabs.tsx`'s active pill stays a JS branch. It's a `motion.span` with a shared `layoutId`, and the branch is what drives the slide animation.
+- `preset-swatch.tsx` marks its selected preset with the check alone, no selection ring. It sits 8px under a template card that already carries the ring, and two offset rings meet in that gap.
 - react-colorful is styled in `globals.css`, not Tailwind — it's a third-party widget that ships its own CSS, so its pointer and tracks are retinted to the tokens there.
 
 ---

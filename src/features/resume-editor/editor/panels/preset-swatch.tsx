@@ -7,10 +7,7 @@ import {
   templateLabel,
   type ResumeTemplatePreset,
 } from "@/features/resume-editor/domain/presentation/template-presets";
-import {
-  FOCUS_RING_CLASS,
-  SELECTION_RING_CLASS,
-} from "@/features/resume-editor/forms/fields/field-control";
+import { FOCUS_RING_CLASS } from "@/features/resume-editor/forms/fields/field-control";
 import { cn } from "@/lib/utils";
 
 /** The colour-swatch recipe from `color-control.tsx`, caption-sized.
@@ -42,9 +39,9 @@ export function PresetSwatch({
         // bg-origin-border: sized to the padding box, the split gradient tiles under
         // the translucent border and rims the swatch in the opposite colour.
         "grid size-5 place-items-center rounded-sm border border-black/10 bg-origin-border transition-transform hover:scale-110 active:scale-105 pointer-coarse:size-6",
+        // No selection ring: the check marks the preset, and the card above
+        // already rings the selection — two offset rings collide in the gap.
         FOCUS_RING_CLASS,
-        SELECTION_RING_CLASS,
-        "aria-pressed:ring-primary",
       )}
       // Longhands, not `background`: the shorthand resets background-origin and
       // would override bg-origin-border from the inline style.
