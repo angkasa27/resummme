@@ -35,3 +35,7 @@ flow) · own `editorialItemViews` (they emit `.item-lead` and `.item-body`) · o
 `slots.summary` is lifted out of the normal flow into the band — that is the
 layout's whole idea, and it is why `hideSummaryHeading` is set. The band's tint
 paints, as does the item rule; both need both `print-color-adjust` properties.
+
+## ATS
+
+Rated `warn`. A tinted band header, then the summary as a large pull quote with no heading. Each item is a spread: title, employer and place wrap over several lines in a `0.42fr` left column while the bullets run in the right one. A parser reading line by line splices the title into the first bullets. The DOM order is fine; the geometry is the risk.

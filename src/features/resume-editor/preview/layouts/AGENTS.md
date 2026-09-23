@@ -191,6 +191,15 @@ entry: the page margin in `pdf-presentation.ts`, the parse verdict in
 built for a human reader is a `warn`, and a two-column layout is never `ats`,
 however plain it looks.
 
+Judge the parse verdict from the rendered page, not the code alone: anything
+multi-line set *beside* other text (a side column, two items on one row, a
+wrapped title beside its bullets) is read straight across by a parser. A short
+date or heading in a gutter is fine. Record the verdict and the reason in the
+README's `## ATS` section, opening `Rated \`pass|warn|fail\`.`, and describe what
+a parser meets on the page so an agent without the screenshot can re-judge it.
+`layout-registry.test.ts` fails when the README, the verdict, `getColumn` or the
+`ats` chip disagree.
+
 Then update `layout-registry.test.ts` (it asserts the exact id list) and add a
 `README.md` here. A layout whose content only reads in one language pins its own
 persona in `scripts/personas.ts` (`forLayoutIds`); the rest take their turn in
@@ -211,6 +220,7 @@ the round-robin `pnpm screenshots` uses.
 - [ ] `pnpm test` green (`render-snapshot`, `layout-registry`, `layout-theming`, `template-presets`).
 - [ ] Checked at every paper size and at the smallest and largest font scale.
 - [ ] `README.md` in the layout folder written or updated, with every preset's screenshot embedded in a `## Preview` table (relative path `../../../../../../public/templates/<preset-id>.webp`; regenerate with `pnpm screenshots`).
+- [ ] `## ATS` section in the README matches the verdict in `ats-score.ts`.
 
 ## Index
 

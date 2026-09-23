@@ -37,3 +37,7 @@ renamed section keeps its icon. The chip, the pills and the chips all paint —
 every one carries both `print-color-adjust` properties. `.chip-list` sets
 `list-style: none` explicitly: flex items still render their disc marker, and it
 lands after the pill.
+
+## ATS
+
+Rated `pass`. One column. Heading icons are decorative SVG, dates are outlined pills, skills are chips: all plain text underneath.

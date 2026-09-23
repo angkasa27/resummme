@@ -250,16 +250,8 @@ const LAYOUT_VERDICTS: Record<PdfLayoutId, LayoutVerdict> = {
   "bold-type": { status: "pass" },
   studio: { status: "pass" },
   aurora: { status: "pass" },
-  folio: {
-    status: "warn",
-    message:
-      "A single column with a photo header usually parses fine. Classic is safer if you expect a strict parser.",
-  },
-  academic: {
-    status: "warn",
-    message:
-      "Academic layouts usually parse fine. Classic is safer if you expect a strict parser.",
-  },
+  folio: { status: "pass" },
+  academic: { status: "pass" },
   split: {
     status: "fail",
     message:
@@ -286,7 +278,11 @@ const LAYOUT_VERDICTS: Record<PdfLayoutId, LayoutVerdict> = {
   meridian: { status: "pass" },
   numeral: { status: "pass" },
   lintel: { status: "pass" },
-  editorial: { status: "pass" },
+  editorial: {
+    status: "warn",
+    message:
+      "Each role's title sits in a column beside its bullets, so a parser reading line by line can splice the title into the first bullets. Use a single-column layout if you expect a strict parser.",
+  },
   harvard: { status: "pass" },
   rirekisho: {
     status: "warn",

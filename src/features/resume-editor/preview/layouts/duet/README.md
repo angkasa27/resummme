@@ -36,3 +36,7 @@ Own `Component` · **`splitItemViews`, imported from `../split/items`** ·
 structural difference from every other rail layout. Item views are borrowed from
 Split, so editing `split/items.tsx` changes this layout too. The band backgrounds
 and the column fill all paint; keep both `print-color-adjust` properties.
+
+## ATS
+
+Rated `fail`. Two near-even columns (`getColumn`). The left carries the header, contacts, the summary and the side sections; the right carries the history. The summary itself is in the side column.

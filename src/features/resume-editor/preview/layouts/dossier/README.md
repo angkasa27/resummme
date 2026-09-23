@@ -35,3 +35,7 @@ The **main column is first in the DOM** as well as on screen — a screen reader
 should hear the work history before the phone number. If you restructure, keep
 that order. The rail's fill paints; both `print-color-adjust` properties are
 required.
+
+## ATS
+
+Rated `fail`. The mirror of Split: a painted rail on the right (details, links, skills, certifications, languages, references) beside the history (`getColumn`).

@@ -84,5 +84,12 @@ through it. The band and the 本人希望記入欄 box carry `data-page-unit` so
 paginator moves them whole — without it a page break lands between a caption and
 the prose under it. Every box sets the
 `print-color-adjust` pair — the borders are painted, and without it the exported
-PDF comes out blank. The ATS verdict is a deliberate `warn`: a 履歴書 is read by
-a person, and saying otherwise would be a lie about the format.
+PDF comes out blank.
+
+## ATS
+
+Rated `warn`, deliberately: a 履歴書 is read by a person, and saying otherwise
+would be a lie about the format. The whole page is ruled tables. The score's
+Western checks (experience above education, bullets, action verbs) read the
+draft, not this page. The form always prints 学歴 above 職歴, whatever order the
+draft holds.

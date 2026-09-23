@@ -59,3 +59,7 @@ keeps its heading like every other ruled section.
 - **`.name-block` is a column by default.** The shared rule stacks the name and
   role; this layout sets `flex-direction: row` explicitly to put them on one
   line.
+
+## ATS
+
+Rated `pass`. A solid accent frame round each sheet, and inside it a plain single column. The only side-by-side content is the two-column contact grid in the header, where every cell is one short field. The photo is scored separately by `parse/photo`, not here.

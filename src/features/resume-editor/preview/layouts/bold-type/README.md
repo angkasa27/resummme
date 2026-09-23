@@ -34,3 +34,7 @@ Both marker bands are `box-shadow: inset`, not a background — that's what keep
 them tight to the text rather than filling the block. They paint, so both
 `print-color-adjust` properties are required. The name's band is deliberately
 thinner (`0.18em` vs `0.35em`) because it sits on much larger type.
+
+## ATS
+
+Rated `pass`. One column. The highlighter bands under the name and headings are inset box-shadows, not glyphs, so they add nothing to the extracted text.

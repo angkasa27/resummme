@@ -35,3 +35,7 @@ Own `Component` · `splitItemViews` · `getColumn: getSideRailColumn` (shared wi
 The rail's background paints, so it carries both `print-color-adjust` properties —
 without them the PDF exports a white rail with white text. `duet` imports
 `splitItemViews`, so a change to those item views changes two layouts.
+
+## ATS
+
+Rated `fail`. A full-height rail on the left (photo, contacts, skills, certifications, languages) beside the main column (`getColumn`). A parser reading across mixes the rail into the history.

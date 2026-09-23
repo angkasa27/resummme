@@ -38,3 +38,7 @@ reflow the entire tiling. Known limit — a row taller than a page still spills 
 the next page's margin band; fixing it means paginating the wide cell's two
 columns as separate flows. The counter discs paint; keep both
 `print-color-adjust` properties.
+
+## ATS
+
+Rated `fail`. Sections tile across three tracks, and a wide cell runs its own items two-up, so two roles sit side by side on one row. Worse than a rail.

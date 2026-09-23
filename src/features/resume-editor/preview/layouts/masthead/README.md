@@ -38,3 +38,7 @@ Own `Component` (it renders the "Details" block before the summary) ·
 column, and without it every badge becomes a full-width bar. The plate, the photo
 and every badge paint; all need both `print-color-adjust` properties. Test the
 no-photo case: the plate must span both tracks.
+
+## ATS
+
+Rated `pass`. A square photo beside an accent name plate across the top, then one column with filled-badge headings. The name is light type on the plate (same caveat as Crest). Dates render uppercase through CSS.

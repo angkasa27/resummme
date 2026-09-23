@@ -33,3 +33,7 @@ down the whole page like a spine.
 `.section` and `.item-list` are both `gap: 0` on purpose — the vertical rhythm
 comes from each item's own `padding-bottom`. Reintroducing a gap breaks the rail
 into dashes. The dot paints, so it needs both `print-color-adjust` properties.
+
+## ATS
+
+Rated `pass`. Each item is a 128px date column beside its content. The date is one short line, so reading across gives "date, title". The rail and the dots are borders, not text.

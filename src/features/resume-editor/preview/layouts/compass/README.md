@@ -35,3 +35,7 @@ The rail heading size is *deliberately* the same as the main column's: at
 `--resume-h3` it matched the item titles beneath it and the rail read as one flat
 list. A wrapping name pushes both columns down a whole line — that's accepted;
 cropping the name is worse.
+
+## ATS
+
+Rated `fail`. A main column with icon headings beside a narrow unpainted rail on the right holding details, links and the short sections (`getColumn`).

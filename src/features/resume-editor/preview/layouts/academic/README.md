@@ -36,3 +36,7 @@ The stylesheet deliberately **does not set `--resume-font`.** Pinning a serif he
 would override the user's font choice in the Style tab. The serif is the
 *preset's* job — see the academic presets in `template-presets.ts`. Don't "fix"
 this by adding a `font-family`.
+
+## ATS
+
+Rated `pass`. One column. Centred header, small-caps headings over hairlines, bodies indented under them. The indent and small caps are styling only; the text order is the same as Harvard's.
