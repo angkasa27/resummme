@@ -1,11 +1,11 @@
 import { useMemo, useState } from "react";
-import { useFieldArray, useForm, useWatch } from "react-hook-form";
+import { useFieldArray, useForm, useWatch, type Resolver } from "react-hook-form";
 
 import { collectionSectionConfigs } from "@/features/resume-editor/domain/sections/collection-section-config";
 import type { CollectionSectionKey } from "@/features/resume-editor/domain/sections/section-metadata";
 import { normalizeCollectionItem } from "@/features/resume-editor/domain/sections/normalize-collection-item";
 import { collectionSectionFormSchemaMap } from "@/features/resume-editor/forms/collection-section-form-schema-map";
-import { createFormSchemaResolver } from "@/features/resume-editor/forms/schemas/create-form-schema-resolver";
+import { zodResolver } from "@hookform/resolvers/zod";
 import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
 
 type CollectionItemsFormValues = {
@@ -68,9 +68,7 @@ export function useCollectionItemsForm(
   );
 
   const form = useForm<CollectionItemsFormValues>({
-    resolver: createFormSchemaResolver<CollectionItemsFormValues>(
-      collectionSectionFormSchemaMap[sectionKey],
-    ),
+    resolver: zodResolver(collectionSectionFormSchemaMap[sectionKey]) as Resolver<CollectionItemsFormValues>,
     defaultValues: formValues,
     mode: "onBlur",
     reValidateMode: "onChange",
