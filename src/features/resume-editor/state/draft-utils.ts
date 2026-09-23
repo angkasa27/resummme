@@ -2,10 +2,6 @@ import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
 
 type ResumeSectionKey = keyof ResumeDraft["sections"];
 
-export function cloneDraft<T>(value: T): T {
-  return structuredClone(value);
-}
-
 export function getOrderedSectionEntries(sections: ResumeDraft["sections"]) {
   return Object.entries(sections).sort(
     (left, right) => left[1].order - right[1].order
@@ -16,7 +12,7 @@ function normalizeSectionOrder(
   sections: ResumeDraft["sections"],
   orderedEntries: Array<[ResumeSectionKey, ResumeDraft["sections"][ResumeSectionKey]]>
 ) {
-  const nextSections = cloneDraft(sections);
+  const nextSections = { ...sections };
   const mutableSections = nextSections as Record<
     ResumeSectionKey,
     ResumeDraft["sections"][ResumeSectionKey]

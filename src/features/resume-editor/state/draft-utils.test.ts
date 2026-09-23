@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 
 import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
 import {
-  cloneDraft,
   getOrderedSectionEntries,
   moveSectionToAnchor,
   reorderSections,
@@ -49,16 +48,6 @@ function makeSections(
 function orderedKeys(sections: ResumeDraft["sections"]): ResumeSectionKey[] {
   return getOrderedSectionEntries(sections).map(([key]) => key);
 }
-
-describe("cloneDraft", () => {
-  it("produces a deep copy that does not share references", () => {
-    const original = makeSections({});
-    const cloned = cloneDraft(original);
-    cloned.summary = { ...cloned.summary, order: 99 };
-
-    expect(original.summary.order).toBe(100);
-  });
-});
 
 describe("getOrderedSectionEntries", () => {
   it("returns entries sorted by their order field", () => {
@@ -111,6 +100,21 @@ describe("reorderSections", () => {
     expect(keys[0]).toBe("workExperience");
     expect(keys[1]).toBe("education");
     expect(keys[keys.length - 1]).toBe("summary");
+  });
+
+  // The store detects changes by reference; mutating the input would skip the re-render and the save.
+  it("returns new sections and leaves the input untouched", () => {
+    const sections = makeSections({
+      summary: { order: 0 },
+      workExperience: { order: 1 },
+    });
+    const before = structuredClone(sections);
+
+    const result = reorderSections(sections, "summary", { ...sections.summary, order: 1 });
+
+    expect(result).not.toBe(sections);
+    expect(result.workExperience).not.toBe(sections.workExperience);
+    expect(sections).toEqual(before);
   });
 });
 
