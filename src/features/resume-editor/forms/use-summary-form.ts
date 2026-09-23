@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { useForm } from "react-hook-form";
 
 import { summaryContentSchema } from "@/features/resume-editor/domain/schema";
-import { createFormSchemaResolver } from "@/features/resume-editor/forms/schemas/create-form-schema-resolver";
+import { zodResolver } from "@hookform/resolvers/zod";
 import type { ResumeDraft } from "@/features/resume-editor/domain/schema";
 
 type SummaryFormValues = {
@@ -22,7 +22,7 @@ export function useSummaryForm(draft: ResumeDraft) {
     [sectionValue.content],
   );
   const form = useForm<SummaryFormValues>({
-    resolver: createFormSchemaResolver<SummaryFormValues>(summaryContentSchema),
+    resolver: zodResolver(summaryContentSchema),
     defaultValues: formValues,
     mode: "onBlur",
     reValidateMode: "onChange",

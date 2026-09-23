@@ -5,7 +5,7 @@ import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { toast } from "@/components/ui/toast";
 
 import { createLocalId } from "@/features/resume-editor/domain/create-local-id";
-import { createFormSchemaResolver } from "@/features/resume-editor/forms/schemas/create-form-schema-resolver";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { profileFormSchema } from "@/features/resume-editor/forms/schemas/profile-form-schema";
 import { loadImageFile, ProfilePhotoError } from "@/lib/image-to-data-url";
 import type { Profile, ResumeDraft } from "@/features/resume-editor/domain/schema";
@@ -21,7 +21,7 @@ const CLOSED_CROP: CropState = { open: false, imageUrl: null, image: null };
 /** Owns all profile-form state shared between the classic and canvas editors; each editor supplies its own shell + save lifecycle (auto-save vs submit). */
 export function useProfileForm(draft: ResumeDraft) {
   const form = useForm<Profile>({
-    resolver: createFormSchemaResolver<Profile>(profileFormSchema),
+    resolver: zodResolver(profileFormSchema),
     defaultValues: draft.profile,
     mode: "onBlur",
     reValidateMode: "onChange",

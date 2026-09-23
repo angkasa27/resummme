@@ -18,9 +18,13 @@ import {
 } from "@/features/resume-editor/forms/schemas/collection-form-item-schemas";
 import { createCollectionSectionFormSchema } from "@/features/resume-editor/forms/schemas/create-collection-section-form-schema";
 
-type CollectionSectionFormSchema<K extends CollectionSectionKey> = z.ZodType<{
+type CollectionSectionFormValues<K extends CollectionSectionKey> = {
   items: ResumeDraft["sections"][K]["items"];
-}>;
+};
+type CollectionSectionFormSchema<K extends CollectionSectionKey> = z.ZodType<
+  CollectionSectionFormValues<K>,
+  CollectionSectionFormValues<K>
+>;
 
 export const collectionSectionFormSchemaMap: {
   [K in CollectionSectionKey]: CollectionSectionFormSchema<K>;
