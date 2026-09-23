@@ -37,3 +37,7 @@ The numbering is a **CSS counter, not data** — document order is the order, so
 is always right, and the layout never has to rebuild a section node. If you wrap
 sections in an extra element, check the counter still increments. The mark and the
 counter paint; keep both `print-color-adjust` properties.
+
+## ATS
+
+Rated `pass`. Items run on three tracks: date left, title and bullets middle, place right. Each side cell is one short line, so reading across gives "date, title, place". The `01` / `02` numbers print as text in front of the heading.

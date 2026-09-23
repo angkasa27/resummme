@@ -47,3 +47,7 @@ section.
   baseline.
 - **Every item keeps the two-track grid**, skills and languages included: an
   item view with foreign DOM drops its children into the date gutter.
+
+## ATS
+
+Rated `pass`. Headings are centred on a pale tinted band. Items hang off a 150px gutter holding the date with the place under it: two short lines beside the title and first bullet. Skills are a three-across list; row order does not matter for keyword matching.

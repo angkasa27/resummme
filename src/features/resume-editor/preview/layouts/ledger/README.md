@@ -35,3 +35,7 @@ The rail is a third of the page, so `.layout-side .item-header` stacks — the
 title/place split that reads well in the main column squeezes an issuer name into
 two words per line there. The `::after` accent rule paints; keep both
 `print-color-adjust` properties.
+
+## ATS
+
+Rated `fail`. Monochrome, but a `0.34fr` details column sits left of the history behind a hairline spine (`getColumn`). Plain is not the same as single-column.

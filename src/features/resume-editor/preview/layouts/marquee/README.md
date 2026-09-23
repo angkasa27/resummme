@@ -40,3 +40,7 @@ it; all three presets curate one.
 `renderIconSectionHeading` (shared with studio and compass) · `marqueeItemViews`
 = `defaultItemViews` plus work / education / certifications / languages ·
 `renderSection` override for the flattened skills grid.
+
+## ATS
+
+Rated `pass`. A dark band header with the name and contacts, then one column. Heading glyphs are SVG. Skills flatten to a three-across grid of terms and the group names do not print.

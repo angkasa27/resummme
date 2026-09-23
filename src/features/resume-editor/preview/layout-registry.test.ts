@@ -1,6 +1,18 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
 import { describe, expect, it } from "vitest";
 
-import { pdfLayoutIds } from "@/features/resume-editor/domain/presentation/pdf-presentation";
+import { createDefaultResumeDraft } from "@/features/resume-editor/domain/draft/create-default-resume-draft";
+import { computeAtsScore } from "@/features/resume-editor/domain/insights/ats-score";
+import {
+  pdfLayoutIds,
+  type PdfLayoutId,
+} from "@/features/resume-editor/domain/presentation/pdf-presentation";
+import {
+  resumeTemplatePresets,
+  templateCategories,
+} from "@/features/resume-editor/domain/presentation/template-presets";
 import {
   getLayout,
   previewLayoutDefinitions,
@@ -71,5 +83,45 @@ describe("preview layout registry", () => {
       "rirekisho",
       "split",
     ]);
+  });
+});
+
+function layoutVerdict(id: PdfLayoutId) {
+  const draft = createDefaultResumeDraft();
+  draft.pdfPresentation.layoutId = id;
+  const severity = computeAtsScore(draft).suggestions.find(
+    (s) => s.id === "parse/layout",
+  )?.severity;
+  return severity === "ok" ? "pass" : severity;
+}
+
+// The ATS verdict, the gallery chip and the README are three hand-kept claims
+// about one page; these keep them from drifting apart as layouts change.
+describe("layout ATS verdict", () => {
+  it("fails every layout that partitions sections into a side column", () => {
+    for (const id of pdfLayoutIds) {
+      if (getLayout(id).getColumn) {
+        expect(layoutVerdict(id), id).toBe("fail");
+      }
+    }
+  });
+
+  it("passes every layout the gallery files under the ATS chip", () => {
+    for (const preset of resumeTemplatePresets) {
+      if (templateCategories(preset).includes("ats")) {
+        expect(layoutVerdict(preset.layoutId), preset.id).toBe("pass");
+      }
+    }
+  });
+
+  it("states the same verdict in each layout's README", () => {
+    for (const id of pdfLayoutIds) {
+      const readme = readFileSync(
+        join(process.cwd(), "src/features/resume-editor/preview/layouts", id, "README.md"),
+        "utf8",
+      );
+      const stated = readme.match(/^## ATS\s+Rated `(pass|warn|fail)`/m)?.[1];
+      expect(stated, `${id}/README.md ## ATS`).toBe(layoutVerdict(id));
+    }
   });
 });

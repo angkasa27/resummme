@@ -50,3 +50,7 @@ resolved into the shared `--resume-*` set, because exactly one layout wants it.
   black above 0.55 luminance, and this layout has only that one foreground — a
   pale accent gives you near-black type on a pastel field, which is a different
   design. The three presets are all deep on purpose.
+
+## ATS
+
+Rated `warn`. The text order is fine: a 150px label rail beside the body, as in Inset. The warn is for colour. The whole page is one saturated fill behind light type, which pipelines that flatten to greyscale, and mono printers, ruin.

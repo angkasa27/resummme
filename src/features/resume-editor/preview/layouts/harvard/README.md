@@ -37,3 +37,7 @@ gallery. Do not add an accent fill, a badge, a counter, or a second type size; a
 of those turns it into a different layout. `--resume-accent` is intentionally
 unused. Bullet indent is a fixed `1.6em`, matching the printed format rather than
 `--resume-indent`.
+
+## ATS
+
+Rated `pass`. One column, no colour. Centred header, contacts on one dotted line, then every item as title/place line, role/date line, bullets — the page order is the reading order.

@@ -36,3 +36,7 @@ The band sets `--resume-name-color` to on-accent rather than colouring `.name`
 directly — a direct override would only tie with the shared rule on specificity.
 The band, the photo ring and the divider all paint; keep both
 `print-color-adjust` properties on each.
+
+## ATS
+
+Rated `pass`. A single column under a dark full-width band carrying the photo, name and a contact grid. The text order is fine. The contacts are light type on the dark band, the same greyscale risk that makes Monolith a `warn`; it is confined to the header here and not counted.

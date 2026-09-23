@@ -34,3 +34,7 @@ This is the ATS-safe reference. If you are tempted to add a fill, a badge, or a
 counter here, you probably want a different layout — the gallery has eighteen
 others. Changes here also ripple: `classic-modern` is the stock default preset,
 so a regression shows up on a fresh resume before anything else.
+
+## ATS
+
+Rated `pass`. One column, top to bottom: photo-left header, the summary (no heading — `hideSummaryHeading`), then ruled uppercase sections. Nothing sits beside anything else. This is the reference for what `pass` means.

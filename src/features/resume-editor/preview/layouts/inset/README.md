@@ -35,3 +35,7 @@ title and meta were atomic, so a long meta moved as a unit and the line broke
 *before* the separator. The separator binds to its neighbour with a no-break space
 in `items.tsx`. Both grids declare their columns explicitly so a photo-less resume
 keeps the alignment.
+
+## ATS
+
+Rated `pass`. Headings sit in a 110px label rail left of their body. A heading is one or two words and lands level with the body's first line, so reading across gives "heading, first line". Skills merge into one line joined by " · ".

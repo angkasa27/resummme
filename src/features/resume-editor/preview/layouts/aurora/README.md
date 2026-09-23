@@ -38,3 +38,7 @@ the band degrades to a single-hue wash rather than breaking. Everything in the
 band paints; both `print-color-adjust` properties are on the band, the photo ring
 and the pills. Because the layout is full-bleed, the body re-adds
 `--resume-page-margin` itself.
+
+## ATS
+
+Rated `pass`. The gradient wash is background only. Headings sit in a 128px left track beside the body, as in Inset. Links are outlined pills but still plain text.

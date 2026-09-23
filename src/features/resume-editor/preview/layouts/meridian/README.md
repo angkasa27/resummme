@@ -39,3 +39,7 @@ a grey band across the rail.
 `meridianItemViews` = `defaultItemViews` plus work / education / skills /
 certifications / languages · no `renderSection` override — the two inline
 sections and the skills grid are all CSS.
+
+## ATS
+
+Rated `pass`. The gradient rail down the left edge carries no text. Everything else is a plain black-on-white single column.
