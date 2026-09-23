@@ -5,57 +5,68 @@
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
   body {
-    width:1200px; height:630px; overflow:hidden;
+    width:1200px; height:630px; overflow:hidden; position:relative;
     font-family: -apple-system, "Inter", "Helvetica Neue", Arial, sans-serif;
     background:#fafafa;
-    position:relative;
+  }
+  /* Same dot grid as the editor canvas, so the pages sit on "the workspace". */
+  .grid {
+    position:absolute; inset:0 0 0 520px;
+    background-image: radial-gradient(circle, rgba(30,27,46,0.13) 1px, transparent 1px);
+    background-size: 20px 20px;
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 25%);
+            mask-image: linear-gradient(to right, transparent, #000 25%);
+  }
+  .glow {
+    position:absolute; width:620px; height:620px; right:40px; top:60px;
+    background: radial-gradient(circle, rgba(139,92,246,0.16), transparent 65%);
   }
 
   .left {
-    position:relative; z-index:1;
-    height:100%; max-width:440px;
-    display:flex; flex-direction:column; justify-content:center;
-    padding-left:64px;
+    position:relative; z-index:2; height:100%; width:560px;
+    display:flex; flex-direction:column; justify-content:center; padding-left:64px;
   }
-
-  /* Matches the real navbar wordmark: italic gradient text, no icon. */
   .logo {
-    font-size:26px; font-weight:700; font-style:italic;
+    font-size:38px; font-weight:700; font-style:italic;
     background: linear-gradient(to right, #8b5cf6, #4f46e5);
-    -webkit-background-clip: text; background-clip: text; color: transparent;
-    margin-bottom:34px; padding-right:4px;
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    margin-bottom:28px; padding-right:6px; align-self:flex-start;
   }
-
   h1 {
-    font-size:34px; line-height:1.25; font-weight:800; color:#1e1b2e;
-    letter-spacing:-0.02em; margin-bottom:18px; white-space:nowrap;
+    font-size:72px; line-height:1.02; font-weight:800; color:#1e1b2e;
+    letter-spacing:-0.04em; margin-bottom:26px;
   }
-  h1 .accent { color:#6d28d9; }
-  p.tag {
-    font-size:18px; line-height:1.55; color:#57596b; font-weight:450; max-width:380px;
+  h1 .accent {
+    background: linear-gradient(to right, #8b5cf6, #4f46e5);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
   }
+  .tag { font-size:26px; line-height:1.35; color:#57596b; font-weight:500; max-width:420px; }
 
-  /* Full editor screenshot, bottom-right, bleeding past the right/bottom edges.
-     Only the top-left corner is rounded — the rest is clipped by the canvas. */
-  .shot {
-    position:absolute; right:-164px; bottom:-30px;
-    width:912px; height:570px;
-    border-radius:16px 0 0 0;
-    box-shadow: -20px -20px 60px -20px rgba(30,20,60,0.25);
-    background-image: url("../public/builder.webp");
-    background-size: 912px auto;
-    background-position: top left;
-    background-repeat: no-repeat;
+  .page {
+    position:absolute; width:480px; aspect-ratio: 1588 / 2246;
+    background-size:cover; background-position:top center;
+    border-radius:6px;
+    box-shadow: 0 1px 2px rgba(30,20,60,0.08), 0 24px 48px -12px rgba(30,20,60,0.28);
   }
+  .back-left  { left:615px; top:175px; transform: rotate(-9deg); background-image:url("../public/templates/split-midnight.webp"); }
+  .back-right { left:950px; top:150px; transform: rotate(9deg);  background-image:url("../public/templates/folio-claret.webp"); }
+  .front      { left:705px; top:60px;  width:450px; z-index:1;
+                background-image:url("../public/templates/aurora-peach.webp");
+                box-shadow: 0 1px 2px rgba(30,20,60,0.1), 0 32px 64px -12px rgba(30,20,60,0.4); }
 </style>
 </head>
 <body>
+  <div class="grid"></div>
+  <div class="glow"></div>
+
   <div class="left">
     <div class="logo">Resummme</div>
-    <h1>The resume editor<br>that <span class="accent">just works.</span></h1>
-    <p class="tag">Write once, preview instantly, export to PDF - no account required.</p>
+    <h1>One resume.<br>Every <span class="accent">look.</span></h1>
+    <p class="tag">Write once, pick a template, export to PDF. Free, no account.</p>
   </div>
 
-  <div class="shot"></div>
+  <div class="page back-left"></div>
+  <div class="page back-right"></div>
+  <div class="page front"></div>
 </body>
 </html>

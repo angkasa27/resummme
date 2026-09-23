@@ -9,7 +9,7 @@ const outPath = path.join(__dirname, "..", "public", "og-image.png");
 const browser = await puppeteer.launch();
 const page = await browser.newPage();
 await page.setViewport({ width: 1200, height: 630, deviceScaleFactor: 2 });
-await page.goto(`file://${htmlPath}`);
+await page.goto(`file://${htmlPath}`, { waitUntil: "networkidle0" });
 await page.screenshot({ path: outPath });
 await browser.close();
 
